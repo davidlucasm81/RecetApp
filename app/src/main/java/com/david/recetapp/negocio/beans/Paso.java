@@ -5,7 +5,8 @@ import java.io.Serializable;
 public class Paso implements Serializable {
     private String tiempo;
     private String paso;
-    public Paso(String paso, String tiempo){
+
+    public Paso(String paso, String tiempo) {
         this.paso = paso;
         this.tiempo = tiempo;
     }

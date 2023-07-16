@@ -80,9 +80,9 @@ public class AddRecetasActivity extends AppCompatActivity {
                 agregarIngrediente(nombreIngrediente, cantidadNumerica);
                 editTextNombreIngrediente.setText("");
                 editTextCantidad.setText("1");
-                Toast.makeText(AddRecetasActivity.this, "Ingrediente añadido", Toast.LENGTH_SHORT).show();
+                Toast.makeText(AddRecetasActivity.this, this.getString(R.string.ingrediente_aniadido), Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(AddRecetasActivity.this, "Por favor, ingresa el nombre del ingrediente y la cantidad", Toast.LENGTH_SHORT).show();
+                Toast.makeText(AddRecetasActivity.this, this.getString(R.string.ingrediente_no_aniadido), Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -108,8 +108,9 @@ public class AddRecetasActivity extends AppCompatActivity {
                 editTextHoras.setText("0");
                 editTextMinutos.setText("0");
                 mostrarPasos();
+                Toast.makeText(AddRecetasActivity.this, this.getString(R.string.paso_aniadido), Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(AddRecetasActivity.this, "Ingresa el texto del paso", Toast.LENGTH_SHORT).show();
+                Toast.makeText(AddRecetasActivity.this, this.getString(R.string.paso_no_aniadido), Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -148,9 +149,9 @@ public class AddRecetasActivity extends AppCompatActivity {
             guardarListaRecetas(listaRecetas);
 
             // Crear un Intent para volver a la pantalla inicial
-            Toast.makeText(AddRecetasActivity.this, "Receta creada", Toast.LENGTH_SHORT).show();
+            Toast.makeText(AddRecetasActivity.this, this.getString(R.string.receta_creada), Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(AddRecetasActivity.this, MainActivity.class);
-            intent.putExtra("aviso_receta_creada", "Receta creada con éxito");
+            intent.putExtra("aviso_receta_creada", this.getString(R.string.receta_creada));
 
             // Iniciar la actividad y pasar el Intent
             startActivity(intent);
@@ -182,7 +183,7 @@ public class AddRecetasActivity extends AppCompatActivity {
             btnEliminar.setOnClickListener(v -> {
                 ingredientes.remove(ingrediente);
                 mostrarIngredientes();
-                Toast.makeText(AddRecetasActivity.this, "Ingrediente eliminado", Toast.LENGTH_SHORT).show();
+                Toast.makeText(AddRecetasActivity.this, this.getString(R.string.ingrediente_eliminado), Toast.LENGTH_SHORT).show();
             });
 
             linearLayoutIngredientes.addView(ingredienteView);
@@ -210,7 +211,7 @@ public class AddRecetasActivity extends AppCompatActivity {
                 btnEliminarPaso.setOnClickListener(v -> {
                     pasos.remove(paso);
                     mostrarPasos();
-                    Toast.makeText(AddRecetasActivity.this, "Paso eliminado", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AddRecetasActivity.this, this.getString(R.string.paso_eliminado), Toast.LENGTH_SHORT).show();
                 });
             }
 

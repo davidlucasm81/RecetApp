@@ -8,7 +8,6 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -55,19 +54,21 @@ public class Calendario implements Serializable {
 
         // Reiniciar la lista de recetas
         listaRecetas.clear();
+        if (diaActual != Calendar.SUNDAY) {
+            // Recorrer los días de la semana y agregar dos recetas para cada día
+            for (int i = diaActual; i <= Calendar.SATURDAY; i++) {
+                calendar.set(Calendar.DAY_OF_WEEK, i);
 
-        // Recorrer los días de la semana y agregar dos recetas para cada día
-        for (int i = diaActual; i <= Calendar.SATURDAY; i++) {
-            calendar.set(Calendar.DAY_OF_WEEK, i);
+                // Crear un objeto DiaRecetas con la fecha y las recetas correspondientes
+                DiaRecetas diaRecetas = new DiaRecetas(calendar.getTime());
+                diaRecetas.addReceta(obtenerReceta());
+                diaRecetas.addReceta(obtenerReceta());
 
-            // Crear un objeto DiaRecetas con la fecha y las recetas correspondientes
-            DiaRecetas diaRecetas = new DiaRecetas(calendar.getTime());
-            diaRecetas.addReceta(obtenerReceta());
-            diaRecetas.addReceta(obtenerReceta());
-
-            // Agregar el objeto DiaRecetas a la lista
-            listaRecetas.add(diaRecetas);
+                // Agregar el objeto DiaRecetas a la lista
+                listaRecetas.add(diaRecetas);
+            }
         }
+
         // Domingo da igual que dia de la semana es que al ser el ultimo día hay que meterlo:
         calendar.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
 
@@ -124,9 +125,9 @@ public class Calendario implements Serializable {
     public Receta obtenerReceta() {
         // Obtener la primera receta de la cola
         Receta receta = colaRecetas.poll();
-
-        // Agregar la receta al final de la cola
-        colaRecetas.offer(receta);
+        if (receta != null)
+            // Agregar la receta al final de la cola
+            colaRecetas.offer(receta);
 
         return receta;
     }

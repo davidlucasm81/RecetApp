@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">RecetApp</string>
+    <string name="app_name" translatable="false">RecetApp</string>
     <string name="add_recipe">Añadir receta</string>
     <string name="Boton2">Calendario Semanal de Recetas</string>
     <string name="Boton1">Añadir Recetas</string>
@@ -9,4 +9,44 @@
     <string name="Boton_Ingrediente_Add_Receta">Ingresa un ingrediente</string>
     <string name="Aniadir">Añadir</string>
     <string name="Boton_Paso_Add_Receta">Ingresa un paso</string>
+    <string name="temporadas">Temporadas</string>
+    <string name="ingredientes">Ingredientes</string>
+    <string name="pasos">Pasos</string>
+    <string name="recetas_del_d_a">Recetas del día</string>
+    <string name="x" translatable="false">X</string>
+    <string name="x_con_espacio" translatable="false">"X "</string>
+    <string name="eliminar">Eliminar</string>
+    <string name="recetas">Recetas</string>
+    <string name="ver_recetas">Ver Recetas</string>
+    <string name="inicial_domingo">Domingo</string>
+    <string name="incial_sabado">Sabado</string>
+    <string name="inicial_viernes">Viernes</string>
+    <string name="inicial_jueves">Jueves</string>
+    <string name="inicial_miercoles">Miercoles</string>
+    <string name="inicial_martes">Martes</string>
+    <string name="inicial_lunes">Lunes</string>
+    <string name="calendario_semanal">Calendario Semanal</string>
+    <string name="nombre">Nombre</string>
+    <string name="temporada">Temporada</string>
+    <string name="invierno">Invierno</string>
+    <string name="verano">Verano</string>
+    <string name="otonio">Otoño</string>
+    <string name="primavera">Primavera</string>
+    <string name="nombre_del_ingrediente">Nombre del ingrediente</string>
+    <string name="agregar_ingrediente">Agregar Ingrediente</string>
+    <string name="texto_del_paso">Descripción del paso</string>
+    <string name="tiempo">Tiempo</string>
+    <string name="agregar_paso">Agregar Paso</string>
+    <string name="no_hay_recetas">No hay recetas</string>
+    <string name="confirmacion">Confirmacion</string>"
+    <string name="alerta_eliminar">¿Está seguro de que desea eliminar la receta?</string>
+    <string name="aceptar">Aceptar</string>
+    <string name="cancelar">Cancelar</string>
+    <string name="ingrediente_aniadido">Ingrediente añadido</string>
+    <string name="ingrediente_no_aniadido">Por favor, ingresa el nombre del ingrediente y la cantidad</string>
+    <string name="paso_aniadido">Paso añadido</string>
+    <string name="paso_no_aniadido">Por favor, ingresa el texto del paso y el tiempo</string>
+    <string name="receta_creada">Receta creada</string>
+    <string name="ingrediente_eliminado">Ingrediente eliminado</string>
+    <string name="paso_eliminado">Paso eliminado</string>
 </resources>

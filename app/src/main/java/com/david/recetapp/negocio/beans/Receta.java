@@ -11,7 +11,7 @@ public class Receta implements Serializable {
     private List<Ingrediente> ingredientes;
     private List<Paso> pasos;
 
-    public Receta(){
+    public Receta() {
         this.nombre = "";
         this.temporadas = new ArrayList<>();
         this.ingredientes = new ArrayList<>();

@@ -25,8 +25,6 @@ import java.util.List;
 public class VerRecetasActivity extends AppCompatActivity {
 
     private ExpandableListView expandableListView;
-    private RecetaExpandableListAdapter expandableListAdapter;
-    private List<Receta> listaRecetas;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,22 +33,28 @@ public class VerRecetasActivity extends AppCompatActivity {
 
         expandableListView = findViewById(R.id.expandableListView);
 
-        listaRecetas = cargarListaRecetas();
+        List<Receta> listaRecetas = cargarListaRecetas();
 
-        expandableListAdapter = new RecetaExpandableListAdapter(this, listaRecetas, expandableListView);
+        TextView textViewEmpty = findViewById(R.id.textViewEmpty);
+
+        if (listaRecetas.isEmpty()) {
+            textViewEmpty.setVisibility(View.VISIBLE); // Muestra el TextView si la lista está vacía
+        } else {
+            textViewEmpty.setVisibility(View.GONE); // Oculta el TextView si la lista no está vacía
+        }
+
+        RecetaExpandableListAdapter expandableListAdapter = new RecetaExpandableListAdapter(this, listaRecetas, expandableListView);
         expandableListView.setAdapter(expandableListAdapter);
 
-        expandableListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
-            @Override
-            public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
-                if (expandableListView.isGroupExpanded(groupPosition)) {
-                    expandableListView.collapseGroup(groupPosition);
-                } else {
-                    expandableListView.expandGroup(groupPosition);
-                }
-                return true;
+        expandableListView.setOnGroupClickListener((parent, v, groupPosition, id) -> {
+            if (expandableListView.isGroupExpanded(groupPosition)) {
+                expandableListView.collapseGroup(groupPosition);
+            } else {
+                expandableListView.expandGroup(groupPosition);
             }
+            return true;
         });
+
     }
 
     private List<Receta> cargarListaRecetas() {

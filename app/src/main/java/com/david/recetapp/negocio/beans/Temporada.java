@@ -1,21 +1,25 @@
 package com.david.recetapp.negocio.beans;
 
+import android.content.Context;
+
+import com.david.recetapp.R;
+
 import java.io.Serializable;
 
 public enum Temporada implements Serializable {
 
-    PRIMAVERA("Primavera"),
-    VERANO("Verano"),
-    OTONIO("Otoño"),
-    INVIERNO("Invierno");
+    PRIMAVERA(R.string.primavera),
+    VERANO(R.string.verano),
+    OTONIO(R.string.otonio),
+    INVIERNO(R.string.invierno);
 
-    private final String nombre;
+    private final int nombre;
 
-    Temporada(String nombre){
+    Temporada(int nombre) {
         this.nombre = nombre;
     }
 
-    public String getNombre() {
-        return nombre;
+    public String getNombre(Context context) {
+        return context.getString(nombre);
     }
 }

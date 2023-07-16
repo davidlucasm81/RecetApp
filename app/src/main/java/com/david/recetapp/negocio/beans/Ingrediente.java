@@ -5,9 +5,10 @@ import java.io.Serializable;
 public class Ingrediente implements Serializable {
     private String nombre;
     private int cantidad;
-    public Ingrediente(String nombre, int cantidad){
+
+    public Ingrediente(String nombre, int cantidad) {
         this.nombre = nombre;
-        this.cantidad =cantidad;
+        this.cantidad = cantidad;
     }
 
     public String getNombre() {

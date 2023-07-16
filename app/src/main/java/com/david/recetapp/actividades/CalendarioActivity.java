@@ -3,11 +3,7 @@ package com.david.recetapp.actividades;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Parcelable;
-import android.view.View;
 import android.widget.Button;
-import android.widget.GridView;
-import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -21,12 +17,8 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.Serializable;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
 
 public class CalendarioActivity extends AppCompatActivity {
 
@@ -40,7 +32,6 @@ public class CalendarioActivity extends AppCompatActivity {
         setContentView(R.layout.activity_calendario);
         // Cargar el Calendario desde "calendario.json"
         this.calendario = cargarCalendario();
-
         // Verificar si el Calendario necesita ser actualizado
         if (necesitaActualizar(calendario)) {
             // Actualizar el Calendario
@@ -66,35 +57,24 @@ public class CalendarioActivity extends AppCompatActivity {
 
         // Resaltar el botón correspondiente al día actual
         resaltarBoton(diaActual);
-        for(int i=0;i<7-calendario.getListaRecetas().size();i++){
+        for (int i = 0; i < 7 - calendario.getListaRecetas().size(); i++) {
             botones[i].setBackgroundColor(Color.DKGRAY);
         }
 
         // Asigna un OnClickListener a cada botón utilizando un bucle
         int diaSeleccionado = 0;
-        for (int i = 7-calendario.getListaRecetas().size(); i < botones.length; i++) {
+        for (int i = 7 - calendario.getListaRecetas().size(); i < botones.length; i++) {
             final int dia = diaSeleccionado;
-            botones[i].setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    // Crea un Intent para abrir la actividad RecetasDiaActivity
-                    Intent intent = new Intent(CalendarioActivity.this, RecetasDiaActivity.class);
-                    // Pasa DiaRecetas
-                    intent.putExtra("diaRecetas", calendario.getListaRecetas().get(dia));
-                    // Inicia la actividad RecetasDiaActivity
-                    startActivity(intent);
-                }
+            botones[i].setOnClickListener(view -> {
+                // Crea un Intent para abrir la actividad RecetasDiaActivity
+                Intent intent = new Intent(CalendarioActivity.this, RecetasDiaActivity.class);
+                // Pasa DiaRecetas
+                intent.putExtra("diaRecetas", calendario.getListaRecetas().get(dia));
+                // Inicia la actividad RecetasDiaActivity
+                startActivity(intent);
             });
             diaSeleccionado++;
         }
-    }
-
-    private String obtenerDiaSemana(int diaSemana) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE", Locale.getDefault());
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.DAY_OF_WEEK, diaSemana);
-        Date date = calendar.getTime();
-        return dateFormat.format(date);
     }
 
     private void resaltarBoton(int diaSemana) {
@@ -160,11 +140,7 @@ public class CalendarioActivity extends AppCompatActivity {
         int diaActual = calendar.get(Calendar.DAY_OF_WEEK);
 
         // Verificar si es lunes y el calendario no se ha actualizado hoy o si no existe
-        if (diaActual == Calendar.MONDAY && (calendario.getUltimaActualizacion() < calendar.getTimeInMillis() || calendario.getUltimaActualizacion() == 0)) {
-            return true;
-        }
-
-        return false;
+        return diaActual == Calendar.MONDAY && (calendario.getUltimaActualizacion() < calendar.getTimeInMillis() || calendario.getUltimaActualizacion() == 0);
     }
 
     private void actualizarCalendario(Calendario calendario) {

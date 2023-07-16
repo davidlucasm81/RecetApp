@@ -8,6 +8,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/colorBackground"
         android:orientation="vertical"
         android:padding="16dp">
 
@@ -23,18 +24,20 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Nombre" />
+            android:text="@string/nombre" />
 
         <EditText
             android:id="@+id/editTextNombre"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/Boton_Nombre_Add_Receta" />
+            android:hint="@string/Boton_Nombre_Add_Receta"
+            android:importantForAutofill="no"
+            android:inputType="text" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Temporada" />
+            android:text="@string/temporada" />
 
         <GridLayout
             android:layout_width="match_parent"
@@ -48,7 +51,7 @@
                 android:layout_columnSpan="1"
                 android:layout_columnWeight="1"
                 android:layout_gravity="fill_horizontal"
-                android:text="Invierno" />
+                android:text="@string/invierno" />
 
             <CheckBox
                 android:id="@+id/checkboxVerano"
@@ -57,7 +60,7 @@
                 android:layout_columnSpan="1"
                 android:layout_columnWeight="1"
                 android:layout_gravity="fill_horizontal"
-                android:text="Verano" />
+                android:text="@string/verano" />
 
             <CheckBox
                 android:id="@+id/checkboxOtonio"
@@ -66,7 +69,7 @@
                 android:layout_columnSpan="1"
                 android:layout_columnWeight="1"
                 android:layout_gravity="fill_horizontal"
-                android:text="Otoño" />
+                android:text="@string/otonio" />
 
             <CheckBox
                 android:id="@+id/checkboxPrimavera"
@@ -75,7 +78,7 @@
                 android:layout_columnSpan="1"
                 android:layout_columnWeight="1"
                 android:layout_gravity="fill_horizontal"
-                android:text="Primavera" />
+                android:text="@string/primavera" />
 
         </GridLayout>
 
@@ -88,7 +91,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Ingredientes" />
+                android:text="@string/ingredientes" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -100,7 +103,9 @@
                     android:id="@+id/editTextNombreIngrediente"
                     android:layout_width="275dp"
                     android:layout_height="wrap_content"
-                    android:hint="Nombre del ingrediente" />
+                    android:hint="@string/nombre_del_ingrediente"
+                    android:importantForAutofill="no"
+                    android:inputType="text" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
@@ -120,7 +125,8 @@
                         android:inputType="number"
                         android:maxLength="2"
                         android:maxLines="1"
-                        android:text="1" />
+                        android:text="1"
+                        tools:ignore="HardcodedText" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -137,21 +143,21 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="Agregar Ingrediente" />
+                    android:text="@string/agregar_ingrediente" />
             </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/linearLayoutIngredientes"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical"></LinearLayout>
+                android:orientation="vertical" />
 
         </LinearLayout>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Pasos" />
+            android:text="@string/pasos" />
 
         <LinearLayout
             android:id="@+id/linearLayoutPasos"
@@ -164,13 +170,15 @@
                 android:id="@+id/editTextPaso"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Texto del paso" />
+                android:hint="@string/texto_del_paso"
+                android:importantForAutofill="no"
+                android:inputType="text" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="10dp"
-                android:text="Tiempo del paso" />
+                android:text="@string/tiempo" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/textInputLayoutTiempo"
@@ -178,49 +186,53 @@
                 android:layout_width="match_parent"
                 android:layout_height="80dp"
                 android:gravity="center"
-                android:hint="Tiempo del paso">
+                android:hint="@string/tiempo">
+
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:orientation="horizontal">
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
+                    <EditText
+                        android:id="@+id/editTextHoras"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal">
+                        android:layout_weight="1"
+                        android:background="@drawable/edittext_background"
+                        android:gravity="center"
+                        android:importantForAutofill="no"
+                        android:inputType="number"
+                        android:text="0"
+                        android:digits="0123456789"
+                        tools:ignore="HardcodedText" />
 
-                        <EditText
-                            android:id="@+id/editTextHoras"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:background="@drawable/edittext_background"
-                            android:gravity="center"
-                            android:inputType="number"
-                            android:text="0" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:text=":"
+                        android:textSize="24sp"
+                        tools:ignore="HardcodedText"
+                        android:paddingEnd="5dp"
+                        android:paddingStart="5dp"/>
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:gravity="center"
-                            android:text=":"
-                            android:textColor="@android:color/black"
-                            android:textSize="24sp" />
-
-                        <EditText
-                            android:id="@+id/editTextMinutos"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:background="@drawable/edittext_background"
-                            android:gravity="center"
-                            android:inputType="number"
-                            android:text="0" />
-
-                    </LinearLayout>
+                    <EditText
+                        android:id="@+id/editTextMinutos"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@drawable/edittext_background"
+                        android:gravity="center"
+                        android:importantForAutofill="no"
+                        android:inputType="number"
+                        android:text="0"
+                        android:maxLength="2"
+                        android:digits="0123456789"
+                        tools:ignore="HardcodedText" />
 
                 </LinearLayout>
+
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -235,14 +247,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="Agregar Paso" />
+                    android:text="@string/agregar_paso" />
             </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/linearLayoutListaPasos"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical"></LinearLayout>
+                android:orientation="vertical" />
 
         </LinearLayout>
 
@@ -251,6 +263,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="Crear" />
+            android:text="@string/Aniadir" />
     </LinearLayout>
 </ScrollView>

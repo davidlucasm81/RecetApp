@@ -1,79 +1,86 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#F1F1F1"
-    android:padding="16dp">
+    android:orientation="vertical">
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="start"
         android:padding="8dp"
-        android:text="Calendario Semanal"
+        android:text="@string/calendario_semanal"
         android:textSize="20sp"
         android:textStyle="bold" />
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center">
+        android:gravity="center_horizontal|center_vertical"
+        android:orientation="vertical">
 
         <Button
             android:id="@+id/btn_lunes"
-            android:layout_width="0dp"
+            android:layout_width="320dp"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
-            android:layout_weight="1"
-            android:text="L" />
+            android:maxWidth="320dp"
+            android:text="@string/inicial_lunes"
+            tools:ignore="ButtonStyle,TouchTargetSizeCheck" />
 
         <Button
             android:id="@+id/btn_martes"
-            android:layout_width="0dp"
+            android:layout_width="320dp"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
-            android:layout_weight="1"
-            android:text="M" />
+            android:maxWidth="320dp"
+            android:text="@string/inicial_martes"
+            tools:ignore="ButtonStyle,TouchTargetSizeCheck" />
 
         <Button
             android:id="@+id/btn_miercoles"
-            android:layout_width="0dp"
+            android:layout_width="320dp"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
-            android:layout_weight="1"
-            android:text="X" />
+            android:maxWidth="320dp"
+            android:text="@string/inicial_miercoles"
+            tools:ignore="ButtonStyle,TouchTargetSizeCheck" />
 
         <Button
             android:id="@+id/btn_jueves"
-            android:layout_width="0dp"
+            android:layout_width="320dp"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
-            android:layout_weight="1"
-            android:text="J" />
+            android:maxWidth="320dp"
+            android:text="@string/inicial_jueves"
+            tools:ignore="ButtonStyle,TouchTargetSizeCheck" />
 
         <Button
             android:id="@+id/btn_viernes"
-            android:layout_width="0dp"
+            android:layout_width="320dp"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
-            android:layout_weight="1"
-            android:text="V" />
+            android:maxWidth="320dp"
+            android:text="@string/inicial_viernes"
+            tools:ignore="ButtonStyle,TouchTargetSizeCheck" />
 
         <Button
             android:id="@+id/btn_sabado"
-            android:layout_width="0dp"
+            android:layout_width="320dp"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
-            android:layout_weight="1"
-            android:text="S" />
+            android:maxWidth="320dp"
+            android:text="@string/incial_sabado"
+            tools:ignore="ButtonStyle,TouchTargetSizeCheck" />
 
         <Button
             android:id="@+id/btn_domingo"
-            android:layout_width="0dp"
+            android:layout_width="320dp"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
-            android:layout_weight="1"
-            android:text="D" />
+            android:maxWidth="320dp"
+            android:text="@string/inicial_domingo"
+            tools:ignore="ButtonStyle,TouchTargetSizeCheck" />
 
     </LinearLayout>
+
 </LinearLayout>

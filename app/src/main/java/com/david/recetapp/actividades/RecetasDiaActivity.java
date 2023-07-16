@@ -6,12 +6,10 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.david.recetapp.R;
-import com.david.recetapp.negocio.beans.Calendario;
 import com.david.recetapp.negocio.beans.DiaRecetas;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 public class RecetasDiaActivity extends AppCompatActivity {
