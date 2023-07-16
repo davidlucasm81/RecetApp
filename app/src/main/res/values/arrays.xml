@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="temporadas">
+        <item>Invierno</item>
+        <item>Primavera</item>
+        <item>Verano</item>
+        <item>Otoño</item>
+    </string-array>
+</resources>

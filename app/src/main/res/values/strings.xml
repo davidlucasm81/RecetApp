@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">RecetApp</string>
+    <string name="add_recipe">Añadir receta</string>
+    <string name="Boton2">Calendario Semanal de Recetas</string>
+    <string name="Boton1">Añadir Recetas</string>
+    <string name="Boton3">Lista de la Compra</string>
+    <string name="selecciona_temporada">Selecciona una temporada</string>
+    <string name="Boton_Nombre_Add_Receta">Ingresa el nombre</string>
+    <string name="Boton_Ingrediente_Add_Receta">Ingresa un ingrediente</string>
+    <string name="Aniadir">Añadir</string>
+    <string name="Boton_Paso_Add_Receta">Ingresa un paso</string>
+</resources>
