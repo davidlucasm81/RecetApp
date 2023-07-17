@@ -9,7 +9,9 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,6 +35,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -52,6 +55,8 @@ public class AddRecetasActivity extends AppCompatActivity {
 
     private LinearLayout linearLayoutListaPasos;
     private List<Paso> pasos;
+
+    private RatingBar estrellas;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,10 +119,30 @@ public class AddRecetasActivity extends AppCompatActivity {
             }
         });
 
+        estrellas = findViewById(R.id.estrellas);
+
         Button btnCrear = findViewById(R.id.btnCrear);
 
         btnCrear.setOnClickListener(v -> {
             String nombre = editTextNombre.getText().toString().trim();
+
+            if(nombre.isEmpty()){
+                Toast.makeText(AddRecetasActivity.this, this.getString(R.string.no_nombre), Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (!checkboxInvierno.isChecked() && !checkboxVerano.isChecked() && !checkboxOtonio.isChecked() && !checkboxPrimavera.isChecked()) {
+                Toast.makeText(AddRecetasActivity.this, this.getString(R.string.no_temporadas), Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (ingredientes.isEmpty()) {
+                Toast.makeText(AddRecetasActivity.this, this.getString(R.string.ingrediente_no_aniadido), Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (pasos.isEmpty()) {
+                Toast.makeText(AddRecetasActivity.this, this.getString(R.string.paso_no_aniadido), Toast.LENGTH_SHORT).show();
+                return;
+            }
 
             if (checkboxInvierno.isChecked()) {
                 temporadas.add(Temporada.INVIERNO);
@@ -138,6 +163,8 @@ public class AddRecetasActivity extends AppCompatActivity {
             receta.setIngredientes(ingredientes);
             receta.setPasos(pasos);
             receta.setTemporadas(temporadas);
+            receta.setEstrellas(estrellas.getRating());
+            receta.setFechaCalendario(new Date(0));
 
             // Obtener la lista actual de recetas desde el archivo JSON
             List<Receta> listaRecetas = cargarListaRecetas();
@@ -179,7 +206,7 @@ public class AddRecetasActivity extends AppCompatActivity {
             textViewIngrediente.setText(ingrediente.getNombre());
             textViewNumero.setText(String.valueOf(ingrediente.getCantidad()));
 
-            Button btnEliminar = ingredienteView.findViewById(R.id.btnEliminarIngrediente);
+            ImageButton btnEliminar = ingredienteView.findViewById(R.id.btnEliminarIngrediente);
             btnEliminar.setOnClickListener(v -> {
                 ingredientes.remove(ingrediente);
                 mostrarIngredientes();
@@ -207,7 +234,7 @@ public class AddRecetasActivity extends AppCompatActivity {
                 textViewPaso.setText(paso.getPaso());
                 textViewTiempo.setText(paso.getTiempo());
 
-                Button btnEliminarPaso = convertView.findViewById(R.id.btnEliminarPaso);
+                ImageButton btnEliminarPaso = convertView.findViewById(R.id.btnEliminarPaso);
                 btnEliminarPaso.setOnClickListener(v -> {
                     pasos.remove(paso);
                     mostrarPasos();

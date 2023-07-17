@@ -24,7 +24,7 @@
     <string name="inicial_jueves">Thursday</string>
     <string name="inicial_miercoles">Wednesday</string>
     <string name="inicial_martes">Tuesday</string>
-    <string name="inicial_lunes">Mondey</string>
+    <string name="inicial_lunes">Monday</string>
     <string name="calendario_semanal">Weekly Calendar</string>
     <string name="nombre">Names</string>
     <string name="temporada">Season</string>
@@ -49,4 +49,7 @@
     <string name="receta_creada">Recipe created</string>
     <string name="ingrediente_eliminado">Ingredient deleted</string>
     <string name="paso_eliminado">Step deleted</string>
+    <string name="estrellas">Recipe\'s score</string>
+    <string name="no_temporadas">You must select at least one season for the recipe</string>
+    <string name="no_nombre">The recipe must have a name</string>
 </resources>

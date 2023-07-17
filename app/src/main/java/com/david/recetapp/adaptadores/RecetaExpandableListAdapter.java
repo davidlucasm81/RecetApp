@@ -7,8 +7,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
-import android.widget.Button;
 import android.widget.ExpandableListView;
+import android.widget.ImageButton;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.david.recetapp.R;
@@ -41,7 +42,7 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
 
     @Override
     public int getChildrenCount(int groupPosition) {
-        return 3; // Hay 3 elementos hijos: Temporadas, Ingredientes y Pasos
+        return 4; // Hay 4 elementos hijos: Temporadas, Ingredientes, Pasos y Estrellas
     }
 
     @Override
@@ -59,6 +60,8 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
                 return receta.getIngredientes();
             case 2:
                 return receta.getPasos();
+            case 3:
+                return receta.getEstrellas();
             default:
                 return null;
         }
@@ -87,16 +90,17 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
         }
 
         TextView txtTituloReceta = convertView.findViewById(R.id.txtNombreReceta);
-        Button btnEliminar = convertView.findViewById(R.id.btnEliminar);
+        ImageButton btnEliminar = convertView.findViewById(R.id.btnEliminar);
 
         Receta receta = listaRecetas.get(groupPosition);
         txtTituloReceta.setText(receta.getNombre());
 
+        View finalConvertView = convertView;
         btnEliminar.setOnClickListener(v -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
             builder.setTitle(context.getString(R.string.confirmacion)).setMessage(context.getString(R.string.alerta_eliminar)).setPositiveButton(context.getString(R.string.aceptar), (dialog, which) -> {
                 // Eliminar la receta del JSON y refrescar la pantalla
-                eliminarReceta(groupPosition);
+                eliminarReceta(groupPosition, finalConvertView);
                 notifyDataSetChanged();
             }).setNegativeButton(context.getString(R.string.cancelar), null).show();
         });
@@ -129,13 +133,19 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
         TextView txtInformacion = convertView.findViewById(R.id.txtInformacion);
         TextView txtNumero = convertView.findViewById(R.id.txtNumero);
         Receta receta = listaRecetas.get(groupPosition);
+        RatingBar ratingBar = convertView.findViewById(R.id.ratingBar);
+        ratingBar.setVisibility(View.GONE);
         switch (childPosition) {
             case 0:
+                txtInformacion.setVisibility(View.VISIBLE);
+                txtNumero.setVisibility(View.GONE);
                 txtTitulo.setText(R.string.temporadas);
                 List<String> temporadas = receta.getTemporadas().stream().map(T -> T.getNombre(this.context)).collect(Collectors.toList());
                 txtInformacion.setText(TextUtils.join(", ", temporadas));
                 break;
             case 1:
+                txtInformacion.setVisibility(View.VISIBLE);
+                txtNumero.setVisibility(View.VISIBLE);
                 txtTitulo.setText(R.string.ingredientes);
                 StringBuilder sbIngredientes = new StringBuilder();
                 StringBuilder sbNumeroIngrediente = new StringBuilder();
@@ -147,6 +157,8 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
                 txtNumero.setText(sbNumeroIngrediente.substring(0, sbNumeroIngrediente.length() - 1));
                 break;
             case 2:
+                txtInformacion.setVisibility(View.VISIBLE);
+                txtNumero.setVisibility(View.VISIBLE);
                 txtTitulo.setText(R.string.pasos);
                 StringBuilder sbPasos = new StringBuilder();
                 StringBuilder sbNumeroPasos = new StringBuilder();
@@ -156,6 +168,13 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
                 }
                 txtInformacion.setText(sbPasos.substring(0, sbPasos.length() - 1));
                 txtNumero.setText(sbNumeroPasos.substring(0, sbNumeroPasos.length() - 1));
+                break;
+            case 3:
+                txtTitulo.setText(R.string.estrellas);
+                ratingBar.setVisibility(View.VISIBLE);
+                ratingBar.setRating(receta.getEstrellas());
+                txtInformacion.setVisibility(View.GONE);
+                txtNumero.setVisibility(View.GONE);
                 break;
         }
 
@@ -167,10 +186,17 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
         return false;
     }
 
-    private void eliminarReceta(int position) {
+    private void eliminarReceta(int position, View convertView) {
         // Eliminar la receta de la lista de recetas y actualizar el archivo JSON
         listaRecetas.remove(position);
         guardarListaRecetas();
+        TextView textViewEmpty = convertView.findViewById(R.id.textViewEmpty);
+
+        if (listaRecetas.isEmpty()) {
+            textViewEmpty.setVisibility(View.VISIBLE); // Muestra el TextView si la lista está vacía
+        } else {
+            textViewEmpty.setVisibility(View.GONE); // Oculta el TextView si la lista no está vacía
+        }
     }
 
     private void guardarListaRecetas() {

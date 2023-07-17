@@ -22,6 +22,7 @@ import java.util.List;
 import com.google.gson.reflect.TypeToken;
 
 import java.util.Queue;
+import java.util.stream.Collectors;
 
 public class Calendario implements Serializable {
     private final List<DiaRecetas> listaRecetas;
@@ -111,6 +112,8 @@ public class Calendario implements Serializable {
             Type listType = new TypeToken<List<Receta>>() {
             }.getType();
             List<Receta> listaRecetas = gson.fromJson(jsonBuilder.toString(), listType);
+            // Ordenamos por fecha y después por estrellas
+            listaRecetas = listaRecetas.stream().sorted((r1, r2) -> r1.getFechaCalendario().compareTo(r2.getFechaCalendario()) - (int) (r1.getEstrellas() - r2.getEstrellas())).collect(Collectors.toList());
 
             // Agregar las recetas a la cola
             colaRecetas.addAll(listaRecetas);
@@ -121,10 +124,11 @@ public class Calendario implements Serializable {
         }
     }
 
-    //TODO: Hacer algoritmo mas listo, ahora mismo se coge el primero y se guards al final
+    // TODO: METER COMPROBACION DE FECHA DE CALENDARIO <= FECHA LIMITE
     public Receta obtenerReceta() {
         // Obtener la primera receta de la cola
         Receta receta = colaRecetas.poll();
+        receta.setFechaCalendario(new Date());
         if (receta != null)
             // Agregar la receta al final de la cola
             colaRecetas.offer(receta);

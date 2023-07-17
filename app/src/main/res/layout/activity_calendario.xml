@@ -25,7 +25,7 @@
             android:layout_margin="5dp"
             android:maxWidth="320dp"
             android:text="@string/inicial_lunes"
-            tools:ignore="ButtonStyle,TouchTargetSizeCheck" />
+            tools:ignore="ButtonStyle,TouchTargetSizeCheck,TextContrastCheck" />
 
         <Button
             android:id="@+id/btn_martes"
@@ -34,7 +34,7 @@
             android:layout_margin="5dp"
             android:maxWidth="320dp"
             android:text="@string/inicial_martes"
-            tools:ignore="ButtonStyle,TouchTargetSizeCheck" />
+            tools:ignore="ButtonStyle,TouchTargetSizeCheck,TextContrastCheck" />
 
         <Button
             android:id="@+id/btn_miercoles"
@@ -43,7 +43,7 @@
             android:layout_margin="5dp"
             android:maxWidth="320dp"
             android:text="@string/inicial_miercoles"
-            tools:ignore="ButtonStyle,TouchTargetSizeCheck" />
+            tools:ignore="ButtonStyle,TouchTargetSizeCheck,TextContrastCheck" />
 
         <Button
             android:id="@+id/btn_jueves"
@@ -52,7 +52,7 @@
             android:layout_margin="5dp"
             android:maxWidth="320dp"
             android:text="@string/inicial_jueves"
-            tools:ignore="ButtonStyle,TouchTargetSizeCheck" />
+            tools:ignore="ButtonStyle,TouchTargetSizeCheck,TextContrastCheck" />
 
         <Button
             android:id="@+id/btn_viernes"
@@ -61,7 +61,7 @@
             android:layout_margin="5dp"
             android:maxWidth="320dp"
             android:text="@string/inicial_viernes"
-            tools:ignore="ButtonStyle,TouchTargetSizeCheck" />
+            tools:ignore="ButtonStyle,TouchTargetSizeCheck,TextContrastCheck" />
 
         <Button
             android:id="@+id/btn_sabado"
@@ -70,7 +70,7 @@
             android:layout_margin="5dp"
             android:maxWidth="320dp"
             android:text="@string/incial_sabado"
-            tools:ignore="ButtonStyle,TouchTargetSizeCheck" />
+            tools:ignore="ButtonStyle,TouchTargetSizeCheck,TextContrastCheck" />
 
         <Button
             android:id="@+id/btn_domingo"
@@ -79,7 +79,7 @@
             android:layout_margin="5dp"
             android:maxWidth="320dp"
             android:text="@string/inicial_domingo"
-            tools:ignore="ButtonStyle,TouchTargetSizeCheck" />
+            tools:ignore="ButtonStyle,TouchTargetSizeCheck,TextContrastCheck" />
 
     </LinearLayout>
 

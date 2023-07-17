@@ -49,4 +49,7 @@
     <string name="receta_creada">Receta creada</string>
     <string name="ingrediente_eliminado">Ingrediente eliminado</string>
     <string name="paso_eliminado">Paso eliminado</string>
+    <string name="estrellas">Puntuación de la receta</string>
+    <string name="no_temporadas">Debe seleccionar al menos una temporada para la receta</string>
+    <string name="no_nombre">La receta debe tener un nombre</string>
 </resources>

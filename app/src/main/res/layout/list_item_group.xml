@@ -1,4 +1,5 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
@@ -9,12 +10,17 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:paddingStart="30dp"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        tools:ignore="RtlSymmetry" />
 
-    <Button
+    <ImageButton
         android:id="@+id/btnEliminar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/eliminar" />
+        android:background="@android:color/transparent"
+        android:contentDescription="@string/eliminar"
+        android:src="@drawable/ic_baseline_delete_24"
+        tools:ignore="TextContrastCheck,ImageContrastCheck,TouchTargetSizeCheck" />
 
 </LinearLayout>

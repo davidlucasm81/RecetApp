@@ -20,7 +20,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class VerRecetasActivity extends AppCompatActivity {
 
@@ -33,7 +35,7 @@ public class VerRecetasActivity extends AppCompatActivity {
 
         expandableListView = findViewById(R.id.expandableListView);
 
-        List<Receta> listaRecetas = cargarListaRecetas();
+        List<Receta> listaRecetas = cargarListaRecetas().stream().sorted(Comparator.comparing(Receta::getNombre)).collect(Collectors.toList());
 
         TextView textViewEmpty = findViewById(R.id.textViewEmpty);
 

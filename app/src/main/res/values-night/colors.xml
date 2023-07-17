@@ -3,4 +3,6 @@
     <color name="colorText">#FFFFFF</color>
     <color name="dividerColor">#555555</color>
     <color name="colorGrisTextoFondo">#D0D0D0</color>
+    <color name="estrellas">#00AA00</color>
+    <color name="colorPrimary">#FF5722</color>
 </resources>

@@ -13,4 +13,6 @@
     <color name="colorText">#000000</color>
     <color name="dividerColor">#DDDDDD</color>
     <color name="colorGrisTextoFondo">#A0A0A0</color>
+    <color name="estrellas">#27A727</color>
+    <color name="colorPrimary">#FF5722</color>
 </resources>

@@ -1,17 +1,21 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/linearLayoutPaso"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="center_vertical"
     android:orientation="horizontal">
 
-    <Button
+    <ImageButton
         android:id="@+id/btnEliminarPaso"
-        android:layout_width="45dp"
-        android:layout_height="45dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginEnd="10dp"
-        android:text="@string/x"
-        android:textSize="16sp" />
+        android:background="@android:color/transparent"
+        android:contentDescription="@string/x"
+        android:src="@drawable/ic_baseline_delete_24"
+        android:textSize="16sp"
+        tools:ignore="TextContrastCheck,ImageContrastCheck" />
 
     <TextView
         android:id="@+id/textViewNumero"
