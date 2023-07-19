@@ -9,7 +9,7 @@ import java.util.Locale;
 
 public class DiaRecetas implements Serializable {
     private Date fecha;
-    private List<Receta> recetas;
+    private List<String> recetas; //IDs de las recetas
 
     public DiaRecetas(Date fecha) {
         this.fecha = fecha;
@@ -26,11 +26,11 @@ public class DiaRecetas implements Serializable {
         this.fecha = fecha;
     }
 
-    public List<Receta> getRecetas() {
+    public List<String> getRecetas() {
         return recetas;
     }
 
-    public void setRecetas(List<Receta> recetas) {
+    public void setRecetas(List<String> recetas) {
         this.recetas = recetas;
     }
 
@@ -40,7 +40,7 @@ public class DiaRecetas implements Serializable {
         return dateFormat.format(fecha);
     }
 
-    public void addReceta(Receta receta) {
-        this.recetas.add(receta);
+    public void addReceta(String idReceta) {
+        this.recetas.add(idReceta);
     }
 }

@@ -15,6 +15,15 @@
         tools:ignore="RtlSymmetry" />
 
     <ImageButton
+        android:id="@+id/btnEditar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        android:contentDescription="@string/editar"
+        android:src="@drawable/ic_baseline_edit_24"
+        tools:ignore="TextContrastCheck,ImageContrastCheck,TouchTargetSizeCheck" />
+
+    <ImageButton
         android:id="@+id/btnEliminar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

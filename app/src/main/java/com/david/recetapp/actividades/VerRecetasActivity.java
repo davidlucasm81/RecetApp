@@ -20,12 +20,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class VerRecetasActivity extends AppCompatActivity {
-
+public class VerRecetasActivity extends AppCompatActivity implements RecetaExpandableListAdapter.EmptyListListener {
+    private TextView textViewEmpty;
     private ExpandableListView expandableListView;
 
     @Override
@@ -35,9 +34,11 @@ public class VerRecetasActivity extends AppCompatActivity {
 
         expandableListView = findViewById(R.id.expandableListView);
 
-        List<Receta> listaRecetas = cargarListaRecetas().stream().sorted(Comparator.comparing(Receta::getNombre)).collect(Collectors.toList());
+        List<Receta> listaRecetas = cargarListaRecetas().stream().sorted((r1, r2) ->
+                String.CASE_INSENSITIVE_ORDER.compare(r1.getNombre(), r2.getNombre())
+        ).collect(Collectors.toList());
 
-        TextView textViewEmpty = findViewById(R.id.textViewEmpty);
+        textViewEmpty = findViewById(R.id.textViewEmpty);
 
         if (listaRecetas.isEmpty()) {
             textViewEmpty.setVisibility(View.VISIBLE); // Muestra el TextView si la lista está vacía
@@ -45,7 +46,7 @@ public class VerRecetasActivity extends AppCompatActivity {
             textViewEmpty.setVisibility(View.GONE); // Oculta el TextView si la lista no está vacía
         }
 
-        RecetaExpandableListAdapter expandableListAdapter = new RecetaExpandableListAdapter(this, listaRecetas, expandableListView);
+        RecetaExpandableListAdapter expandableListAdapter = new RecetaExpandableListAdapter(this, listaRecetas, expandableListView, this);
         expandableListView.setAdapter(expandableListAdapter);
 
         expandableListView.setOnGroupClickListener((parent, v, groupPosition, id) -> {
@@ -90,5 +91,10 @@ public class VerRecetasActivity extends AppCompatActivity {
         }
 
         return listaRecetas;
+    }
+
+    @Override
+    public void onListEmpty() {
+        textViewEmpty.setVisibility(View.VISIBLE); // Muestra el TextView si la lista está vacía
     }
 }

@@ -4,9 +4,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 public class Receta implements Serializable {
-
+    private final String id;
     private String nombre;
     private List<Temporada> temporadas;
     private List<Ingrediente> ingredientes;
@@ -17,6 +18,7 @@ public class Receta implements Serializable {
     private Date fechaCalendario;
 
     public Receta() {
+        this.id = UUID.randomUUID().toString();
         this.nombre = "";
         this.temporadas = new ArrayList<>();
         this.ingredientes = new ArrayList<>();
@@ -71,5 +73,9 @@ public class Receta implements Serializable {
 
     public void setFechaCalendario(Date fechaCalendario) {
         this.fechaCalendario = fechaCalendario;
+    }
+
+    public String getId() {
+        return id;
     }
 }

@@ -11,42 +11,45 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 
 import com.google.gson.reflect.TypeToken;
 
 import java.util.Queue;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-public class Calendario implements Serializable {
-    private final List<DiaRecetas> listaRecetas;
+public class Calendario {
+    private CalendarioBean calendarioBean;
     private final Queue<Receta> colaRecetas;
+
+    private final Set<Receta> recetasSeleccionadas;
     private final Context context;
-    private long ultimaActualizacion;
 
-    public long getUltimaActualizacion() {
-        return ultimaActualizacion;
-    }
 
-    public void setUltimaActualizacion(long ultimaActualizacion) {
-        this.ultimaActualizacion = ultimaActualizacion;
-    }
-
-    public Calendario(Context context) {
+    public Calendario(Context context, int diasLimite) {
         this.context = context;
-        listaRecetas = new ArrayList<>();
+        this.calendarioBean = new CalendarioBean();
+        this.recetasSeleccionadas = new HashSet<>();
         colaRecetas = new ArrayDeque<>();
-        obtenerRecetas();
+        obtenerRecetas(diasLimite);
         InicioSemana();
     }
 
-    public void InicioSemana() {
+    public Calendario() {
+        this.context = null;
+        this.calendarioBean = new CalendarioBean();
+        colaRecetas = new ArrayDeque<>();
+        this.recetasSeleccionadas = new HashSet<>();
+    }
+
+    private void InicioSemana() {
         // Obtener la fecha actual
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
@@ -54,7 +57,7 @@ public class Calendario implements Serializable {
         int diaActual = calendar.get(Calendar.DAY_OF_WEEK);
 
         // Reiniciar la lista de recetas
-        listaRecetas.clear();
+        calendarioBean.getListaRecetas().clear();
         if (diaActual != Calendar.SUNDAY) {
             // Recorrer los días de la semana y agregar dos recetas para cada día
             for (int i = diaActual; i <= Calendar.SATURDAY; i++) {
@@ -66,7 +69,7 @@ public class Calendario implements Serializable {
                 diaRecetas.addReceta(obtenerReceta());
 
                 // Agregar el objeto DiaRecetas a la lista
-                listaRecetas.add(diaRecetas);
+                calendarioBean.getListaRecetas().add(diaRecetas);
             }
         }
 
@@ -79,20 +82,19 @@ public class Calendario implements Serializable {
         diaRecetas.addReceta(obtenerReceta());
 
         // Agregar el objeto DiaRecetas a la lista
-        listaRecetas.add(diaRecetas);
+        calendarioBean.getListaRecetas().add(diaRecetas);
 
         // Guardar la lista de recetas actualizada en el archivo JSON
         guardarListaRecetas();
     }
 
     public List<DiaRecetas> getListaRecetas() {
-        return listaRecetas;
+        return calendarioBean.getListaRecetas();
     }
 
-    public void obtenerRecetas() {
+    private void obtenerRecetas(int diasLimite) {
         // Cargar el archivo JSON desde el almacenamiento interno
         try {
-            //TODO: NO LO OBTIENE
             FileInputStream fis = context.openFileInput("lista_recetas.json");
             InputStreamReader isr = new InputStreamReader(fis);
             BufferedReader br = new BufferedReader(isr);
@@ -112,8 +114,19 @@ public class Calendario implements Serializable {
             Type listType = new TypeToken<List<Receta>>() {
             }.getType();
             List<Receta> listaRecetas = gson.fromJson(jsonBuilder.toString(), listType);
+
+            // Obtener la fecha y hora actual del ordenador en milisegundos
+            long tiempoActual = System.currentTimeMillis();
+
             // Ordenamos por fecha y después por estrellas
-            listaRecetas = listaRecetas.stream().sorted((r1, r2) -> r1.getFechaCalendario().compareTo(r2.getFechaCalendario()) - (int) (r1.getEstrellas() - r2.getEstrellas())).collect(Collectors.toList());
+            listaRecetas = listaRecetas.stream().filter(r1 -> {
+                // Calcular la diferencia en milisegundos entre la fecha actual y 'tuFecha'
+                long diferenciaEnMilisegundos = tiempoActual - r1.getFechaCalendario().getTime();
+
+                // Convertir la diferencia en milisegundos a días
+                long diasPasados = diferenciaEnMilisegundos / (1000 * 60 * 60 * 24);
+                return diasPasados >= diasLimite;
+            }).sorted((r1, r2) -> r1.getFechaCalendario().compareTo(r2.getFechaCalendario()) - (int) (r1.getEstrellas() - r2.getEstrellas())).collect(Collectors.toList());
 
             // Agregar las recetas a la cola
             colaRecetas.addAll(listaRecetas);
@@ -124,16 +137,19 @@ public class Calendario implements Serializable {
         }
     }
 
-    // TODO: METER COMPROBACION DE FECHA DE CALENDARIO <= FECHA LIMITE
-    public Receta obtenerReceta() {
+    public String obtenerReceta() {
         // Obtener la primera receta de la cola
         Receta receta = colaRecetas.poll();
+        if (receta == null) {
+            return "-1";
+        }
+        // Agregar la receta al final de la cola
+        colaRecetas.offer(receta);
+        if (recetasSeleccionadas.contains(receta))
+            return "-1";
         receta.setFechaCalendario(new Date());
-        if (receta != null)
-            // Agregar la receta al final de la cola
-            colaRecetas.offer(receta);
-
-        return receta;
+        recetasSeleccionadas.add(receta);
+        return receta.getId();
     }
 
     private void guardarListaRecetas() {
@@ -154,6 +170,14 @@ public class Calendario implements Serializable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public CalendarioBean getCalendarioBean() {
+        return calendarioBean;
+    }
+
+    public void setCalendarioBean(CalendarioBean calendarioBean) {
+        this.calendarioBean = calendarioBean;
     }
 
 }

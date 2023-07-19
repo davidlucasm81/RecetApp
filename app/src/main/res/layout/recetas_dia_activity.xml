@@ -21,6 +21,22 @@
         android:textSize="18sp"
         android:textStyle="bold" />
 
-    <!-- Resto de tus elementos de diseño -->
+    <TextView
+        android:id="@+id/textViewEmpty"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:text="@string/no_hay_recetas"
+        android:textColor="@color/colorGrisTextoFondo"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:visibility="gone" />
+
+    <ExpandableListView
+        android:id="@+id/expandableListView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:divider="@color/dividerColor"
+        android:dividerHeight="1dp" />
 
 </LinearLayout>

@@ -52,4 +52,11 @@
     <string name="estrellas">Recipe\'s score</string>
     <string name="no_temporadas">You must select at least one season for the recipe</string>
     <string name="no_nombre">The recipe must have a name</string>
+    <string name="editar">Edit</string>
+    <string name="receta_editada">Edited recipe</string>
+    <string name="edit_recipe">Edit Recipe</string>
+    <string name="calendario_eliminado">Deleted Calendar</string>
+    <string name="calendario_actualizado">Updated Calendar</string>
+    <string name="alerta_eliminar_calendario">Are you sure you want to delete the calendar?</string>
+    <string name="ultima_fecha_calendario">Last date on the calendar</string>
 </resources>

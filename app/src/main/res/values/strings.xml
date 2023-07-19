@@ -52,4 +52,11 @@
     <string name="estrellas">Puntuación de la receta</string>
     <string name="no_temporadas">Debe seleccionar al menos una temporada para la receta</string>
     <string name="no_nombre">La receta debe tener un nombre</string>
+    <string name="editar">Editar</string>
+    <string name="receta_editada">Receta editada</string>
+    <string name="edit_recipe">Editar Receta</string>
+    <string name="calendario_eliminado">Calendario Eliminado</string>
+    <string name="calendario_actualizado">Calendario Actualizado</string>
+    <string name="alerta_eliminar_calendario">¿Está seguro de que desea eliminar el calendario?</string>
+    <string name="ultima_fecha_calendario">Última fecha en el calendario</string>
 </resources>
