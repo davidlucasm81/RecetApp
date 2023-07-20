@@ -10,13 +10,17 @@ import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.david.recetapp.R;
 import com.david.recetapp.actividades.EditarRecetaActivity;
+import com.david.recetapp.negocio.beans.Alergeno;
 import com.david.recetapp.negocio.beans.Ingrediente;
 import com.david.recetapp.negocio.beans.Receta;
+import com.david.recetapp.negocio.servicios.AlergenosSrv;
 import com.google.gson.Gson;
 
 import java.io.FileOutputStream;
@@ -49,7 +53,7 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
 
     @Override
     public int getChildrenCount(int groupPosition) {
-        return 5; // Hay 4 elementos hijos: Temporadas, Ingredientes, Pasos, Estrellas, y Fecha en el calendario
+        return 6; // Hay 4 elementos hijos: Temporadas, Ingredientes, Pasos, Alergenos, Estrellas, y Fecha en el calendario
     }
 
     @Override
@@ -68,8 +72,10 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
             case 2:
                 return receta.getPasos();
             case 3:
-                return receta.getEstrellas();
+                return receta.getAlergenos();
             case 4:
+                return receta.getEstrellas();
+            case 5:
                 return receta.getFechaCalendario();
             default:
                 return null;
@@ -160,6 +166,8 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
         Receta receta = listaRecetas.get(groupPosition);
         RatingBar ratingBar = convertView.findViewById(R.id.ratingBar);
         ratingBar.setVisibility(View.GONE);
+        LinearLayout iconosAlergenos = convertView.findViewById(R.id.iconosAlergenos);
+        iconosAlergenos.setVisibility(View.GONE);
         switch (childPosition) {
             case 0:
                 txtInformacion.setVisibility(View.VISIBLE);
@@ -195,13 +203,33 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
                 txtNumero.setText(sbNumeroPasos.substring(0, sbNumeroPasos.length() - 1));
                 break;
             case 3:
+                txtTitulo.setText(R.string.alergenos);
+                iconosAlergenos.setVisibility(View.VISIBLE);
+                // Recorremos la lista de drawables
+                for (Alergeno alergeno : receta.getAlergenos()) {
+                    // Creamos un nuevo ImageView
+                    ImageView imageView = new ImageView(context);
+                    imageView.setLayoutParams(new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.WRAP_CONTENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT
+                    ));
+
+                    // Asignamos el drawable al ImageView
+                    imageView.setImageResource(AlergenosSrv.obtenerImagen(alergeno.getNumero()));
+
+                    // Agregamos el ImageView al LinearLayout
+                    iconosAlergenos.addView(imageView);
+                }
+                break;
+
+            case 4:
                 txtTitulo.setText(R.string.estrellas);
                 ratingBar.setVisibility(View.VISIBLE);
                 ratingBar.setRating(receta.getEstrellas());
                 txtInformacion.setVisibility(View.GONE);
                 txtNumero.setVisibility(View.GONE);
                 break;
-            case 4:
+            case 5:
                 txtInformacion.setVisibility(View.VISIBLE);
                 txtTitulo.setText(R.string.ultima_fecha_calendario);
                 txtInformacion.setText(receta.getFechaCalendario().toString());

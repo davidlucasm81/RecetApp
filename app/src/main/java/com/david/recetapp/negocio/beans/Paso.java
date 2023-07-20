@@ -3,8 +3,8 @@ package com.david.recetapp.negocio.beans;
 import java.io.Serializable;
 
 public class Paso implements Serializable {
-    private String tiempo;
-    private String paso;
+    private final String tiempo;
+    private final String paso;
 
     public Paso(String paso, String tiempo) {
         this.paso = paso;
@@ -15,15 +15,8 @@ public class Paso implements Serializable {
         return tiempo;
     }
 
-    public void setTiempo(String tiempo) {
-        this.tiempo = tiempo;
-    }
-
     public String getPaso() {
         return paso;
     }
 
-    public void setPaso(String paso) {
-        this.paso = paso;
-    }
 }

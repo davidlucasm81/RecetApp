@@ -20,8 +20,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.david.recetapp.R;
 import com.david.recetapp.negocio.beans.Alergeno;
@@ -29,6 +27,7 @@ import com.david.recetapp.negocio.beans.Ingrediente;
 import com.david.recetapp.negocio.beans.Paso;
 import com.david.recetapp.negocio.beans.Receta;
 import com.david.recetapp.negocio.beans.Temporada;
+import com.david.recetapp.negocio.servicios.AlergenosSrv;
 import com.google.gson.Gson;
 
 import java.io.FileOutputStream;
@@ -247,7 +246,7 @@ public class EditarRecetaActivity extends AppCompatActivity {
             CheckBox checkBoxAlergeno = alergenoView.findViewById(R.id.checkBoxAlergeno);
 
             Alergeno alergeno = alergenos.get(i);
-            imageViewIconoAlergeno.setImageResource(obtenerImagen(alergeno.getNumero()));
+            imageViewIconoAlergeno.setImageResource(AlergenosSrv.obtenerImagen(alergeno.getNumero()));
             checkBoxAlergeno.setText(alergeno.getNombre());
             checkBoxAlergeno.setChecked(alergenosSeleccionados.stream()
                     .anyMatch(objeto -> alergeno.getNombre().equals(objeto.getNombre())));
@@ -262,27 +261,6 @@ public class EditarRecetaActivity extends AppCompatActivity {
             params.columnSpec = GridLayout.spec(i % columnas);
             alergenoView.setLayoutParams(params);
             gridLayout.addView(alergenoView);
-        }
-    }
-
-    private int obtenerImagen(int numero) {
-        switch (numero) {
-            case 0:
-                return R.drawable.ic_gluten;
-            case 1:
-                return R.drawable.ic_lacteos;
-            case 2:
-                return R.drawable.ic_cacahuetes;
-            case 3:
-                return R.drawable.ic_soja;
-            case 4:
-                return R.drawable.ic_pescado;
-            case 5:
-                return R.drawable.ic_mariscos;
-            case 6:
-                return R.drawable.ic_huevos;
-            default:
-                return R.drawable.alergeno_placeholder;
         }
     }
 

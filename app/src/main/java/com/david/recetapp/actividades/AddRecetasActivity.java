@@ -28,6 +28,7 @@ import com.david.recetapp.negocio.beans.Ingrediente;
 import com.david.recetapp.negocio.beans.Paso;
 import com.david.recetapp.negocio.beans.Receta;
 import com.david.recetapp.negocio.beans.Temporada;
+import com.david.recetapp.negocio.servicios.AlergenosSrv;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -239,7 +240,7 @@ public class AddRecetasActivity extends AppCompatActivity {
             CheckBox checkBoxAlergeno = alergenoView.findViewById(R.id.checkBoxAlergeno);
 
             Alergeno alergeno = alergenos.get(i);
-            imageViewIconoAlergeno.setImageResource(obtenerImagen(alergeno.getNumero()));
+            imageViewIconoAlergeno.setImageResource(AlergenosSrv.obtenerImagen(alergeno.getNumero()));
             checkBoxAlergeno.setText(alergeno.getNombre());
             checkBoxAlergeno.setChecked(alergenosSeleccionados.stream()
                     .anyMatch(objeto -> alergeno.getNombre().equals(objeto.getNombre())));
@@ -365,27 +366,6 @@ public class AddRecetasActivity extends AppCompatActivity {
             fos.close();
         } catch (IOException e) {
             e.printStackTrace();
-        }
-    }
-
-    private int obtenerImagen(int numero) {
-        switch (numero) {
-            case 0:
-                return R.drawable.ic_gluten;
-            case 1:
-                return R.drawable.ic_lacteos;
-            case 2:
-                return R.drawable.ic_cacahuetes;
-            case 3:
-                return R.drawable.ic_soja;
-            case 4:
-                return R.drawable.ic_pescado;
-            case 5:
-                return R.drawable.ic_mariscos;
-            case 6:
-                return R.drawable.ic_huevos;
-            default:
-                return R.drawable.alergeno_placeholder;
         }
     }
 }

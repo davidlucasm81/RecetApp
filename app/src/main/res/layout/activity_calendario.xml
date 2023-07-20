@@ -17,8 +17,17 @@
         android:layout_height="wrap_content"
         android:gravity="end"
         android:orientation="horizontal"
-        android:paddingEnd="8dp"
         tools:ignore="RtlSymmetry">
+
+        <ImageButton
+            android:id="@+id/btnAjustes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/boton_redondo"
+            android:contentDescription="@string/ajustes"
+            android:layout_marginEnd="8dp"
+            android:src="@drawable/settings_icon"
+            tools:ignore="TextContrastCheck,ImageContrastCheck,TouchTargetSizeCheck" />
 
         <ImageButton
             android:id="@+id/btnEliminar"
@@ -26,6 +35,7 @@
             android:layout_height="wrap_content"
             android:background="@drawable/boton_redondo"
             android:contentDescription="@string/eliminar"
+            android:layout_marginEnd="8dp"
             android:src="@drawable/ic_baseline_delete_24"
             tools:ignore="TextContrastCheck,ImageContrastCheck,TouchTargetSizeCheck" />
     </LinearLayout>

@@ -61,4 +61,5 @@
     <string name="ultima_fecha_calendario">Última fecha en el calendario</string>
     <string name="alergenos">Alérgenos</string>
     <string name="placeholder" translatable="false">placeholder</string>
+    <string name="ajustes">Ajustes</string>
 </resources>

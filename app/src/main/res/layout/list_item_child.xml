@@ -33,10 +33,21 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/iconosAlergenos"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+    </LinearLayout>
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
         android:orientation="horizontal">
+
         <RatingBar
             android:id="@+id/ratingBar"
             android:layout_width="wrap_content"
