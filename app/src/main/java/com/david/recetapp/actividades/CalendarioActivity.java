@@ -38,6 +38,7 @@ public class CalendarioActivity extends AppCompatActivity {
     private Calendario calendario;
     private Button btnLunes, btnMartes, btnMiercoles, btnJueves, btnViernes, btnSabado, btnDomingo;
 
+    //TODO: DIAS LIMTIE
     private int diasLimite = 0;
 
     @Override

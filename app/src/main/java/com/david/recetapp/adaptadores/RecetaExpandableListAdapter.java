@@ -32,7 +32,7 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
 
     private final ExpandableListView expandableListView;
 
-    private EmptyListListener emptyListListener;
+    private final EmptyListListener emptyListListener;
 
 
     public RecetaExpandableListAdapter(Context context, List<Receta> listaRecetas, ExpandableListView expandableListView, EmptyListListener emptyListListener) {
@@ -176,7 +176,7 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
                 StringBuilder sbNumeroIngrediente = new StringBuilder();
                 for (Ingrediente ingrediente : receta.getIngredientes()) {
                     sbIngredientes.append("- ").append(ingrediente.getNombre()).append("\n");
-                    sbNumeroIngrediente.append(ingrediente.getCantidad()).append("\n");
+                    sbNumeroIngrediente.append(ingrediente.getCantidad()).append(" ").append(ingrediente.getTipoCantidad()).append("\n");
                 }
                 txtInformacion.setText(sbIngredientes.substring(0, sbIngredientes.length() - 1));
                 txtNumero.setText(sbNumeroIngrediente.substring(0, sbNumeroIngrediente.length() - 1));

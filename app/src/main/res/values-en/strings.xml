@@ -59,4 +59,5 @@
     <string name="calendario_actualizado">Updated Calendar</string>
     <string name="alerta_eliminar_calendario">Are you sure you want to delete the calendar?</string>
     <string name="ultima_fecha_calendario">Last date on the calendar</string>
+    <string name="alergenos">Allergens</string>
 </resources>

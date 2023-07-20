@@ -1,0 +1,12 @@
+<resources>
+    <!-- Array to store the names of known allergens (English) -->
+    <string-array name="alergenos_conocidos_nombres">
+        <item>Gluten</item>
+        <item>Dairy</item>
+        <item>Peanuts</item>
+        <item>Soy</item>
+        <item>Fish</item>
+        <item>Shellfish</item>
+        <item>Eggs</item>
+    </string-array>
+</resources>

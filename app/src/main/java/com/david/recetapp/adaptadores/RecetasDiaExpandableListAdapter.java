@@ -1,7 +1,6 @@
 package com.david.recetapp.adaptadores;
 
 import android.content.Context;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +14,6 @@ import com.david.recetapp.negocio.beans.Ingrediente;
 import com.david.recetapp.negocio.beans.Receta;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class RecetasDiaExpandableListAdapter extends BaseExpandableListAdapter {
     private final Context context;
@@ -125,7 +123,7 @@ public class RecetasDiaExpandableListAdapter extends BaseExpandableListAdapter {
                 StringBuilder sbNumeroIngrediente = new StringBuilder();
                 for (Ingrediente ingrediente : receta.getIngredientes()) {
                     sbIngredientes.append("- ").append(ingrediente.getNombre()).append("\n");
-                    sbNumeroIngrediente.append(ingrediente.getCantidad()).append("\n");
+                    sbNumeroIngrediente.append("x").append(ingrediente.getCantidad()).append(" ").append(ingrediente.getTipoCantidad()).append("\n");
                 }
                 txtInformacion.setText(sbIngredientes.substring(0, sbIngredientes.length() - 1));
                 txtNumero.setText(sbNumeroIngrediente.substring(0, sbNumeroIngrediente.length() - 1));

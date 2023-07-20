@@ -6,9 +6,12 @@ public class Ingrediente implements Serializable {
     private String nombre;
     private int cantidad;
 
-    public Ingrediente(String nombre, int cantidad) {
+    private String tipoCantidad;
+
+    public Ingrediente(String nombre, int cantidad, String tipoCantidad) {
         this.nombre = nombre;
         this.cantidad = cantidad;
+        this.tipoCantidad = tipoCantidad;
     }
 
     public String getNombre() {
@@ -25,5 +28,13 @@ public class Ingrediente implements Serializable {
 
     public void setCantidad(int cantidad) {
         this.cantidad = cantidad;
+    }
+
+    public String getTipoCantidad() {
+        return tipoCantidad;
+    }
+
+    public void setTipoCantidad(String tipoCantidad) {
+        this.tipoCantidad = tipoCantidad;
     }
 }

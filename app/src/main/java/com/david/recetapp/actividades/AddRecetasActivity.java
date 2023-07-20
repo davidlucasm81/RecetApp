@@ -6,12 +6,16 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.GridLayout;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,6 +23,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.david.recetapp.MainActivity;
 import com.david.recetapp.R;
+import com.david.recetapp.negocio.beans.Alergeno;
 import com.david.recetapp.negocio.beans.Ingrediente;
 import com.david.recetapp.negocio.beans.Paso;
 import com.david.recetapp.negocio.beans.Receta;
@@ -34,6 +39,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Type;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -56,6 +62,9 @@ public class AddRecetasActivity extends AppCompatActivity {
     private LinearLayout linearLayoutListaPasos;
     private List<Paso> pasos;
 
+    private List<Alergeno> alergenos;
+    private List<Alergeno> alergenosSeleccionados;
+    private GridLayout gridLayout;
     private RatingBar estrellas;
 
     @Override
@@ -73,16 +82,33 @@ public class AddRecetasActivity extends AppCompatActivity {
         editTextCantidad = findViewById(R.id.editTextCantidad);
         Button btnAgregarIngrediente = findViewById(R.id.btnAgregarIngrediente);
         linearLayoutIngredientes = findViewById(R.id.linearLayoutIngredientes);
+        gridLayout = findViewById(R.id.gridLayoutAlergenos);
 
         ingredientes = new ArrayList<>();
+        Spinner spinner = findViewById(R.id.spinner_quantity_unit);
+
+        // Obtén las opciones de unidades de medida desde el archivo de recursos
+        String[] quantityUnits = getResources().getStringArray(R.array.quantity_units);
+
+        // Crea un adaptador para el Spinner
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, quantityUnits);
+
+        // Especifica el diseño para los elementos desplegables
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        // Establece el adaptador en el Spinner
+        spinner.setAdapter(adapter);
+        spinner.setSelection(0);
 
         btnAgregarIngrediente.setOnClickListener(v -> {
             String nombreIngrediente = editTextNombreIngrediente.getText().toString().trim();
             String cantidad = editTextCantidad.getText().toString().trim();
+            String tipoCantidad = (String) spinner.getSelectedItem();
 
-            if (!nombreIngrediente.isEmpty() && !cantidad.isEmpty()) {
+            if (!nombreIngrediente.isEmpty() && !cantidad.isEmpty() && tipoCantidad != null && !tipoCantidad.isEmpty()) {
                 int cantidadNumerica = Integer.parseInt(cantidad);
-                agregarIngrediente(nombreIngrediente, cantidadNumerica);
+                agregarIngrediente(nombreIngrediente, cantidadNumerica, tipoCantidad);
                 editTextNombreIngrediente.setText("");
                 editTextCantidad.setText("1");
                 Toast.makeText(AddRecetasActivity.this, this.getString(R.string.ingrediente_aniadido), Toast.LENGTH_SHORT).show();
@@ -118,7 +144,16 @@ public class AddRecetasActivity extends AppCompatActivity {
                 Toast.makeText(AddRecetasActivity.this, this.getString(R.string.paso_no_aniadido), Toast.LENGTH_SHORT).show();
             }
         });
+        // Obtener arrays de recursos
+        String[] alergenosNombresArray = getResources().getStringArray(R.array.alergenos_conocidos_nombres);
+        alergenos = new ArrayList<>();
 
+        // Crear objetos Alergeno a partir de los nombres de alérgenos y sus IDs de drawables
+        for (int i = 0; i < alergenosNombresArray.length; i++) {
+            alergenos.add(new Alergeno(alergenosNombresArray[i], i));
+        }
+        alergenosSeleccionados = new ArrayList<>();
+        mostrarAlergenos();
         estrellas = findViewById(R.id.estrellas);
 
         Button btnCrear = findViewById(R.id.btnCrear);
@@ -126,7 +161,7 @@ public class AddRecetasActivity extends AppCompatActivity {
         btnCrear.setOnClickListener(v -> {
             String nombre = editTextNombre.getText().toString().trim();
 
-            if(nombre.isEmpty()){
+            if (nombre.isEmpty()) {
                 Toast.makeText(AddRecetasActivity.this, this.getString(R.string.no_nombre), Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -165,6 +200,7 @@ public class AddRecetasActivity extends AppCompatActivity {
             receta.setTemporadas(temporadas);
             receta.setEstrellas(estrellas.getRating());
             receta.setFechaCalendario(new Date(0));
+            receta.setAlergenos(alergenosSeleccionados);
 
             // Obtener la lista actual de recetas desde el archivo JSON
             List<Receta> listaRecetas = cargarListaRecetas();
@@ -186,8 +222,43 @@ public class AddRecetasActivity extends AppCompatActivity {
 
     }
 
-    private void agregarIngrediente(String nombre, int numero) {
-        Ingrediente ingrediente = new Ingrediente(nombre, numero);
+    private void mostrarAlergenos() {
+        gridLayout.removeAllViews();
+
+        int columnas = 2; // Cantidad de columnas en la cuadrícula
+        int filaActual = -1;
+
+        for (int i = 0; i < alergenos.size(); i++) {
+            if (i % columnas == 0) {
+                // Crear una nueva fila en el GridLayout
+                filaActual++;
+            }
+
+            View alergenoView = LayoutInflater.from(this).inflate(R.layout.item_alergeno, gridLayout, false);
+            ImageView imageViewIconoAlergeno = alergenoView.findViewById(R.id.imageViewIconoAlergeno);
+            CheckBox checkBoxAlergeno = alergenoView.findViewById(R.id.checkBoxAlergeno);
+
+            Alergeno alergeno = alergenos.get(i);
+            imageViewIconoAlergeno.setImageResource(obtenerImagen(alergeno.getNumero()));
+            checkBoxAlergeno.setText(alergeno.getNombre());
+            checkBoxAlergeno.setChecked(alergenosSeleccionados.stream()
+                    .anyMatch(objeto -> alergeno.getNombre().equals(objeto.getNombre())));
+
+            checkBoxAlergeno.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                alergenosSeleccionados.add(alergeno);
+            });
+
+            // Agregar el elemento a la cuadrícula
+            GridLayout.LayoutParams params = new GridLayout.LayoutParams();
+            params.rowSpec = GridLayout.spec(filaActual);
+            params.columnSpec = GridLayout.spec(i % columnas);
+            alergenoView.setLayoutParams(params);
+            gridLayout.addView(alergenoView);
+        }
+    }
+
+    private void agregarIngrediente(String nombre, int numero, String tipoCantidad) {
+        Ingrediente ingrediente = new Ingrediente(nombre, numero, tipoCantidad);
         ingredientes.add(ingrediente);
         mostrarIngredientes();
     }
@@ -204,7 +275,7 @@ public class AddRecetasActivity extends AppCompatActivity {
             TextView textViewNumero = ingredienteView.findViewById(R.id.textViewNumero);
 
             textViewIngrediente.setText(ingrediente.getNombre());
-            textViewNumero.setText(String.valueOf(ingrediente.getCantidad()));
+            textViewNumero.setText(MessageFormat.format("{0} {1}", ingrediente.getCantidad(), ingrediente.getTipoCantidad()));
 
             ImageButton btnEliminar = ingredienteView.findViewById(R.id.btnEliminarIngrediente);
             btnEliminar.setOnClickListener(v -> {
@@ -294,6 +365,27 @@ public class AddRecetasActivity extends AppCompatActivity {
             fos.close();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private int obtenerImagen(int numero) {
+        switch (numero) {
+            case 0:
+                return R.drawable.ic_gluten;
+            case 1:
+                return R.drawable.ic_lacteos;
+            case 2:
+                return R.drawable.ic_cacahuetes;
+            case 3:
+                return R.drawable.ic_soja;
+            case 4:
+                return R.drawable.ic_pescado;
+            case 5:
+                return R.drawable.ic_mariscos;
+            case 6:
+                return R.drawable.ic_huevos;
+            default:
+                return R.drawable.alergeno_placeholder;
         }
     }
 }

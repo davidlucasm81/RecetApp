@@ -1,0 +1,17 @@
+<resources>
+    <string-array name="quantity_units">
+        <item>g</item>
+        <item>kg</item>
+        <item>ml</item>
+        <item>l</item>
+        <item>tablespoon</item>
+        <item>teaspoon</item>
+        <item>cup</item>
+        <item>glass</item>
+        <item>pinch</item>
+        <item>unit</item>
+        <item>leaf</item>
+        <item>sprig</item>
+        <item>cloves</item>
+    </string-array>
+</resources>

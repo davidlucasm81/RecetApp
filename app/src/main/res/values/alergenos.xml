@@ -1,0 +1,12 @@
+<resources>
+    <!-- Arreglo para almacenar los nombres de los alérgenos conocidos -->
+    <string-array name="alergenos_conocidos_nombres">
+        <item>Gluten</item>
+        <item>Lácteos</item>
+        <item>Cacahuetes</item>
+        <item>Soja</item>
+        <item>Pescado</item>
+        <item>Mariscos</item>
+        <item>Huevos</item>
+    </string-array>
+</resources>

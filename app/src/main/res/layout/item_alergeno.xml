@@ -1,0 +1,25 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:orientation="horizontal"
+    android:padding="8dp">
+
+    <!-- ImageView para mostrar el icono del alérgeno -->
+    <ImageView
+        android:id="@+id/imageViewIconoAlergeno"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:contentDescription="@string/placeholder"
+        android:src="@drawable/alergeno_placeholder" />
+
+    <!-- CheckBox para seleccionar el alérgeno -->
+    <CheckBox
+        android:id="@+id/checkBoxAlergeno"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:text=""
+        android:textSize="16sp" />
+
+</LinearLayout>

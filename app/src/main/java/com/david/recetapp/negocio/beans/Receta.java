@@ -13,6 +13,8 @@ public class Receta implements Serializable {
     private List<Ingrediente> ingredientes;
     private List<Paso> pasos;
 
+    private List<Alergeno> alergenos;
+
     private float estrellas;
 
     private Date fechaCalendario;
@@ -25,6 +27,7 @@ public class Receta implements Serializable {
         this.pasos = new ArrayList<>();
         this.estrellas = 0;
         this.fechaCalendario = null;
+        this.alergenos = new ArrayList<>();
     }
 
     public String getNombre() {
@@ -77,5 +80,13 @@ public class Receta implements Serializable {
 
     public String getId() {
         return id;
+    }
+
+    public List<Alergeno> getAlergenos() {
+        return alergenos;
+    }
+
+    public void setAlergenos(List<Alergeno> alergenos) {
+        this.alergenos = alergenos;
     }
 }

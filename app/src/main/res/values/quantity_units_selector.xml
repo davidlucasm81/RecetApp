@@ -1,0 +1,17 @@
+<resources>
+    <string-array name="quantity_units">
+        <item>g</item>
+        <item>kg</item>
+        <item>ml</item>
+        <item>l</item>
+        <item>cucharada</item>
+        <item>cucharadita</item>
+        <item>taza</item>
+        <item>vaso</item>
+        <item>pizca</item>
+        <item>unidad</item>
+        <item>hoja</item>
+        <item>ramita</item>
+        <item>diente</item>
+    </string-array>
+</resources>
