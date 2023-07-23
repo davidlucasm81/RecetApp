@@ -20,6 +20,42 @@
             android:textSize="20sp"
             android:textStyle="bold" />
 
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:columnCount="2"
+            android:padding="16dp"
+            android:rowCount="1">
+
+            <AutoCompleteTextView
+                android:id="@+id/autoCompleteTextViewRecetas"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_row="0"
+                android:layout_column="0"
+                android:layout_columnWeight="1"
+                android:completionThreshold="1"
+                android:dropDownAnchor="@id/autoCompleteTextViewRecetas"
+                android:hint="@string/buscar_recetas"
+                android:imeActionLabel="Done"
+                android:imeOptions="actionDone"
+                android:inputType="textAutoComplete"
+                android:minHeight="48dp"
+                tools:ignore="VisualLintTextFieldSize" />
+
+            <ImageView
+                android:id="@+id/imageViewClearSearch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_row="0"
+                android:layout_column="1"
+                android:layout_gravity="center_vertical"
+                android:clickable="true"
+                android:contentDescription="@string/borrar_busqueda"
+                android:src="@drawable/ic_baseline_delete_24"
+                tools:ignore="TouchTargetSizeCheck" />
+        </GridLayout>
+
         <TextView
             android:id="@+id/textViewEmpty"
             android:layout_width="match_parent"
