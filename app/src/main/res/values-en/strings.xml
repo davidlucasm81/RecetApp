@@ -1,20 +1,14 @@
 <resources>
-    <string name="app_name">RecetApp</string>
     <string name="add_recipe">Add recipe</string>
     <string name="Boton2">Weekly Recipe Calendar</string>
     <string name="Boton1">Add recipes</string>
     <string name="Boton3">Shopping List</string>
-    <string name="selecciona_temporada">Select a season</string>
     <string name="Boton_Nombre_Add_Receta">Enter the name</string>
-    <string name="Boton_Ingrediente_Add_Receta">Enter an ingredient</string>
     <string name="Aniadir">Add</string>
-    <string name="Boton_Paso_Add_Receta">Enter a step</string>
     <string name="temporadas">Seasons</string>
     <string name="ingredientes">Ingredients</string>
     <string name="pasos">Steps</string>
     <string name="recetas_del_d_a">Recipes of the day</string>
-    <string name="x">X</string>
-    <string name="x_con_espacio">"X "</string>
     <string name="eliminar">Delete</string>
     <string name="recetas">Recipes</string>
     <string name="ver_recetas">View Recipes</string>
@@ -61,4 +55,7 @@
     <string name="ultima_fecha_calendario">Last date on the calendar</string>
     <string name="alergenos">Allergens</string>
     <string name="ajustes">Settings</string>
+    <string name="ajustes_calendario">Calendar Settings</string>
+    <string name="dias_para_repetir_recetas">Days to repeat recipes:</string>
+    <string name="borrar_calendario">Delete Calendar</string>
 </resources>

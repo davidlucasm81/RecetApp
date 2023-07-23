@@ -4,11 +4,8 @@
     <string name="Boton2">Calendario Semanal de Recetas</string>
     <string name="Boton1">Añadir Recetas</string>
     <string name="Boton3">Lista de la Compra</string>
-    <string name="selecciona_temporada">Selecciona una temporada</string>
     <string name="Boton_Nombre_Add_Receta">Ingresa el nombre</string>
-    <string name="Boton_Ingrediente_Add_Receta">Ingresa un ingrediente</string>
     <string name="Aniadir">Añadir</string>
-    <string name="Boton_Paso_Add_Receta">Ingresa un paso</string>
     <string name="temporadas">Temporadas</string>
     <string name="ingredientes">Ingredientes</string>
     <string name="pasos">Pasos</string>
@@ -62,4 +59,7 @@
     <string name="alergenos">Alérgenos</string>
     <string name="placeholder" translatable="false">placeholder</string>
     <string name="ajustes">Ajustes</string>
+    <string name="ajustes_calendario">Ajustes del calendario</string>
+    <string name="dias_para_repetir_recetas">Días para repetir recetas:</string>
+    <string name="borrar_calendario">Borrar Calendario</string>
 </resources>

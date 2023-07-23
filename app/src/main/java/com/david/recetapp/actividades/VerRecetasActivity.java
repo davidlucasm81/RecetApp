@@ -10,16 +10,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.david.recetapp.R;
 import com.david.recetapp.adaptadores.RecetaExpandableListAdapter;
 import com.david.recetapp.negocio.beans.Receta;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import com.david.recetapp.negocio.servicios.RecetasSrv;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,7 +26,7 @@ public class VerRecetasActivity extends AppCompatActivity implements RecetaExpan
 
         expandableListView = findViewById(R.id.expandableListView);
 
-        List<Receta> listaRecetas = cargarListaRecetas().stream().sorted((r1, r2) ->
+        List<Receta> listaRecetas = RecetasSrv.cargarListaRecetas(this).stream().sorted((r1, r2) ->
                 String.CASE_INSENSITIVE_ORDER.compare(r1.getNombre(), r2.getNombre())
         ).collect(Collectors.toList());
 
@@ -58,39 +50,6 @@ public class VerRecetasActivity extends AppCompatActivity implements RecetaExpan
             return true;
         });
 
-    }
-
-    private List<Receta> cargarListaRecetas() {
-        List<Receta> listaRecetas = new ArrayList<>();
-
-        try {
-            // Cargar el archivo JSON desde el almacenamiento interno
-            FileInputStream fis = openFileInput("lista_recetas.json");
-            InputStreamReader isr = new InputStreamReader(fis);
-            BufferedReader br = new BufferedReader(isr);
-
-            StringBuilder jsonBuilder = new StringBuilder();
-            String line;
-            while ((line = br.readLine()) != null) {
-                jsonBuilder.append(line);
-            }
-
-            br.close();
-            isr.close();
-            fis.close();
-
-            // Convertir el JSON a una lista de objetos Receta utilizando GSON
-            Gson gson = new Gson();
-            Type listType = new TypeToken<List<Receta>>() {
-            }.getType();
-            listaRecetas = gson.fromJson(jsonBuilder.toString(), listType);
-        } catch (FileNotFoundException e) {
-            // El archivo no existe, no se hace nada
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return listaRecetas;
     }
 
     @Override

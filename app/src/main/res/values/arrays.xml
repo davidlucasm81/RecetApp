@@ -1,9 +1,2 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string-array name="temporadas">
-        <item>@string/invierno</item>
-        <item>@string/primavera</item>
-        <item>@string/verano</item>
-        <item>@string/otonio</item>
-    </string-array>
-</resources>
+<resources />

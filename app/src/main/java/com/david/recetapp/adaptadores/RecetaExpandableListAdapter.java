@@ -21,11 +21,8 @@ import com.david.recetapp.negocio.beans.Alergeno;
 import com.david.recetapp.negocio.beans.Ingrediente;
 import com.david.recetapp.negocio.beans.Receta;
 import com.david.recetapp.negocio.servicios.AlergenosSrv;
-import com.google.gson.Gson;
+import com.david.recetapp.negocio.servicios.RecetasSrv;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -114,7 +111,10 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
             builder.setTitle(context.getString(R.string.confirmacion)).setMessage(context.getString(R.string.alerta_eliminar)).setPositiveButton(context.getString(R.string.aceptar), (dialog, which) -> {
                 // Eliminar la receta del JSON y refrescar la pantalla
-                eliminarReceta(groupPosition);
+                RecetasSrv.eliminarReceta(context, groupPosition, listaRecetas);
+                if (listaRecetas.isEmpty()) {
+                    emptyListListener.onListEmpty();
+                }
                 notifyDataSetChanged();
             }).setNegativeButton(context.getString(R.string.cancelar), null).show();
         });
@@ -244,30 +244,6 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
         return false;
     }
 
-    private void eliminarReceta(int position) {
-        // Eliminar la receta de la lista de recetas y actualizar el archivo JSON
-        listaRecetas.remove(position);
-        guardarListaRecetas();
-        if (listaRecetas.isEmpty()) {
-            emptyListListener.onListEmpty();
-        }
-    }
-
-    private void guardarListaRecetas() {
-        // Guardar la lista de recetas en el archivo JSON
-        Gson gson = new Gson();
-        String json = gson.toJson(listaRecetas);
-
-        try {
-            FileOutputStream fos = context.openFileOutput("lista_recetas.json", Context.MODE_PRIVATE);
-            OutputStreamWriter osw = new OutputStreamWriter(fos);
-            osw.write(json);
-            osw.close();
-            fos.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     public interface EmptyListListener {
         void onListEmpty();

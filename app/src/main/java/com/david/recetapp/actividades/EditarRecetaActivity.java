@@ -1,6 +1,5 @@
 package com.david.recetapp.actividades;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -28,11 +27,8 @@ import com.david.recetapp.negocio.beans.Paso;
 import com.david.recetapp.negocio.beans.Receta;
 import com.david.recetapp.negocio.beans.Temporada;
 import com.david.recetapp.negocio.servicios.AlergenosSrv;
-import com.google.gson.Gson;
+import com.david.recetapp.negocio.servicios.RecetasSrv;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -216,7 +212,7 @@ public class EditarRecetaActivity extends AppCompatActivity {
             receta.setAlergenos(alergenosSeleccionados);
 
             // Guardar la lista actualizada en el archivo JSON
-            guardarListaRecetas(recetas);
+            RecetasSrv.guardarListaRecetas(this, recetas);
 
             // Crear un Intent para volver a la pantalla inicial
             Toast.makeText(EditarRecetaActivity.this, this.getString(R.string.receta_editada), Toast.LENGTH_SHORT).show();
@@ -251,9 +247,7 @@ public class EditarRecetaActivity extends AppCompatActivity {
             checkBoxAlergeno.setChecked(alergenosSeleccionados.stream()
                     .anyMatch(objeto -> alergeno.getNombre().equals(objeto.getNombre())));
 
-            checkBoxAlergeno.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                alergenosSeleccionados.add(alergeno);
-            });
+            checkBoxAlergeno.setOnCheckedChangeListener((buttonView, isChecked) -> alergenosSeleccionados.add(alergeno));
 
             // Agregar el elemento a la cuadrícula
             GridLayout.LayoutParams params = new GridLayout.LayoutParams();
@@ -321,23 +315,6 @@ public class EditarRecetaActivity extends AppCompatActivity {
             }
 
             linearLayoutListaPasos.addView(convertView);
-        }
-    }
-
-    private void guardarListaRecetas(List<Receta> listaRecetas) {
-        try {
-            // Convertir la lista de objetos Receta a JSON utilizando GSON
-            Gson gson = new Gson();
-            String json = gson.toJson(listaRecetas);
-
-            // Guardar el JSON en el almacenamiento interno
-            FileOutputStream fos = openFileOutput("lista_recetas.json", Context.MODE_PRIVATE);
-            OutputStreamWriter osw = new OutputStreamWriter(fos);
-            osw.write(json);
-            osw.close();
-            fos.close();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 }

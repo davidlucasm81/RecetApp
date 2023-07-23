@@ -1,6 +1,5 @@
 package com.david.recetapp.actividades;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -29,17 +28,8 @@ import com.david.recetapp.negocio.beans.Paso;
 import com.david.recetapp.negocio.beans.Receta;
 import com.david.recetapp.negocio.beans.Temporada;
 import com.david.recetapp.negocio.servicios.AlergenosSrv;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import com.david.recetapp.negocio.servicios.RecetasSrv;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.lang.reflect.Type;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -204,13 +194,7 @@ public class AddRecetasActivity extends AppCompatActivity {
             receta.setAlergenos(alergenosSeleccionados);
 
             // Obtener la lista actual de recetas desde el archivo JSON
-            List<Receta> listaRecetas = cargarListaRecetas();
-
-            // Agregar la receta al principio de la lista
-            listaRecetas.add(0, receta);
-
-            // Guardar la lista actualizada en el archivo JSON
-            guardarListaRecetas(listaRecetas);
+            RecetasSrv.addReceta(this, receta);
 
             // Crear un Intent para volver a la pantalla inicial
             Toast.makeText(AddRecetasActivity.this, this.getString(R.string.receta_creada), Toast.LENGTH_SHORT).show();
@@ -245,9 +229,7 @@ public class AddRecetasActivity extends AppCompatActivity {
             checkBoxAlergeno.setChecked(alergenosSeleccionados.stream()
                     .anyMatch(objeto -> alergeno.getNombre().equals(objeto.getNombre())));
 
-            checkBoxAlergeno.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                alergenosSeleccionados.add(alergeno);
-            });
+            checkBoxAlergeno.setOnCheckedChangeListener((buttonView, isChecked) -> alergenosSeleccionados.add(alergeno));
 
             // Agregar el elemento a la cuadrícula
             GridLayout.LayoutParams params = new GridLayout.LayoutParams();
@@ -315,57 +297,6 @@ public class AddRecetasActivity extends AppCompatActivity {
             }
 
             linearLayoutListaPasos.addView(convertView);
-        }
-    }
-
-    private List<Receta> cargarListaRecetas() {
-        List<Receta> listaRecetas = new ArrayList<>();
-
-        try {
-            // Cargar el archivo JSON desde el almacenamiento interno
-            FileInputStream fis = openFileInput("lista_recetas.json");
-            InputStreamReader isr = new InputStreamReader(fis);
-            BufferedReader br = new BufferedReader(isr);
-
-            StringBuilder jsonBuilder = new StringBuilder();
-            String line;
-            while ((line = br.readLine()) != null) {
-                jsonBuilder.append(line);
-            }
-
-            br.close();
-            isr.close();
-            fis.close();
-
-            // Convertir el JSON a una lista de objetos Receta utilizando GSON
-            Gson gson = new Gson();
-            Type listType = new TypeToken<List<Receta>>() {
-            }.getType();
-            listaRecetas = gson.fromJson(jsonBuilder.toString(), listType);
-        } catch (FileNotFoundException e) {
-            // Si el archivo no existe, se crea una nueva lista vacía
-            listaRecetas = new ArrayList<>();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return listaRecetas;
-    }
-
-    private void guardarListaRecetas(List<Receta> listaRecetas) {
-        try {
-            // Convertir la lista de objetos Receta a JSON utilizando GSON
-            Gson gson = new Gson();
-            String json = gson.toJson(listaRecetas);
-
-            // Guardar el JSON en el almacenamiento interno
-            FileOutputStream fos = openFileOutput("lista_recetas.json", Context.MODE_PRIVATE);
-            OutputStreamWriter osw = new OutputStreamWriter(fos);
-            osw.write(json);
-            osw.close();
-            fos.close();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 }
