@@ -162,19 +162,17 @@ public class CalendarioSrv {
     public static void addReceta(Context context, String id) {
         CalendarioBean calendario = cargarCalendario(context);
         assert calendario != null;
-        if (recetasSeleccionadas.stream().noneMatch(r -> r.getId().equals(id))) {
-            for (DiaRecetas dia : calendario.getListaRecetas()) {
-                if(dia.getRecetas().contains(id)){
-                    return;
-                }
+        for (DiaRecetas dia : calendario.getListaRecetas()) {
+            if (dia.getRecetas().contains(id)) {
+                return;
             }
-            for (DiaRecetas dia : calendario.getListaRecetas()) {
-                if (dia.getRecetas().contains("-1")) {
-                    dia.getRecetas().remove("-1");
-                    dia.addReceta(id);
-                    actualizarCalendario(context, calendario);
-                    return;
-                }
+        }
+        for (DiaRecetas dia : calendario.getListaRecetas()) {
+            if (dia.getRecetas().contains("-1")) {
+                dia.getRecetas().remove("-1");
+                dia.addReceta(id);
+                actualizarCalendario(context, calendario);
+                return;
             }
         }
     }

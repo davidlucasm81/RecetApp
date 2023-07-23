@@ -66,6 +66,9 @@ public class EditarRecetaActivity extends AppCompatActivity {
         @SuppressWarnings("unchecked") List<Receta> recetas = (List<Receta>) getIntent().getSerializableExtra("listaRecetas");
         Receta receta = recetas.get(posicion);
 
+        CheckBox postre = findViewById(R.id.checkBoxPostre);
+        postre.setChecked(receta.isPostre());
+
         gridLayout = findViewById(R.id.gridLayoutAlergenos);
 
         editTextNombre = findViewById(R.id.editTextNombre);
@@ -219,6 +222,7 @@ public class EditarRecetaActivity extends AppCompatActivity {
             receta.setEstrellas(estrellas.getRating());
             receta.setAlergenos(alergenosSeleccionados);
             receta.setShared(false);
+            receta.setPostre(postre.isChecked());
 
             // Guardar la lista actualizada en el archivo JSON
             RecetasSrv.guardarListaRecetas(this, recetas);

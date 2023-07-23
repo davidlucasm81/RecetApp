@@ -106,7 +106,13 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
 
         Receta receta = listaRecetas.get(groupPosition);
         txtTituloReceta.setText(receta.getNombre());
-
+        ImageView postre = convertView.findViewById(R.id.imageViewPostreIcono);
+        if (receta.isPostre()) {
+            postre.setVisibility(View.VISIBLE);
+        }
+        else{
+            postre.setVisibility(View.GONE);
+        }
         btnEliminar.setOnClickListener(v -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
             builder.setTitle(context.getString(R.string.confirmacion)).setMessage(context.getString(R.string.alerta_eliminar)).setPositiveButton(context.getString(R.string.aceptar), (dialog, which) -> {

@@ -70,6 +70,7 @@ public class AddRecetasActivity extends AppCompatActivity {
         checkboxOtonio = findViewById(R.id.checkboxOtonio);
         checkboxPrimavera = findViewById(R.id.checkboxPrimavera);
         temporadas = new ArrayList<>();
+        CheckBox postre = findViewById(R.id.checkBoxPostre);
 
         autoCompleteTextViewNombreIngrediente = findViewById(R.id.autoCompleteTextViewNombreIngrediente);
         // Obtener la lista de ingredientes desde resources (strings.xml) o cualquier otra fuente de datos
@@ -203,6 +204,7 @@ public class AddRecetasActivity extends AppCompatActivity {
             receta.setFechaCalendario(new Date(0));
             receta.setAlergenos(alergenosSeleccionados);
             receta.setShared(false);
+            receta.setPostre(postre.isChecked());
 
             // Obtener la lista actual de recetas desde el archivo JSON
             RecetasSrv.addReceta(this, receta);

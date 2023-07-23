@@ -3,6 +3,7 @@ package com.david.recetapp.negocio.servicios;
 import android.content.Context;
 
 import com.david.recetapp.negocio.beans.Receta;
+import com.david.recetapp.negocio.beans.Temporada;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -44,7 +45,8 @@ public class RecetasSrv {
 
         // Obtener la fecha y hora actual del ordenador en milisegundos
         long tiempoActual = System.currentTimeMillis();
-
+        // Obtenemos temporada en la que estamos
+        Temporada temporada = UtilsSrv.getTemporadaFecha(new Date());
         // Ordenamos por fecha y después por estrellas
         listaRecetas = listaRecetas.stream().filter(r1 -> {
             // Calcular la diferencia en milisegundos entre la fecha actual y 'tuFecha'
@@ -52,7 +54,7 @@ public class RecetasSrv {
 
             // Convertir la diferencia en milisegundos a días
             long diasPasados = diferenciaEnMilisegundos / (1000 * 60 * 60 * 24);
-            return diasPasados >= diasLimite;
+            return diasPasados >= diasLimite && r1.getTemporadas().contains(temporada) && !r1.isPostre();
         }).sorted((r1, r2) -> r1.getFechaCalendario().compareTo(r2.getFechaCalendario()) - (int) (r1.getEstrellas() - r2.getEstrellas())).collect(Collectors.toList());
 
         // Agregar las recetas a la cola
@@ -114,6 +116,6 @@ public class RecetasSrv {
         Receta receta = listaRecetas.remove(position);
         RecetasSrv.guardarListaRecetas(context, listaRecetas);
         //Si existe la receta en el calendario la borramos y añadimos otra:
-        CalendarioSrv.eliminarReceta(context,receta);
+        CalendarioSrv.eliminarReceta(context, receta);
     }
 }

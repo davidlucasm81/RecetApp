@@ -62,4 +62,5 @@
     <string name="ajustes_calendario">Ajustes del calendario</string>
     <string name="dias_para_repetir_recetas">Días para repetir recetas:</string>
     <string name="borrar_calendario">Borrar Calendario</string>
+    <string name="postre">Postre</string>
 </resources>

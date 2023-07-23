@@ -5,31 +5,55 @@
     android:orientation="horizontal"
     android:padding="8dp">
 
-    <TextView
-        android:id="@+id/txtNombreReceta"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:paddingStart="30dp"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        tools:ignore="RtlSymmetry" />
-
-    <ImageButton
-        android:id="@+id/btnEditar"
+    <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
-        android:contentDescription="@string/editar"
-        android:src="@drawable/ic_baseline_edit_24"
-        tools:ignore="TextContrastCheck,ImageContrastCheck,TouchTargetSizeCheck" />
+        android:layout_height="match_parent"
+        android:gravity="start"
+        android:orientation="horizontal"
+        tools:ignore="UseCompoundDrawables">
 
-    <ImageButton
-        android:id="@+id/btnEliminar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
-        android:contentDescription="@string/eliminar"
-        android:src="@drawable/ic_baseline_delete_24"
-        tools:ignore="TextContrastCheck,ImageContrastCheck,TouchTargetSizeCheck" />
+        <TextView
+            android:id="@+id/txtNombreReceta"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:paddingStart="30dp"
+            android:paddingEnd="8dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            tools:ignore="RtlSymmetry" />
+
+        <ImageView
+            android:id="@+id/imageViewPostreIcono"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/postre"
+            android:src="@drawable/postre_icono"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="end"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/btnEditar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/editar"
+            android:src="@drawable/ic_baseline_edit_24"
+            tools:ignore="TextContrastCheck,ImageContrastCheck,TouchTargetSizeCheck" />
+
+        <ImageButton
+            android:id="@+id/btnEliminar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/eliminar"
+            android:src="@drawable/ic_baseline_delete_24"
+            tools:ignore="TextContrastCheck,ImageContrastCheck,TouchTargetSizeCheck" />
+    </LinearLayout>
 
 </LinearLayout>
