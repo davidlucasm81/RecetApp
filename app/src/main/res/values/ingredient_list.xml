@@ -1,0 +1,84 @@
+<resources>
+    <!-- Ingredientes para recetas típicas españolas -->
+    <string-array name="ingredient_list">
+        <item>Aceitunas</item>
+        <item>Aceite de oliva</item>
+        <item>Ajo</item>
+        <item>Almejas</item>
+        <item>Almendras</item>
+        <item>Anchoas</item>
+        <item>Arroz</item>
+        <item>Bacalao</item>
+        <item>Berenjena</item>
+        <item>Boquerones</item>
+        <item>Caballa</item>
+        <item>Calamares</item>
+        <item>Caldo de pescado</item>
+        <item>Caldo de pollo</item>
+        <item>Callos</item>
+        <item>Camote (boniato)</item>
+        <item>Cangrejo</item>
+        <item>Cebolla</item>
+        <item>Cerdo</item>
+        <item>Chirlas</item>
+        <item>Chorizo</item>
+        <item>Cigalas</item>
+        <item>Codorniz</item>
+        <item>Conejo</item>
+        <item>Coñac</item>
+        <item>Corvina</item>
+        <item>Costillas</item>
+        <item>Espárragos</item>
+        <item>Fabes (alubias blancas)</item>
+        <item>Faisán</item>
+        <item>Fideos</item>
+        <item>Gallina</item>
+        <item>Gambas</item>
+        <item>Guindilla</item>
+        <item>Guisantes</item>
+        <item>Habas</item>
+        <item>Harina de trigo</item>
+        <item>Higos</item>
+        <item>Jamón</item>
+        <item>Judías</item>
+        <item>Lengua</item>
+        <item>Lentejas</item>
+        <item>Levadura</item>
+        <item>Liebre</item>
+        <item>Lomo</item>
+        <item>Lubina</item>
+        <item>Mariscos</item>
+        <item>Merluza</item>
+        <item>Migas</item>
+        <item>Mollejas</item>
+        <item>Monkfish</item>
+        <item>Mostaza</item>
+        <item>Navajas</item>
+        <item>Orégano</item>
+        <item>Ostras</item>
+        <item>Pan</item>
+        <item>Papas (patatas)</item>
+        <item>Pimientos</item>
+        <item>Pinchos</item>
+        <item>Plátano</item>
+        <item>Pollo</item>
+        <item>Pulpo</item>
+        <item>Rabas (calamares)</item>
+        <item>Rape</item>
+        <item>Riñones</item>
+        <item>Rodaballo</item>
+        <item>Romeritos</item>
+        <item>Salchichón</item>
+        <item>Salmorejo</item>
+        <item>Sardinas</item>
+        <item>Setas</item>
+        <item>Sobrasada</item>
+        <item>Ternera</item>
+        <item>Tomates</item>
+        <item>Tortilla</item>
+        <item>Trucha</item>
+        <item>Turrón</item>
+        <item>Vino</item>
+        <!-- Agregar aquí más ingredientes -->
+    </string-array>
+</resources>

@@ -108,8 +108,8 @@
                 android:gravity="center"
                 android:orientation="horizontal">
 
-                <EditText
-                    android:id="@+id/editTextNombreIngrediente"
+                <AutoCompleteTextView
+                    android:id="@+id/autoCompleteTextViewNombreIngrediente"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/nombre_del_ingrediente"

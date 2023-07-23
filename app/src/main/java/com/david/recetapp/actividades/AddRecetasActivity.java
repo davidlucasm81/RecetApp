@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -45,7 +46,7 @@ public class AddRecetasActivity extends AppCompatActivity {
     private CheckBox checkboxPrimavera;
     private List<Temporada> temporadas;
 
-    private EditText editTextNombreIngrediente;
+    private AutoCompleteTextView autoCompleteTextViewNombreIngrediente;
     private EditText editTextCantidad;
     private LinearLayout linearLayoutIngredientes;
     private List<Ingrediente> ingredientes;
@@ -69,7 +70,16 @@ public class AddRecetasActivity extends AppCompatActivity {
         checkboxOtonio = findViewById(R.id.checkboxOtonio);
         checkboxPrimavera = findViewById(R.id.checkboxPrimavera);
         temporadas = new ArrayList<>();
-        editTextNombreIngrediente = findViewById(R.id.editTextNombreIngrediente);
+
+        autoCompleteTextViewNombreIngrediente = findViewById(R.id.autoCompleteTextViewNombreIngrediente);
+        // Obtener la lista de ingredientes desde resources (strings.xml) o cualquier otra fuente de datos
+        String[] ingredientList = getResources().getStringArray(R.array.ingredient_list);
+
+        // Crear un adaptador con la lista de ingredientes y configurarlo en el AutoCompleteTextView
+        ArrayAdapter<String> adapterIngrediente = new ArrayAdapter<>(this,
+                android.R.layout.simple_dropdown_item_1line, ingredientList);
+        autoCompleteTextViewNombreIngrediente.setAdapter(adapterIngrediente);
+
         editTextCantidad = findViewById(R.id.editTextCantidad);
         Button btnAgregarIngrediente = findViewById(R.id.btnAgregarIngrediente);
         linearLayoutIngredientes = findViewById(R.id.linearLayoutIngredientes);
@@ -93,14 +103,14 @@ public class AddRecetasActivity extends AppCompatActivity {
         spinner.setSelection(0);
 
         btnAgregarIngrediente.setOnClickListener(v -> {
-            String nombreIngrediente = editTextNombreIngrediente.getText().toString().trim();
+            String nombreIngrediente = autoCompleteTextViewNombreIngrediente.getText().toString().trim();
             String cantidad = editTextCantidad.getText().toString().trim();
             String tipoCantidad = (String) spinner.getSelectedItem();
 
             if (!nombreIngrediente.isEmpty() && !cantidad.isEmpty() && tipoCantidad != null && !tipoCantidad.isEmpty()) {
                 int cantidadNumerica = Integer.parseInt(cantidad);
                 agregarIngrediente(nombreIngrediente, cantidadNumerica, tipoCantidad);
-                editTextNombreIngrediente.setText("");
+                autoCompleteTextViewNombreIngrediente.setText("");
                 editTextCantidad.setText("1");
                 Toast.makeText(AddRecetasActivity.this, this.getString(R.string.ingrediente_aniadido), Toast.LENGTH_SHORT).show();
             } else {
@@ -192,6 +202,7 @@ public class AddRecetasActivity extends AppCompatActivity {
             receta.setEstrellas(estrellas.getRating());
             receta.setFechaCalendario(new Date(0));
             receta.setAlergenos(alergenosSeleccionados);
+            receta.setShared(false);
 
             // Obtener la lista actual de recetas desde el archivo JSON
             RecetasSrv.addReceta(this, receta);

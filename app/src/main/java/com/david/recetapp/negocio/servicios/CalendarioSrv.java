@@ -143,17 +143,39 @@ public class CalendarioSrv {
     }
 
     public static void eliminarReceta(Context context, Receta receta) {
-        if(recetasSeleccionadas.removeIf(r -> r.getId().equals(receta.getId()))){
-            colaRecetas.addAll(RecetasSrv.obtenerRecetasFiltradasCalendario(context, ConfiguracionSrv.getDiasRepeticionReceta(context)));
-            CalendarioBean calendario = cargarCalendario(context);
-            for(DiaRecetas dia : calendario.getListaRecetas()){
-                if(dia.getRecetas().contains(receta.getId())){
-                    dia.getRecetas().remove(receta.getId());
-                    dia.addReceta(obtenerReceta());
-                    break;
+        CalendarioBean calendario = cargarCalendario(context);
+        assert calendario != null;
+        colaRecetas = new ArrayDeque<>();
+        recetasSeleccionadas = new ArraySet<>();
+        colaRecetas.addAll(RecetasSrv.obtenerRecetasFiltradasCalendario(context, ConfiguracionSrv.getDiasRepeticionReceta(context)));
+        recetasSeleccionadas.removeIf(r -> r.getId().equals(receta.getId()));
+        for (DiaRecetas dia : calendario.getListaRecetas()) {
+            if (dia.getRecetas().contains(receta.getId())) {
+                dia.getRecetas().remove(receta.getId());
+                dia.addReceta(obtenerReceta());
+                break;
+            }
+        }
+        actualizarCalendario(context, calendario);
+    }
+
+    public static void addReceta(Context context, String id) {
+        CalendarioBean calendario = cargarCalendario(context);
+        assert calendario != null;
+        if (recetasSeleccionadas.stream().noneMatch(r -> r.getId().equals(id))) {
+            for (DiaRecetas dia : calendario.getListaRecetas()) {
+                if(dia.getRecetas().contains(id)){
+                    return;
                 }
             }
-            actualizarCalendario(context,calendario);
+            for (DiaRecetas dia : calendario.getListaRecetas()) {
+                if (dia.getRecetas().contains("-1")) {
+                    dia.getRecetas().remove("-1");
+                    dia.addReceta(id);
+                    actualizarCalendario(context, calendario);
+                    return;
+                }
+            }
         }
     }
 }

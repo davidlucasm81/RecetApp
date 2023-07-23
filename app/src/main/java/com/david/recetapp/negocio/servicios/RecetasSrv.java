@@ -104,6 +104,9 @@ public class RecetasSrv {
 
         // Guardar la lista actualizada en el archivo JSON
         guardarListaRecetas(context, listaRecetas);
+
+        // Añadir receta al calendario si tiene algun dia vacio
+        CalendarioSrv.addReceta(context, receta.getId());
     }
 
     public static void eliminarReceta(Context context, int position, List<Receta> listaRecetas) {
@@ -111,7 +114,6 @@ public class RecetasSrv {
         Receta receta = listaRecetas.remove(position);
         RecetasSrv.guardarListaRecetas(context, listaRecetas);
         //Si existe la receta en el calendario la borramos y añadimos otra:
-        //TODO: COMPROBAR
         CalendarioSrv.eliminarReceta(context,receta);
     }
 }

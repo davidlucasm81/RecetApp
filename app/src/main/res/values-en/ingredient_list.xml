@@ -1,0 +1,84 @@
+<resources>
+    <!-- Ingredients for typical Spanish recipes -->
+    <string-array name="ingredient_list">
+        <item>Olives</item>
+        <item>Olive oil</item>
+        <item>Garlic</item>
+        <item>Clams</item>
+        <item>Almonds</item>
+        <item>Anchovies</item>
+        <item>Rice</item>
+        <item>Cod</item>
+        <item>Eggplant</item>
+        <item>Anchovies</item>
+        <item>Mackerel</item>
+        <item>Squid</item>
+        <item>Fish stock</item>
+        <item>Chicken broth</item>
+        <item>Calluses</item>
+        <item>Sweet Potato</item>
+        <item>Crab</item>
+        <item>Onion</item>
+        <item>Pig</item>
+        <item>Cherries</item>
+        <item>Sausage</item>
+        <item>Crops</item>
+        <item>Quail</item>
+        <item>Rabbit</item>
+        <item>Cognac</item>
+        <item>Crown</item>
+        <item>Ribs</item>
+        <item>Studs</item>
+        <item>Fabes (white beans)</item>
+        <item>Pheasant</item>
+        <item>Noodles</item>
+        <item>Chicken</item>
+        <item>Shrimps</item>
+        <item>Chilli Pepper</item>
+        <item>Peas</item>
+        <item>Fava beans</item>
+        <item>Wheat flour</item>
+        <item>Figs</item>
+        <item>Ham</item>
+        <item>Beans</item>
+        <item>Language</item>
+        <item>Lentils</item>
+        <item>Yeast</item>
+        <item>Hare</item>
+        <item>Spine</item>
+        <item>Sea Bass</item>
+        <item>Seafood</item>
+        <item>Hake</item>
+        <item>Crumbs</item>
+        <item>Gizzards</item>
+        <item>Monkfish</item>
+        <item>Mustard</item>
+        <item>Knives</item>
+        <item>Oregano</item>
+        <item>Oysters</item>
+        <item>Bread</item>
+        <item>Potatoes (potatoes)</item>
+        <item>Peppers</item>
+        <item>Skewers</item>
+        <item>Banana</item>
+        <item>Chicken</item>
+        <item>Octopus</item>
+        <item>Rabas (squid)</item>
+        <item>Monkfish</item>
+        <item>Kidneys</item>
+        <item>Turlot</item>
+        <item>Romeritos</item>
+        <item>Sausage</item>
+        <item>Salmorejo</item>
+        <item>Sardines</item>
+        <item>Mushrooms</item>
+        <item>Sobrasada</item>
+        <item>Veal</item>
+        <item>Tomatoes</item>
+        <item>Omelette</item>
+        <item>Trout</item>
+        <item>Nougat</item>
+        <item>Wine</item>
+        <!-- Add more ingredients here -->
+    </string-array>
+</resources>

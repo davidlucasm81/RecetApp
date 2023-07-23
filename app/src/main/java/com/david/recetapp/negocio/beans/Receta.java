@@ -19,6 +19,8 @@ public class Receta implements Serializable {
 
     private Date fechaCalendario;
 
+    private boolean shared;
+
     public Receta() {
         this.id = UUID.randomUUID().toString();
         this.nombre = "";
@@ -28,6 +30,7 @@ public class Receta implements Serializable {
         this.estrellas = 0;
         this.fechaCalendario = null;
         this.alergenos = new ArrayList<>();
+        this.shared = false;
     }
 
     public String getNombre() {
@@ -88,5 +91,13 @@ public class Receta implements Serializable {
 
     public void setAlergenos(List<Alergeno> alergenos) {
         this.alergenos = alergenos;
+    }
+
+    public boolean isShared() {
+        return shared;
+    }
+
+    public void setShared(boolean shared) {
+        this.shared = shared;
     }
 }
