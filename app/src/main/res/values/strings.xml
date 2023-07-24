@@ -66,4 +66,5 @@
     <string name="buscar_recetas">Buscar recetas</string>
     <string name="borrar_busqueda">Borrar búsqueda</string>
     <string name="sin_al_rgenos">Sin alérgenos</string>
+    <string name="no_lista_compra">No hay lista de la compra</string>
 </resources>

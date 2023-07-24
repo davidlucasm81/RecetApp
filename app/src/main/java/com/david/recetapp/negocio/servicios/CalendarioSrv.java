@@ -45,13 +45,13 @@ public class CalendarioSrv {
             int diaActual = calendar.get(Calendar.DAY_OF_WEEK);
             if (diaActual == Calendar.MONDAY && !UtilsSrv.esMismoDia(calendarioBean.getUltimaActualizacion(), calendar)) {
                 calendarioBean = crearNuevoCalendario(context);
-                actualizarCalendario(context, calendarioBean);
+                actualizarCalendario(context, calendarioBean, true);
             }
             return calendarioBean;
         } catch (FileNotFoundException | NullPointerException e) {
             // El archivo no existe, se crea un nuevo Calendario
             CalendarioBean calendarioBean = crearNuevoCalendario(context);
-            actualizarCalendario(context, calendarioBean);
+            actualizarCalendario(context, calendarioBean, true);
             return calendarioBean;
         } catch (IOException e) {
             e.printStackTrace();
@@ -100,11 +100,11 @@ public class CalendarioSrv {
         return calendarioBean;
     }
 
-    private static String obtenerReceta(Context context, long tiempoActual) {
+    private static Receta obtenerReceta(Context context, long tiempoActual) {
         // Obtener la primera receta de la cola
         Receta receta = colaRecetas.poll();
         if (receta == null) {
-            return "-1";
+            return null;
         }
         long diasLimite = ConfiguracionSrv.getDiasRepeticionReceta(context);
         Receta recetaElegida = receta;
@@ -119,7 +119,7 @@ public class CalendarioSrv {
             Temporada temporada = UtilsSrv.getTemporadaFecha(new Date(tiempoActual));
             if (diasPasados > diasLimite && recetaElegida.getTemporadas().contains(temporada) && !recetaElegida.isPostre()) {
                 recetaElegida.setFechaCalendario(new Date(tiempoActual));
-                return recetaElegida.getId();
+                return recetaElegida;
             } else {
                 recetaElegida = colaRecetas.poll();
             }
@@ -127,14 +127,15 @@ public class CalendarioSrv {
         while (recetaElegida != receta);
         colaRecetas.offer(recetaElegida);
         // No se ha encontrado receta valida para el dia, devolver -1
-        return "-1";
+        return null;
     }
 
 
-    public static void actualizarCalendario(Context context, CalendarioBean calendario) {
+    public static void actualizarCalendario(Context context, CalendarioBean calendario, boolean warn) {
         // Realizar la lógica de actualización del Calendario
         // Establecer la última actualización con la fecha y hora actual
-        Toast.makeText(context, context.getString(R.string.calendario_actualizado), Toast.LENGTH_SHORT).show();
+        if(warn)
+            Toast.makeText(context, context.getString(R.string.calendario_actualizado), Toast.LENGTH_SHORT).show();
         calendario.setUltimaActualizacion(System.currentTimeMillis());
 
         // Guardar el Calendario en "calendario.json"
@@ -165,7 +166,7 @@ public class CalendarioSrv {
                 dia.addReceta(obtenerReceta(context, dia.getFecha().getTime()));
             }
         }
-        actualizarCalendario(context, calendario);
+        actualizarCalendario(context, calendario, true);
         // Guardar la lista de recetas actualizada en el archivo JSON
         RecetasSrv.guardarListaRecetas(context, new ArrayList<>(colaRecetas));
     }
@@ -177,13 +178,15 @@ public class CalendarioSrv {
         colaRecetas.addAll(RecetasSrv.cargarListaRecetas(context));
         for (DiaRecetas dia : calendario.getListaRecetas()) {
             if (dia.getRecetas().contains("-1")) {
-                String id = obtenerReceta(context, dia.getFecha().getTime());
-                dia.getRecetas().remove("-1");
-                dia.addReceta(id);
-                RecetasSrv.actualizarFechaCalendario(context, id);
+                Receta receta = obtenerReceta(context, dia.getFecha().getTime());
+                if (receta != null) {
+                    dia.getRecetas().remove("-1");
+                    dia.addReceta(receta);
+                }
             }
         }
         // Guardar la lista de recetas actualizada en el archivo JSON
         RecetasSrv.guardarListaRecetas(context, new ArrayList<>(colaRecetas));
+        actualizarCalendario(context,calendario,true);
     }
 }
