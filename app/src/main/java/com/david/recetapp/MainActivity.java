@@ -12,7 +12,10 @@ import com.david.recetapp.actividades.ListaCompraActivity;
 import com.david.recetapp.actividades.VerRecetasActivity;
 
 public class MainActivity extends AppCompatActivity {
-
+    @Override
+    public void onBackPressed() {
+        // No hace nada
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

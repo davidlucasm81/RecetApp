@@ -25,6 +25,10 @@ public class VerRecetasActivity extends AppCompatActivity implements RecetaExpan
     private ExpandableListView expandableListView;
     private List<Receta> listaRecetas;
 
+    private AutoCompleteTextView autoCompleteTextViewRecetas;
+
+    private ImageView imageViewClearSearch;
+
     @Override
     public void onBackPressed() {
         // Controla el comportamiento del botón "Atrás"
@@ -38,13 +42,13 @@ public class VerRecetasActivity extends AppCompatActivity implements RecetaExpan
         setContentView(R.layout.activity_ver_recetas);
 
         expandableListView = findViewById(R.id.expandableListView);
-        ImageView imageViewClearSearch = findViewById(R.id.imageViewClearSearch);
+        imageViewClearSearch = findViewById(R.id.imageViewClearSearch);
 
         listaRecetas = RecetasSrv.cargarListaRecetas(this).stream().sorted((r1, r2) ->
                 String.CASE_INSENSITIVE_ORDER.compare(r1.getNombre(), r2.getNombre())
         ).collect(Collectors.toList());
 
-        AutoCompleteTextView autoCompleteTextViewRecetas = findViewById(R.id.autoCompleteTextViewRecetas);
+        autoCompleteTextViewRecetas = findViewById(R.id.autoCompleteTextViewRecetas);
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, listaRecetas.stream().map(Receta::getNombre).collect(Collectors.toList()));
         autoCompleteTextViewRecetas.setAdapter(adapter);
@@ -113,5 +117,7 @@ public class VerRecetasActivity extends AppCompatActivity implements RecetaExpan
     @Override
     public void onListEmpty() {
         textViewEmpty.setVisibility(View.VISIBLE); // Muestra el TextView si la lista está vacía
+        autoCompleteTextViewRecetas.setVisibility(View.GONE);
+        imageViewClearSearch.setVisibility(View.GONE);
     }
 }
