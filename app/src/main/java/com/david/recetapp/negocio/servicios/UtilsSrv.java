@@ -57,4 +57,13 @@ public class UtilsSrv {
         // Concatenar la primera letra en mayúscula con el resto del String
         return firstLetter + restOfString;
     }
+
+    public static boolean esMismoDia(long fecha1, Calendar fecha2) {
+        Calendar calFecha1 = Calendar.getInstance();
+        calFecha1.setTimeInMillis(fecha1);
+
+        return calFecha1.get(Calendar.YEAR) == fecha2.get(Calendar.YEAR) &&
+                calFecha1.get(Calendar.MONTH) == fecha2.get(Calendar.MONTH) &&
+                calFecha1.get(Calendar.DAY_OF_MONTH) == fecha2.get(Calendar.DAY_OF_MONTH);
+    }
 }

@@ -8,7 +8,6 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.david.recetapp.MainActivity;
 import com.david.recetapp.R;
 import com.david.recetapp.adaptadores.RecetasDiaExpandableListAdapter;
 import com.david.recetapp.negocio.beans.DiaRecetas;

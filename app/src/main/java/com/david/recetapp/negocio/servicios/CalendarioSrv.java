@@ -45,7 +45,7 @@ public class CalendarioSrv {
             fis.close();
             Calendar calendar = Calendar.getInstance();
             int diaActual = calendar.get(Calendar.DAY_OF_WEEK);
-            if (diaActual == Calendar.MONDAY && (calendarioBean.getUltimaActualizacion() < calendar.getTimeInMillis() || calendarioBean.getUltimaActualizacion() == 0)) {
+            if (diaActual == Calendar.MONDAY && !UtilsSrv.esMismoDia(calendarioBean.getUltimaActualizacion(), calendar)) {
                 calendarioBean = crearNuevoCalendario(context);
                 actualizarCalendario(context, calendarioBean);
             }
