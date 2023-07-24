@@ -1,84 +1,173 @@
 <resources>
     <!-- Ingredientes para recetas típicas españolas -->
     <string-array name="ingredient_list">
-        <item>Aceitunas</item>
-        <item>Aceite de oliva</item>
-        <item>Ajo</item>
-        <item>Almejas</item>
-        <item>Almendras</item>
-        <item>Anchoas</item>
-        <item>Arroz</item>
-        <item>Bacalao</item>
-        <item>Berenjena</item>
-        <item>Boquerones</item>
-        <item>Caballa</item>
-        <item>Calamares</item>
-        <item>Caldo de pescado</item>
-        <item>Caldo de pollo</item>
-        <item>Callos</item>
-        <item>Camote (boniato)</item>
-        <item>Cangrejo</item>
-        <item>Cebolla</item>
-        <item>Cerdo</item>
-        <item>Chirlas</item>
-        <item>Chorizo</item>
-        <item>Cigalas</item>
-        <item>Codorniz</item>
-        <item>Conejo</item>
-        <item>Coñac</item>
-        <item>Corvina</item>
-        <item>Costillas</item>
-        <item>Espárragos</item>
-        <item>Fabes (alubias blancas)</item>
-        <item>Faisán</item>
-        <item>Fideos</item>
-        <item>Gallina</item>
-        <item>Gambas</item>
-        <item>Guindilla</item>
-        <item>Guisantes</item>
-        <item>Habas</item>
-        <item>Harina de trigo</item>
-        <item>Higos</item>
-        <item>Jamón</item>
-        <item>Judías</item>
-        <item>Lengua</item>
-        <item>Lentejas</item>
-        <item>Levadura</item>
-        <item>Liebre</item>
-        <item>Lomo</item>
-        <item>Lubina</item>
-        <item>Mariscos</item>
-        <item>Merluza</item>
-        <item>Migas</item>
-        <item>Mollejas</item>
-        <item>Monkfish</item>
-        <item>Mostaza</item>
-        <item>Navajas</item>
+        <!--> ESPECIAS <!-->
+        <item>Azafrán</item>
+        <item>Pimentón</item>
+        <item>Comino</item>
         <item>Orégano</item>
-        <item>Ostras</item>
-        <item>Pan</item>
-        <item>Papas (patatas)</item>
-        <item>Pimientos</item>
-        <item>Pinchos</item>
+        <item>Tomillo</item>
+        <item>Perejil</item>
+        <item>Laurel</item>
+        <item>Clavo</item>
+        <item>Canela</item>
+        <item>Albahaca</item>
+        <item>Eneldo</item>
+        <item>Guindilla</item>
+        <item>Nuez moscada</item>
+        <item>Cúrcuma</item>
+        <item>Cardamomo</item>
+        <item>Mostaza</item>
+        <item>Hinojo</item>
+        <item>Pimienta negra</item>
+        <item>Salvia</item>
+        <item>Romero</item>
+        <item>Manzanilla</item>
+        <item>Anís</item>
+        <item>Hierbabuena</item>
+        <!--> FRUTA Y VERDURA <!-->
+        <item>Tomate</item>
+        <item>Pimiento</item>
+        <item>Cebolla</item>
+        <item>Ajo</item>
+        <item>Patata</item>
+        <item>Calabacín</item>
+        <item>Berenjena</item>
+        <item>Espinaca</item>
+        <item>Acelga</item>
+        <item>Lechuga</item>
+        <item>Alcachofa</item>
+        <item>Pepino</item>
+        <item>Zanahoria</item>
+        <item>Remolacha</item>
+        <item>Judía verde</item>
+        <item>Guisante</item>
+        <item>Alubia</item>
+        <item>Guisante lágrima</item>
+        <item>Garbanzo</item>
+        <item>Champiñón</item>
+        <item>Seta</item>
+        <item>Calabaza</item>
+        <item>Espárrago</item>
+        <item>Almendra</item>
+        <item>Avellana</item>
+        <item>Castaña</item>
+        <item>Uva</item>
+        <item>Limón</item>
+        <item>Naranja</item>
+        <item>Mandarina</item>
         <item>Plátano</item>
+        <item>Manzana</item>
+        <item>Pera</item>
+        <item>Melocotón</item>
+        <item>Ciruela</item>
+        <item>Albaricoque</item>
+        <item>Sandía</item>
+        <item>Melón</item>
+        <item>Fresa</item>
+        <item>Frambuesa</item>
+        <item>Arándano</item>
+        <item>Mora</item>
+        <item>Granada</item>
+        <item>Higo</item>
+        <item>Chirimoya</item>
+        <item>Kiwi</item>
+        <item>Piña</item>
+        <item>Maracuyá (Fruta de la pasión)</item>
+        <item>Papaya</item>
+        <item>Coco</item>
+        <item>Membrillo</item>
+        <item>Cereza</item>
+        <item>Caqui</item>
+        <item>Habas</item>
+        <!--> CARNES <!-->
         <item>Pollo</item>
-        <item>Pulpo</item>
-        <item>Rabas (calamares)</item>
-        <item>Rape</item>
-        <item>Riñones</item>
-        <item>Rodaballo</item>
-        <item>Romeritos</item>
-        <item>Salchichón</item>
-        <item>Salmorejo</item>
-        <item>Sardinas</item>
-        <item>Setas</item>
-        <item>Sobrasada</item>
+        <item>Cerdo</item>
         <item>Ternera</item>
-        <item>Tomates</item>
-        <item>Tortilla</item>
+        <item>Cordero</item>
+        <item>Conejo</item>
+        <item>Jabalí</item>
+        <item>Venado</item>
+        <item>Perdiz</item>
+        <item>Pato</item>
+        <item>Gallina</item>
+        <item>Pavo</item>
+        <item>Chorizo</item>
+        <item>Salchichón</item>
+        <item>Jamón</item>
+        <item>Lomo</item>
+        <item>Longaniza</item>
+        <item>Morcilla</item>
+        <item>Butifarra</item>
+        <item>Chuleta</item>
+        <item>Entrecot</item>
+        <item>Chuletón</item>
+        <item>Secreto ibérico</item>
+        <item>Costillas</item>
+        <item>Chuletas de cordero</item>
+        <item>Mollejas</item>
+        <item>Riñones</item>
+        <item>Callos</item>
+        <item>Hígado</item>
+        <item>Albóndigas</item>
+        <item>Embutidos</item>
+        <item>Fricandó (Ternera guisada)</item>
+        <item>Carrillada (Cerdo o ternera)</item>
+        <item>Cocido</item>
+        <!--> PESCADOS <!-->
+        <item>Bacalao</item>
+        <item>Merluza</item>
+        <item>Atún</item>
+        <item>Salmón</item>
+        <item>Dorada</item>
+        <item>Lubina</item>
+        <item>Sardinas</item>
+        <item>Boquerones</item>
+        <item>Anguila</item>
+        <item>Rape</item>
         <item>Trucha</item>
-        <item>Turrón</item>
-        <item>Vino</item>
-        <!-- Agregar aquí más ingredientes -->
+        <item>Besugo</item>
+        <item>Salmonete</item>
+        <item>Rodaballo</item>
+        <item>Sepia</item>
+        <item>Calamar</item>
+        <item>Pulpo</item>
+        <item>Langosta</item>
+        <item>Gambas</item>
+        <item>Cigalas</item>
+        <item>Carabineros</item>
+        <item>Bogavante</item>
+        <item>Mejillones</item>
+        <item>Almejas</item>
+        <item>Navajas</item>
+        <item>Ostras</item>
+        <item>Percebes</item>
+        <item>Caballa</item>
+        <item>Bacaladilla</item>
+        <item>Chirlas</item>
+        <item>Chopa</item>
+        <item>Dorada</item>
+        <item>San Pedro</item>
+        <item>Pescadilla</item>
+        <item>Tilapia</item>
+        <item>Verdel</item>
+        <item>Anchoas</item>
+        <item>Jurel</item>
+        <item>Chicharro</item>
+        <item>Boga</item>
+        <item>Angula</item>
+        <!--> CONDIMENTOS <!-->
+        <item>Sal</item>
+        <item>Pimienta blanca</item>
+        <item>Aceite de oliva</item>
+        <item>Vinagre de Jerez</item>
+        <item>Vinagre de vino</item>
+        <item>Vinagre balsámico</item>
+        <item>Cilantro</item>
+        <item>Menta</item>
+        <item>Chile</item>
+        <item>Pimiento choricero</item>
+        <item>Clavo de olor</item>
+        <item>Regaliz</item>
     </string-array>
 </resources>

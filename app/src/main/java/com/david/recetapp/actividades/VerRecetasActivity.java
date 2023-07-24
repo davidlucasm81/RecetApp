@@ -89,9 +89,11 @@ public class VerRecetasActivity extends AppCompatActivity implements RecetaExpan
         if (listaRecetas.isEmpty()) {
             textViewEmpty.setVisibility(View.VISIBLE); // Muestra el TextView si la lista está vacía
             autoCompleteTextViewRecetas.setVisibility(View.GONE);
+            imageViewClearSearch.setVisibility(View.GONE);
         } else {
             textViewEmpty.setVisibility(View.GONE); // Oculta el TextView si la lista no está vacía
             autoCompleteTextViewRecetas.setVisibility(View.VISIBLE);
+            imageViewClearSearch.setVisibility(View.VISIBLE);
         }
 
         RecetaExpandableListAdapter expandableListAdapter = new RecetaExpandableListAdapter(this, listaRecetas, expandableListView, this);

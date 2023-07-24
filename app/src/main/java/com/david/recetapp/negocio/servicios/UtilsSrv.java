@@ -12,8 +12,9 @@ public class UtilsSrv {
     // Método para obtener el nombre del día de la semana
     public static String obtenerDiaSemana(Date fecha) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE", Locale.getDefault());
-        return dateFormat.format(fecha);
+        return capitalizeFirstLetter(dateFormat.format(fecha));
     }
+
     // Método para obtener la temporada de un día de la semana
     public static Temporada getTemporadaFecha(Date date) {
         Calendar calendar = Calendar.getInstance();
@@ -40,5 +41,20 @@ public class UtilsSrv {
             default:
                 return null;
         }
+    }
+
+    public static String capitalizeFirstLetter(String input) {
+        if (input == null || input.isEmpty()) {
+            return input;
+        }
+
+        // Obtener la primera letra en mayúscula utilizando Character.toUpperCase()
+        String firstLetter = Character.toUpperCase(input.charAt(0)) + "";
+
+        // Obtener el resto del String a partir del segundo carácter
+        String restOfString = input.substring(1);
+
+        // Concatenar la primera letra en mayúscula con el resto del String
+        return firstLetter + restOfString;
     }
 }

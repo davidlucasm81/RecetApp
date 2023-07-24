@@ -109,8 +109,7 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
         ImageView postre = convertView.findViewById(R.id.imageViewPostreIcono);
         if (receta.isPostre()) {
             postre.setVisibility(View.VISIBLE);
-        }
-        else{
+        } else {
             postre.setVisibility(View.GONE);
         }
         btnEliminar.setOnClickListener(v -> {
@@ -211,6 +210,7 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
             case 3:
                 txtTitulo.setText(R.string.alergenos);
                 iconosAlergenos.setVisibility(View.VISIBLE);
+                iconosAlergenos.removeAllViews(); // Elimina todas las vistas hijos del LinearLayout
                 // Recorremos la lista de drawables
                 for (Alergeno alergeno : receta.getAlergenos()) {
                     // Creamos un nuevo ImageView

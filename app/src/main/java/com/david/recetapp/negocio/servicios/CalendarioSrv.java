@@ -172,6 +172,7 @@ public class CalendarioSrv {
                 dia.getRecetas().remove("-1");
                 dia.addReceta(id);
                 actualizarCalendario(context, calendario);
+                RecetasSrv.actualizarFechaCalendario(context, id);
                 return;
             }
         }

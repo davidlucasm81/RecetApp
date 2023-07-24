@@ -43,22 +43,24 @@ public class RecetasSrv {
     public static List<Receta> obtenerRecetasFiltradasCalendario(Context context, int diasLimite) {
         List<Receta> listaRecetas = cargarListaRecetas(context);
 
-        // Obtener la fecha y hora actual del ordenador en milisegundos
-        long tiempoActual = System.currentTimeMillis();
-        // Obtenemos temporada en la que estamos
-        Temporada temporada = UtilsSrv.getTemporadaFecha(new Date());
         // Ordenamos por fecha y después por estrellas
-        listaRecetas = listaRecetas.stream().filter(r1 -> {
-            // Calcular la diferencia en milisegundos entre la fecha actual y 'tuFecha'
-            long diferenciaEnMilisegundos = tiempoActual - r1.getFechaCalendario().getTime();
-
-            // Convertir la diferencia en milisegundos a días
-            long diasPasados = diferenciaEnMilisegundos / (1000 * 60 * 60 * 24);
-            return diasPasados >= diasLimite && r1.getTemporadas().contains(temporada) && !r1.isPostre();
-        }).sorted((r1, r2) -> r1.getFechaCalendario().compareTo(r2.getFechaCalendario()) - (int) (r1.getEstrellas() - r2.getEstrellas())).collect(Collectors.toList());
+        listaRecetas = listaRecetas.stream().filter(r1 -> filtroCalendario(diasLimite, r1)).sorted((r1, r2) -> r1.getFechaCalendario().compareTo(r2.getFechaCalendario()) - (int) (r1.getEstrellas() - r2.getEstrellas())).collect(Collectors.toList());
 
         // Agregar las recetas a la cola
         return listaRecetas;
+    }
+
+    public static boolean filtroCalendario(int diasLimite, Receta r1) {
+        // Obtenemos temporada en la que estamos
+        Temporada temporada = UtilsSrv.getTemporadaFecha(new Date());
+        // Obtener la fecha y hora actual del ordenador en milisegundos
+        long tiempoActual = System.currentTimeMillis();
+        // Calcular la diferencia en milisegundos entre la fecha actual y 'tuFecha'
+        long diferenciaEnMilisegundos = tiempoActual - r1.getFechaCalendario().getTime();
+
+        // Convertir la diferencia en milisegundos a días
+        long diasPasados = diferenciaEnMilisegundos / (1000 * 60 * 60 * 24);
+        return diasPasados >= diasLimite && r1.getTemporadas().contains(temporada) && !r1.isPostre();
     }
 
     public static List<Receta> cargarListaRecetas(Context context) {
@@ -108,7 +110,8 @@ public class RecetasSrv {
         guardarListaRecetas(context, listaRecetas);
 
         // Añadir receta al calendario si tiene algun dia vacio
-        CalendarioSrv.addReceta(context, receta.getId());
+        if (filtroCalendario(ConfiguracionSrv.getDiasRepeticionReceta(context), receta))
+            CalendarioSrv.addReceta(context, receta.getId());
     }
 
     public static void eliminarReceta(Context context, int position, List<Receta> listaRecetas) {
@@ -117,5 +120,15 @@ public class RecetasSrv {
         RecetasSrv.guardarListaRecetas(context, listaRecetas);
         //Si existe la receta en el calendario la borramos y añadimos otra:
         CalendarioSrv.eliminarReceta(context, receta);
+    }
+
+    public static void actualizarFechaCalendario(Context context, String id) {
+        List<Receta> listaRecetas = cargarListaRecetas(context);
+        listaRecetas.forEach(r -> {
+            if (r.getId().equals(id)) {
+                r.setFechaCalendario(new Date());
+            }
+        });
+        RecetasSrv.guardarListaRecetas(context, listaRecetas);
     }
 }
