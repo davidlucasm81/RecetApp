@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.david.recetapp.MainActivity;
 import com.david.recetapp.R;
 import com.david.recetapp.negocio.beans.Alergeno;
 import com.david.recetapp.negocio.beans.Ingrediente;
@@ -55,6 +56,13 @@ public class EditarRecetaActivity extends AppCompatActivity {
     private List<Alergeno> alergenosSeleccionados;
     private GridLayout gridLayout;
     private RatingBar estrellas;
+
+    @Override
+    public void onBackPressed() {
+        // Controla el comportamiento del botón "Atrás"
+        Intent intent = new Intent(EditarRecetaActivity.this, VerRecetasActivity.class);
+        startActivity(intent);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -60,6 +60,13 @@ public class AddRecetasActivity extends AppCompatActivity {
     private RatingBar estrellas;
 
     @Override
+    public void onBackPressed() {
+        // Controla el comportamiento del botón "Atrás"
+        Intent intent = new Intent(AddRecetasActivity.this, MainActivity.class);
+        startActivity(intent);
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_receta);

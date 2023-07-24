@@ -1,5 +1,6 @@
 package com.david.recetapp.actividades;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.david.recetapp.MainActivity;
 import com.david.recetapp.R;
 import com.david.recetapp.adaptadores.RecetaExpandableListAdapter;
 import com.david.recetapp.negocio.beans.Receta;
@@ -22,6 +24,13 @@ public class VerRecetasActivity extends AppCompatActivity implements RecetaExpan
     private TextView textViewEmpty;
     private ExpandableListView expandableListView;
     private List<Receta> listaRecetas;
+
+    @Override
+    public void onBackPressed() {
+        // Controla el comportamiento del botón "Atrás"
+        Intent intent = new Intent(VerRecetasActivity.this, MainActivity.class);
+        startActivity(intent);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

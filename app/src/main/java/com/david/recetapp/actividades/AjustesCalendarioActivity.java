@@ -20,6 +20,13 @@ public class AjustesCalendarioActivity extends AppCompatActivity {
     private EditText editTextCantidad;
 
     @Override
+    public void onBackPressed() {
+        // Controla el comportamiento del botón "Atrás"
+        Intent intent = new Intent(AjustesCalendarioActivity.this, CalendarioActivity.class);
+        startActivity(intent);
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ajustes_calendario);

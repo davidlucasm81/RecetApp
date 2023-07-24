@@ -8,6 +8,7 @@ import android.widget.ImageButton;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.david.recetapp.MainActivity;
 import com.david.recetapp.R;
 import com.david.recetapp.negocio.beans.CalendarioBean;
 import com.david.recetapp.negocio.servicios.CalendarioSrv;
@@ -19,6 +20,13 @@ public class CalendarioActivity extends AppCompatActivity {
 
     private CalendarioBean calendario;
     private Button btnLunes, btnMartes, btnMiercoles, btnJueves, btnViernes, btnSabado, btnDomingo;
+
+    @Override
+    public void onBackPressed() {
+        // Controla el comportamiento del botón "Atrás"
+        Intent intent = new Intent(CalendarioActivity.this, MainActivity.class);
+        startActivity(intent);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

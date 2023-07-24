@@ -5,7 +5,8 @@
         android:allowBackup="true"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/Theme.RecetApp">
+        android:theme="@style/Theme.RecetApp"
+        android:icon="@mipmap/icono_app_round">
         <activity
             android:name=".MainActivity"
             android:exported="true">
