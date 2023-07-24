@@ -65,4 +65,5 @@
     <string name="postre">Postre</string>
     <string name="buscar_recetas">Buscar recetas</string>
     <string name="borrar_busqueda">Borrar búsqueda</string>
+    <string name="sin_al_rgenos">Sin alérgenos</string>
 </resources>

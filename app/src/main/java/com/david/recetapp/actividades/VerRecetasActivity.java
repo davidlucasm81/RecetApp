@@ -17,6 +17,7 @@ import com.david.recetapp.adaptadores.RecetaExpandableListAdapter;
 import com.david.recetapp.negocio.beans.Receta;
 import com.david.recetapp.negocio.servicios.RecetasSrv;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -50,7 +51,7 @@ public class VerRecetasActivity extends AppCompatActivity implements RecetaExpan
 
         autoCompleteTextViewRecetas = findViewById(R.id.autoCompleteTextViewRecetas);
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, listaRecetas.stream().map(Receta::getNombre).collect(Collectors.toList()));
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, new ArrayList<>(listaRecetas.stream().map(Receta::getNombre).collect(Collectors.toSet())));
         autoCompleteTextViewRecetas.setAdapter(adapter);
         // Configurar el OnItemClickListener para el AutoCompleteTextView
         autoCompleteTextViewRecetas.setOnItemClickListener((parent, view, position, id) -> {

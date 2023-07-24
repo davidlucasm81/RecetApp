@@ -1,13 +1,13 @@
 package com.david.recetapp.negocio.servicios;
 
 import android.content.Context;
-import android.util.ArraySet;
 import android.widget.Toast;
 
 import com.david.recetapp.R;
 import com.david.recetapp.negocio.beans.CalendarioBean;
 import com.david.recetapp.negocio.beans.DiaRecetas;
 import com.david.recetapp.negocio.beans.Receta;
+import com.david.recetapp.negocio.beans.Temporada;
 import com.google.gson.Gson;
 
 import java.io.BufferedReader;
@@ -22,12 +22,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Queue;
-import java.util.Set;
 
 public class CalendarioSrv {
     private static final String JSON = "calendario.json";
     private static Queue<Receta> colaRecetas;
-    private static Set<Receta> recetasSeleccionadas;
 
     public static CalendarioBean cargarCalendario(Context context) {
         try {
@@ -65,8 +63,7 @@ public class CalendarioSrv {
         // Obtenemos recetas
         CalendarioBean calendarioBean = new CalendarioBean();
         colaRecetas = new ArrayDeque<>();
-        recetasSeleccionadas = new ArraySet<>();
-        colaRecetas.addAll(RecetasSrv.obtenerRecetasFiltradasCalendario(context, ConfiguracionSrv.getDiasRepeticionReceta(context)));
+        colaRecetas.addAll(RecetasSrv.cargarListaRecetas(context));
         // Obtener la fecha actual
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
@@ -79,8 +76,8 @@ public class CalendarioSrv {
 
                 // Crear un objeto DiaRecetas con la fecha y las recetas correspondientes
                 DiaRecetas diaRecetas = new DiaRecetas(calendar.getTime());
-                diaRecetas.addReceta(obtenerReceta());
-                diaRecetas.addReceta(obtenerReceta());
+                diaRecetas.addReceta(obtenerReceta(context, calendar.getTimeInMillis()));
+                diaRecetas.addReceta(obtenerReceta(context, calendar.getTimeInMillis()));
 
                 // Agregar el objeto DiaRecetas a la lista
                 calendarioBean.getListaRecetas().add(diaRecetas);
@@ -88,12 +85,12 @@ public class CalendarioSrv {
         }
 
         // Domingo da igual que dia de la semana es que al ser el ultimo día hay que meterlo:
-        calendar.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
+        calendar.add(Calendar.DAY_OF_WEEK, 1);
 
         // Crear un objeto DiaRecetas con la fecha y las recetas correspondientes
         DiaRecetas diaRecetas = new DiaRecetas(calendar.getTime());
-        diaRecetas.addReceta(obtenerReceta());
-        diaRecetas.addReceta(obtenerReceta());
+        diaRecetas.addReceta(obtenerReceta(context, calendar.getTimeInMillis()));
+        diaRecetas.addReceta(obtenerReceta(context, calendar.getTimeInMillis()));
 
         // Agregar el objeto DiaRecetas a la lista
         calendarioBean.getListaRecetas().add(diaRecetas);
@@ -103,19 +100,34 @@ public class CalendarioSrv {
         return calendarioBean;
     }
 
-    private static String obtenerReceta() {
+    private static String obtenerReceta(Context context, long tiempoActual) {
         // Obtener la primera receta de la cola
         Receta receta = colaRecetas.poll();
         if (receta == null) {
             return "-1";
         }
-        // Agregar la receta al final de la cola
-        colaRecetas.offer(receta);
-        if (recetasSeleccionadas.contains(receta))
-            return "-1";
-        receta.setFechaCalendario(new Date());
-        recetasSeleccionadas.add(receta);
-        return receta.getId();
+        long diasLimite = ConfiguracionSrv.getDiasRepeticionReceta(context);
+        Receta recetaElegida = receta;
+        do {
+            // Agregar la receta al final de la cola
+            colaRecetas.offer(recetaElegida);
+            // Calcular la diferencia en milisegundos entre la fecha actual y 'tuFecha'
+            assert recetaElegida != null;
+            long diferenciaEnMilisegundos = tiempoActual - recetaElegida.getFechaCalendario().getTime();
+            // Convertir la diferencia en milisegundos a días
+            long diasPasados = diferenciaEnMilisegundos / (1000 * 60 * 60 * 24);
+            Temporada temporada = UtilsSrv.getTemporadaFecha(new Date(tiempoActual));
+            if (diasPasados > diasLimite && recetaElegida.getTemporadas().contains(temporada) && !recetaElegida.isPostre()) {
+                recetaElegida.setFechaCalendario(new Date(tiempoActual));
+                return recetaElegida.getId();
+            } else {
+                recetaElegida = colaRecetas.poll();
+            }
+        }
+        while (recetaElegida != receta);
+        colaRecetas.offer(recetaElegida);
+        // No se ha encontrado receta valida para el dia, devolver -1
+        return "-1";
     }
 
 
@@ -146,35 +158,32 @@ public class CalendarioSrv {
         CalendarioBean calendario = cargarCalendario(context);
         assert calendario != null;
         colaRecetas = new ArrayDeque<>();
-        recetasSeleccionadas = new ArraySet<>();
-        colaRecetas.addAll(RecetasSrv.obtenerRecetasFiltradasCalendario(context, ConfiguracionSrv.getDiasRepeticionReceta(context)));
-        recetasSeleccionadas.removeIf(r -> r.getId().equals(receta.getId()));
+        colaRecetas.addAll(RecetasSrv.cargarListaRecetas(context));
         for (DiaRecetas dia : calendario.getListaRecetas()) {
             if (dia.getRecetas().contains(receta.getId())) {
                 dia.getRecetas().remove(receta.getId());
-                dia.addReceta(obtenerReceta());
-                break;
+                dia.addReceta(obtenerReceta(context, dia.getFecha().getTime()));
             }
         }
         actualizarCalendario(context, calendario);
+        // Guardar la lista de recetas actualizada en el archivo JSON
+        RecetasSrv.guardarListaRecetas(context, new ArrayList<>(colaRecetas));
     }
 
-    public static void addReceta(Context context, String id) {
+    public static void addReceta(Context context) {
         CalendarioBean calendario = cargarCalendario(context);
         assert calendario != null;
-        for (DiaRecetas dia : calendario.getListaRecetas()) {
-            if (dia.getRecetas().contains(id)) {
-                return;
-            }
-        }
+        colaRecetas = new ArrayDeque<>();
+        colaRecetas.addAll(RecetasSrv.cargarListaRecetas(context));
         for (DiaRecetas dia : calendario.getListaRecetas()) {
             if (dia.getRecetas().contains("-1")) {
+                String id = obtenerReceta(context, dia.getFecha().getTime());
                 dia.getRecetas().remove("-1");
                 dia.addReceta(id);
-                actualizarCalendario(context, calendario);
                 RecetasSrv.actualizarFechaCalendario(context, id);
-                return;
             }
         }
+        // Guardar la lista de recetas actualizada en el archivo JSON
+        RecetasSrv.guardarListaRecetas(context, new ArrayList<>(colaRecetas));
     }
 }

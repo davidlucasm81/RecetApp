@@ -3,7 +3,6 @@ package com.david.recetapp.negocio.servicios;
 import android.content.Context;
 
 import com.david.recetapp.negocio.beans.Receta;
-import com.david.recetapp.negocio.beans.Temporada;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -16,6 +15,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,29 +40,6 @@ public class RecetasSrv {
         }
     }
 
-    public static List<Receta> obtenerRecetasFiltradasCalendario(Context context, int diasLimite) {
-        List<Receta> listaRecetas = cargarListaRecetas(context);
-
-        // Ordenamos por fecha y después por estrellas
-        listaRecetas = listaRecetas.stream().filter(r1 -> filtroCalendario(diasLimite, r1)).sorted((r1, r2) -> r1.getFechaCalendario().compareTo(r2.getFechaCalendario()) - (int) (r1.getEstrellas() - r2.getEstrellas())).collect(Collectors.toList());
-
-        // Agregar las recetas a la cola
-        return listaRecetas;
-    }
-
-    public static boolean filtroCalendario(int diasLimite, Receta r1) {
-        // Obtenemos temporada en la que estamos
-        Temporada temporada = UtilsSrv.getTemporadaFecha(new Date());
-        // Obtener la fecha y hora actual del ordenador en milisegundos
-        long tiempoActual = System.currentTimeMillis();
-        // Calcular la diferencia en milisegundos entre la fecha actual y 'tuFecha'
-        long diferenciaEnMilisegundos = tiempoActual - r1.getFechaCalendario().getTime();
-
-        // Convertir la diferencia en milisegundos a días
-        long diasPasados = diferenciaEnMilisegundos / (1000 * 60 * 60 * 24);
-        return diasPasados >= diasLimite && r1.getTemporadas().contains(temporada) && !r1.isPostre();
-    }
-
     public static List<Receta> cargarListaRecetas(Context context) {
         // Cargar el archivo JSON desde el almacenamiento interno
         try {
@@ -85,7 +62,8 @@ public class RecetasSrv {
             Type listType = new TypeToken<List<Receta>>() {
             }.getType();
             // Agregar las recetas a la cola
-            return gson.fromJson(jsonBuilder.toString(), listType);
+            List<Receta> recetas = gson.fromJson(jsonBuilder.toString(), listType);
+            return recetas.stream().sorted(Comparator.comparing(Receta::getFechaCalendario)).collect(Collectors.toList());
         } catch (FileNotFoundException e) {
             // El archivo no existe, no se hace nada
         } catch (IOException e) {
@@ -110,8 +88,7 @@ public class RecetasSrv {
         guardarListaRecetas(context, listaRecetas);
 
         // Añadir receta al calendario si tiene algun dia vacio
-        if (filtroCalendario(ConfiguracionSrv.getDiasRepeticionReceta(context), receta))
-            CalendarioSrv.addReceta(context, receta.getId());
+        CalendarioSrv.addReceta(context);
     }
 
     public static void eliminarReceta(Context context, int position, List<Receta> listaRecetas) {

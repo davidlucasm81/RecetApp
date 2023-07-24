@@ -24,7 +24,9 @@ import com.david.recetapp.negocio.servicios.AlergenosSrv;
 import com.david.recetapp.negocio.servicios.RecetasSrv;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
@@ -226,6 +228,15 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
                     // Agregamos el ImageView al LinearLayout
                     iconosAlergenos.addView(imageView);
                 }
+                if (receta.getAlergenos().isEmpty()) {
+                    TextView textView = new TextView(context);
+                    textView.setLayoutParams(new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.WRAP_CONTENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT
+                    ));
+                    textView.setText(R.string.sin_al_rgenos);
+                    iconosAlergenos.addView(textView);
+                }
                 break;
 
             case 4:
@@ -238,7 +249,8 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
             case 5:
                 txtInformacion.setVisibility(View.VISIBLE);
                 txtTitulo.setText(R.string.ultima_fecha_calendario);
-                txtInformacion.setText(receta.getFechaCalendario().toString());
+                SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+                txtInformacion.setText(dateFormat.format(receta.getFechaCalendario()));
                 break;
         }
 
