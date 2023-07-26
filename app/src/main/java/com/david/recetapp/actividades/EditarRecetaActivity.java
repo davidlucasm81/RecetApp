@@ -34,6 +34,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 public class EditarRecetaActivity extends AppCompatActivity {
 
@@ -42,7 +43,7 @@ public class EditarRecetaActivity extends AppCompatActivity {
     private CheckBox checkboxVerano;
     private CheckBox checkboxOtonio;
     private CheckBox checkboxPrimavera;
-    private List<Temporada> temporadas;
+    private Set<Temporada> temporadas;
 
     private AutoCompleteTextView autoCompleteTextViewNombreIngrediente;
     private EditText editTextCantidad;

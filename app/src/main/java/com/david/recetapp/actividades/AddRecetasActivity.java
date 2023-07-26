@@ -20,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.collection.ArraySet;
 
 import com.david.recetapp.MainActivity;
 import com.david.recetapp.R;
@@ -36,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 public class AddRecetasActivity extends AppCompatActivity {
 
@@ -44,7 +46,7 @@ public class AddRecetasActivity extends AppCompatActivity {
     private CheckBox checkboxVerano;
     private CheckBox checkboxOtonio;
     private CheckBox checkboxPrimavera;
-    private List<Temporada> temporadas;
+    private Set<Temporada> temporadas;
 
     private AutoCompleteTextView autoCompleteTextViewNombreIngrediente;
     private EditText editTextCantidad;
@@ -76,7 +78,7 @@ public class AddRecetasActivity extends AppCompatActivity {
         checkboxVerano = findViewById(R.id.checkboxVerano);
         checkboxOtonio = findViewById(R.id.checkboxOtonio);
         checkboxPrimavera = findViewById(R.id.checkboxPrimavera);
-        temporadas = new ArrayList<>();
+        temporadas = new ArraySet<>();
         CheckBox postre = findViewById(R.id.checkBoxPostre);
 
         autoCompleteTextViewNombreIngrediente = findViewById(R.id.autoCompleteTextViewNombreIngrediente);

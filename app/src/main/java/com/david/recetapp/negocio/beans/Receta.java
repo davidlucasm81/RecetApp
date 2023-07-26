@@ -1,15 +1,18 @@
 package com.david.recetapp.negocio.beans;
 
+import androidx.collection.ArraySet;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public class Receta implements Serializable {
     private final String id;
     private String nombre;
-    private List<Temporada> temporadas;
+    private Set<Temporada> temporadas;
     private List<Ingrediente> ingredientes;
     private List<Paso> pasos;
 
@@ -26,7 +29,7 @@ public class Receta implements Serializable {
     public Receta() {
         this.id = UUID.randomUUID().toString();
         this.nombre = "";
-        this.temporadas = new ArrayList<>();
+        this.temporadas = new ArraySet<>();
         this.ingredientes = new ArrayList<>();
         this.pasos = new ArrayList<>();
         this.estrellas = 0;
@@ -44,11 +47,11 @@ public class Receta implements Serializable {
         this.nombre = nombre;
     }
 
-    public List<Temporada> getTemporadas() {
+    public Set<Temporada> getTemporadas() {
         return temporadas;
     }
 
-    public void setTemporadas(List<Temporada> temporadas) {
+    public void setTemporadas(Set<Temporada> temporadas) {
         this.temporadas = temporadas;
     }
 

@@ -196,6 +196,9 @@ public class CalendarioSrv {
     }
 
     public static List<Ingrediente> obtenerIngredientes(Context context, CalendarioBean calendarioBean) {
+        if(calendarioBean == null){
+            return new ArrayList<>();
+        }
         List<String> idRecetas = calendarioBean.getListaRecetas()
                 .stream()
                 .flatMap(dr -> dr.getRecetas().stream())

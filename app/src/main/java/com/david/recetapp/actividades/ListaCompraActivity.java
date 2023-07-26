@@ -13,7 +13,10 @@ import com.david.recetapp.MainActivity;
 import com.david.recetapp.R;
 import com.david.recetapp.adaptadores.IngredienteDiaAdapter;
 import com.david.recetapp.negocio.beans.CalendarioBean;
+import com.david.recetapp.negocio.beans.Ingrediente;
 import com.david.recetapp.negocio.servicios.CalendarioSrv;
+
+import java.util.List;
 
 public class ListaCompraActivity extends AppCompatActivity {
 
@@ -29,14 +32,14 @@ public class ListaCompraActivity extends AppCompatActivity {
         setContentView(R.layout.activity_lista_compra);
         CalendarioBean calendario = CalendarioSrv.cargarCalendario(this);
         TextView textViewEmpty = findViewById(R.id.textViewEmpty);
-        if (calendario != null) {
+        List<Ingrediente> ingredientes = CalendarioSrv.obtenerIngredientes(this, calendario);
+        if (calendario != null && !ingredientes.isEmpty()) {
             textViewEmpty.setVisibility(View.GONE);
 
             RecyclerView recyclerView = findViewById(R.id.recyclerview);
             recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
             // Crear e inicializar el adaptador
-            IngredienteDiaAdapter adapter = new IngredienteDiaAdapter(this, calendario);
+            IngredienteDiaAdapter adapter = new IngredienteDiaAdapter(ingredientes);
 
             // Configurar el RecyclerView con el adaptador
             recyclerView.setAdapter(adapter);

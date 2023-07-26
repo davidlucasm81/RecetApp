@@ -21,14 +21,9 @@ import java.util.List;
 public class IngredienteDiaAdapter extends RecyclerView.Adapter<IngredienteDiaAdapter.IngredienteDiaViewHolder> {
 
     private final List<Ingrediente> ingredientes;
-    private final CalendarioBean calendarioBean;
 
-    private final Context context;
-
-    public IngredienteDiaAdapter(Context context, CalendarioBean calendarioBean) {
-        this.ingredientes = CalendarioSrv.obtenerIngredientes(context, calendarioBean);
-        this.calendarioBean = calendarioBean;
-        this.context = context;
+    public IngredienteDiaAdapter( List<Ingrediente> ingredientes) {
+        this.ingredientes = ingredientes;
     }
 
     @NonNull
