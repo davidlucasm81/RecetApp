@@ -169,5 +169,11 @@
         <item>Pimiento choricero</item>
         <item>Clavo de olor</item>
         <item>Regaliz</item>
+        <!--> FALTABAN POR AÑADIR <!-->
+        <item>Patata mediana</item>
+        <item>Cebolla grande</item>
+        <item>Huevo</item>
+        <item>Aceite de Oliva Virgen Extra</item>
+        <item>Azúcar</item>
     </string-array>
 </resources>
