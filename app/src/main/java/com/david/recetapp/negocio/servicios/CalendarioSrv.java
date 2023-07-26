@@ -6,6 +6,7 @@ import android.widget.Toast;
 import com.david.recetapp.R;
 import com.david.recetapp.negocio.beans.CalendarioBean;
 import com.david.recetapp.negocio.beans.DiaRecetas;
+import com.david.recetapp.negocio.beans.Ingrediente;
 import com.david.recetapp.negocio.beans.Receta;
 import com.david.recetapp.negocio.beans.Temporada;
 import com.google.gson.Gson;
@@ -21,7 +22,11 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Queue;
+import java.util.stream.Collectors;
 
 public class CalendarioSrv {
     private static final String JSON = "calendario.json";
@@ -134,7 +139,7 @@ public class CalendarioSrv {
     public static void actualizarCalendario(Context context, CalendarioBean calendario, boolean warn) {
         // Realizar la lógica de actualización del Calendario
         // Establecer la última actualización con la fecha y hora actual
-        if(warn)
+        if (warn)
             Toast.makeText(context, context.getString(R.string.calendario_actualizado), Toast.LENGTH_SHORT).show();
         calendario.setUltimaActualizacion(System.currentTimeMillis());
 
@@ -187,6 +192,33 @@ public class CalendarioSrv {
         }
         // Guardar la lista de recetas actualizada en el archivo JSON
         RecetasSrv.guardarListaRecetas(context, new ArrayList<>(colaRecetas));
-        actualizarCalendario(context,calendario,true);
+        actualizarCalendario(context, calendario, true);
+    }
+
+    public static List<Ingrediente> obtenerIngredientes(Context context, CalendarioBean calendarioBean) {
+        List<String> idRecetas = calendarioBean.getListaRecetas()
+                .stream()
+                .flatMap(dr -> dr.getRecetas().stream())
+                .collect(Collectors.toList());
+
+        List<Receta> todasRecetas = RecetasSrv.cargarListaRecetas(context);
+
+        Map<String, Ingrediente> ingredientesMap = new HashMap<>();
+
+        idRecetas.forEach(id -> todasRecetas.stream()
+                .filter(r -> r.getId().equals(id))
+                .findFirst()
+                .ifPresent(receta -> {
+                    for (Ingrediente ingrediente : receta.getIngredientes()) {
+                        String nombreIngrediente = ingrediente.getNombre().toLowerCase();
+                        String tipoCantidad = ingrediente.getTipoCantidad().toLowerCase();
+                        ingredientesMap.merge(nombreIngrediente+tipoCantidad, new Ingrediente(nombreIngrediente, ingrediente.getCantidad(), ingrediente.getTipoCantidad()), (ing1, ing2) -> {
+                            ing1.setCantidad(ing1.getCantidad() + ing2.getCantidad());
+                            return ing1;
+                        });
+                    }
+                }));
+
+        return new ArrayList<>(ingredientesMap.values());
     }
 }

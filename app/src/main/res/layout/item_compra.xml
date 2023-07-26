@@ -5,12 +5,6 @@
     android:orientation="horizontal"
     android:padding="1dp">
 
-    <CheckBox
-        android:id="@+id/checkbox_ingrediente"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:buttonTint="@color/colorPrimary" />
-
     <TextView
         android:id="@+id/textview_nombre_ingrediente"
         android:layout_width="wrap_content"

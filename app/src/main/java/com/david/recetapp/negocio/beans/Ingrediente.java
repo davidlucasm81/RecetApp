@@ -4,7 +4,8 @@ import java.io.Serializable;
 
 public class Ingrediente implements Serializable {
     private final String nombre;
-    private final int cantidad;
+
+    private int cantidad;
 
     private final String tipoCantidad;
 
@@ -22,9 +23,13 @@ public class Ingrediente implements Serializable {
         return cantidad;
     }
 
+    public void setCantidad(int cantidad) {
+        this.cantidad = cantidad;
+    }
 
     public String getTipoCantidad() {
         return tipoCantidad;
     }
+
 
 }
