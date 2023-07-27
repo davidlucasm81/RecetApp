@@ -198,6 +198,9 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
                     if (i < totalIngredientes - 1) {
                         sbIngredientes.append("\n\n");
                     }
+                    else{
+                        sbIngredientes.append("\n");
+                    }
                 }
                 txtInformacion.setText(sbIngredientes.substring(0, sbIngredientes.length() - 1));
                 break;
