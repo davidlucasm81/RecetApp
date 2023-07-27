@@ -140,7 +140,7 @@ public class CalendarioSrv {
         // Realizar la lógica de actualización del Calendario
         // Establecer la última actualización con la fecha y hora actual
         if (warn)
-            Toast.makeText(context, context.getString(R.string.calendario_actualizado), Toast.LENGTH_SHORT).show();
+             UtilsSrv.notificacion(context, context.getString(R.string.calendario_actualizado), Toast.LENGTH_SHORT).show();
         calendario.setUltimaActualizacion(System.currentTimeMillis());
 
         // Guardar el Calendario en "calendario.json"

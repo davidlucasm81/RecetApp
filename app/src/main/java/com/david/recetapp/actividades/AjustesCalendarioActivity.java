@@ -13,6 +13,7 @@ import com.david.recetapp.MainActivity;
 import com.david.recetapp.R;
 import com.david.recetapp.negocio.servicios.ConfiguracionSrv;
 import com.david.recetapp.negocio.servicios.RecetasSrv;
+import com.david.recetapp.negocio.servicios.UtilsSrv;
 
 import java.io.File;
 
@@ -38,9 +39,9 @@ public class AjustesCalendarioActivity extends AppCompatActivity {
                 File file = new File(getFilesDir(), "calendario.json");
                 if (file.exists()) {
                     if (file.delete()) {
-                        Toast.makeText(AjustesCalendarioActivity.this, this.getString(R.string.calendario_eliminado), Toast.LENGTH_SHORT).show();
+                         UtilsSrv.notificacion(AjustesCalendarioActivity.this, this.getString(R.string.calendario_eliminado), Toast.LENGTH_SHORT).show();
                     } else {
-                        Toast.makeText(AjustesCalendarioActivity.this, "DEV -> ERROR BORRANDO", Toast.LENGTH_SHORT).show();
+                         UtilsSrv.notificacion(AjustesCalendarioActivity.this, "DEV -> ERROR BORRANDO", Toast.LENGTH_SHORT).show();
                     }
                 }
                 // Refrescamos fechas de las recetas:

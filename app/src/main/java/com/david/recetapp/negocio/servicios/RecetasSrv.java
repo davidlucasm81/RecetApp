@@ -99,13 +99,4 @@ public class RecetasSrv {
         CalendarioSrv.eliminarReceta(context, receta);
     }
 
-    public static void actualizarFechaCalendario(Context context, String id) {
-        List<Receta> listaRecetas = cargarListaRecetas(context);
-        listaRecetas.forEach(r -> {
-            if (r.getId().equals(id)) {
-                r.setFechaCalendario(new Date());
-            }
-        });
-        RecetasSrv.guardarListaRecetas(context, listaRecetas);
-    }
 }

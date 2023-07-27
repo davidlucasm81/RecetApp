@@ -1,7 +1,6 @@
 package com.david.recetapp.adaptadores;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,9 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.david.recetapp.R;
-import com.david.recetapp.negocio.beans.CalendarioBean;
 import com.david.recetapp.negocio.beans.Ingrediente;
-import com.david.recetapp.negocio.servicios.CalendarioSrv;
 
 import java.text.MessageFormat;
 import java.util.List;
