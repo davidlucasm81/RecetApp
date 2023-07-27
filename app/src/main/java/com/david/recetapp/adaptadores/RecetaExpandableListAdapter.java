@@ -188,8 +188,16 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
                 txtInformacion.setVisibility(View.VISIBLE);
                 txtTitulo.setText(R.string.ingredientes);
                 StringBuilder sbIngredientes = new StringBuilder();
-                for (Ingrediente ingrediente : receta.getIngredientes()) {
-                    sbIngredientes.append("- ").append(ingrediente.getCantidad()).append(" ").append(ingrediente.getTipoCantidad()).append(" de ").append(ingrediente.getNombre()).append("\n");
+                int totalIngredientes = receta.getIngredientes().size();
+
+                for (int i = 0; i < totalIngredientes; i++) {
+                    Ingrediente ingrediente = receta.getIngredientes().get(i);
+                    sbIngredientes.append("- ").append(ingrediente.getCantidad()).append(" ").append(ingrediente.getTipoCantidad()).append(" de ").append(ingrediente.getNombre());
+
+                    // Agregar dos saltos de línea si no es la última iteración
+                    if (i < totalIngredientes - 1) {
+                        sbIngredientes.append("\n\n");
+                    }
                 }
                 txtInformacion.setText(sbIngredientes.substring(0, sbIngredientes.length() - 1));
                 break;
