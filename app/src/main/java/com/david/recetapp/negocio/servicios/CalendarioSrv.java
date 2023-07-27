@@ -105,6 +105,17 @@ public class CalendarioSrv {
         return calendarioBean;
     }
 
+    public static Receta recargarReceta(Context context, long tiempoActual, List<String> recetas) {
+        colaRecetas = new ArrayDeque<>();
+        colaRecetas.addAll(RecetasSrv.cargarListaRecetas(context));
+        Receta receta = obtenerReceta(context, tiempoActual);
+        while(receta!=null && recetas.contains(receta.getId())){
+            receta = obtenerReceta(context, tiempoActual);
+        }
+        RecetasSrv.guardarListaRecetas(context, new ArrayList<>(colaRecetas));
+        return receta;
+    }
+
     private static Receta obtenerReceta(Context context, long tiempoActual) {
         // Obtener la primera receta de la cola
         Receta receta = colaRecetas.poll();
@@ -122,8 +133,9 @@ public class CalendarioSrv {
             // Convertir la diferencia en milisegundos a días
             long diasPasados = diferenciaEnMilisegundos / (1000 * 60 * 60 * 24);
             Temporada temporada = UtilsSrv.getTemporadaFecha(new Date(tiempoActual));
-            if (diasPasados > diasLimite && recetaElegida.getTemporadas().contains(temporada) && !recetaElegida.isPostre()) {
-                recetaElegida.setFechaCalendario(new Date(tiempoActual));
+            if (Math.abs(diasPasados) > diasLimite && recetaElegida.getTemporadas().contains(temporada) && !recetaElegida.isPostre()) {
+                if (diasPasados >= 0)
+                    recetaElegida.setFechaCalendario(new Date(tiempoActual));
                 return recetaElegida;
             } else {
                 recetaElegida = colaRecetas.poll();
@@ -140,7 +152,7 @@ public class CalendarioSrv {
         // Realizar la lógica de actualización del Calendario
         // Establecer la última actualización con la fecha y hora actual
         if (warn)
-             UtilsSrv.notificacion(context, context.getString(R.string.calendario_actualizado), Toast.LENGTH_SHORT).show();
+            UtilsSrv.notificacion(context, context.getString(R.string.calendario_actualizado), Toast.LENGTH_SHORT).show();
         calendario.setUltimaActualizacion(System.currentTimeMillis());
 
         // Guardar el Calendario en "calendario.json"
@@ -182,25 +194,28 @@ public class CalendarioSrv {
         colaRecetas = new ArrayDeque<>();
         colaRecetas.addAll(RecetasSrv.cargarListaRecetas(context));
         for (DiaRecetas dia : calendario.getListaRecetas()) {
-            if (dia.getRecetas().contains("-1")) {
-                Receta receta = obtenerReceta(context, dia.getFecha().getTime());
-                if (receta != null) {
-                    dia.getRecetas().remove("-1");
-                    dia.addReceta(receta);
+            if (dia.getFecha().compareTo(new Date()) >= 0) {
+                if (dia.getRecetas().contains("-1")) {
+                    Receta receta = obtenerReceta(context, dia.getFecha().getTime());
+                    if (receta != null) {
+                        dia.getRecetas().remove("-1");
+                        dia.addReceta(receta);
+                    }
                 }
             }
+
         }
         // Guardar la lista de recetas actualizada en el archivo JSON
         RecetasSrv.guardarListaRecetas(context, new ArrayList<>(colaRecetas));
         actualizarCalendario(context, calendario, true);
     }
 
-    public static List<Ingrediente> obtenerIngredientes(Context context, CalendarioBean calendarioBean) {
-        if(calendarioBean == null){
+    public static List<Ingrediente> obtenerIngredientesListaCompra(Context context, CalendarioBean calendarioBean) {
+        if (calendarioBean == null) {
             return new ArrayList<>();
         }
         List<String> idRecetas = calendarioBean.getListaRecetas()
-                .stream()
+                .stream().filter(dr -> dr.getFecha().after(new Date()))
                 .flatMap(dr -> dr.getRecetas().stream())
                 .collect(Collectors.toList());
 
@@ -215,7 +230,7 @@ public class CalendarioSrv {
                     for (Ingrediente ingrediente : receta.getIngredientes()) {
                         String nombreIngrediente = ingrediente.getNombre().toLowerCase();
                         String tipoCantidad = ingrediente.getTipoCantidad().toLowerCase();
-                        ingredientesMap.merge(nombreIngrediente+tipoCantidad, new Ingrediente(nombreIngrediente, ingrediente.getCantidad(), ingrediente.getTipoCantidad()), (ing1, ing2) -> {
+                        ingredientesMap.merge(nombreIngrediente + tipoCantidad, new Ingrediente(nombreIngrediente, ingrediente.getCantidad(), ingrediente.getTipoCantidad()), (ing1, ing2) -> {
                             ing1.setCantidad(ing1.getCantidad() + ing2.getCantidad());
                             return ing1;
                         });

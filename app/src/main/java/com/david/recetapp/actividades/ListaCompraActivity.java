@@ -32,7 +32,7 @@ public class ListaCompraActivity extends AppCompatActivity {
         setContentView(R.layout.activity_lista_compra);
         CalendarioBean calendario = CalendarioSrv.cargarCalendario(this);
         TextView textViewEmpty = findViewById(R.id.textViewEmpty);
-        List<Ingrediente> ingredientes = CalendarioSrv.obtenerIngredientes(this, calendario);
+        List<Ingrediente> ingredientes = CalendarioSrv.obtenerIngredientesListaCompra(this, calendario);
         if (calendario != null && !ingredientes.isEmpty()) {
             textViewEmpty.setVisibility(View.GONE);
 

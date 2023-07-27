@@ -67,6 +67,7 @@ public class CalendarioActivity extends AppCompatActivity {
                 Intent intent = new Intent(CalendarioActivity.this, RecetasDiaActivity.class);
                 // Pasa DiaRecetas
                 intent.putExtra("diaRecetas", calendario.getListaRecetas().get(dia));
+                intent.putExtra("dia", dia);
                 // Inicia la actividad RecetasDiaActivity
                 startActivity(intent);
             });

@@ -37,7 +37,7 @@ public class RecetasDiaActivity extends AppCompatActivity {
 
         // Obtiene índice del día seleccionado del Intent
         DiaRecetas diaRecetas = (DiaRecetas) getIntent().getSerializableExtra("diaRecetas");
-
+        int dia = (int) getIntent().getSerializableExtra("dia");
         TextView textViewEmpty = findViewById(R.id.textViewEmpty);
 
         if (diaRecetas.getRecetas().isEmpty() || diaRecetas.getRecetas().stream().allMatch(s -> s.equals("-1"))) {
@@ -55,7 +55,7 @@ public class RecetasDiaActivity extends AppCompatActivity {
         if (listaRecetas.isEmpty()) {
             textViewEmpty.setVisibility(View.VISIBLE); // Muestra el TextView si la lista está vacía
         }
-        RecetasDiaExpandableListAdapter expandableListAdapter = new RecetasDiaExpandableListAdapter(this, listaRecetas, expandableListView);
+        RecetasDiaExpandableListAdapter expandableListAdapter = new RecetasDiaExpandableListAdapter(this, listaRecetas, expandableListView, dia);
         expandableListView.setAdapter(expandableListAdapter);
 
         expandableListView.setOnGroupClickListener((parent, v, groupPosition, id) -> {

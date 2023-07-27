@@ -1,6 +1,8 @@
 package com.david.recetapp.adaptadores;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
@@ -11,12 +13,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
+import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.david.recetapp.R;
+import com.david.recetapp.actividades.CalendarioActivity;
+import com.david.recetapp.negocio.beans.CalendarioBean;
+import com.david.recetapp.negocio.beans.DiaRecetas;
 import com.david.recetapp.negocio.beans.Ingrediente;
 import com.david.recetapp.negocio.beans.Receta;
+import com.david.recetapp.negocio.servicios.CalendarioSrv;
+import com.david.recetapp.negocio.servicios.UtilsSrv;
 
 import java.util.List;
 import java.util.Locale;
@@ -27,11 +36,12 @@ public class RecetasDiaExpandableListAdapter extends BaseExpandableListAdapter {
 
     private final ExpandableListView expandableListView;
 
-
-    public RecetasDiaExpandableListAdapter(Context context, List<Receta> listaRecetas, ExpandableListView expandableListView) {
+    private final int dia;
+    public RecetasDiaExpandableListAdapter(Context context, List<Receta> listaRecetas, ExpandableListView expandableListView, int dia) {
         this.context = context;
         this.listaRecetas = listaRecetas;
         this.expandableListView = expandableListView;
+        this.dia = dia;
     }
 
     @Override
@@ -102,6 +112,39 @@ public class RecetasDiaExpandableListAdapter extends BaseExpandableListAdapter {
                 }
                 expandableListView.expandGroup(groupPosition);
             }
+        });
+        ImageView imageViewRecargar = convertView.findViewById(R.id.imageViewRecargar);
+
+        imageViewRecargar.setOnClickListener(v ->{
+            // Mostrar el cuadro de diálogo para preguntar al usuario
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            builder.setTitle(context.getString(R.string.titulo_recargar_receta));
+            builder.setMessage(context.getString(R.string.comprobar_si_recargar_receta));
+
+            builder.setPositiveButton(context.getString(R.string.aceptar), (dialog, which) -> {
+                CalendarioBean calendario = CalendarioSrv.cargarCalendario(context);
+                assert calendario != null;
+                DiaRecetas diaRecetas = calendario.getListaRecetas().get(dia);
+                Receta recetaNueva = CalendarioSrv.recargarReceta(context,diaRecetas.getFecha().getTime(),diaRecetas.getRecetas());
+
+                if(recetaNueva == null){
+                    UtilsSrv.notificacion(context, context.getString(R.string.no_recargar_receta), Toast.LENGTH_LONG);
+                }
+                else {
+                    listaRecetas.set(groupPosition, recetaNueva);
+                    diaRecetas.getRecetas().set(groupPosition,recetaNueva.getId());
+                    calendario.getListaRecetas().set(dia,diaRecetas);
+                    CalendarioSrv.actualizarCalendario(context,calendario,true);
+                    Intent intent = new Intent(context, CalendarioActivity.class);
+                    context.startActivity(intent);
+                }
+            });
+
+            builder.setNegativeButton(context.getString(R.string.cancelar), (dialog, which) -> {
+                // No hacer nada si el usuario cancela la acción.
+            });
+
+            builder.show();
         });
         return convertView;
     }

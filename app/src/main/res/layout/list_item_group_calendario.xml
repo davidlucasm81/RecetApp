@@ -2,6 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:gravity="center"
     android:orientation="horizontal"
     android:padding="8dp">
 
@@ -9,9 +10,21 @@
         android:id="@+id/txtNombreReceta"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
+        android:layout_weight="6"
+        android:gravity="center|start"
         android:paddingStart="30dp"
         android:textAppearance="?android:attr/textAppearanceMedium"
         tools:ignore="RtlSymmetry" />
+
+    <ImageView
+        android:id="@+id/imageViewRecargar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="5dp"
+        android:clickable="true"
+        android:contentDescription="@string/titulo_recargar_receta"
+        android:src="@drawable/icono_recargar"
+        tools:ignore="TouchTargetSizeCheck" />
 
 </LinearLayout>
