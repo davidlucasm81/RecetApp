@@ -3,10 +3,12 @@ package com.david.recetapp.adaptadores;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.style.StyleSpan;
+import android.text.style.UnderlineSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -197,8 +199,7 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
                     // Agregar dos saltos de línea si no es la última iteración
                     if (i < totalIngredientes - 1) {
                         sbIngredientes.append("\n\n");
-                    }
-                    else{
+                    } else {
                         sbIngredientes.append("\n");
                     }
                 }
@@ -209,6 +210,36 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
                 txtTitulo.setText(R.string.pasos);
                 SpannableStringBuilder sbPasos = new SpannableStringBuilder();
                 int totalPasos = receta.getPasos().size();
+                int minutosTotales = 0;
+
+                for (int i = 0; i < totalPasos; i++) {
+                    String tiempoReceta = receta.getPasos().get(i).getTiempo(); // HH:MM
+                    String[] tiempos = tiempoReceta.split(":");
+                    int horas = Integer.parseInt(tiempos[0]);
+                    int minutos = Integer.parseInt(tiempos[1]);
+                    minutosTotales += minutos + 60 * horas;
+                }
+
+                int horas = minutosTotales / 60;
+                int minutos = minutosTotales % 60;
+
+                // Formateamos horas y minutos con 2 dígitos
+                String tiempoTotal = String.format(Locale.getDefault(),"%02d:%02d", horas, minutos);
+
+                // Creamos un SpannableStringBuilder para el texto completo
+                SpannableStringBuilder sbResaltado = new SpannableStringBuilder("Tiempo total de la receta: " + tiempoTotal);
+
+                // Aplicamos el estilo negrita solo a la parte de tiempoTotal (HH:MM)
+                int startIndex = sbResaltado.length() - tiempoTotal.length();
+                int endIndex = sbResaltado.length();
+                sbResaltado.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), startIndex, endIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+                // Aplicamos el subrayado a tod0 el texto
+                sbResaltado.setSpan(new UnderlineSpan(), 0, sbResaltado.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+                // Agregamos el texto resaltado al sbPasos
+                sbPasos.append(sbResaltado);
+                sbPasos.append("\n\n");
 
                 for (int i = 0; i < totalPasos; i++) {
                     String tiempo = receta.getPasos().get(i).getTiempo();
@@ -239,10 +270,7 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
                 for (Alergeno alergeno : receta.getAlergenos()) {
                     // Creamos un nuevo ImageView
                     ImageView imageView = new ImageView(context);
-                    imageView.setLayoutParams(new LinearLayout.LayoutParams(
-                            LinearLayout.LayoutParams.WRAP_CONTENT,
-                            LinearLayout.LayoutParams.WRAP_CONTENT
-                    ));
+                    imageView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 
                     // Asignamos el drawable al ImageView
                     imageView.setImageResource(AlergenosSrv.obtenerImagen(alergeno.getNumero()));
@@ -252,10 +280,7 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
                 }
                 if (receta.getAlergenos().isEmpty()) {
                     TextView textView = new TextView(context);
-                    textView.setLayoutParams(new LinearLayout.LayoutParams(
-                            LinearLayout.LayoutParams.WRAP_CONTENT,
-                            LinearLayout.LayoutParams.WRAP_CONTENT
-                    ));
+                    textView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
                     textView.setText(R.string.sin_al_rgenos);
                     iconosAlergenos.addView(textView);
                 }
