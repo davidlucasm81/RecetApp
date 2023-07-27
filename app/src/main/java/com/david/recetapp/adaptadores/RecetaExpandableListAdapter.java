@@ -3,7 +3,10 @@ package com.david.recetapp.adaptadores;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
+import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -169,7 +172,6 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
 
         TextView txtTitulo = convertView.findViewById(R.id.txtTitulo);
         TextView txtInformacion = convertView.findViewById(R.id.txtInformacion);
-        TextView txtNumero = convertView.findViewById(R.id.txtNumero);
         Receta receta = listaRecetas.get(groupPosition);
         RatingBar ratingBar = convertView.findViewById(R.id.ratingBar);
         ratingBar.setVisibility(View.GONE);
@@ -178,39 +180,48 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
         switch (childPosition) {
             case 0:
                 txtInformacion.setVisibility(View.VISIBLE);
-                txtNumero.setVisibility(View.GONE);
                 txtTitulo.setText(R.string.temporadas);
                 List<String> temporadas = receta.getTemporadas().stream().map(T -> T.getNombre(this.context)).collect(Collectors.toList());
                 txtInformacion.setText(TextUtils.join(", ", temporadas));
                 break;
             case 1:
                 txtInformacion.setVisibility(View.VISIBLE);
-                txtNumero.setVisibility(View.VISIBLE);
                 txtTitulo.setText(R.string.ingredientes);
                 StringBuilder sbIngredientes = new StringBuilder();
-                StringBuilder sbNumeroIngrediente = new StringBuilder();
                 for (Ingrediente ingrediente : receta.getIngredientes()) {
-                    sbIngredientes.append("- ").append(ingrediente.getNombre()).append("\n");
-                    sbNumeroIngrediente.append(ingrediente.getCantidad()).append(" ").append(ingrediente.getTipoCantidad()).append("\n");
+                    sbIngredientes.append("- ").append(ingrediente.getCantidad()).append(" ").append(ingrediente.getTipoCantidad()).append(" de ").append(ingrediente.getNombre()).append("\n");
                 }
                 txtInformacion.setText(sbIngredientes.substring(0, sbIngredientes.length() - 1));
-                txtNumero.setText(sbNumeroIngrediente.substring(0, sbNumeroIngrediente.length() - 1));
                 break;
             case 2:
                 txtInformacion.setVisibility(View.VISIBLE);
-                txtNumero.setVisibility(View.VISIBLE);
                 txtTitulo.setText(R.string.pasos);
-                StringBuilder sbPasos = new StringBuilder();
-                StringBuilder sbNumeroPasos = new StringBuilder();
-                for (int i = 0; i < receta.getPasos().size(); i++) {
-                    sbPasos.append(i + 1).append(") ").append(receta.getPasos().get(i).getPaso()).append("\n");
-                    sbNumeroPasos.append(receta.getPasos().get(i).getTiempo()).append("\n");
+                SpannableStringBuilder sbPasos = new SpannableStringBuilder();
+                int totalPasos = receta.getPasos().size();
+
+                for (int i = 0; i < totalPasos; i++) {
+                    String tiempo = receta.getPasos().get(i).getTiempo();
+                    String paso = receta.getPasos().get(i).getPaso();
+                    String pasoFormateado = "[" + tiempo + "] " + paso;
+
+                    SpannableString spannablePaso = new SpannableString(pasoFormateado);
+                    int startPos = pasoFormateado.indexOf("[");
+                    int endPos = pasoFormateado.indexOf("]") + 1;
+                    spannablePaso.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), startPos, endPos, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+                    sbPasos.append(String.valueOf(i + 1)).append(") ").append(spannablePaso);
+
+                    // Agregar un salto de línea si no es la última iteración
+                    if (i < totalPasos - 1) {
+                        sbPasos.append("\n\n");
+                    }
                 }
-                txtInformacion.setText(sbPasos.substring(0, sbPasos.length() - 1));
-                txtNumero.setText(sbNumeroPasos.substring(0, sbNumeroPasos.length() - 1));
+
+                txtInformacion.setText(sbPasos);
                 break;
             case 3:
                 txtTitulo.setText(R.string.alergenos);
+                txtInformacion.setVisibility(View.GONE);
                 iconosAlergenos.setVisibility(View.VISIBLE);
                 iconosAlergenos.removeAllViews(); // Elimina todas las vistas hijos del LinearLayout
                 // Recorremos la lista de drawables
@@ -244,7 +255,6 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
                 ratingBar.setVisibility(View.VISIBLE);
                 ratingBar.setRating(receta.getEstrellas());
                 txtInformacion.setVisibility(View.GONE);
-                txtNumero.setVisibility(View.GONE);
                 break;
             case 5:
                 txtInformacion.setVisibility(View.VISIBLE);
