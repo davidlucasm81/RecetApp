@@ -202,14 +202,14 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
                 for (int i = 0; i < totalPasos; i++) {
                     String tiempo = receta.getPasos().get(i).getTiempo();
                     String paso = receta.getPasos().get(i).getPaso();
-                    String pasoFormateado = "[" + tiempo + "] " + paso;
+                    String pasoFormateado = "[" + tiempo + "] " + (i + 1) + ") " + paso;
 
                     SpannableString spannablePaso = new SpannableString(pasoFormateado);
                     int startPos = pasoFormateado.indexOf("[");
                     int endPos = pasoFormateado.indexOf("]") + 1;
                     spannablePaso.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), startPos, endPos, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-                    sbPasos.append(String.valueOf(i + 1)).append(") ").append(spannablePaso);
+                    sbPasos.append(spannablePaso);
 
                     // Agregar un salto de línea si no es la última iteración
                     if (i < totalPasos - 1) {
