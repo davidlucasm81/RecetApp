@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Queue;
 import java.util.stream.Collectors;
 
@@ -85,7 +86,7 @@ public class CalendarioSrv {
                 diaRecetas.addReceta(obtenerReceta(context, calendar.getTimeInMillis()));
 
                 // Agregar el objeto DiaRecetas a la lista
-                calendarioBean.getListaRecetas().add(diaRecetas);
+                calendarioBean.getListaDiaRecetas().add(diaRecetas);
             }
         }
 
@@ -98,7 +99,7 @@ public class CalendarioSrv {
         diaRecetas.addReceta(obtenerReceta(context, calendar.getTimeInMillis()));
 
         // Agregar el objeto DiaRecetas a la lista
-        calendarioBean.getListaRecetas().add(diaRecetas);
+        calendarioBean.getListaDiaRecetas().add(diaRecetas);
 
         // Guardar la lista de recetas actualizada en el archivo JSON
         RecetasSrv.guardarListaRecetas(context, new ArrayList<>(colaRecetas));
@@ -109,7 +110,7 @@ public class CalendarioSrv {
         colaRecetas = new ArrayDeque<>();
         colaRecetas.addAll(RecetasSrv.cargarListaRecetas(context));
         Receta receta = obtenerReceta(context, tiempoActual);
-        while(receta!=null && recetas.contains(receta.getId())){
+        while (receta != null && recetas.contains(receta.getId())) {
             receta = obtenerReceta(context, tiempoActual);
         }
         RecetasSrv.guardarListaRecetas(context, new ArrayList<>(colaRecetas));
@@ -177,7 +178,7 @@ public class CalendarioSrv {
         assert calendario != null;
         colaRecetas = new ArrayDeque<>();
         colaRecetas.addAll(RecetasSrv.cargarListaRecetas(context));
-        for (DiaRecetas dia : calendario.getListaRecetas()) {
+        for (DiaRecetas dia : calendario.getListaDiaRecetas()) {
             if (dia.getRecetas().contains(receta.getId())) {
                 dia.getRecetas().remove(receta.getId());
                 dia.addReceta(obtenerReceta(context, dia.getFecha().getTime()));
@@ -193,7 +194,7 @@ public class CalendarioSrv {
         assert calendario != null;
         colaRecetas = new ArrayDeque<>();
         colaRecetas.addAll(RecetasSrv.cargarListaRecetas(context));
-        for (DiaRecetas dia : calendario.getListaRecetas()) {
+        for (DiaRecetas dia : calendario.getListaDiaRecetas()) {
             if (dia.getFecha().compareTo(new Date()) >= 0) {
                 if (dia.getRecetas().contains("-1")) {
                     Receta receta = obtenerReceta(context, dia.getFecha().getTime());
@@ -210,11 +211,42 @@ public class CalendarioSrv {
         actualizarCalendario(context, calendario, true);
     }
 
-    public static List<Ingrediente> obtenerIngredientesListaCompra(Context context, CalendarioBean calendarioBean) {
+    public static Map<String, List<Ingrediente>> obtenerIngredientesListaCompraDias(Context context, CalendarioBean calendarioBean) {
+        if (calendarioBean == null) {
+            return new HashMap<>();
+        }
+
+        List<Receta> todasRecetas = RecetasSrv.cargarListaRecetas(context);
+        Map<String, List<Ingrediente>> ingredientesMap = new HashMap<>();
+
+        calendarioBean.getListaDiaRecetas()
+                .stream().filter(diaReceta -> diaReceta.getFecha().after(new Date()))
+                .forEach(dr -> {
+                    Map<String, Ingrediente> ingredientesDia = new HashMap<>();
+                    for (String idReceta : dr.getRecetas()) {
+                        Optional<Receta> receta = todasRecetas.stream().filter(r -> r.getId().equals(idReceta)).findAny();
+                        if (receta.isPresent()) {
+                            for (Ingrediente ingrediente : receta.get().getIngredientes()) {
+                                String nombreIngrediente = ingrediente.getNombre().toLowerCase();
+                                String tipoCantidad = ingrediente.getTipoCantidad().toLowerCase();
+                                ingredientesDia.merge(nombreIngrediente + tipoCantidad, new Ingrediente(nombreIngrediente, ingrediente.getCantidad(), ingrediente.getTipoCantidad()), (ing1, ing2) -> {
+                                    ing1.setCantidad(ing1.getCantidad() + ing2.getCantidad());
+                                    return ing1;
+                                });
+                            }
+                        }
+                    }
+                    ingredientesMap.put(UtilsSrv.obtenerDiaSemana(dr.getFecha()), new ArrayList<>(ingredientesDia.values()));
+                });
+
+        return ingredientesMap;
+    }
+
+    public static List<Ingrediente> obtenerIngredientesListaCompraTotal(Context context, CalendarioBean calendarioBean) {
         if (calendarioBean == null) {
             return new ArrayList<>();
         }
-        List<String> idRecetas = calendarioBean.getListaRecetas()
+        List<String> idRecetas = calendarioBean.getListaDiaRecetas()
                 .stream().filter(dr -> dr.getFecha().after(new Date()))
                 .flatMap(dr -> dr.getRecetas().stream())
                 .collect(Collectors.toList());

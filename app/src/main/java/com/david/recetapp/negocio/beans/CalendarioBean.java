@@ -4,16 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CalendarioBean {
-    private final List<DiaRecetas> listaRecetas;
+    private final List<DiaRecetas> listaDiaRecetas;
     private long ultimaActualizacion;
 
     public CalendarioBean() {
-        this.listaRecetas = new ArrayList<>();
+        this.listaDiaRecetas = new ArrayList<>();
         this.ultimaActualizacion = 0;
     }
 
-    public List<DiaRecetas> getListaRecetas() {
-        return listaRecetas;
+    public List<DiaRecetas> getListaDiaRecetas() {
+        return listaDiaRecetas;
     }
 
     public long getUltimaActualizacion() {

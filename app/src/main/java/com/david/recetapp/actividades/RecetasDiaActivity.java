@@ -28,6 +28,7 @@ public class RecetasDiaActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    /** @noinspection DataFlowIssue*/
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,6 +41,7 @@ public class RecetasDiaActivity extends AppCompatActivity {
         int dia = (int) getIntent().getSerializableExtra("dia");
         TextView textViewEmpty = findViewById(R.id.textViewEmpty);
 
+        assert diaRecetas != null;
         if (diaRecetas.getRecetas().isEmpty() || diaRecetas.getRecetas().stream().allMatch(s -> s.equals("-1"))) {
             textViewEmpty.setVisibility(View.VISIBLE); // Muestra el TextView si la lista está vacía
         } else {

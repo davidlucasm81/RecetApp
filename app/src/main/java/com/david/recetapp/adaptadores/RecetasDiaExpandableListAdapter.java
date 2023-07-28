@@ -124,7 +124,7 @@ public class RecetasDiaExpandableListAdapter extends BaseExpandableListAdapter {
             builder.setPositiveButton(context.getString(R.string.aceptar), (dialog, which) -> {
                 CalendarioBean calendario = CalendarioSrv.cargarCalendario(context);
                 assert calendario != null;
-                DiaRecetas diaRecetas = calendario.getListaRecetas().get(dia);
+                DiaRecetas diaRecetas = calendario.getListaDiaRecetas().get(dia);
                 Receta recetaNueva = CalendarioSrv.recargarReceta(context,diaRecetas.getFecha().getTime(),diaRecetas.getRecetas());
 
                 if(recetaNueva == null){
@@ -133,7 +133,7 @@ public class RecetasDiaExpandableListAdapter extends BaseExpandableListAdapter {
                 else {
                     listaRecetas.set(groupPosition, recetaNueva);
                     diaRecetas.getRecetas().set(groupPosition,recetaNueva.getId());
-                    calendario.getListaRecetas().set(dia,diaRecetas);
+                    calendario.getListaDiaRecetas().set(dia,diaRecetas);
                     CalendarioSrv.actualizarCalendario(context,calendario,true);
                     Intent intent = new Intent(context, CalendarioActivity.class);
                     context.startActivity(intent);

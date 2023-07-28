@@ -72,6 +72,7 @@ public class EditarRecetaActivity extends AppCompatActivity {
         outState.putSerializable(KEY_INGREDIENTES, ingredientes);
         outState.putSerializable(KEY_PASOS, pasos);
     }
+    /** @noinspection DataFlowIssue*/
     @SuppressWarnings("unchecked")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +82,7 @@ public class EditarRecetaActivity extends AppCompatActivity {
         // Obtiene índice del día seleccionado del Intent
         int posicion = (int) getIntent().getSerializableExtra("position");
         @SuppressWarnings("unchecked") List<Receta> recetas = (List<Receta>) getIntent().getSerializableExtra("listaRecetas");
+        assert recetas != null;
         Receta receta = recetas.get(posicion);
 
         CheckBox postre = findViewById(R.id.checkBoxPostre);

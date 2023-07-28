@@ -15,11 +15,11 @@ import com.david.recetapp.negocio.beans.Ingrediente;
 import java.text.MessageFormat;
 import java.util.List;
 
-public class IngredienteDiaAdapter extends RecyclerView.Adapter<IngredienteDiaAdapter.IngredienteDiaViewHolder> {
+public class ListaCompraTodosIngredientesAdapter extends RecyclerView.Adapter<ListaCompraTodosIngredientesAdapter.IngredienteDiaViewHolder> {
 
     private final List<Ingrediente> ingredientes;
 
-    public IngredienteDiaAdapter( List<Ingrediente> ingredientes) {
+    public ListaCompraTodosIngredientesAdapter(List<Ingrediente> ingredientes) {
         this.ingredientes = ingredientes;
     }
 

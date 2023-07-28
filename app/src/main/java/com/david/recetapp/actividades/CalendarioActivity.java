@@ -54,19 +54,19 @@ public class CalendarioActivity extends AppCompatActivity {
 
         // Resaltar el botón correspondiente al día actual
         resaltarBoton(diaActual);
-        for (int i = 0; i < 7 - calendario.getListaRecetas().size(); i++) {
+        for (int i = 0; i < 7 - calendario.getListaDiaRecetas().size(); i++) {
             botones[i].setBackgroundColor(Color.DKGRAY);
         }
 
         // Asigna un OnClickListener a cada botón utilizando un bucle
         int diaSeleccionado = 0;
-        for (int i = 7 - calendario.getListaRecetas().size(); i < botones.length; i++) {
+        for (int i = 7 - calendario.getListaDiaRecetas().size(); i < botones.length; i++) {
             final int dia = diaSeleccionado;
             botones[i].setOnClickListener(view -> {
                 // Crea un Intent para abrir la actividad RecetasDiaActivity
                 Intent intent = new Intent(CalendarioActivity.this, RecetasDiaActivity.class);
                 // Pasa DiaRecetas
-                intent.putExtra("diaRecetas", calendario.getListaRecetas().get(dia));
+                intent.putExtra("diaRecetas", calendario.getListaDiaRecetas().get(dia));
                 intent.putExtra("dia", dia);
                 // Inicia la actividad RecetasDiaActivity
                 startActivity(intent);
