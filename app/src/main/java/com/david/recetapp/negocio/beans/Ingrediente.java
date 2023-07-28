@@ -3,11 +3,9 @@ package com.david.recetapp.negocio.beans;
 import java.io.Serializable;
 
 public class Ingrediente implements Serializable {
-    private final String nombre;
-
+    private String nombre;
     private int cantidad;
-
-    private final String tipoCantidad;
+    private String tipoCantidad;
 
     public Ingrediente(String nombre, int cantidad, String tipoCantidad) {
         this.nombre = nombre;
@@ -17,6 +15,10 @@ public class Ingrediente implements Serializable {
 
     public String getNombre() {
         return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
     }
 
     public int getCantidad() {
@@ -29,6 +31,10 @@ public class Ingrediente implements Serializable {
 
     public String getTipoCantidad() {
         return tipoCantidad;
+    }
+
+    public void setTipoCantidad(String tipoCantidad) {
+        this.tipoCantidad = tipoCantidad;
     }
 
 

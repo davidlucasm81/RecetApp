@@ -6,6 +6,39 @@
     android:gravity="center_vertical"
     android:orientation="horizontal">
 
+    <TextView
+        android:id="@+id/textViewNumero"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="18sp" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="5dp"
+        android:layout_weight="1"
+        android:textSize="18sp">
+
+        <EditText
+            android:id="@+id/editTextPaso"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textMultiLine"
+            android:textSize="18sp"
+            tools:ignore="Autofill,LabelFor,SpeakableTextPresentCheck,VisualLintTextFieldSize" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <EditText
+        android:id="@+id/editTextTiempo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="5dp"
+        android:inputType="text"
+        android:textSize="16sp"
+        tools:ignore="Autofill,LabelFor,SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+
     <ImageButton
         android:id="@+id/btnEliminarPaso"
         android:layout_width="wrap_content"
@@ -15,25 +48,6 @@
         android:contentDescription="@string/x"
         android:src="@drawable/ic_baseline_delete_24"
         android:textSize="16sp"
-        tools:ignore="TextContrastCheck,ImageContrastCheck" />
+        tools:ignore="TextContrastCheck,ImageContrastCheck,TouchTargetSizeCheck" />
 
-    <TextView
-        android:id="@+id/textViewNumero"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="18sp" />
-
-    <TextView
-        android:id="@+id/textViewPaso"
-        android:layout_marginEnd="5dp"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:textSize="18sp" />
-
-    <TextView
-        android:id="@+id/textViewTiempo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="16sp" />
 </LinearLayout>

@@ -171,7 +171,7 @@ public class RecetasDiaExpandableListAdapter extends BaseExpandableListAdapter {
 
                 for (int i = 0; i < totalIngredientes; i++) {
                     Ingrediente ingrediente = receta.getIngredientes().get(i);
-                    sbIngredientes.append("- ").append(ingrediente.getCantidad()).append(" ").append(ingrediente.getTipoCantidad()).append(" de ").append(ingrediente.getNombre());
+                    sbIngredientes.append("- ").append(ingrediente.getCantidad()).append(" ").append(ingrediente.getTipoCantidad()).append(context.getString(R.string.literal_de)).append(ingrediente.getNombre());
 
                     // Agregar dos saltos de línea si no es la última iteración
                     if (i < totalIngredientes - 1) {
@@ -204,7 +204,7 @@ public class RecetasDiaExpandableListAdapter extends BaseExpandableListAdapter {
                 String tiempoTotal = String.format(Locale.getDefault(),"%02d:%02d", horas, minutos);
 
                 // Creamos un SpannableStringBuilder para el texto completo
-                SpannableStringBuilder sbResaltado = new SpannableStringBuilder("Tiempo total de la receta: " + tiempoTotal);
+                SpannableStringBuilder sbResaltado = new SpannableStringBuilder(context.getString(R.string.tiempo_total) + tiempoTotal);
 
                 // Aplicamos el estilo negrita solo a la parte de tiempoTotal (HH:MM)
                 int startIndex = sbResaltado.length() - tiempoTotal.length();

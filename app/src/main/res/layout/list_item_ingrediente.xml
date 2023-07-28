@@ -1,11 +1,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/linearLayoutIngredientes"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:gravity="center_vertical"
+    android:gravity="center"
     android:orientation="horizontal">
 
+    <!-- Botón de eliminar (mantenlo igual) -->
     <ImageButton
         android:id="@+id/btnEliminarIngrediente"
         android:layout_width="wrap_content"
@@ -14,34 +14,63 @@
         android:background="@android:color/transparent"
         android:contentDescription="@string/x"
         android:src="@drawable/ic_baseline_delete_24"
-        tools:ignore="DuplicateSpeakableTextCheck,TextContrastCheck,ImageContrastCheck,TouchTargetSizeCheck" />
+        tools:ignore="TouchTargetSizeCheck" />
 
-    <TextView
-        android:id="@+id/textViewIngrediente"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="5dp"
-        android:layout_weight="1"
-        android:textSize="18sp" />
+    <!-- Campo de edición del nombre del ingrediente -->
+
+    <!-- Campo de edición de la cantidad -->
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
+        android:gravity="center"
+        android:orientation="vertical">
 
-        <TextView
-            android:layout_width="wrap_content"
+        <EditText
+            android:id="@+id/editTextNombreIngrediente"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/x_con_espacio"
-            android:textColor="#757575" />
+            android:inputType="text"
+            android:minHeight="48dp"
+            android:textSize="18sp"
+            tools:ignore="Autofill,LabelFor,SpeakableTextPresentCheck,VisualLintTextFieldSize" />
 
-        <TextView
-            android:id="@+id/textViewNumero"
+        <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="18sp" />
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
 
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="16dp"
+                android:paddingStart="4dp"
+                android:paddingTop="2dp"
+                android:paddingEnd="4dp"
+                android:paddingBottom="2dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/editTextCantidad"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal|center_vertical"
+                    android:inputType="number"
+                    android:maxLines="1"
+                    android:text="1"
+                    tools:ignore="HardcodedText" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <Spinner
+                android:id="@+id/spinner_quantity_unit"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:textAlignment="center" />
+        </LinearLayout>
     </LinearLayout>
+
+    <!-- Campo de edición del tipo de cantidad -->
 
 </LinearLayout>

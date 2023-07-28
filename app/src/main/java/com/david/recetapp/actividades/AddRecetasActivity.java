@@ -2,9 +2,12 @@ package com.david.recetapp.actividades;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -34,8 +37,8 @@ import com.david.recetapp.negocio.servicios.AlergenosSrv;
 import com.david.recetapp.negocio.servicios.RecetasSrv;
 import com.david.recetapp.negocio.servicios.UtilsSrv;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -134,9 +137,9 @@ public class AddRecetasActivity extends AppCompatActivity {
                 agregarIngrediente(nombreIngrediente, cantidadNumerica, tipoCantidad);
                 autoCompleteTextViewNombreIngrediente.setText("");
                 editTextCantidad.setText("1");
-                 UtilsSrv.notificacion(AddRecetasActivity.this, this.getString(R.string.ingrediente_aniadido), Toast.LENGTH_SHORT).show();
+                UtilsSrv.notificacion(AddRecetasActivity.this, this.getString(R.string.ingrediente_aniadido), Toast.LENGTH_SHORT).show();
             } else {
-                 UtilsSrv.notificacion(AddRecetasActivity.this, this.getString(R.string.ingrediente_no_aniadido), Toast.LENGTH_SHORT).show();
+                UtilsSrv.notificacion(AddRecetasActivity.this, this.getString(R.string.ingrediente_no_aniadido), Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -162,9 +165,9 @@ public class AddRecetasActivity extends AppCompatActivity {
                 editTextHoras.setText("0");
                 editTextMinutos.setText("0");
                 mostrarPasos();
-                 UtilsSrv.notificacion(AddRecetasActivity.this, this.getString(R.string.paso_aniadido), Toast.LENGTH_SHORT).show();
+                UtilsSrv.notificacion(AddRecetasActivity.this, this.getString(R.string.paso_aniadido), Toast.LENGTH_SHORT).show();
             } else {
-                 UtilsSrv.notificacion(AddRecetasActivity.this, this.getString(R.string.paso_no_aniadido), Toast.LENGTH_SHORT).show();
+                UtilsSrv.notificacion(AddRecetasActivity.this, this.getString(R.string.paso_no_aniadido), Toast.LENGTH_SHORT).show();
             }
         });
         // Obtener arrays de recursos
@@ -185,20 +188,20 @@ public class AddRecetasActivity extends AppCompatActivity {
             String nombre = editTextNombre.getText().toString().trim();
 
             if (nombre.isEmpty()) {
-                 UtilsSrv.notificacion(AddRecetasActivity.this, this.getString(R.string.no_nombre), Toast.LENGTH_SHORT).show();
+                UtilsSrv.notificacion(AddRecetasActivity.this, this.getString(R.string.no_nombre), Toast.LENGTH_SHORT).show();
                 return;
             }
 
             if (!checkboxInvierno.isChecked() && !checkboxVerano.isChecked() && !checkboxOtonio.isChecked() && !checkboxPrimavera.isChecked()) {
-                 UtilsSrv.notificacion(AddRecetasActivity.this, this.getString(R.string.no_temporadas), Toast.LENGTH_SHORT).show();
+                UtilsSrv.notificacion(AddRecetasActivity.this, this.getString(R.string.no_temporadas), Toast.LENGTH_SHORT).show();
                 return;
             }
             if (ingredientes.isEmpty()) {
-                 UtilsSrv.notificacion(AddRecetasActivity.this, this.getString(R.string.ingrediente_no_aniadido), Toast.LENGTH_SHORT).show();
+                UtilsSrv.notificacion(AddRecetasActivity.this, this.getString(R.string.ingrediente_no_aniadido), Toast.LENGTH_SHORT).show();
                 return;
             }
             if (pasos.isEmpty()) {
-                 UtilsSrv.notificacion(AddRecetasActivity.this, this.getString(R.string.paso_no_aniadido), Toast.LENGTH_SHORT).show();
+                UtilsSrv.notificacion(AddRecetasActivity.this, this.getString(R.string.paso_no_aniadido), Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -231,7 +234,7 @@ public class AddRecetasActivity extends AppCompatActivity {
             RecetasSrv.addReceta(this, receta);
 
             // Crear un Intent para volver a la pantalla inicial
-             UtilsSrv.notificacion(AddRecetasActivity.this, this.getString(R.string.receta_creada), Toast.LENGTH_SHORT).show();
+            UtilsSrv.notificacion(AddRecetasActivity.this, this.getString(R.string.receta_creada), Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(AddRecetasActivity.this, MainActivity.class);
             intent.putExtra("aviso_receta_creada", this.getString(R.string.receta_creada));
 
@@ -290,21 +293,84 @@ public class AddRecetasActivity extends AppCompatActivity {
     private void mostrarIngredientes() {
         linearLayoutIngredientes.removeAllViews();
 
-        for (Ingrediente ingrediente : ingredientes) {
+        for (int i = 0; i < ingredientes.size(); i++) {
+            final Ingrediente ingrediente = ingredientes.get(i);
+
             ViewGroup parent = findViewById(R.id.linearLayoutIngredientes);
             View ingredienteView = LayoutInflater.from(this).inflate(R.layout.list_item_ingrediente, parent, false);
 
-            TextView textViewIngrediente = ingredienteView.findViewById(R.id.textViewIngrediente);
-            TextView textViewNumero = ingredienteView.findViewById(R.id.textViewNumero);
+            EditText editTextNombre = ingredienteView.findViewById(R.id.editTextNombreIngrediente);
+            EditText editTextCantidad = ingredienteView.findViewById(R.id.editTextCantidad);
+            Spinner spinnerCantidad = ingredienteView.findViewById(R.id.spinner_quantity_unit);
+            List<String> opcionesTipoCantidad = Arrays.asList(getResources().getStringArray(R.array.quantity_units));
+            // Configurar el adaptador para el Spinner con las opciones disponibles para el tipo de cantidad
+            ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, opcionesTipoCantidad);
+            spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spinnerCantidad.setAdapter(spinnerAdapter);
 
-            textViewIngrediente.setText(ingrediente.getNombre());
-            textViewNumero.setText(MessageFormat.format("{0} {1}", ingrediente.getCantidad(), ingrediente.getTipoCantidad()));
+            // Establecer el índice seleccionado en el Spinner según el valor actual del tipo de cantidad
+            int selectedTypeIndex = opcionesTipoCantidad.indexOf(ingrediente.getTipoCantidad());
+            spinnerCantidad.setSelection(selectedTypeIndex);
+
+            editTextNombre.setText(ingrediente.getNombre());
+            editTextCantidad.setText(String.valueOf(ingrediente.getCantidad()));
+
+            // Escuchador para el campo de edición del nombre del ingrediente
+            editTextNombre.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                    // Actualizar el nombre del ingrediente en el objeto
+                    if (!charSequence.toString().trim().isEmpty())
+                    ingrediente.setNombre(charSequence.toString().trim());
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+                }
+            });
+
+            // Escuchador para el campo de edición de la cantidad
+            editTextCantidad.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                    // Actualizar la cantidad del ingrediente en el objeto
+                    if (!charSequence.toString().trim().isEmpty())
+                        ingrediente.setCantidad(Integer.parseInt(charSequence.toString().trim()));
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+                }
+            });
+
+            // Escuchador para el campo de edición del tipo de cantidad
+            // Escuchador para el Spinner de tipo de cantidad
+            spinnerCantidad.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
+                    // Actualizar el tipo de cantidad del ingrediente en el objeto según la selección del Spinner
+                    String selectedType = (String) adapterView.getItemAtPosition(position);
+                    ingrediente.setTipoCantidad(selectedType);
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> adapterView) {
+                }
+            });
 
             ImageButton btnEliminar = ingredienteView.findViewById(R.id.btnEliminarIngrediente);
             btnEliminar.setOnClickListener(v -> {
                 ingredientes.remove(ingrediente);
                 mostrarIngredientes();
-                 UtilsSrv.notificacion(AddRecetasActivity.this, this.getString(R.string.ingrediente_eliminado), Toast.LENGTH_SHORT).show();
+                UtilsSrv.notificacion(AddRecetasActivity.this, getString(R.string.ingrediente_eliminado), Toast.LENGTH_SHORT).show();
             });
 
             linearLayoutIngredientes.addView(ingredienteView);
@@ -320,19 +386,63 @@ public class AddRecetasActivity extends AppCompatActivity {
             View convertView = LayoutInflater.from(this).inflate(R.layout.list_item_paso, parent, false);
 
             TextView textViewNumero = convertView.findViewById(R.id.textViewNumero);
-            TextView textViewPaso = convertView.findViewById(R.id.textViewPaso);
-            TextView textViewTiempo = convertView.findViewById(R.id.textViewTiempo);
-            Paso paso = pasos.get(position);
+            EditText editTextPaso = convertView.findViewById(R.id.editTextPaso);
+            EditText editTextTiempo = convertView.findViewById(R.id.editTextTiempo);
+            ImageButton btnEliminarPaso = convertView.findViewById(R.id.btnEliminarPaso);
+
+            final Paso paso = pasos.get(position);
             if (paso != null) {
                 textViewNumero.setText(String.format(Locale.getDefault(), "%d) ", position + 1));
-                textViewPaso.setText(paso.getPaso());
-                textViewTiempo.setText(paso.getTiempo());
+                editTextPaso.setText(paso.getPaso());
+                editTextTiempo.setText(paso.getTiempo());
 
-                ImageButton btnEliminarPaso = convertView.findViewById(R.id.btnEliminarPaso);
+                // Escuchador para el campo de edición del paso
+                editTextPaso.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                    }
+
+                    @Override
+                    public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                        // Actualizar el texto del paso en el objeto
+                        if(!charSequence.toString().trim().isEmpty())
+                            paso.setPaso(charSequence.toString().trim());
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable editable) {
+                    }
+                });
+
+                // Escuchador para el campo de edición del tiempo del paso
+                editTextTiempo.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                    }
+
+                    @Override
+                    public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                        String tiempoText = charSequence.toString();
+
+                        // Validar si el formato del tiempo es HH:MM
+                        if (tiempoText.matches("^\\d{2}:\\d{2}$")) {
+                            paso.setTiempo(tiempoText);
+                        } else {
+                            // El tiempo ingresado no cumple con el formato esperado, no actualizar el objeto
+                            // Puedes mostrar un mensaje de error o tomar alguna acción apropiada aquí
+                        }
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable editable) {
+                    }
+                });
+
+                // Escuchador para el botón de eliminar el paso
                 btnEliminarPaso.setOnClickListener(v -> {
                     pasos.remove(paso);
                     mostrarPasos();
-                     UtilsSrv.notificacion(AddRecetasActivity.this, this.getString(R.string.paso_eliminado), Toast.LENGTH_SHORT).show();
+                    UtilsSrv.notificacion(AddRecetasActivity.this, getString(R.string.paso_eliminado), Toast.LENGTH_SHORT).show();
                 });
             }
 
