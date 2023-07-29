@@ -72,6 +72,6 @@
     <string name="no_recargar_receta">No hay receta que pueda sustituir a la seleccionada</string>
     <string name="lista_de_la_compra_total">Lista de la Compra Total</string>
     <string name="lista_de_compra_por_d_as">Lista de Compra por Días</string>
-    <string name="tiempo_total">Tiempo total de la receta:</string>
-    <string name="literal_de">" de "</string>
+    <string name="tiempo_total">Tiempo total de la receta: </string>
+    <string name="literal_de"> de </string>
 </resources>
