@@ -2,8 +2,11 @@ package com.david.recetapp.negocio.servicios;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
+import android.text.SpannableString;
 import android.text.TextUtils;
+import android.text.style.StyleSpan;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.widget.ImageView;
@@ -133,5 +136,44 @@ public class UtilsSrv {
     private static int dpToPx(Context context, int dp) {
         float density = context.getResources().getDisplayMetrics().density;
         return (int) (dp * density + 0.5f);
+    }
+
+    public static String capitalizeAndAddPeriod(String input) {
+        if (input == null || input.isEmpty()) {
+            return input; // Devolver el String sin modificar si es nulo o vacío
+        }
+
+        // Convertir la primera letra a mayúscula
+        String firstLetter = input.substring(0, 1).toUpperCase();
+        String restOfWord = input.substring(1);
+
+        // Verificar si ya hay un punto al final
+        boolean hasPeriod = input.charAt(input.length() - 1) == '.';
+
+        // Agregar un punto al final si no se encuentra
+        if (!hasPeriod) {
+            return firstLetter + restOfWord + ".";
+        }
+
+        // Devolver el String original si ya tiene un punto al final
+        return firstLetter + restOfWord;
+    }
+
+    // Método para formatear el texto y resaltar todas las ocurrencias de palabras clave con negrita
+    public static SpannableString formatTexto(String texto, String[] palabrasClave) {
+        SpannableString spannableTexto = new SpannableString(texto);
+
+        for (String palabraClave : palabrasClave) {
+            String palabraClaveLowerCase = palabraClave.toLowerCase();
+            int startPos = texto.toLowerCase().indexOf(palabraClaveLowerCase);
+
+            while (startPos >= 0) {
+                int endPos = startPos + palabraClaveLowerCase.length();
+                spannableTexto.setSpan(new StyleSpan(Typeface.BOLD), startPos, endPos, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
+                startPos = texto.toLowerCase().indexOf(palabraClaveLowerCase, endPos);
+            }
+        }
+
+        return spannableTexto;
     }
 }

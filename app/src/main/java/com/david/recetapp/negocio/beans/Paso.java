@@ -1,5 +1,7 @@
 package com.david.recetapp.negocio.beans;
 
+import com.david.recetapp.negocio.servicios.UtilsSrv;
+
 import java.io.Serializable;
 
 public class Paso implements Serializable {
@@ -7,7 +9,7 @@ public class Paso implements Serializable {
     private String paso;
 
     public Paso(String paso, String tiempo) {
-        this.paso = paso;
+        this.paso = UtilsSrv.capitalizeAndAddPeriod(paso);
         this.tiempo = tiempo;
     }
 
@@ -24,6 +26,6 @@ public class Paso implements Serializable {
     }
 
     public void setPaso(String paso) {
-        this.paso = paso;
+        this.paso = UtilsSrv.capitalizeAndAddPeriod(paso);
     }
 }

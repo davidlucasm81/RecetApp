@@ -68,7 +68,7 @@
     <string name="no_recargar_receta">There is no recipe that can replace the one selected</string>
     <string name="lista_de_la_compra_total">Total Shopping List</string>
     <string name="lista_de_compra_por_d_as">Shopping List for Days</string>
-    <string name="tiempo_total">Total recipe time: </string>
-    <string name="literal_de"> of </string>
+    <string name="tiempo_total">"Total recipe time: "</string>
+    <string name="literal_de">" of "</string>
     <string name="reordenar">Reorder</string>
 </resources>

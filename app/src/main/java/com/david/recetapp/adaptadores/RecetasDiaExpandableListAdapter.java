@@ -37,11 +37,14 @@ public class RecetasDiaExpandableListAdapter extends BaseExpandableListAdapter {
     private final ExpandableListView expandableListView;
 
     private final int dia;
+    private String[] palabrasCalve;
+
     public RecetasDiaExpandableListAdapter(Context context, List<Receta> listaRecetas, ExpandableListView expandableListView, int dia) {
         this.context = context;
         this.listaRecetas = listaRecetas;
         this.expandableListView = expandableListView;
         this.dia = dia;
+        this.palabrasCalve = context.getResources().getStringArray(R.array.palabras_clave);
     }
 
     @Override
@@ -115,7 +118,7 @@ public class RecetasDiaExpandableListAdapter extends BaseExpandableListAdapter {
         });
         ImageView imageViewRecargar = convertView.findViewById(R.id.imageViewRecargar);
 
-        imageViewRecargar.setOnClickListener(v ->{
+        imageViewRecargar.setOnClickListener(v -> {
             // Mostrar el cuadro de diálogo para preguntar al usuario
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
             builder.setTitle(context.getString(R.string.titulo_recargar_receta));
@@ -125,16 +128,15 @@ public class RecetasDiaExpandableListAdapter extends BaseExpandableListAdapter {
                 CalendarioBean calendario = CalendarioSrv.cargarCalendario(context);
                 assert calendario != null;
                 DiaRecetas diaRecetas = calendario.getListaDiaRecetas().get(dia);
-                Receta recetaNueva = CalendarioSrv.recargarReceta(context,diaRecetas.getFecha().getTime(),diaRecetas.getRecetas(), groupPosition);
+                Receta recetaNueva = CalendarioSrv.recargarReceta(context, diaRecetas.getFecha().getTime(), diaRecetas.getRecetas(), groupPosition);
 
-                if(recetaNueva == null){
+                if (recetaNueva == null) {
                     UtilsSrv.notificacion(context, context.getString(R.string.no_recargar_receta), Toast.LENGTH_LONG).show();
-                }
-                else {
+                } else {
                     listaRecetas.set(groupPosition, recetaNueva);
-                    diaRecetas.getRecetas().set(groupPosition,recetaNueva.getId());
-                    calendario.getListaDiaRecetas().set(dia,diaRecetas);
-                    CalendarioSrv.actualizarCalendario(context,calendario,true);
+                    diaRecetas.getRecetas().set(groupPosition, recetaNueva.getId());
+                    calendario.getListaDiaRecetas().set(dia, diaRecetas);
+                    CalendarioSrv.actualizarCalendario(context, calendario, true);
                     Intent intent = new Intent(context, CalendarioActivity.class);
                     context.startActivity(intent);
                 }
@@ -201,7 +203,7 @@ public class RecetasDiaExpandableListAdapter extends BaseExpandableListAdapter {
                 int minutos = minutosTotales % 60;
 
                 // Formateamos horas y minutos con 2 dígitos
-                String tiempoTotal = String.format(Locale.getDefault(),"%02d:%02d", horas, minutos);
+                String tiempoTotal = String.format(Locale.getDefault(), "%02d:%02d", horas, minutos);
 
                 // Creamos un SpannableStringBuilder para el texto completo
                 SpannableStringBuilder sbResaltado = new SpannableStringBuilder(context.getString(R.string.tiempo_total) + tiempoTotal);
@@ -221,15 +223,15 @@ public class RecetasDiaExpandableListAdapter extends BaseExpandableListAdapter {
 
                 for (int i = 0; i < totalPasos; i++) {
                     String tiempo = receta.getPasos().get(i).getTiempo();
-                    String paso = receta.getPasos().get(i).getPaso();
-                    String pasoFormateado = "[" + tiempo + "] " + (i + 1) + ") " + paso;
+                    SpannableString paso = UtilsSrv.formatTexto(receta.getPasos().get(i).getPaso(), palabrasCalve);
+                    String pasoFormateado = "[" + tiempo + "] " + (i + 1) + ") ";
 
                     SpannableString spannablePaso = new SpannableString(pasoFormateado);
                     int startPos = pasoFormateado.indexOf("[");
                     int endPos = pasoFormateado.indexOf("]") + 1;
                     spannablePaso.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), startPos, endPos, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-                    sbPasos.append(spannablePaso);
+                    sbPasos.append(spannablePaso).append(paso);
 
                     // Agregar un salto de línea si no es la última iteración
                     if (i < totalPasos - 1) {
