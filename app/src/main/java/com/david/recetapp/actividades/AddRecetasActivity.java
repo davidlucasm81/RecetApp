@@ -1,10 +1,13 @@
 package com.david.recetapp.actividades;
 
+import android.content.ClipData;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.DragEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -37,6 +40,8 @@ import com.david.recetapp.negocio.servicios.AlergenosSrv;
 import com.david.recetapp.negocio.servicios.RecetasSrv;
 import com.david.recetapp.negocio.servicios.UtilsSrv;
 
+import androidx.core.view.ViewCompat;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -62,6 +67,8 @@ public class AddRecetasActivity extends AppCompatActivity {
 
     private LinearLayout linearLayoutListaPasos;
     private ArrayList<Paso> pasos;
+
+    private int draggedItemPosition = -1;
 
     private List<Alergeno> alergenos;
     private List<Alergeno> alergenosSeleccionados;
@@ -101,8 +108,7 @@ public class AddRecetasActivity extends AppCompatActivity {
         String[] ingredientList = getResources().getStringArray(R.array.ingredient_list);
 
         // Crear un adaptador con la lista de ingredientes y configurarlo en el AutoCompleteTextView
-        ArrayAdapter<String> adapterIngrediente = new ArrayAdapter<>(this,
-                android.R.layout.simple_dropdown_item_1line, ingredientList);
+        ArrayAdapter<String> adapterIngrediente = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, ingredientList);
         autoCompleteTextViewNombreIngrediente.setAdapter(adapterIngrediente);
 
         editTextCantidad = findViewById(R.id.editTextCantidad);
@@ -117,8 +123,7 @@ public class AddRecetasActivity extends AppCompatActivity {
         String[] quantityUnits = getResources().getStringArray(R.array.quantity_units);
 
         // Crea un adaptador para el Spinner
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, quantityUnits);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, quantityUnits);
 
         // Especifica el diseño para los elementos desplegables
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -145,6 +150,28 @@ public class AddRecetasActivity extends AppCompatActivity {
 
         linearLayoutListaPasos = findViewById(R.id.linearLayoutListaPasos);
         pasos = new ArrayList<>();
+        linearLayoutListaPasos.setOnDragListener((v, event) -> {
+            if (event.getAction() == DragEvent.ACTION_DROP) {// Get the position of the item being dragged from the ClipData
+                ClipData.Item item = event.getClipData().getItemAt(0);
+                int sourcePosition = Integer.parseInt(item.getText().toString());
+                int targetPosition = calculateTargetPosition(event.getY());
+
+                if (sourcePosition != targetPosition && sourcePosition != -1) {
+                    // Reorder the steps by removing and adding the dragged item to the new position
+                    View draggedView = linearLayoutListaPasos.getChildAt(sourcePosition);
+                    linearLayoutListaPasos.removeViewAt(sourcePosition);
+                    linearLayoutListaPasos.addView(draggedView, targetPosition);
+
+                    // Update the data array to reflect the new order
+                    Paso paso = pasos.remove(sourcePosition);
+                    pasos.add(targetPosition, paso);
+
+                    // Notify the adapter that the data has changed and update the list on the screen
+                    mostrarPasos();
+                }
+            }
+            return true;
+        });
 
         Button btnAgregarPaso = findViewById(R.id.btnAgregarPaso);
         btnAgregarPaso.setOnClickListener(v -> {
@@ -250,6 +277,17 @@ public class AddRecetasActivity extends AppCompatActivity {
 
     }
 
+    private int calculateTargetPosition(float y) {
+        int count = linearLayoutListaPasos.getChildCount();
+        for (int i = 0; i < count; i++) {
+            View child = linearLayoutListaPasos.getChildAt(i);
+            if (y < child.getY() + child.getHeight() / (float) 2) {
+                return i;
+            }
+        }
+        return Math.min(Math.max(0, count), pasos.size() - 1);
+    }
+
     private void mostrarAlergenos() {
         gridLayout.removeAllViews();
 
@@ -269,8 +307,7 @@ public class AddRecetasActivity extends AppCompatActivity {
             Alergeno alergeno = alergenos.get(i);
             imageViewIconoAlergeno.setImageResource(AlergenosSrv.obtenerImagen(alergeno.getNumero()));
             checkBoxAlergeno.setText(alergeno.getNombre());
-            checkBoxAlergeno.setChecked(alergenosSeleccionados.stream()
-                    .anyMatch(objeto -> alergeno.getNombre().equals(objeto.getNombre())));
+            checkBoxAlergeno.setChecked(alergenosSeleccionados.stream().anyMatch(objeto -> alergeno.getNombre().equals(objeto.getNombre())));
 
             checkBoxAlergeno.setOnCheckedChangeListener((buttonView, isChecked) -> alergenosSeleccionados.add(alergeno));
 
@@ -325,7 +362,7 @@ public class AddRecetasActivity extends AppCompatActivity {
                 public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                     // Actualizar el nombre del ingrediente en el objeto
                     if (!charSequence.toString().trim().isEmpty())
-                    ingrediente.setNombre(charSequence.toString().trim());
+                        ingrediente.setNombre(charSequence.toString().trim());
                 }
 
                 @Override
@@ -391,6 +428,31 @@ public class AddRecetasActivity extends AppCompatActivity {
             ImageButton btnEliminarPaso = convertView.findViewById(R.id.btnEliminarPaso);
 
             final Paso paso = pasos.get(position);
+            final int posicion = position;
+
+            // Establece el OnTouchListener para el LinearLayout
+            convertView.setOnTouchListener((view, event) -> {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        // Get the position of the item being dragged
+                        draggedItemPosition = posicion;
+                        // Create a ClipData object to store the position of the dragged item
+                        ClipData data = ClipData.newPlainText("", String.valueOf(draggedItemPosition));
+                        // Create a DragShadowBuilder to display the shadow during the drag
+                        View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(view);
+
+                        // Utiliza ViewCompat para iniciar el arrastre en versiones más recientes de Android
+                        ViewCompat.startDragAndDrop(view, data, shadowBuilder, null, 0);
+                        view.performClick();
+                        return true;
+                    case MotionEvent.ACTION_UP:
+                        draggedItemPosition = -1;
+                        break;
+                }
+                return false;
+            });
+
+
             if (paso != null) {
                 textViewNumero.setText(String.format(Locale.getDefault(), "%d) ", position + 1));
                 editTextPaso.setText(paso.getPaso());
@@ -405,7 +467,7 @@ public class AddRecetasActivity extends AppCompatActivity {
                     @Override
                     public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                         // Actualizar el texto del paso en el objeto
-                        if(!charSequence.toString().trim().isEmpty())
+                        if (!charSequence.toString().trim().isEmpty())
                             paso.setPaso(charSequence.toString().trim());
                     }
 
@@ -428,8 +490,7 @@ public class AddRecetasActivity extends AppCompatActivity {
                         if (tiempoText.matches("^\\d{2}:\\d{2}$")) {
                             paso.setTiempo(tiempoText);
                         } else {
-                            // El tiempo ingresado no cumple con el formato esperado, no actualizar el objeto
-                            // Puedes mostrar un mensaje de error o tomar alguna acción apropiada aquí
+                            UtilsSrv.notificacion(convertView.getContext(), "El formato de tiempo es HH:MM", Toast.LENGTH_SHORT).show();
                         }
                     }
 

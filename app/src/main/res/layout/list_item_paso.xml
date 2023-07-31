@@ -6,6 +6,13 @@
     android:gravity="center_vertical"
     android:orientation="horizontal">
 
+    <!-- Ícono para indicar que la fila se puede mover -->
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/reordenar"
+        android:src="@drawable/ic_baseline_drag_indicator_24" />
+
     <TextView
         android:id="@+id/textViewNumero"
         android:layout_width="wrap_content"

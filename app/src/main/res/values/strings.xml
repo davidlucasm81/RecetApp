@@ -74,4 +74,5 @@
     <string name="lista_de_compra_por_d_as">Lista de Compra por Días</string>
     <string name="tiempo_total">Tiempo total de la receta: </string>
     <string name="literal_de"> de </string>
+    <string name="reordenar">Reordenar</string>
 </resources>

@@ -70,4 +70,5 @@
     <string name="lista_de_compra_por_d_as">Shopping List for Days</string>
     <string name="tiempo_total">Total recipe time: </string>
     <string name="literal_de"> of </string>
+    <string name="reordenar">Reorder</string>
 </resources>
