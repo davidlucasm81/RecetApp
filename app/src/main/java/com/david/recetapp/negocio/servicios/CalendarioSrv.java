@@ -241,7 +241,7 @@ public class CalendarioSrv {
                                 String nombreIngrediente = ingrediente.getNombre().toLowerCase();
                                 String tipoCantidad = ingrediente.getTipoCantidad().toLowerCase();
                                 ingredientesDia.merge(nombreIngrediente + tipoCantidad, new Ingrediente(nombreIngrediente, ingrediente.getCantidad(), ingrediente.getTipoCantidad()), (ing1, ing2) -> {
-                                    ing1.setCantidad(ing1.getCantidad() + ing2.getCantidad());
+                                    ing1.setCantidad(UtilsSrv.sumarStrings(ing1.getCantidad(),ing2.getCantidad()));
                                     return ing1;
                                 });
                             }
@@ -274,7 +274,7 @@ public class CalendarioSrv {
                         String nombreIngrediente = ingrediente.getNombre().toLowerCase();
                         String tipoCantidad = ingrediente.getTipoCantidad().toLowerCase();
                         ingredientesMap.merge(nombreIngrediente + tipoCantidad, new Ingrediente(nombreIngrediente, ingrediente.getCantidad(), ingrediente.getTipoCantidad()), (ing1, ing2) -> {
-                            ing1.setCantidad(ing1.getCantidad() + ing2.getCantidad());
+                            ing1.setCantidad(UtilsSrv.sumarStrings(ing1.getCantidad(),ing2.getCantidad()));
                             return ing1;
                         });
                     }

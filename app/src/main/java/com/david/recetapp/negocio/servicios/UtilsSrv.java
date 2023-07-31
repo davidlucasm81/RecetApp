@@ -21,6 +21,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class UtilsSrv {
 
@@ -175,5 +177,84 @@ public class UtilsSrv {
         }
 
         return spannableTexto;
+    }
+
+    public static String sumarStrings(String numero1, String numero2) {
+        // Parsear los números para obtener sus valores numéricos
+        double valor1 = parsearNumero(numero1);
+        double valor2 = parsearNumero(numero2);
+
+        // Realizar la suma
+        double resultado = valor1 + valor2;
+
+        // Verificar si el resultado es un número entero
+        if (esEntero(resultado)) {
+            return String.valueOf((int) resultado); // Convertir a string el número entero
+        } else {
+            // Si el resultado es una fracción, obtener el numerador y denominador simplificados
+            int numerador = (int) (resultado * 10000); // Multiplicar por 10000 para evitar errores de redondeo
+            int denominador = 10000; // El denominador será 10000 para obtener 4 decimales
+
+            // Simplificar la fracción dividiendo el numerador y el denominador por su máximo común divisor
+            int mcd = obtenerMCD(numerador, denominador);
+            numerador /= mcd;
+            denominador /= mcd;
+
+            // Devolver el resultado en formato fracción
+            return numerador + "/" + denominador;
+        }
+    }
+
+    private static double parsearNumero(String numero) {
+        // Verificar si el número es una fracción en formato "numerador/denominador"
+        Pattern patron = Pattern.compile("(\\d+)/(\\d+)");
+        Matcher matcher = patron.matcher(numero);
+        if (matcher.matches()) {
+            int numerador = Integer.parseInt(matcher.group(1));
+            int denominador = Integer.parseInt(matcher.group(2));
+            return (double) numerador / denominador;
+        } else {
+            // Si no es una fracción, parsear el número como un double
+            return Double.parseDouble(numero);
+        }
+    }
+
+    private static boolean esEntero(double numero) {
+        // Verificar si el número es un entero (sin decimales)
+        return numero == Math.floor(numero) && !Double.isInfinite(numero);
+    }
+
+    private static int obtenerMCD(int a, int b) {
+        // Calcular el máximo común divisor utilizando el algoritmo de Euclides
+        while (b != 0) {
+            int temp = b;
+            b = a % b;
+            a = temp;
+        }
+        return a;
+    }
+
+    public static boolean esNumeroEnteroOFraccionValida(String numero) {
+        // Verificar si el número es una fracción en formato "numerador/denominador"
+        String[] partes = numero.split("/");
+        if (partes.length == 2) {
+            try {
+                int numerador = Integer.parseInt(partes[0]);
+                int denominador = Integer.parseInt(partes[1]);
+                return true; // Es una fracción válida
+            } catch (NumberFormatException e) {
+                // No se puede parsear la fracción, no es válida
+                return false;
+            }
+        } else {
+            // No es una fracción, verificar si es un número entero válido
+            try {
+                int entero = Integer.parseInt(numero);
+                return true; // Es un número entero válido
+            } catch (NumberFormatException e) {
+                // No se puede parsear como entero, no es válido
+                return false;
+            }
+        }
     }
 }

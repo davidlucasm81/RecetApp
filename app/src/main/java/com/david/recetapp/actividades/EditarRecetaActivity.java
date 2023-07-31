@@ -158,9 +158,8 @@ public class EditarRecetaActivity extends AppCompatActivity {
             String cantidad = editTextCantidad.getText().toString().trim();
             String tipoCantidad = (String) spinner.getSelectedItem();
 
-            if (!nombreIngrediente.isEmpty() && !cantidad.isEmpty() && tipoCantidad != null && !tipoCantidad.isEmpty()) {
-                int cantidadNumerica = Integer.parseInt(cantidad);
-                agregarIngrediente(nombreIngrediente, cantidadNumerica, tipoCantidad);
+            if (!nombreIngrediente.isEmpty() && !cantidad.isEmpty() && tipoCantidad != null && !tipoCantidad.isEmpty() && UtilsSrv.esNumeroEnteroOFraccionValida(cantidad)) {
+                agregarIngrediente(nombreIngrediente, cantidad, tipoCantidad);
                 autoCompleteTextViewNombreIngrediente.setText("");
                 editTextCantidad.setText("1");
                 UtilsSrv.notificacion(EditarRecetaActivity.this, this.getString(R.string.ingrediente_aniadido), Toast.LENGTH_SHORT);
@@ -344,7 +343,7 @@ public class EditarRecetaActivity extends AppCompatActivity {
         }
     }
 
-    private void agregarIngrediente(String nombre, int numero, String tipoCantidad) {
+    private void agregarIngrediente(String nombre, String numero, String tipoCantidad) {
         Ingrediente ingrediente = new Ingrediente(nombre, numero, tipoCantidad);
         ingredientes.add(ingrediente);
         mostrarIngredientes();
@@ -403,8 +402,14 @@ public class EditarRecetaActivity extends AppCompatActivity {
                 @Override
                 public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                     // Actualizar la cantidad del ingrediente en el objeto
-                    if (!charSequence.toString().trim().isEmpty())
-                        ingrediente.setCantidad(Integer.parseInt(charSequence.toString().trim()));
+                    if (!charSequence.toString().trim().isEmpty()) {
+                        String cantidadStr = charSequence.toString().trim();
+                        if (UtilsSrv.esNumeroEnteroOFraccionValida(cantidadStr)) {
+                            ingrediente.setCantidad(cantidadStr);
+                        } else {
+                            // Si no es un número entero ni una fracción válida, no se asigna el valor al ingrediente.
+                        }
+                    }
                 }
 
                 @Override

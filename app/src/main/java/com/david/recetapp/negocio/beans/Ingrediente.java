@@ -4,10 +4,10 @@ import java.io.Serializable;
 
 public class Ingrediente implements Serializable {
     private String nombre;
-    private int cantidad;
+    private String cantidad;
     private String tipoCantidad;
 
-    public Ingrediente(String nombre, int cantidad, String tipoCantidad) {
+    public Ingrediente(String nombre, String cantidad, String tipoCantidad) {
         this.nombre = nombre;
         this.cantidad = cantidad;
         this.tipoCantidad = tipoCantidad;
@@ -21,11 +21,11 @@ public class Ingrediente implements Serializable {
         this.nombre = nombre;
     }
 
-    public int getCantidad() {
+    public String getCantidad() {
         return cantidad;
     }
 
-    public void setCantidad(int cantidad) {
+    public void setCantidad(String cantidad) {
         this.cantidad = cantidad;
     }
 
