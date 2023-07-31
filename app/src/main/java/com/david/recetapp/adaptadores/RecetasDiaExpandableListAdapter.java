@@ -27,8 +27,11 @@ import com.david.recetapp.negocio.beans.Receta;
 import com.david.recetapp.negocio.servicios.CalendarioSrv;
 import com.david.recetapp.negocio.servicios.UtilsSrv;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 public class RecetasDiaExpandableListAdapter extends BaseExpandableListAdapter {
     private final Context context;
@@ -37,14 +40,14 @@ public class RecetasDiaExpandableListAdapter extends BaseExpandableListAdapter {
     private final ExpandableListView expandableListView;
 
     private final int dia;
-    private String[] palabrasCalve;
+    private final String[] palabrasClave;
 
     public RecetasDiaExpandableListAdapter(Context context, List<Receta> listaRecetas, ExpandableListView expandableListView, int dia) {
         this.context = context;
         this.listaRecetas = listaRecetas;
         this.expandableListView = expandableListView;
         this.dia = dia;
-        this.palabrasCalve = context.getResources().getStringArray(R.array.palabras_clave);
+        this.palabrasClave = context.getResources().getStringArray(R.array.palabras_clave);
     }
 
     @Override
@@ -220,10 +223,16 @@ public class RecetasDiaExpandableListAdapter extends BaseExpandableListAdapter {
                 sbPasos.append(sbResaltado);
                 sbPasos.append("\n\n");
 
+                // Convertir el array de palabras clave en una lista mutable
+                List<String> lista = new ArrayList<>(Arrays.asList(palabrasClave));
+
+                // Agregar los elementos de la lista de ingredientes
+                lista.addAll(receta.getIngredientes().stream().map(Ingrediente::getNombre).collect(Collectors.toList()));
+
 
                 for (int i = 0; i < totalPasos; i++) {
                     String tiempo = receta.getPasos().get(i).getTiempo();
-                    SpannableString paso = UtilsSrv.formatTexto(receta.getPasos().get(i).getPaso(), palabrasCalve);
+                    SpannableString paso = UtilsSrv.formatTexto(receta.getPasos().get(i).getPaso(), lista.toArray(new String[0]));
                     String pasoFormateado = "[" + tiempo + "] " + (i + 1) + ") ";
 
                     SpannableString spannablePaso = new SpannableString(pasoFormateado);
