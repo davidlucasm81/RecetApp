@@ -106,12 +106,23 @@ public class CalendarioSrv {
         return calendarioBean;
     }
 
-    public static Receta recargarReceta(Context context, long tiempoActual, List<String> recetas) {
+    public static Receta recargarReceta(Context context, long tiempoActual, List<String> recetas, int posAntigua) {
         colaRecetas = new ArrayDeque<>();
         colaRecetas.addAll(RecetasSrv.cargarListaRecetas(context));
         Receta receta = obtenerReceta(context, tiempoActual);
         while (receta != null && recetas.contains(receta.getId())) {
             receta = obtenerReceta(context, tiempoActual);
+        }
+        if (receta != null) {
+            Optional<Receta> recetaAntigua = colaRecetas.stream().filter(r -> r.getId().equals(recetas.get(posAntigua))).findAny();
+            if (recetaAntigua.isPresent()) {
+                long tiempoReceta = recetaAntigua.get().getFechaCalendario().getTime();
+                Calendar fecha = Calendar.getInstance();
+                fecha.setTimeInMillis(tiempoReceta);
+                if (UtilsSrv.esMismoDia(tiempoActual, fecha)) {
+                    recetaAntigua.get().setFechaCalendario(new Date(0));
+                }
+            }
         }
         RecetasSrv.guardarListaRecetas(context, new ArrayList<>(colaRecetas));
         return receta;

@@ -125,10 +125,10 @@ public class RecetasDiaExpandableListAdapter extends BaseExpandableListAdapter {
                 CalendarioBean calendario = CalendarioSrv.cargarCalendario(context);
                 assert calendario != null;
                 DiaRecetas diaRecetas = calendario.getListaDiaRecetas().get(dia);
-                Receta recetaNueva = CalendarioSrv.recargarReceta(context,diaRecetas.getFecha().getTime(),diaRecetas.getRecetas());
+                Receta recetaNueva = CalendarioSrv.recargarReceta(context,diaRecetas.getFecha().getTime(),diaRecetas.getRecetas(), groupPosition);
 
                 if(recetaNueva == null){
-                    UtilsSrv.notificacion(context, context.getString(R.string.no_recargar_receta), Toast.LENGTH_LONG);
+                    UtilsSrv.notificacion(context, context.getString(R.string.no_recargar_receta), Toast.LENGTH_LONG).show();
                 }
                 else {
                     listaRecetas.set(groupPosition, recetaNueva);
