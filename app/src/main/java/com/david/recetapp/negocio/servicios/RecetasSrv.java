@@ -63,7 +63,17 @@ public class RecetasSrv {
             }.getType();
             // Agregar las recetas a la cola
             List<Receta> recetas = gson.fromJson(jsonBuilder.toString(), listType);
-            return recetas.stream().sorted(Comparator.comparing(Receta::getFechaCalendario)).collect(Collectors.toList());
+            return recetas.stream().sorted((r1, r2) -> {
+                int resultado = Comparator.comparing(Receta::getFechaCalendario)
+                        .compare(r1, r2);
+                if (resultado != 0) {
+                    return resultado;
+                }
+
+                resultado = Comparator.comparing(Receta::getEstrellas)
+                        .compare(r1, r2);
+                return resultado;
+            }).collect(Collectors.toList());
         } catch (FileNotFoundException e) {
             // El archivo no existe, no se hace nada
         } catch (IOException e) {
