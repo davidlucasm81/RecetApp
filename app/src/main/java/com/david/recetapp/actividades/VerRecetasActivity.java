@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.ExpandableListView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -112,7 +113,11 @@ public class VerRecetasActivity extends AppCompatActivity implements RecetaExpan
             }
             return true;
         });
-
+        ImageButton importar = findViewById(R.id.btnImportar);
+        importar.setOnClickListener(view -> {
+            Intent intent = new Intent(VerRecetasActivity.this, ImportExportActivity.class);
+            startActivity(intent);
+        });
     }
 
     @Override

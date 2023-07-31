@@ -1,12 +1,28 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.david.recetapp">
+
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission
+        android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage" />
 
     <application
         android:allowBackup="true"
+        android:icon="@mipmap/icono_app_round"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/Theme.RecetApp"
-        android:icon="@mipmap/icono_app_round">
+        android:theme="@style/Theme.RecetApp">
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.david.recetapp.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -23,6 +39,7 @@
         <activity android:name=".actividades.RecetasDiaActivity" />
         <activity android:name=".actividades.EditarRecetaActivity" />
         <activity android:name=".actividades.AjustesCalendarioActivity" />
+        <activity android:name=".actividades.ImportExportActivity" />
     </application>
 
 </manifest>

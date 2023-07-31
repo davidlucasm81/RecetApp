@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class RecetasSrv {
-    private static final String JSON = "lista_recetas.json";
+    public static final String JSON = "lista_recetas.json";
 
     public static void guardarListaRecetas(Context context, List<Receta> listaRecetas) {
         // Convertir la lista de recetas a JSON

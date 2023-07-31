@@ -71,4 +71,14 @@
     <string name="tiempo_total">"Total recipe time: "</string>
     <string name="literal_de">" of "</string>
     <string name="reordenar">Reorder</string>
+    <string name="importar">Import</string>
+    <string name="error_formato_tiempo">The time format is HH:MM</string>
+    <string name="error_borrar">Error deleting calendar</string>
+    <string name="importacion_ok">Import successful</string>
+    <string name="importacion_error">Failed to import</string>
+    <string name="exportacion_error">Failed to export</string>
+    <string name="compartir_recetas">Share recipe list</string>
+    <string name="shared">Shared</string>
+    <string name="importar_exportar">Import / Export</string>
+    <string name="exportar">Export</string>
 </resources>

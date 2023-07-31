@@ -6,6 +6,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -113,5 +114,18 @@ public class Receta implements Serializable {
 
     public void setPostre(boolean postre) {
         this.postre = postre;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Receta receta = (Receta) o;
+        return id.equals(receta.id) && Objects.equals(nombre, receta.nombre);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

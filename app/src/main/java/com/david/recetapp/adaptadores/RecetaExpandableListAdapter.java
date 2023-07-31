@@ -114,10 +114,16 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
         Receta receta = listaRecetas.get(groupPosition);
         txtTituloReceta.setText(receta.getNombre());
         ImageView postre = convertView.findViewById(R.id.imageViewPostreIcono);
+        ImageView shared = convertView.findViewById(R.id.imageViewSharedIcono);
         if (receta.isPostre()) {
             postre.setVisibility(View.VISIBLE);
         } else {
             postre.setVisibility(View.GONE);
+        }
+        if (receta.isShared()) {
+            shared.setVisibility(View.VISIBLE);
+        } else {
+            shared.setVisibility(View.GONE);
         }
         btnEliminar.setOnClickListener(v -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -224,7 +230,7 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
                 int minutos = minutosTotales % 60;
 
                 // Formateamos horas y minutos con 2 dígitos
-                String tiempoTotal = String.format(Locale.getDefault(),"%02d:%02d", horas, minutos);
+                String tiempoTotal = String.format(Locale.getDefault(), "%02d:%02d", horas, minutos);
 
                 // Creamos un SpannableStringBuilder para el texto completo
                 SpannableStringBuilder sbResaltado = new SpannableStringBuilder(context.getString(R.string.tiempo_total) + tiempoTotal);

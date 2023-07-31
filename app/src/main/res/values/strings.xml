@@ -75,4 +75,14 @@
     <string name="tiempo_total">"Tiempo total de la receta: "</string>
     <string name="literal_de">" de "</string>
     <string name="reordenar">Reordenar</string>
+    <string name="importar">Importar</string>
+    <string name="error_formato_tiempo">El formato de tiempo es HH:MM</string>
+    <string name="error_borrar">Error al borrar el calendario</string>
+    <string name="importacion_ok">Importación correcta</string>
+    <string name="importacion_error">Error al importar</string>
+    <string name="exportacion_error">Error al exportar</string>
+    <string name="compartir_recetas">Compartir lista de recetas</string>
+    <string name="shared">Compartido</string>
+    <string name="importar_exportar">Importar / Exportar</string>
+    <string name="exportar">Exportar</string>
 </resources>

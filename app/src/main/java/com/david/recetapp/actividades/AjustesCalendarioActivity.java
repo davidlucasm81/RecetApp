@@ -41,7 +41,7 @@ public class AjustesCalendarioActivity extends AppCompatActivity {
                     if (file.delete()) {
                          UtilsSrv.notificacion(AjustesCalendarioActivity.this, this.getString(R.string.calendario_eliminado), Toast.LENGTH_SHORT).show();
                     } else {
-                         UtilsSrv.notificacion(AjustesCalendarioActivity.this, "DEV -> ERROR BORRANDO", Toast.LENGTH_SHORT).show();
+                         UtilsSrv.notificacion(AjustesCalendarioActivity.this, this.getString(R.string.error_borrar), Toast.LENGTH_SHORT).show();
                     }
                 }
                 // Refrescamos fechas de las recetas:

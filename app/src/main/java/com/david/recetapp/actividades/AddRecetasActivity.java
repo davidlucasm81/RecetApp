@@ -490,7 +490,7 @@ public class AddRecetasActivity extends AppCompatActivity {
                         if (tiempoText.matches("^\\d{2}:\\d{2}$")) {
                             paso.setTiempo(tiempoText);
                         } else {
-                            UtilsSrv.notificacion(convertView.getContext(), "El formato de tiempo es HH:MM", Toast.LENGTH_SHORT).show();
+                            UtilsSrv.notificacion(convertView.getContext(), convertView.getContext().getString(R.string.error_formato_tiempo), Toast.LENGTH_SHORT).show();
                         }
                     }
 
