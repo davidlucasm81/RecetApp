@@ -145,7 +145,7 @@ public class CalendarioSrv {
             // Convertir la diferencia en milisegundos a días
             long diasPasados = diferenciaEnMilisegundos / (1000 * 60 * 60 * 24);
             Temporada temporada = UtilsSrv.getTemporadaFecha(new Date(tiempoActual));
-            if (Math.abs(diasPasados) > diasLimite && recetaElegida.getTemporadas().contains(temporada) && !recetaElegida.isPostre()) {
+            if (Math.abs(diasPasados) >= diasLimite && recetaElegida.getTemporadas().contains(temporada) && !recetaElegida.isPostre()) {
                 if (diasPasados >= 0)
                     recetaElegida.setFechaCalendario(new Date(tiempoActual));
                 return recetaElegida;
