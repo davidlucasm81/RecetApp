@@ -18,7 +18,11 @@ import com.david.recetapp.negocio.beans.CalendarioBean;
 import com.david.recetapp.negocio.beans.Ingrediente;
 import com.david.recetapp.negocio.servicios.CalendarioSrv;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class ListaCompraActivity extends AppCompatActivity {
@@ -63,7 +67,6 @@ public class ListaCompraActivity extends AppCompatActivity {
         btnListaCompraPorDias.setOnClickListener(v -> {
             btnListaCompraTotal.setEnabled(true);
             btnListaCompraPorDias.setEnabled(false);
-            // TODO: Agregar aquí el código para mostrar la lista de compra por días
             Map<String, List<Ingrediente>> ingredientes = CalendarioSrv.obtenerIngredientesListaCompraDias(getApplicationContext(), calendario);
             if (calendario != null && !ingredientes.isEmpty()) {
                 textViewEmpty.setVisibility(View.GONE);
@@ -71,7 +74,15 @@ public class ListaCompraActivity extends AppCompatActivity {
                 RecyclerView recyclerView = findViewById(R.id.recyclerview);
                 recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
                 // Crear e inicializar el adaptador
-                ListaCompraPorDiaIngredientesAdapter adapter = new ListaCompraPorDiaIngredientesAdapter(ingredientes);
+                // Ordenar las claves del mapa
+                List<String> diasOrdenados = ordenarDias(ingredientes);
+
+                // Crear un nuevo mapa ordenado utilizando LinkedHashMap para mantener el orden
+                LinkedHashMap<String, List<Ingrediente>> ingredientesOrdenados = new LinkedHashMap<>();
+                for (String dia : diasOrdenados) {
+                    ingredientesOrdenados.put(dia, ingredientes.get(dia));
+                }
+                ListaCompraPorDiaIngredientesAdapter adapter = new ListaCompraPorDiaIngredientesAdapter(ingredientesOrdenados);
 
                 // Configurar el RecyclerView con el adaptador
                 recyclerView.setAdapter(adapter);
@@ -98,5 +109,28 @@ public class ListaCompraActivity extends AppCompatActivity {
         } else {
             textViewEmpty.setVisibility(View.VISIBLE); // Muestra el TextView si la lista está vacía
         }
+    }
+
+    private List<String> ordenarDias(Map<String, List<Ingrediente>> map) {
+        // Definir listas con los nombres de los días en español e inglés
+        String[] diasSemanaEsp = {"Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"};
+        String[] diasSemanaEng = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
+
+        // Obtener el idioma actual o establecer uno predeterminado (español en este caso)
+        String idiomaActual = Locale.getDefault().getLanguage();
+        boolean esEspanol = idiomaActual.equals("es");
+
+        // Obtener la lista de días correspondiente al idioma actual
+        String[] diasSemanaActual = esEspanol ? diasSemanaEsp : diasSemanaEng;
+
+        // Ordenar las claves del mapa de acuerdo al orden de los días de la semana en el idioma actual
+        List<String> diasOrdenados = new ArrayList<>(map.keySet());
+        diasOrdenados.sort((dia1, dia2) -> {
+            int index1 = Arrays.asList(diasSemanaActual).indexOf(dia1);
+            int index2 = Arrays.asList(diasSemanaActual).indexOf(dia2);
+            return Integer.compare(index1, index2);
+        });
+
+        return diasOrdenados;
     }
 }

@@ -404,9 +404,8 @@ public class EditarRecetaActivity extends AppCompatActivity {
                         String cantidadStr = charSequence.toString().trim();
                         if (UtilsSrv.esNumeroEnteroOFraccionValida(cantidadStr)) {
                             ingrediente.setCantidad(cantidadStr);
-                        } else {
-                            // Si no es un número entero ni una fracción válida, no se asigna el valor al ingrediente.
-                        }
+                        }  // Si no es un número entero ni una fracción válida, no se asigna el valor al ingrediente.
+
                     }
                 }
 

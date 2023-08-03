@@ -383,9 +383,8 @@ public class AddRecetasActivity extends AppCompatActivity {
                         String cantidadStr = charSequence.toString().trim();
                         if (UtilsSrv.esNumeroEnteroOFraccionValida(cantidadStr)) {
                             ingrediente.setCantidad(cantidadStr);
-                        } else {
-                            // Si no es un número entero ni una fracción válida, no se asigna el valor al ingrediente.
-                        }
+                        }  // Si no es un número entero ni una fracción válida, no se asigna el valor al ingrediente.
+
                     }
                 }
 
@@ -447,8 +446,6 @@ public class AddRecetasActivity extends AppCompatActivity {
             // Antes del setOnTouchListener, obtenemos las dimensiones de la pantalla
             DisplayMetrics displayMetrics = new DisplayMetrics();
             getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-            int screenWidth = displayMetrics.widthPixels;
-            int screenHeight = displayMetrics.heightPixels;
             // Establece el OnTouchListener para el convertView
             convertView.setOnTouchListener((view, event) -> {
                 int action = event.getAction();
@@ -460,10 +457,6 @@ public class AddRecetasActivity extends AppCompatActivity {
                     Rect hitRect = new Rect();
                     imageViewReorder.getHitRect(hitRect);
                     isTouchingReorder = hitRect.contains((int) event.getX(), (int) event.getY());
-                }
-
-                if (editTextPaso == null) {
-                    return false;
                 }
 
                 switch (action) {

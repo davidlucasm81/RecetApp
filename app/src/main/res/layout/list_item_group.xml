@@ -24,8 +24,8 @@
             android:id="@+id/imageViewPostreIcono"
             android:layout_width="24dp"
             android:layout_height="24dp"
+            android:layout_marginStart="15dp"
             android:contentDescription="@string/postre"
-            android:paddingStart="2dp"
             android:src="@drawable/postre_icono"
             android:visibility="gone"
             tools:ignore="RtlSymmetry" />
@@ -34,8 +34,8 @@
             android:id="@+id/imageViewSharedIcono"
             android:layout_width="24dp"
             android:layout_height="24dp"
+            android:layout_marginStart="15dp"
             android:contentDescription="@string/shared"
-            android:paddingStart="2dp"
             android:src="@drawable/shared_icon"
             android:visibility="gone"
             tools:ignore="RtlSymmetry" />
@@ -44,9 +44,9 @@
             android:id="@+id/btnEditar"
             android:layout_width="24dp"
             android:layout_height="24dp"
+            android:layout_marginStart="15dp"
             android:background="@android:color/transparent"
             android:contentDescription="@string/editar"
-            android:paddingStart="2dp"
             android:src="@drawable/ic_baseline_edit_24"
             tools:ignore="ImageContrastCheck,RtlSymmetry,TextContrastCheck,TouchTargetSizeCheck" />
 
@@ -54,9 +54,9 @@
             android:id="@+id/btnEliminar"
             android:layout_width="24dp"
             android:layout_height="24dp"
+            android:layout_marginStart="15dp"
             android:background="@android:color/transparent"
             android:contentDescription="@string/eliminar"
-            android:paddingStart="2dp"
             android:src="@drawable/ic_baseline_delete_24"
             tools:ignore="ImageContrastCheck,RtlSymmetry,TextContrastCheck,TouchTargetSizeCheck" />
 

@@ -26,6 +26,8 @@
         <item>Hervir a fuego lento</item>
         <item>Hervir a fuego medio</item>
         <item>Hervir a fuego alto</item>
+        <item>Fuego medio-bajo</item>
+        <item>Fuego medio-alto</item>
 
         <!--> INGLES <!-->
         <item>Season with salt and pepper</item>
@@ -54,5 +56,7 @@
         <item>Simmer</item>
         <item>Bring to a simmer</item>
         <item>Bring to a boil</item>
+        <item>Medium-Low heat</item>
+        <item>Medium-High heat</item>
     </string-array>
 </resources>

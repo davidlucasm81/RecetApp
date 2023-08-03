@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
+import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.StyleSpan;
@@ -21,6 +22,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -161,18 +163,22 @@ public class UtilsSrv {
         return firstLetter + restOfWord;
     }
 
-    // Método para formatear el texto y resaltar todas las ocurrencias de palabras clave con negrita
     public static SpannableString formatTexto(String texto, String[] palabrasClave) {
         SpannableString spannableTexto = new SpannableString(texto);
 
         for (String palabraClave : palabrasClave) {
-            String palabraClaveLowerCase = palabraClave.toLowerCase();
-            int startPos = texto.toLowerCase().indexOf(palabraClaveLowerCase);
+            // Escapar caracteres especiales de la palabra clave para la expresión regular
+            String palabraClaveEscaped = Pattern.quote(palabraClave);
 
-            while (startPos >= 0) {
-                int endPos = startPos + palabraClaveLowerCase.length();
-                spannableTexto.setSpan(new StyleSpan(Typeface.BOLD), startPos, endPos, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
-                startPos = texto.toLowerCase().indexOf(palabraClaveLowerCase, endPos);
+            // Crear una expresión regular que coincida solo con palabras completas
+            String regex = "\\b" + palabraClaveEscaped + "\\b";
+            Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+            Matcher matcher = pattern.matcher(texto);
+
+            while (matcher.find()) {
+                int startPos = matcher.start();
+                int endPos = matcher.end();
+                spannableTexto.setSpan(new StyleSpan(Typeface.BOLD), startPos, endPos, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
         }
 
@@ -210,8 +216,8 @@ public class UtilsSrv {
         Pattern patron = Pattern.compile("(\\d+)/(\\d+)");
         Matcher matcher = patron.matcher(numero);
         if (matcher.matches()) {
-            int numerador = Integer.parseInt(matcher.group(1));
-            int denominador = Integer.parseInt(matcher.group(2));
+            int numerador = Integer.parseInt(Objects.requireNonNull(matcher.group(1)));
+            int denominador = Integer.parseInt(Objects.requireNonNull(matcher.group(2)));
             return (double) numerador / denominador;
         } else {
             // Si no es una fracción, parsear el número como un double
@@ -239,8 +245,8 @@ public class UtilsSrv {
         String[] partes = numero.split("/");
         if (partes.length == 2) {
             try {
-                int numerador = Integer.parseInt(partes[0]);
-                int denominador = Integer.parseInt(partes[1]);
+                Integer.parseInt(partes[0]);
+                Integer.parseInt(partes[1]);
                 return true; // Es una fracción válida
             } catch (NumberFormatException e) {
                 // No se puede parsear la fracción, no es válida
@@ -249,7 +255,7 @@ public class UtilsSrv {
         } else {
             // No es una fracción, verificar si es un número entero válido
             try {
-                int entero = Integer.parseInt(numero);
+                Integer.parseInt(numero);
                 return true; // Es un número entero válido
             } catch (NumberFormatException e) {
                 // No se puede parsear como entero, no es válido

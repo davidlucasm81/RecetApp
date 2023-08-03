@@ -5,6 +5,7 @@ import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.widget.Button;
@@ -33,6 +34,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
@@ -42,11 +44,13 @@ public class ImportExportActivity extends AppCompatActivity {
     private ActivityResultLauncher<String> mGetContentLauncher;
 
     private static final int REQUEST_PERMISSION_READ_EXTERNAL_STORAGE = 1;
-    private static final int REQUEST_PERMISSION_MANAGE_EXTERNAL_STORAGE = 2;
 
     private void checkAndRequestPermissions() {
         int permissionReadStorage = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
-        int permissionManageStorage = ContextCompat.checkSelfPermission(this, Manifest.permission.MANAGE_EXTERNAL_STORAGE);
+        int permissionManageStorage = 0;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            permissionManageStorage = ContextCompat.checkSelfPermission(this, Manifest.permission.MANAGE_EXTERNAL_STORAGE);
+        }
 
         List<String> permissions = new ArrayList<>();
 
@@ -100,6 +104,7 @@ public class ImportExportActivity extends AppCompatActivity {
         }
     }
 
+    /** @noinspection ResultOfMethodCallIgnored*/
     private void exportarListaRecetas() {
         List<Receta> listaRecetas = obtenerListaRecetas();
 
@@ -109,6 +114,7 @@ public class ImportExportActivity extends AppCompatActivity {
             // Crear el directorio en el almacenamiento público
             File publicDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
             if (publicDir != null) {
+                //noinspection ResultOfMethodCallIgnored
                 publicDir.mkdirs(); // Asegurarse de que el directorio exista
 
                 // Crear el archivo en el directorio público
@@ -195,6 +201,7 @@ public class ImportExportActivity extends AppCompatActivity {
         for (Receta recetaImportada : listaRecetasImportadas) {
             // Establecer el atributo "shared" como true en las recetas importadas
             recetaImportada.setShared(true);
+            recetaImportada.setFechaCalendario(new Date(0));
             recetasUnicas.add(recetaImportada);
         }
 
@@ -206,14 +213,4 @@ public class ImportExportActivity extends AppCompatActivity {
         RecetasSrv.guardarListaRecetas(this, listaRecetas);
     }
 
-    private void compartirArchivo(File file) {
-        Uri fileUri = FileProvider.getUriForFile(this, "com.david.recetapp.provider", file);
-
-        Intent shareIntent = new Intent(Intent.ACTION_SEND);
-        shareIntent.setType("application/json");
-        shareIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
-        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-
-        startActivity(Intent.createChooser(shareIntent, getString(R.string.compartir_recetas)));
-    }
 }
