@@ -2,6 +2,7 @@ package com.david.recetapp.actividades;
 
 import android.content.ClipData;
 import android.content.Intent;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -127,8 +128,7 @@ public class EditarRecetaActivity extends AppCompatActivity {
         String[] ingredientList = getResources().getStringArray(R.array.ingredient_list);
 
         // Crear un adaptador con la lista de ingredientes y configurarlo en el AutoCompleteTextView
-        ArrayAdapter<String> adapterIngredientes = new ArrayAdapter<>(this,
-                android.R.layout.simple_dropdown_item_1line, ingredientList);
+        ArrayAdapter<String> adapterIngredientes = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, ingredientList);
         autoCompleteTextViewNombreIngrediente.setAdapter(adapterIngredientes);
         editTextCantidad = findViewById(R.id.editTextCantidad);
         Button btnAgregarIngrediente = findViewById(R.id.btnAgregarIngrediente);
@@ -143,8 +143,7 @@ public class EditarRecetaActivity extends AppCompatActivity {
         String[] quantityUnits = getResources().getStringArray(R.array.quantity_units);
 
         // Crea un adaptador para el Spinner
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, quantityUnits);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, quantityUnits);
 
         // Especifica el diseño para los elementos desplegables
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -171,7 +170,7 @@ public class EditarRecetaActivity extends AppCompatActivity {
         linearLayoutListaPasos = findViewById(R.id.linearLayoutListaPasos);
         pasos = (ArrayList<Paso>) receta.getPasos();
         linearLayoutListaPasos.setOnDragListener((v, event) -> {
-            if (event.getAction() == DragEvent.ACTION_DROP) {// Get the position of the item being dragged from the ClipData
+            if (isDragging && event.getAction() == DragEvent.ACTION_DROP) {// Get the position of the item being dragged from the ClipData
                 ClipData.Item item = event.getClipData().getItemAt(0);
                 int sourcePosition = Integer.parseInt(item.getText().toString());
                 int targetPosition = calculateTargetPosition(event.getY());
@@ -307,7 +306,7 @@ public class EditarRecetaActivity extends AppCompatActivity {
                 return i;
             }
         }
-        return Math.min(Math.max(0,count),pasos.size()-1);
+        return Math.min(Math.max(0, count), pasos.size() - 1);
     }
 
     private void mostrarAlergenos() {
@@ -329,8 +328,7 @@ public class EditarRecetaActivity extends AppCompatActivity {
             Alergeno alergeno = alergenos.get(i);
             imageViewIconoAlergeno.setImageResource(AlergenosSrv.obtenerImagen(alergeno.getNumero()));
             checkBoxAlergeno.setText(alergeno.getNombre());
-            checkBoxAlergeno.setChecked(alergenosSeleccionados.stream()
-                    .anyMatch(objeto -> alergeno.getNombre().equals(objeto.getNombre())));
+            checkBoxAlergeno.setChecked(alergenosSeleccionados.stream().anyMatch(objeto -> alergeno.getNombre().equals(objeto.getNombre())));
 
             checkBoxAlergeno.setOnCheckedChangeListener((buttonView, isChecked) -> alergenosSeleccionados.add(alergeno));
 
@@ -443,6 +441,9 @@ public class EditarRecetaActivity extends AppCompatActivity {
         }
     }
 
+    // Declara una nueva variable para indicar si el usuario está arrastrando el paso
+    private boolean isDragging = false;
+
     // Agregar un método para mostrar los pasos en el LinearLayout
     private void mostrarPasos() {
         linearLayoutListaPasos.removeAllViews();
@@ -459,22 +460,75 @@ public class EditarRecetaActivity extends AppCompatActivity {
             final Paso paso = pasos.get(position);
             final int posicion = position;
 
-            // Establece el OnTouchListener para el LinearLayout
+            // Establece el OnTouchListener para el convertView
             convertView.setOnTouchListener((view, event) -> {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        // Get the position of the item being dragged
-                        draggedItemPosition = posicion;
-                        // Create a ClipData object to store the position of the dragged item
-                        ClipData data = ClipData.newPlainText("", String.valueOf(draggedItemPosition));
-                        // Create a DragShadowBuilder to display the shadow during the drag
-                        View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(view);
+                int action = event.getAction();
 
-                        // Utiliza ViewCompat para iniciar el arrastre en versiones más recientes de Android
-                        ViewCompat.startDragAndDrop(view, data, shadowBuilder, null, 0);
-                        view.performClick();
-                        return true;
+                // Verificar si el usuario está tocando el ImageView de reordenar
+                boolean isTouchingReorder = false;
+                ImageView imageViewReorder = convertView.findViewById(R.id.imageViewReordenar);
+                if (imageViewReorder != null) {
+                    Rect hitRect = new Rect();
+                    imageViewReorder.getHitRect(hitRect);
+                    isTouchingReorder = hitRect.contains((int) event.getX(), (int) event.getY());
+                }
+
+                if (editTextPaso == null) {
+                    return false;
+                }
+
+                switch (action) {
+                    case MotionEvent.ACTION_DOWN:
+                        if (isTouchingReorder) {
+                            // El usuario está tocando el ImageView de reordenar, permitir el arrastre
+                            isDragging = true;
+
+                            // Cambiar el enfoque de todos los EditTextPaso a modo de lectura
+                            for (int i = 0; i < linearLayoutListaPasos.getChildCount(); i++) {
+                                View childView = linearLayoutListaPasos.getChildAt(i);
+                                EditText editTextPaso1 = childView.findViewById(R.id.editTextPaso);
+                                EditText editTextTiempo1 = childView.findViewById(R.id.editTextTiempo);
+                                if (editTextPaso1 != null) {
+                                    editTextPaso1.setFocusableInTouchMode(false);
+                                    editTextPaso1.setFocusable(false);
+                                    editTextPaso1.setCursorVisible(false);
+                                }
+                                if (editTextTiempo1 != null) {
+                                    editTextTiempo1.setFocusableInTouchMode(false);
+                                    editTextTiempo1.setFocusable(false);
+                                    editTextTiempo1.setCursorVisible(false);
+                                }
+                            }
+
+                            draggedItemPosition = posicion;
+                            ClipData data = ClipData.newPlainText("", String.valueOf(draggedItemPosition));
+                            View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(view);
+                            ViewCompat.startDragAndDrop(view, data, shadowBuilder, null, 0);
+                            view.performClick();
+                            return true;
+                        }
+                        break;
                     case MotionEvent.ACTION_UP:
+                        isDragging = false;
+
+
+                        // Restaurar el enfoque de los EditTextPaso al modo de edición cuando se complete el arrastre
+                        for (int i = 0; i < linearLayoutListaPasos.getChildCount(); i++) {
+                            View childView = linearLayoutListaPasos.getChildAt(i);
+                            EditText editTextPaso1 = childView.findViewById(R.id.editTextPaso);
+                            EditText editTextTiempo1 = childView.findViewById(R.id.editTextTiempo);
+                            if (editTextPaso1 != null) {
+                                editTextPaso1.setFocusableInTouchMode(true);
+                                editTextPaso1.setFocusable(true);
+                                editTextPaso1.setCursorVisible(true);
+                            }
+                            if (editTextTiempo1 != null) {
+                                editTextTiempo1.setFocusableInTouchMode(true);
+                                editTextTiempo1.setFocusable(true);
+                                editTextTiempo1.setCursorVisible(true);
+                            }
+                        }
+
                         draggedItemPosition = -1;
                         break;
                 }
@@ -517,7 +571,7 @@ public class EditarRecetaActivity extends AppCompatActivity {
                         if (tiempoText.matches("^\\d{2}:\\d{2}$")) {
                             paso.setTiempo(tiempoText);
                         } else {
-                            UtilsSrv.notificacion(convertView.getContext(),convertView.getContext().getString(R.string.error_formato_tiempo),Toast.LENGTH_SHORT).show();
+                            UtilsSrv.notificacion(convertView.getContext(), convertView.getContext().getString(R.string.error_formato_tiempo), Toast.LENGTH_SHORT).show();
                         }
                     }
 

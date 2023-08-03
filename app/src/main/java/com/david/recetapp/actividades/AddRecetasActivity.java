@@ -2,9 +2,11 @@ package com.david.recetapp.actividades;
 
 import android.content.ClipData;
 import android.content.Intent;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.DisplayMetrics;
 import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -150,7 +152,7 @@ public class AddRecetasActivity extends AppCompatActivity {
         linearLayoutListaPasos = findViewById(R.id.linearLayoutListaPasos);
         pasos = new ArrayList<>();
         linearLayoutListaPasos.setOnDragListener((v, event) -> {
-            if (event.getAction() == DragEvent.ACTION_DROP) {// Get the position of the item being dragged from the ClipData
+            if (isDragging && event.getAction() == DragEvent.ACTION_DROP) {// Get the position of the item being dragged from the ClipData
                 ClipData.Item item = event.getClipData().getItemAt(0);
                 int sourcePosition = Integer.parseInt(item.getText().toString());
                 int targetPosition = calculateTargetPosition(event.getY());
@@ -164,7 +166,6 @@ public class AddRecetasActivity extends AppCompatActivity {
                     // Update the data array to reflect the new order
                     Paso paso = pasos.remove(sourcePosition);
                     pasos.add(targetPosition, paso);
-
                     // Notify the adapter that the data has changed and update the list on the screen
                     mostrarPasos();
                 }
@@ -419,6 +420,9 @@ public class AddRecetasActivity extends AppCompatActivity {
         }
     }
 
+    // Declara una nueva variable para indicar si el usuario está arrastrando el paso
+    private boolean isDragging = false;
+
     // Agregar un método para mostrar los pasos en el LinearLayout
     private void mostrarPasos() {
         linearLayoutListaPasos.removeAllViews();
@@ -432,31 +436,93 @@ public class AddRecetasActivity extends AppCompatActivity {
             EditText editTextTiempo = convertView.findViewById(R.id.editTextTiempo);
             ImageButton btnEliminarPaso = convertView.findViewById(R.id.btnEliminarPaso);
 
+            // Cambiar el modo de lectura del EditTextPaso mientras se arrastra
+            editTextPaso.setFocusableInTouchMode(!isDragging);
+            editTextPaso.setFocusable(!isDragging);
+            editTextPaso.setCursorVisible(!isDragging);
+
             final Paso paso = pasos.get(position);
             final int posicion = position;
 
-            // Establece el OnTouchListener para el LinearLayout
+            // Antes del setOnTouchListener, obtenemos las dimensiones de la pantalla
+            DisplayMetrics displayMetrics = new DisplayMetrics();
+            getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+            int screenWidth = displayMetrics.widthPixels;
+            int screenHeight = displayMetrics.heightPixels;
+            // Establece el OnTouchListener para el convertView
             convertView.setOnTouchListener((view, event) -> {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        // Get the position of the item being dragged
-                        draggedItemPosition = posicion;
-                        // Create a ClipData object to store the position of the dragged item
-                        ClipData data = ClipData.newPlainText("", String.valueOf(draggedItemPosition));
-                        // Create a DragShadowBuilder to display the shadow during the drag
-                        View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(view);
+                int action = event.getAction();
 
-                        // Utiliza ViewCompat para iniciar el arrastre en versiones más recientes de Android
-                        ViewCompat.startDragAndDrop(view, data, shadowBuilder, null, 0);
-                        view.performClick();
-                        return true;
+                // Verificar si el usuario está tocando el ImageView de reordenar
+                boolean isTouchingReorder = false;
+                ImageView imageViewReorder = convertView.findViewById(R.id.imageViewReordenar);
+                if (imageViewReorder != null) {
+                    Rect hitRect = new Rect();
+                    imageViewReorder.getHitRect(hitRect);
+                    isTouchingReorder = hitRect.contains((int) event.getX(), (int) event.getY());
+                }
+
+                if (editTextPaso == null) {
+                    return false;
+                }
+
+                switch (action) {
+                    case MotionEvent.ACTION_DOWN:
+                        if (isTouchingReorder) {
+                            // El usuario está tocando el ImageView de reordenar, permitir el arrastre
+                            isDragging = true;
+
+                            // Cambiar el enfoque de todos los EditTextPaso a modo de lectura
+                            for (int i = 0; i < linearLayoutListaPasos.getChildCount(); i++) {
+                                View childView = linearLayoutListaPasos.getChildAt(i);
+                                EditText editTextPaso1 = childView.findViewById(R.id.editTextPaso);
+                                EditText editTextTiempo1 = childView.findViewById(R.id.editTextTiempo);
+                                if (editTextPaso1 != null) {
+                                    editTextPaso1.setFocusableInTouchMode(false);
+                                    editTextPaso1.setFocusable(false);
+                                    editTextPaso1.setCursorVisible(false);
+                                }
+                                if (editTextTiempo1 != null) {
+                                    editTextTiempo1.setFocusableInTouchMode(false);
+                                    editTextTiempo1.setFocusable(false);
+                                    editTextTiempo1.setCursorVisible(false);
+                                }
+                            }
+
+                            draggedItemPosition = posicion;
+                            ClipData data = ClipData.newPlainText("", String.valueOf(draggedItemPosition));
+                            View.DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(view);
+                            ViewCompat.startDragAndDrop(view, data, shadowBuilder, null, 0);
+                            view.performClick();
+                            return true;
+                        }
+                        break;
                     case MotionEvent.ACTION_UP:
+                        isDragging = false;
+
+
+                        // Restaurar el enfoque de los EditTextPaso al modo de edición cuando se complete el arrastre
+                        for (int i = 0; i < linearLayoutListaPasos.getChildCount(); i++) {
+                            View childView = linearLayoutListaPasos.getChildAt(i);
+                            EditText editTextPaso1 = childView.findViewById(R.id.editTextPaso);
+                            EditText editTextTiempo1 = childView.findViewById(R.id.editTextTiempo);
+                            if (editTextPaso1 != null) {
+                                editTextPaso1.setFocusableInTouchMode(true);
+                                editTextPaso1.setFocusable(true);
+                                editTextPaso1.setCursorVisible(true);
+                            }
+                            if (editTextTiempo1 != null) {
+                                editTextTiempo1.setFocusableInTouchMode(true);
+                                editTextTiempo1.setFocusable(true);
+                                editTextTiempo1.setCursorVisible(true);
+                            }
+                        }
+
                         draggedItemPosition = -1;
                         break;
                 }
                 return false;
             });
-
 
             if (paso != null) {
                 textViewNumero.setText(String.format(Locale.getDefault(), "%d) ", position + 1));
