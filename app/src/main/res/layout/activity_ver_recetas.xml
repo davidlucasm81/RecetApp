@@ -79,7 +79,27 @@
                 android:contentDescription="@string/borrar_busqueda"
                 android:src="@drawable/ic_baseline_delete_24"
                 tools:ignore="TouchTargetSizeCheck" />
+
         </GridLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/botonPostre"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/buscar_postres"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/textViewEmpty"

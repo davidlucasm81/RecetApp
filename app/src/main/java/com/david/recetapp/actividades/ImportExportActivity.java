@@ -5,7 +5,6 @@ import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.widget.Button;
@@ -47,19 +46,11 @@ public class ImportExportActivity extends AppCompatActivity {
 
     private void checkAndRequestPermissions() {
         int permissionReadStorage = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
-        int permissionManageStorage = 0;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            permissionManageStorage = ContextCompat.checkSelfPermission(this, Manifest.permission.MANAGE_EXTERNAL_STORAGE);
-        }
 
         List<String> permissions = new ArrayList<>();
 
         if (permissionReadStorage != PackageManager.PERMISSION_GRANTED) {
             permissions.add(Manifest.permission.READ_EXTERNAL_STORAGE);
-        }
-
-        if (permissionManageStorage != PackageManager.PERMISSION_GRANTED) {
-            permissions.add(Manifest.permission.MANAGE_EXTERNAL_STORAGE);
         }
 
         if (!permissions.isEmpty()) {

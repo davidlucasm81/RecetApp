@@ -85,4 +85,5 @@
     <string name="shared">Compartido</string>
     <string name="importar_exportar">Importar / Exportar</string>
     <string name="exportar">Exportar</string>
+    <string name="buscar_postres">Buscar solo postres</string>
 </resources>

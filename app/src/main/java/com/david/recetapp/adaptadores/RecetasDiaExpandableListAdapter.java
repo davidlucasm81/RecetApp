@@ -29,6 +29,7 @@ import com.david.recetapp.negocio.servicios.UtilsSrv;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -120,6 +121,14 @@ public class RecetasDiaExpandableListAdapter extends BaseExpandableListAdapter {
             }
         });
         ImageView imageViewRecargar = convertView.findViewById(R.id.imageViewRecargar);
+        imageViewRecargar.setVisibility(View.VISIBLE);
+        CalendarioBean calendario = CalendarioSrv.cargarCalendario(context);
+        assert calendario != null;
+        DiaRecetas diaRecetas = calendario.getListaDiaRecetas().get(dia);
+
+        if (diaRecetas.getFecha().before(new Date())) {
+            imageViewRecargar.setVisibility(View.GONE);
+        }
 
         imageViewRecargar.setOnClickListener(v -> {
             // Mostrar el cuadro de diálogo para preguntar al usuario
@@ -128,9 +137,6 @@ public class RecetasDiaExpandableListAdapter extends BaseExpandableListAdapter {
             builder.setMessage(context.getString(R.string.comprobar_si_recargar_receta));
 
             builder.setPositiveButton(context.getString(R.string.aceptar), (dialog, which) -> {
-                CalendarioBean calendario = CalendarioSrv.cargarCalendario(context);
-                assert calendario != null;
-                DiaRecetas diaRecetas = calendario.getListaDiaRecetas().get(dia);
                 Receta recetaNueva = CalendarioSrv.recargarReceta(context, diaRecetas.getFecha().getTime(), diaRecetas.getRecetas(), groupPosition);
 
                 if (recetaNueva == null) {

@@ -81,4 +81,5 @@
     <string name="shared">Shared</string>
     <string name="importar_exportar">Import / Export</string>
     <string name="exportar">Export</string>
+    <string name="buscar_postres">Search only desserts</string>
 </resources>
