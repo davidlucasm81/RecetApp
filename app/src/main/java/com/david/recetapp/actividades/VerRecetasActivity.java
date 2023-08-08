@@ -34,6 +34,8 @@ public class VerRecetasActivity extends AppCompatActivity implements RecetaExpan
 
     private ImageView imageViewClearSearch;
 
+    private  SwitchCompat botonPostres;
+
     @Override
     public void onBackPressed() {
         // Controla el comportamiento del botón "Atrás"
@@ -123,26 +125,9 @@ public class VerRecetasActivity extends AppCompatActivity implements RecetaExpan
             Intent intent = new Intent(VerRecetasActivity.this, ImportExportActivity.class);
             startActivity(intent);
         });
-        SwitchCompat botonPostres = findViewById(R.id.botonPostre);
+        botonPostres = findViewById(R.id.botonPostre);
         botonPostres.setOnCheckedChangeListener((v, isChecked) -> {
-            if (isChecked) {
-                // Acción cuando el botón está activado
-                listaRecetas.removeIf(r -> !r.isPostre());
-            } else {
-                // Acción cuando el botón está desactivado
-                listaRecetas = RecetasSrv.cargarListaRecetas(v.getContext()).stream().sorted((r1, r2) -> String.CASE_INSENSITIVE_ORDER.compare(r1.getNombre(), r2.getNombre())).collect(Collectors.toList());
-            }
-
-            expandableListView.setAdapter(new RecetaExpandableListAdapter(this, listaRecetas, expandableListView, this));
-
-            expandableListView.setOnGroupClickListener((parent1, v1, groupPosition1, id1) -> {
-                if (expandableListView.isGroupExpanded(groupPosition1)) {
-                    expandableListView.collapseGroup(groupPosition1);
-                } else {
-                    expandableListView.expandGroup(groupPosition1);
-                }
-                return true;
-            });
+            filtrarYActualizarLista(autoCompleteTextViewRecetas.getText().toString());
         });
     }
 
@@ -151,6 +136,9 @@ public class VerRecetasActivity extends AppCompatActivity implements RecetaExpan
         listaRecetas = RecetasSrv.cargarListaRecetas(this).stream().sorted((r1, r2) -> String.CASE_INSENSITIVE_ORDER.compare(r1.getNombre(), r2.getNombre())).collect(Collectors.toList());
         if (!recetaIngredienteSeleccionado.trim().isEmpty()) {
             listaRecetas.removeIf(r -> !r.getNombre().equals(recetaIngredienteSeleccionado) && r.getIngredientes().stream().noneMatch(i -> i.getNombre().toLowerCase().contains(recetaIngredienteSeleccionado.toLowerCase())));
+        }
+        if(botonPostres.isChecked()){
+            listaRecetas.removeIf(r -> !r.isPostre());
         }
 
         RecetaExpandableListAdapter expandableListAdapter = new RecetaExpandableListAdapter(this, listaRecetas, expandableListView, this);
