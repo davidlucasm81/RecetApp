@@ -201,7 +201,8 @@ public class ImportExportActivity extends AppCompatActivity {
     }
 
     private void guardarListaRecetas(List<Receta> listaRecetas) {
-        RecetasSrv.guardarListaRecetas(this, listaRecetas);
+        for(Receta receta : listaRecetas)
+            RecetasSrv.addReceta(this, receta);
     }
 
 }

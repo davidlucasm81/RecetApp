@@ -278,7 +278,7 @@ public class EditarRecetaActivity extends AppCompatActivity {
             receta.setPostre(postre.isChecked());
 
             // Guardar la lista actualizada en el archivo JSON
-            RecetasSrv.guardarListaRecetas(this, recetas);
+            RecetasSrv.addReceta(this, receta);
 
             // Crear un Intent para volver a la pantalla inicial
             UtilsSrv.notificacion(EditarRecetaActivity.this, this.getString(R.string.receta_editada), Toast.LENGTH_SHORT).show();

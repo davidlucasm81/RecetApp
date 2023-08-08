@@ -11,7 +11,6 @@
     <string name="pasos">Pasos</string>
     <string name="recetas_del_d_a">Recetas del día</string>
     <string name="x" translatable="false">X</string>
-    <string name="x_con_espacio" translatable="false">"X "</string>
     <string name="eliminar">Eliminar</string>
     <string name="recetas">Recetas</string>
     <string name="ver_recetas">Ver Recetas</string>

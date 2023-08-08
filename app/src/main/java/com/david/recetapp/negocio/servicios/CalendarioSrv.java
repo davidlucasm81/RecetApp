@@ -102,7 +102,7 @@ public class CalendarioSrv {
         calendarioBean.getListaDiaRecetas().add(diaRecetas);
 
         // Guardar la lista de recetas actualizada en el archivo JSON
-        RecetasSrv.guardarListaRecetas(context, new ArrayList<>(colaRecetas));
+        RecetasSrv.modificarRecetas(context, new ArrayList<>(colaRecetas));
         return calendarioBean;
     }
 
@@ -124,7 +124,7 @@ public class CalendarioSrv {
                 }
             }
         }
-        RecetasSrv.guardarListaRecetas(context, new ArrayList<>(colaRecetas));
+        RecetasSrv.modificarRecetas(context, new ArrayList<>(colaRecetas));
         return receta;
     }
 
@@ -197,7 +197,7 @@ public class CalendarioSrv {
         }
         actualizarCalendario(context, calendario, true);
         // Guardar la lista de recetas actualizada en el archivo JSON
-        RecetasSrv.guardarListaRecetas(context, new ArrayList<>(colaRecetas));
+        RecetasSrv.modificarRecetas(context, new ArrayList<>(colaRecetas));
     }
 
     public static void addReceta(Context context) {
@@ -218,7 +218,7 @@ public class CalendarioSrv {
 
         }
         // Guardar la lista de recetas actualizada en el archivo JSON
-        RecetasSrv.guardarListaRecetas(context, new ArrayList<>(colaRecetas));
+        RecetasSrv.modificarRecetas(context, new ArrayList<>(colaRecetas));
         actualizarCalendario(context, calendario, true);
     }
 

@@ -246,20 +246,27 @@ public class UtilsSrv {
         if (partes.length == 2) {
             try {
                 Integer.parseInt(partes[0]);
-                Integer.parseInt(partes[1]);
-                return true; // Es una fracción válida
+                int denominador = Integer.parseInt(partes[1]);
+                return denominador != 0; // Es una fracción válida si el denominador no es cero
             } catch (NumberFormatException e) {
                 // No se puede parsear la fracción, no es válida
                 return false;
             }
         } else {
-            // No es una fracción, verificar si es un número entero válido
+            // No es una fracción, verificar si es un número (entero o decimal) válido
             try {
+                // Intentar parsear como entero
                 Integer.parseInt(numero);
                 return true; // Es un número entero válido
-            } catch (NumberFormatException e) {
-                // No se puede parsear como entero, no es válido
-                return false;
+            } catch (NumberFormatException e1) {
+                try {
+                    // Intentar parsear como decimal usando coma o punto como separador decimal
+                    Double.parseDouble(numero.replace(',', '.'));
+                    return true; // Es un número decimal válido
+                } catch (NumberFormatException e2) {
+                    // No se puede parsear como entero ni decimal, no es válido
+                    return false;
+                }
             }
         }
     }

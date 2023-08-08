@@ -23,23 +23,6 @@ import java.util.stream.Collectors;
 public class RecetasSrv {
     public static final String JSON = "lista_recetas.json";
 
-    public static void guardarListaRecetas(Context context, List<Receta> listaRecetas) {
-        // Convertir la lista de recetas a JSON
-        Gson gson = new Gson();
-        String jsonRecetas = gson.toJson(listaRecetas);
-
-        // Guardar el JSON en el archivo
-        try {
-            FileOutputStream fos = context.openFileOutput(JSON, Context.MODE_PRIVATE);
-            OutputStreamWriter osw = new OutputStreamWriter(fos);
-            osw.write(jsonRecetas);
-            osw.close();
-            fos.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     public static List<Receta> cargarListaRecetas(Context context) {
         // Cargar el archivo JSON desde el almacenamiento interno
         try {
@@ -85,28 +68,90 @@ public class RecetasSrv {
     public static void refrescarFechasRecetas(Context context) {
         List<Receta> listaRecetas = cargarListaRecetas(context);
         listaRecetas.forEach(r -> r.setFechaCalendario(new Date(0)));
-        guardarListaRecetas(context, listaRecetas);
+        // Convertir la lista de recetas a JSON
+        Gson gson = new Gson();
+        String jsonRecetas = gson.toJson(listaRecetas);
+
+        // Guardar el JSON en el archivo
+        try {
+            FileOutputStream fos = context.openFileOutput(JSON, Context.MODE_PRIVATE);
+            OutputStreamWriter osw = new OutputStreamWriter(fos);
+            osw.write(jsonRecetas);
+            osw.close();
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void addReceta(Context context, Receta receta) {
         List<Receta> listaRecetas = cargarListaRecetas(context);
+        if(listaRecetas.stream().noneMatch(r -> receta.getId().equals(r.getId()))){
+            // Agregar la receta al principio de la lista
+            listaRecetas.add(0, receta);
 
-        // Agregar la receta al principio de la lista
-        listaRecetas.add(0, receta);
+            // Guardar la lista actualizada en el archivo JSON
+            // Convertir la lista de recetas a JSON
+            Gson gson = new Gson();
+            String jsonRecetas = gson.toJson(listaRecetas);
 
-        // Guardar la lista actualizada en el archivo JSON
-        guardarListaRecetas(context, listaRecetas);
+            // Guardar el JSON en el archivo
+            try {
+                FileOutputStream fos = context.openFileOutput(JSON, Context.MODE_PRIVATE);
+                OutputStreamWriter osw = new OutputStreamWriter(fos);
+                osw.write(jsonRecetas);
+                osw.close();
+                fos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            // Añadir receta al calendario si tiene algun dia vacio
+            CalendarioSrv.addReceta(context);
+        }
 
-        // Añadir receta al calendario si tiene algun dia vacio
-        CalendarioSrv.addReceta(context);
     }
 
-    public static void eliminarReceta(Context context, int position, List<Receta> listaRecetas) {
+    public static void eliminarReceta(Context context, int position, List<Receta> listaRecetasParcial) {
         // Eliminar la receta de la lista de recetas y actualizar el archivo JSON
-        Receta receta = listaRecetas.remove(position);
-        RecetasSrv.guardarListaRecetas(context, listaRecetas);
+        Receta receta = listaRecetasParcial.remove(position);
+
+        List<Receta> listaRecetas = cargarListaRecetas(context);
+        listaRecetas.removeIf(r -> r.getId().equals(receta.getId()));
+        // Convertir la lista de recetas a JSON
+        Gson gson = new Gson();
+        String jsonRecetas = gson.toJson(listaRecetas);
+
+        // Guardar el JSON en el archivo
+        try {
+            FileOutputStream fos = context.openFileOutput(JSON, Context.MODE_PRIVATE);
+            OutputStreamWriter osw = new OutputStreamWriter(fos);
+            osw.write(jsonRecetas);
+            osw.close();
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         //Si existe la receta en el calendario la borramos y añadimos otra:
         CalendarioSrv.eliminarReceta(context, receta);
     }
 
+    public static void modificarRecetas(Context context, ArrayList<Receta> recetas) {
+        List<Receta> listaRecetas = cargarListaRecetas(context);
+        listaRecetas.removeIf(r -> recetas.stream().anyMatch(receta -> receta.getId().equals(r.getId())));
+        listaRecetas.addAll(recetas);
+        // Convertir la lista de recetas a JSON
+        Gson gson = new Gson();
+        String jsonRecetas = gson.toJson(listaRecetas);
+
+        // Guardar el JSON en el archivo
+        try {
+            FileOutputStream fos = context.openFileOutput(JSON, Context.MODE_PRIVATE);
+            OutputStreamWriter osw = new OutputStreamWriter(fos);
+            osw.write(jsonRecetas);
+            osw.close();
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
