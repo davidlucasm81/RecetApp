@@ -211,7 +211,6 @@
             tools:ignore="TextContrastCheck" />
 
         <LinearLayout
-            android:id="@+id/linearLayoutPasos"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
@@ -235,7 +234,6 @@
                 tools:ignore="TextContrastCheck" />
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/textInputLayoutTiempo"
                 style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
                 android:layout_width="match_parent"
                 android:layout_height="80dp"
