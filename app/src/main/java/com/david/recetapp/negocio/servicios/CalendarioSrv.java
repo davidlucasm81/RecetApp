@@ -49,7 +49,13 @@ public class CalendarioSrv {
             fis.close();
             Calendar calendar = Calendar.getInstance();
             int diaActual = calendar.get(Calendar.DAY_OF_WEEK);
-            if (diaActual == Calendar.MONDAY && !UtilsSrv.esMismoDia(calendarioBean.getUltimaActualizacion(), calendar)) {
+            // Calcular la diferencia en milisegundos entre las dos fechas
+            long diferenciaMilis = Math.abs(new Date().getTime() - calendarioBean.getUltimaActualizacion());
+
+            // Calcular la diferencia en días
+            long milisPorDia = 24 * 60 * 60 * 1000; // Milisegundos en un día
+            long dias = diferenciaMilis / milisPorDia;
+            if (dias >=8 || (diaActual == Calendar.MONDAY && !UtilsSrv.esMismoDia(calendarioBean.getUltimaActualizacion(), calendar))) {
                 calendarioBean = crearNuevoCalendario(context);
                 actualizarCalendario(context, calendarioBean, true);
             }
