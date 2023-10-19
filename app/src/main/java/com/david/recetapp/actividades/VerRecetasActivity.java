@@ -34,7 +34,7 @@ public class VerRecetasActivity extends AppCompatActivity implements RecetaExpan
 
     private ImageView imageViewClearSearch;
 
-    private  SwitchCompat botonPostres;
+    private SwitchCompat botonPostres;
 
     @Override
     public void onBackPressed() {
@@ -131,13 +131,14 @@ public class VerRecetasActivity extends AppCompatActivity implements RecetaExpan
         });
     }
 
-    // Definir una función para filtrar y actualizar la lista de recetas
-    private void filtrarYActualizarLista(String recetaIngredienteSeleccionado) {
+    private void filtrarYActualizarLista(String consulta) {
         listaRecetas = RecetasSrv.cargarListaRecetas(this).stream().sorted((r1, r2) -> String.CASE_INSENSITIVE_ORDER.compare(r1.getNombre(), r2.getNombre())).collect(Collectors.toList());
-        if (!recetaIngredienteSeleccionado.trim().isEmpty()) {
-            listaRecetas.removeIf(r -> !r.getNombre().equals(recetaIngredienteSeleccionado) && r.getIngredientes().stream().noneMatch(i -> i.getNombre().toLowerCase().contains(recetaIngredienteSeleccionado.toLowerCase())));
+
+        if (!consulta.trim().isEmpty()) {
+            listaRecetas.removeIf(r -> !contieneReceta(r, consulta) && !contieneIngredientes(r, consulta));
         }
-        if(botonPostres.isChecked()){
+
+        if (botonPostres.isChecked()) {
             listaRecetas.removeIf(r -> !r.isPostre());
         }
 
@@ -152,6 +153,14 @@ public class VerRecetasActivity extends AppCompatActivity implements RecetaExpan
             }
             return true;
         });
+    }
+
+    private boolean contieneReceta(Receta receta, String consulta) {
+        return receta.getNombre().toLowerCase().contains(consulta.toLowerCase());
+    }
+
+    private boolean contieneIngredientes(Receta receta, String consulta) {
+        return receta.getIngredientes().stream().anyMatch(ingrediente -> ingrediente.getNombre().toLowerCase().contains(consulta.toLowerCase()));
     }
 
     @Override
