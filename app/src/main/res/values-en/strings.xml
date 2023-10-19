@@ -33,7 +33,7 @@
     <string name="agregar_paso">Add Step</string>
     <string name="no_hay_recetas">There is no recipes</string>
     <string name="confirmacion">Confirmation</string>
-    <string name="alerta_eliminar">Are you sure you want to delete the recipe?</string>
+    <string name="alerta_eliminar">Are you sure you want to delete the recipe</string>
     <string name="aceptar">Accept</string>
     <string name="cancelar">Cancel</string>
     <string name="ingrediente_aniadido">Ingredient added</string>

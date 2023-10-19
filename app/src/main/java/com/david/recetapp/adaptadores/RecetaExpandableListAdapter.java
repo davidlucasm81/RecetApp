@@ -127,7 +127,7 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
         }
         btnEliminar.setOnClickListener(v -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
-            builder.setTitle(context.getString(R.string.confirmacion)).setMessage(context.getString(R.string.alerta_eliminar)).setPositiveButton(context.getString(R.string.aceptar), (dialog, which) -> {
+            builder.setTitle(context.getString(R.string.confirmacion)).setMessage(context.getString(R.string.alerta_eliminar) + " '" + receta.getNombre() + "' ?").setPositiveButton(context.getString(R.string.aceptar), (dialog, which) -> {
                 // Eliminar la receta del JSON y refrescar la pantalla
                 RecetasSrv.eliminarReceta(context, groupPosition, listaRecetas);
                 if (listaRecetas.isEmpty()) {

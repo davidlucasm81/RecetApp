@@ -35,7 +35,7 @@
     <string name="agregar_paso">Agregar Paso</string>
     <string name="no_hay_recetas">No hay recetas</string>
     <string name="confirmacion">Confirmacion</string>"
-    <string name="alerta_eliminar">¿Está seguro de que desea eliminar la receta?</string>
+    <string name="alerta_eliminar">¿Está seguro de que desea eliminar la receta</string>
     <string name="aceptar">Aceptar</string>
     <string name="cancelar">Cancelar</string>
     <string name="ingrediente_aniadido">Ingrediente añadido</string>
