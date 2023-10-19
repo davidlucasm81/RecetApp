@@ -67,7 +67,8 @@
     <string name="sin_al_rgenos">Sin alérgenos</string>
     <string name="no_lista_compra">No hay lista de la compra</string>
     <string name="titulo_recargar_receta">Sustituir receta</string>
-    <string name="comprobar_si_recargar_receta">¿Estás seguro de que deseas sustituir la receta por otra?</string>
+    <string name="comprobar_si_recargar_receta">¿Estás seguro de que deseas sustituir la receta </string>
+    <string name="por_otra"> por otra?</string>
     <string name="no_recargar_receta">No hay receta que pueda sustituir a la seleccionada</string>
     <string name="lista_de_la_compra_total">Lista de la Compra Total</string>
     <string name="lista_de_compra_por_d_as">Lista de Compra por Días</string>
@@ -85,4 +86,5 @@
     <string name="importar_exportar">Importar / Exportar</string>
     <string name="exportar">Exportar</string>
     <string name="buscar_postres">Buscar solo postres</string>
+    <string name="nueva_receta">Nueva receta:</string>
 </resources>

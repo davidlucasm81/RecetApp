@@ -134,18 +134,21 @@ public class RecetasDiaExpandableListAdapter extends BaseExpandableListAdapter {
             // Mostrar el cuadro de diálogo para preguntar al usuario
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
             builder.setTitle(context.getString(R.string.titulo_recargar_receta));
-            builder.setMessage(context.getString(R.string.comprobar_si_recargar_receta));
+            builder.setMessage(context.getString(R.string.comprobar_si_recargar_receta) + " '" + receta.getNombre() + "' " + context.getString(R.string.por_otra));
 
             builder.setPositiveButton(context.getString(R.string.aceptar), (dialog, which) -> {
-                Receta recetaNueva = CalendarioSrv.recargarReceta(context, diaRecetas.getFecha().getTime(), diaRecetas.getRecetas(), groupPosition);
+                Receta recetaNueva = CalendarioSrv.recargarReceta(context, diaRecetas.getFecha().getTime(), diaRecetas.getRecetas(), receta);
 
                 if (recetaNueva == null) {
                     UtilsSrv.notificacion(context, context.getString(R.string.no_recargar_receta), Toast.LENGTH_LONG).show();
                 } else {
-                    listaRecetas.set(groupPosition, recetaNueva);
-                    diaRecetas.getRecetas().set(groupPosition, recetaNueva.getId());
+                    listaRecetas.remove(receta);
+                    listaRecetas.add(recetaNueva);
+                    diaRecetas.getRecetas().remove(receta.getId());
+                    diaRecetas.getRecetas().add(recetaNueva.getId());
                     calendario.getListaDiaRecetas().set(dia, diaRecetas);
                     CalendarioSrv.actualizarCalendario(context, calendario, true);
+                    UtilsSrv.notificacion(context, context.getString(R.string.nueva_receta) + " '" + recetaNueva.getNombre() + "' ", Toast.LENGTH_LONG).show();
                     Intent intent = new Intent(context, CalendarioActivity.class);
                     context.startActivity(intent);
                 }

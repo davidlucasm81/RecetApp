@@ -55,7 +55,7 @@ public class CalendarioSrv {
             // Calcular la diferencia en días
             long milisPorDia = 24 * 60 * 60 * 1000; // Milisegundos en un día
             long dias = diferenciaMilis / milisPorDia;
-            if (dias >=8 || (diaActual == Calendar.MONDAY && !UtilsSrv.esMismoDia(calendarioBean.getUltimaActualizacion(), calendar))) {
+            if (dias >= 8 || (diaActual == Calendar.MONDAY && !UtilsSrv.esMismoDia(calendarioBean.getUltimaActualizacion(), calendar))) {
                 calendarioBean = crearNuevoCalendario(context);
                 actualizarCalendario(context, calendarioBean, true);
             }
@@ -112,7 +112,7 @@ public class CalendarioSrv {
         return calendarioBean;
     }
 
-    public static Receta recargarReceta(Context context, long tiempoActual, List<String> recetas, int posAntigua) {
+    public static Receta recargarReceta(Context context, long tiempoActual, List<String> recetas, Receta recetaA) {
         colaRecetas = new ArrayDeque<>();
         colaRecetas.addAll(RecetasSrv.cargarListaRecetas(context));
         Receta receta = obtenerReceta(context, tiempoActual);
@@ -120,7 +120,7 @@ public class CalendarioSrv {
             receta = obtenerReceta(context, tiempoActual);
         }
         if (receta != null) {
-            Optional<Receta> recetaAntigua = colaRecetas.stream().filter(r -> r.getId().equals(recetas.get(posAntigua))).findAny();
+            Optional<Receta> recetaAntigua = colaRecetas.stream().filter(r -> r.getId().equals(recetaA.getId())).findAny();
             if (recetaAntigua.isPresent()) {
                 long tiempoReceta = recetaAntigua.get().getFechaCalendario().getTime();
                 Calendar fecha = Calendar.getInstance();
@@ -247,7 +247,7 @@ public class CalendarioSrv {
                                 String nombreIngrediente = ingrediente.getNombre().toLowerCase();
                                 String tipoCantidad = ingrediente.getTipoCantidad().toLowerCase();
                                 ingredientesDia.merge(nombreIngrediente + tipoCantidad, new Ingrediente(nombreIngrediente, ingrediente.getCantidad(), ingrediente.getTipoCantidad()), (ing1, ing2) -> {
-                                    ing1.setCantidad(UtilsSrv.sumarStrings(ing1.getCantidad(),ing2.getCantidad()));
+                                    ing1.setCantidad(UtilsSrv.sumarStrings(ing1.getCantidad(), ing2.getCantidad()));
                                     return ing1;
                                 });
                             }
@@ -280,7 +280,7 @@ public class CalendarioSrv {
                         String nombreIngrediente = ingrediente.getNombre().toLowerCase();
                         String tipoCantidad = ingrediente.getTipoCantidad().toLowerCase();
                         ingredientesMap.merge(nombreIngrediente + tipoCantidad, new Ingrediente(nombreIngrediente, ingrediente.getCantidad(), ingrediente.getTipoCantidad()), (ing1, ing2) -> {
-                            ing1.setCantidad(UtilsSrv.sumarStrings(ing1.getCantidad(),ing2.getCantidad()));
+                            ing1.setCantidad(UtilsSrv.sumarStrings(ing1.getCantidad(), ing2.getCantidad()));
                             return ing1;
                         });
                     }
