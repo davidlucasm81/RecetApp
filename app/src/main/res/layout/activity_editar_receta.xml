@@ -155,7 +155,7 @@
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
                     android:layout_width="125dp"
-                    android:layout_height="55dp"
+                    android:layout_height="70dp"
                     android:layout_marginStart="16dp"
                     android:paddingStart="4dp"
                     android:paddingTop="2dp"
@@ -165,7 +165,7 @@
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/editTextCantidad"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:gravity="center_horizontal|center_vertical"
                         android:inputType="text"
                         android:maxLines="1"

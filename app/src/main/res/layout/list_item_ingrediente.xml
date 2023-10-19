@@ -45,6 +45,7 @@
                 android:layout_width="125dp"
                 android:layout_height="match_parent"
                 android:layout_marginStart="16dp"
+                android:minHeight="70dp"
                 android:paddingStart="4dp"
                 android:paddingTop="2dp"
                 android:paddingEnd="4dp"
@@ -53,7 +54,7 @@
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/editTextCantidad"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:gravity="center_horizontal|center_vertical"
                     android:inputType="text"
                     android:maxLines="1"
