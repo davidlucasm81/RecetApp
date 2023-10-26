@@ -46,13 +46,23 @@ public class RecetasSrv {
             }.getType();
             // Agregar las recetas a la cola
             List<Receta> recetas = gson.fromJson(jsonBuilder.toString(), listType);
+            recetas.forEach(r ->{
+                if(r.getPuntuacionDada() == -1){
+                    r.setPuntuacionDada(context);
+                }
+            });
             return recetas.stream().sorted((r1, r2) -> {
                 int resultado = Comparator.comparing(Receta::getFechaCalendario)
                         .compare(r1, r2);
                 if (resultado != 0) {
                     return resultado;
                 }
+                resultado =  Comparator.comparing(Receta::getPuntuacionDada)
+                        .compare(r1, r2);
 
+                if (resultado != 0) {
+                    return resultado;
+                }
                 resultado = Comparator.comparing(Receta::getEstrellas)
                         .compare(r1, r2);
                 return resultado;

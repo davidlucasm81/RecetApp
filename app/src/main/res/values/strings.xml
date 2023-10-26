@@ -87,4 +87,5 @@
     <string name="exportar">Exportar</string>
     <string name="buscar_postres">Buscar solo postres</string>
     <string name="nueva_receta">Nueva receta:</string>
+    <string name="puntuacion_dada">Puntuación dada</string>
 </resources>

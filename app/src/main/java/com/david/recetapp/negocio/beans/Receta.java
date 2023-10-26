@@ -1,11 +1,18 @@
 package com.david.recetapp.negocio.beans;
 
+import android.content.Context;
+
 import androidx.collection.ArraySet;
+
+import com.david.recetapp.R;
+import com.david.recetapp.negocio.servicios.UtilsSrv;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -27,6 +34,8 @@ public class Receta implements Serializable {
 
     private boolean postre;
 
+    private float puntuacionDada;
+
     public Receta() {
         this.id = UUID.randomUUID().toString();
         this.nombre = "";
@@ -38,6 +47,7 @@ public class Receta implements Serializable {
         this.alergenos = new ArrayList<>();
         this.shared = false;
         this.postre = false;
+        this.puntuacionDada = -1;
     }
 
     public String getNombre() {
@@ -60,8 +70,9 @@ public class Receta implements Serializable {
         return ingredientes;
     }
 
-    public void setIngredientes(List<Ingrediente> ingredientes) {
+    public void setIngredientes(Context context, List<Ingrediente> ingredientes) {
         this.ingredientes = ingredientes;
+        setPuntuacionDada(context);
     }
 
     public List<Paso> getPasos() {
@@ -127,5 +138,30 @@ public class Receta implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    public float getPuntuacionDada() {
+        return puntuacionDada;
+    }
+    public void setPuntuacionDada(Context context){
+        String[] ingredientList = context.getResources().getStringArray(R.array.ingredient_list);
+
+        Map<String, Integer> ingredientMap = new HashMap<>();
+
+        for (String s : ingredientList) {
+            // Utilizar una expresión regular para encontrar el número al final
+            String regex = "(.+) (\\d+)$";
+            java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(regex);
+            java.util.regex.Matcher matcher = pattern.matcher(s.trim());
+            if (matcher.find()) {
+                // Agregar el nombre y la puntuación al mapa
+                ingredientMap.put(matcher.group(1), Integer.parseInt(Objects.requireNonNull(matcher.group(2))));
+            }
+        }
+        this.puntuacionDada = 0;
+        for(Ingrediente ingrediente : this.ingredientes){
+            this.puntuacionDada += UtilsSrv.obtenerPuntuacion(ingredientMap,ingrediente.getNombre());
+        }
+        this.puntuacionDada /=this.ingredientes.size();
     }
 }

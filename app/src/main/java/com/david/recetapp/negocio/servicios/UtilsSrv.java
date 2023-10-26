@@ -18,11 +18,16 @@ import android.widget.Toast;
 import com.david.recetapp.R;
 import com.david.recetapp.negocio.beans.Temporada;
 
+import org.apache.commons.text.similarity.LevenshteinDistance;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -268,6 +273,20 @@ public class UtilsSrv {
                     return false;
                 }
             }
+        }
+    }
+
+    public static int obtenerPuntuacion(Map<String, Integer> ingredientMap, String nombre) {
+        LevenshteinDistance levenshteinDistance = new LevenshteinDistance();
+        Optional<Map.Entry<String, Integer>> ingredienteEncontrado = ingredientMap.entrySet().stream()
+                .filter(entry -> levenshteinDistance.apply(entry.getKey(), nombre) < 2)
+                .max(Comparator.comparingInt(Map.Entry::getValue));
+
+        if (ingredienteEncontrado.isPresent()) {
+            return ingredienteEncontrado.get().getValue();
+        }
+        else{
+            return 0;
         }
     }
 }

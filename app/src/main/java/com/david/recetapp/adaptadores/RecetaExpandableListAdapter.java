@@ -57,7 +57,7 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
 
     @Override
     public int getChildrenCount(int groupPosition) {
-        return 6; // Hay 4 elementos hijos: Temporadas, Ingredientes, Pasos, Alergenos, Estrellas, y Fecha en el calendario
+        return 7; // Hay 4 elementos hijos: Temporadas, Ingredientes, Pasos, Alergenos, Estrellas, Fecha en el calendario y Puntuacion
     }
 
     @Override
@@ -81,6 +81,8 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
                 return receta.getEstrellas();
             case 5:
                 return receta.getFechaCalendario();
+            case 6:
+                return receta.getPuntuacionDada();
             default:
                 return null;
         }
@@ -303,6 +305,11 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
                 txtTitulo.setText(R.string.ultima_fecha_calendario);
                 SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
                 txtInformacion.setText(dateFormat.format(receta.getFechaCalendario()));
+                break;
+            case 6:
+                txtInformacion.setVisibility(View.VISIBLE);
+                txtTitulo.setText(R.string.puntuacion_dada);
+                txtInformacion.setText(String.valueOf(receta.getPuntuacionDada()));
                 break;
         }
 

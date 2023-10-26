@@ -84,4 +84,5 @@
     <string name="exportar">Export</string>
     <string name="buscar_postres">Search only desserts</string>
     <string name="nueva_receta">New recipe:</string>
+    <string name="puntuacion_dada">Score given</string>
 </resources>

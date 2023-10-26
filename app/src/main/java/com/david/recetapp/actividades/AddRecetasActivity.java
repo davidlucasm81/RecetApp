@@ -109,8 +109,14 @@ public class AddRecetasActivity extends AppCompatActivity {
         // Obtener la lista de ingredientes desde resources (strings.xml) o cualquier otra fuente de datos
         String[] ingredientList = getResources().getStringArray(R.array.ingredient_list);
 
-        // Crear un adaptador con la lista de ingredientes y configurarlo en el AutoCompleteTextView
-        ArrayAdapter<String> adapterIngrediente = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, ingredientList);
+        // Crear una nueva lista que contenga solo los nombres de los ingredientes
+        String[] ingredientNames = new String[ingredientList.length];
+        for (int i = 0; i < ingredientList.length; i++) {
+            ingredientNames[i] = ingredientList[i].split("\\s\\d+")[0]; // Obtener el nombre sin la puntuación
+        }
+
+        // Crear un adaptador con la lista de nombres de ingredientes y configurarlo en el AutoCompleteTextView
+        ArrayAdapter<String> adapterIngrediente = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, ingredientNames);
         autoCompleteTextViewNombreIngrediente.setAdapter(adapterIngrediente);
 
         editTextCantidad = findViewById(R.id.editTextCantidad);
@@ -248,7 +254,7 @@ public class AddRecetasActivity extends AppCompatActivity {
             Receta receta = new Receta();
 
             receta.setNombre(nombre);
-            receta.setIngredientes(ingredientes);
+            receta.setIngredientes(this, ingredientes);
             receta.setPasos(pasos);
             receta.setTemporadas(temporadas);
             receta.setEstrellas(estrellas.getRating());
