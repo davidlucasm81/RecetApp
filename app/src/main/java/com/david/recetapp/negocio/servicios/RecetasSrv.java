@@ -56,13 +56,13 @@ public class RecetasSrv {
                     return resultado;
                 }
                 resultado =  Comparator.comparing(Receta::getPuntuacionDada)
-                        .compare(r1, r2);
+                        .compare(r2, r1);
 
                 if (resultado != 0) {
                     return resultado;
                 }
                 resultado = Comparator.comparing(Receta::getEstrellas)
-                        .compare(r1, r2);
+                        .compare(r2, r1);
                 return resultado;
             }).collect(Collectors.toList());
         } catch (FileNotFoundException e) {
