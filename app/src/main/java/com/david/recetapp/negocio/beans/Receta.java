@@ -159,8 +159,10 @@ public class Receta implements Serializable {
             }
         }
         this.puntuacionDada = 0;
+        int i=1;
         for(Ingrediente ingrediente : this.ingredientes){
-            this.puntuacionDada += UtilsSrv.obtenerPuntuacion(ingredientMap,ingrediente.getNombre());
+            this.puntuacionDada += UtilsSrv.obtenerPuntuacion(ingredientMap,ingrediente.getNombre(), this.puntuacionDada/i);
+            i++;
         }
         this.puntuacionDada /=this.ingredientes.size();
     }

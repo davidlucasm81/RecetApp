@@ -276,7 +276,7 @@ public class UtilsSrv {
         }
     }
 
-    public static int obtenerPuntuacion(Map<String, Integer> ingredientMap, String nombre) {
+    public static float obtenerPuntuacion(Map<String, Integer> ingredientMap, String nombre, float mediaActual) {
         LevenshteinDistance levenshteinDistance = new LevenshteinDistance();
         Optional<Map.Entry<String, Integer>> ingredienteEncontrado = ingredientMap.entrySet().stream()
                 .filter(entry -> levenshteinDistance.apply(entry.getKey(), nombre) < 2)
@@ -286,7 +286,7 @@ public class UtilsSrv {
             return ingredienteEncontrado.get().getValue();
         }
         else{
-            return 0;
+            return mediaActual;
         }
     }
 }

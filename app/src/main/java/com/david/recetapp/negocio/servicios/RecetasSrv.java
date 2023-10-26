@@ -47,9 +47,7 @@ public class RecetasSrv {
             // Agregar las recetas a la cola
             List<Receta> recetas = gson.fromJson(jsonBuilder.toString(), listType);
             recetas.forEach(r ->{
-                if(r.getPuntuacionDada() == -1){
-                    r.setPuntuacionDada(context);
-                }
+                r.setPuntuacionDada(context);
             });
             return recetas.stream().sorted((r1, r2) -> {
                 int resultado = Comparator.comparing(Receta::getFechaCalendario)
