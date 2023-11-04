@@ -734,5 +734,217 @@
             <nombre>Brócoli</nombre>
             <puntuación>10</puntuación>
         </item>
+        <item>
+            <nombre>Arroz</nombre>
+            <puntuación>7</puntuación>
+        </item>
+        <item>
+            <nombre>Tomate picado</nombre>
+            <puntuación>9</puntuación>
+        </item>
+        <item>
+            <nombre>Patata grande</nombre>
+            <puntuación>6</puntuación>
+        </item>
+        <item>
+            <nombre>Nata líquida de cocina ligera</nombre>
+            <puntuación>3</puntuación>
+        </item>
+        <item>
+            <nombre>Pan rallado</nombre>
+            <puntuación>4</puntuación>
+        </item>
+        <item>
+            <nombre>Mantequilla</nombre>
+            <puntuación>2</puntuación>
+        </item>
+        <item>
+            <nombre>Harina de trigo</nombre>
+            <puntuación>6</puntuación>
+        </item>
+        <item>
+            <nombre>Leche entera</nombre>
+            <puntuación>7</puntuación>
+        </item>
+        <item>
+            <nombre>Muslo de gallina</nombre>
+            <puntuación>5</puntuación>
+        </item>
+        <item>
+            <nombre>Morcillo de ternera</nombre>
+            <puntuación>6</puntuación>
+        </item>
+        <item>
+            <nombre>Hueso de jamón</nombre>
+            <puntuación>4</puntuación>
+        </item>
+        <item>
+            <nombre>Tocino fresco</nombre>
+            <puntuación>2</puntuación>
+        </item>
+        <item>
+            <nombre>Col</nombre>
+            <puntuación>9</puntuación>
+        </item>
+        <item>
+            <nombre>Fideos finos</nombre>
+            <puntuación>5</puntuación>
+        </item>
+        <item>
+            <nombre>Tomate pera</nombre>
+            <puntuación>9</puntuación>
+        </item>
+        <item>
+            <nombre>Bacon</nombre>
+            <puntuación>2</puntuación>
+        </item>
+        <item>
+            <nombre>Azúcar blanco</nombre>
+            <puntuación>1</puntuación>
+        </item>
+        <item>
+            <nombre>Caldo de pollo</nombre>
+            <puntuación>7</puntuación>
+        </item>
+        <item>
+            <nombre>Cogollo</nombre>
+            <puntuación>9</puntuación>
+        </item>
+        <item>
+            <nombre>Levadura seca de panadería</nombre>
+            <puntuación>8</puntuación>
+        </item>
+        <item>
+            <nombre>Extracto de Vainilla</nombre>
+            <puntuación>9</puntuación>
+        </item>
+        <item>
+            <nombre>Azúcar glas</nombre>
+            <puntuación>2</puntuación>
+        </item>
+        <item>
+            <nombre>Colorante alimentario rosa</nombre>
+            <puntuación>10</puntuación>
+        </item>
+        <item>
+            <nombre>Mermelada de fresa</nombre>
+            <puntuación>4</puntuación>
+        </item>
+        <item>
+            <nombre>Cuscús</nombre>
+            <puntuación>7</puntuación>
+        </item>
+        <item>
+            <nombre>Vinagre de Modena</nombre>
+            <puntuación>7</puntuación>
+        </item>
+        <item>
+            <nombre>Mostaza de Dijon</nombre>
+            <puntuación>8</puntuación>
+        </item>
+        <item>
+            <nombre>Agua</nombre>
+            <puntuación>10</puntuación>
+        </item>
+        <item>
+            <nombre>Vinagre</nombre>
+            <puntuación>10</puntuación>
+        </item>
+        <item>
+            <nombre>Perrins</nombre>
+            <puntuación>6</puntuación>
+        </item>
+        <item>
+            <nombre>Ketchup</nombre>
+            <puntuación>4</puntuación>
+        </item>
+        <item>
+            <nombre>Zumo de naranja</nombre>
+            <puntuación>9</puntuación>
+        </item>
+        <item>
+            <nombre>Mayonesa</nombre>
+            <puntuación>3</puntuación>
+        </item>
+        <item>
+            <nombre>Pasta</nombre>
+            <puntuación>6</puntuación>
+        </item>
+        <item>
+            <nombre>Solomillo de pollo</nombre>
+            <puntuación>8</puntuación>
+        </item>
+        <item>
+            <nombre>Espárragos blancos</nombre>
+            <puntuación>9</puntuación>
+        </item>
+        <item>
+            <nombre>Espaguetis</nombre>
+            <puntuación>6</puntuación>
+        </item>
+        <item>
+            <nombre>Panceta en cubos pequeños</nombre>
+            <puntuación>3</puntuación>
+        </item>
+        <item>
+            <nombre>Pecorino Romano rallado</nombre>
+            <puntuación>5</puntuación>
+        </item>
+        <item>
+            <nombre>Nata de cocinar</nombre>
+            <puntuación>3</puntuación>
+        </item>
+        <item>
+            <nombre>Azúcar moreno</nombre>
+            <puntuación>4</puntuación>
+        </item>
+        <item>
+            <nombre>Bicarbonato sódico</nombre>
+            <puntuación>7</puntuación>
+        </item>
+        <item>
+            <nombre>Chips de chocolate</nombre>
+            <puntuación>3</puntuación>
+        </item>
+        <item>
+            <nombre>Coco rallado</nombre>
+            <puntuación>7</puntuación>
+        </item>
+        <item>
+            <nombre>Colorante</nombre>
+            <puntuación>10</puntuación>
+        </item>
+        <item>
+            <nombre>Garbanzos cocidos</nombre>
+            <puntuación>9</puntuación>
+        </item>
+        <item>
+            <nombre>Cebolleta</nombre>
+            <puntuación>8</puntuación>
+        </item>
+        <item>
+            <nombre>Yogur griego</nombre>
+            <puntuación>8</puntuación>
+        </item>
+        <item>
+            <nombre>Chiles triturados</nombre>
+            <puntuación>7</puntuación>
+        </item>
+        <item>
+            <nombre>Judías blancas de bote</nombre>
+            <puntuación>8</puntuación>
+        </item>
+        <item>
+            <nombre>Curry</nombre>
+            <puntuación>7</puntuación>
+        </item>
+        <item>
+            <nombre>Lacon</nombre>
+            <puntuación>5</puntuación>
+        </item>
+        <item>
+            <nombre>Pimentón ahumado</nombre>
+            <puntuación>7</puntuación>
+        </item>
     </array>
 </resources>

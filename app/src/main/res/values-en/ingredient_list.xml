@@ -775,5 +775,217 @@
             <nombre>Brócoli</nombre>
             <puntuación>10</puntuación>
         </item>
+        <item>
+            <nombre>Rice</nombre>
+            <puntuación>7</puntuación>
+        </item>
+        <item>
+            <nombre>Chopped Tomatoes</nombre>
+            <puntuación>9</puntuación>
+        </item>
+        <item>
+            <nombre>Large Potato</nombre>
+            <puntuación>6</puntuación>
+        </item>
+        <item>
+            <nombre>Light Cooking Cream</nombre>
+            <puntuación>3</puntuación>
+        </item>
+        <item>
+            <nombre>Bread Crumbs</nombre>
+            <puntuación>4</puntuación>
+        </item>
+        <item>
+            <nombre>Butter</nombre>
+            <puntuación>2</puntuación>
+        </item>
+        <item>
+            <nombre>Wheat Flour</nombre>
+            <puntuación>6</puntuación>
+        </item>
+        <item>
+            <nombre>Whole Milk</nombre>
+            <puntuación>7</puntuación>
+        </item>
+        <item>
+            <nombre>Chicken Thigh</nombre>
+            <puntuación>5</puntuación>
+        </item>
+        <item>
+            <nombre>Beef Shin</nombre>
+            <puntuación>6</puntuación>
+        </item>
+        <item>
+            <nombre>Ham Bone</nombre>
+            <puntuación>4</puntuación>
+        </item>
+        <item>
+            <nombre>Fresh Bacon</nombre>
+            <puntuación>2</puntuación>
+        </item>
+        <item>
+            <nombre>Cabbage</nombre>
+            <puntuación>9</puntuación>
+        </item>
+        <item>
+            <nombre>Thin Noodles</nombre>
+            <puntuación>5</puntuación>
+        </item>
+        <item>
+            <nombre>Roma tomato</nombre>
+            <puntuación>9</puntuación>
+        </item>
+        <item>
+            <nombre>Bacon</nombre>
+            <puntuación>2</puntuación>
+        </item>
+        <item>
+            <nombre>White Sugar</nombre>
+            <puntuación>1</puntuación>
+        </item>
+        <item>
+            <nombre>Chicken Broth</nombre>
+            <puntuación>7</puntuación>
+        </item>
+        <item>
+            <nombre>Butter Lettuce</nombre>
+            <puntuación>9</puntuación>
+        </item>
+        <item>
+            <nombre>Baker's Yeast</nombre>
+            <puntuación>8</puntuación>
+        </item>
+        <item>
+            <nombre>Vanilla Extract</nombre>
+            <puntuación>9</puntuación>
+        </item>
+        <item>
+            <nombre>Powdered Sugar</nombre>
+            <puntuación>2</puntuación>
+        </item>
+        <item>
+            <nombre>Pink Food Coloring</nombre>
+            <puntuación>10</puntuación>
+        </item>
+        <item>
+            <nombre>Strawberry Jam</nombre>
+            <puntuación>4</puntuación>
+        </item>
+        <item>
+            <nombre>Couscous</nombre>
+            <puntuación>7</puntuación>
+        </item>
+        <item>
+            <nombre>Balsamic Vinegar of Modena</nombre>
+            <puntuación>7</puntuación>
+        </item>
+        <item>
+            <nombre>Dijon Mustard</nombre>
+            <puntuación>8</puntuación>
+        </item>
+        <item>
+            <nombre>Water</nombre>
+            <puntuación>10</puntuación>
+        </item>
+        <item>
+            <nombre>Vinegar</nombre>
+            <puntuación>10</puntuación>
+        </item>
+        <item>
+            <nombre>Perrins</nombre>
+            <puntuación>6</puntuación>
+        </item>
+        <item>
+            <nombre>Ketchup</nombre>
+            <puntuación>4</puntuación>
+        </item>
+        <item>
+            <nombre>Orange Juice</nombre>
+            <puntuación>9</puntuación>
+        </item>
+        <item>
+            <nombre>Mayonnaise</nombre>
+            <puntuación>3</puntuación>
+        </item>
+        <item>
+            <nombre>Pasta</nombre>
+            <puntuación>6</puntuación>
+        </item>
+        <item>
+            <nombre>Chicken Tenderloin</nombre>
+            <puntuación>8</puntuación>
+        </item>
+        <item>
+            <nombre>White Asparagus</nombre>
+            <puntuación>9</puntuación>
+        </item>
+        <item>
+            <nombre>Spaghetti</nombre>
+            <puntuación>6</puntuación>
+        </item>
+        <item>
+            <nombre>Cubed Pancetta</nombre>
+            <puntuación>3</puntuación>
+        </item>
+        <item>
+            <nombre>Grated Pecorino Romano Cheese</nombre>
+            <puntuación>5</puntuación>
+        </item>
+        <item>
+            <nombre>Cooking Cream</nombre>
+            <puntuación>3</puntuación>
+        </item>
+        <item>
+            <nombre>Brown sugar</nombre>
+            <puntuación>4</puntuación>
+        </item>
+        <item>
+            <nombre>Baking soda</nombre>
+            <puntuación>7</puntuación>
+        </item>
+        <item>
+            <nombre>Chocolate Chips</nombre>
+            <puntuación>3</puntuación>
+        </item>
+        <item>
+            <nombre>Shredded Coconut</nombre>
+            <puntuación>7</puntuación>
+        </item>
+        <item>
+            <nombre>Food Coloring</nombre>
+            <puntuación>10</puntuación>
+        </item>
+        <item>
+            <nombre>Cooked Chickpeas</nombre>
+            <puntuación>9</puntuación>
+        </item>
+        <item>
+            <nombre>Green Onion</nombre>
+            <puntuación>8</puntuación>
+        </item>
+        <item>
+            <nombre>Greek Yogurt</nombre>
+            <puntuación>8</puntuación>
+        </item>
+        <item>
+            <nombre>Crushed Red Pepper</nombre>
+            <puntuación>7</puntuación>
+        </item>
+        <item>
+            <nombre>Canned White Beans</nombre>
+            <puntuación>8</puntuación>
+        </item>
+        <item>
+            <nombre>Curry</nombre>
+            <puntuación>7</puntuación>
+        </item>
+        <item>
+            <nombre>Lacon</nombre>
+            <puntuación>5</puntuación>
+        </item>
+        <item>
+            <nombre>Smoked Paprika</nombre>
+            <puntuación>7</puntuación>
+        </item>
     </array>
 </resources>
