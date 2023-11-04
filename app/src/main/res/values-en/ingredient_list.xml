@@ -1,6 +1,6 @@
 <resources>
     <!-- Ingredientes para recetas típicas españolas -->
-    <string-array name="ingredient_list">
+    <array name="ingredient_list">
         <!-- ESPECIAS -->
         <item>
             <nombre>Saffron</nombre>
@@ -731,5 +731,49 @@
             <nombre>Sunflower Oil</nombre>
             <puntuacion>6</puntuacion>
         </item>
-    </string-array>
+        <item>
+          <nombre>Chicken Wings</nombre>
+          <puntuacion>3</puntuacion>
+        </item>
+        <item>
+          <nombre>Sweet and Sour Sauce</nombre>
+          <puntuacion>5</puntuacion>
+        </item>
+        <item>
+          <nombre>Sweet Paprika</nombre>
+          <puntuacion>8</puntuacion>
+        </item>
+        <item>
+            <nombre>Hot Paprika</nombre>
+            <puntuacion>7</puntuacion>
+        </item>
+        <item>
+            <nombre>Garlic Powder</nombre>
+            <puntuacion>8</puntuacion>
+        </item>
+        <item>
+            <nombre>Onion Powder</nombre>
+            <puntuacion>8</puntuacion>
+        </item>
+        <item>
+            <nombre>Tomato Sauce</nombre>
+            <puntuacion>6</puntuacion>
+        </item>
+        <item>
+            <nombre>Bacon bits</nombre>
+            <puntuacion>2</puntuacion>
+        </item>
+        <item>
+            <nombre>Ground Meat</nombre>
+            <puntuacion>7</puntuacion>
+        </item>
+        <item>
+            <nombre>Grated Cheese</nombre>
+            <puntuacion>5</puntuacion>
+        </item>
+        <item>
+            <nombre>Brócoli</nombre>
+            <puntuación>10</puntuación>
+        </item>
+    </array>
 </resources>

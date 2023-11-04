@@ -27,11 +27,15 @@ import com.david.recetapp.negocio.beans.Ingrediente;
 import com.david.recetapp.negocio.beans.Receta;
 import com.david.recetapp.negocio.servicios.AlergenosSrv;
 import com.david.recetapp.negocio.servicios.RecetasSrv;
+import com.david.recetapp.negocio.servicios.UtilsSrv;
 
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
@@ -42,12 +46,27 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
 
     private final EmptyListListener emptyListListener;
 
+    private final Map<String, Integer> ingredientMap;
 
     public RecetaExpandableListAdapter(Context context, List<Receta> listaRecetas, ExpandableListView expandableListView, EmptyListListener emptyListListener) {
         this.context = context;
         this.listaRecetas = listaRecetas;
         this.expandableListView = expandableListView;
         this.emptyListListener = emptyListListener;
+        String[] ingredientList = context.getResources().getStringArray(R.array.ingredient_list);
+
+        ingredientMap = new HashMap<>();
+
+        for (String s : ingredientList) {
+            // Utilizar una expresión regular para encontrar el número al final
+            String regex = "(.+) (\\d+)$";
+            java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(regex);
+            java.util.regex.Matcher matcher = pattern.matcher(s.trim());
+            if (matcher.find()) {
+                // Agregar el nombre y la puntuación al mapa
+                ingredientMap.put(matcher.group(1), Integer.parseInt(Objects.requireNonNull(matcher.group(2))));
+            }
+        }
     }
 
     @Override
@@ -202,7 +221,8 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
 
                 for (int i = 0; i < totalIngredientes; i++) {
                     Ingrediente ingrediente = receta.getIngredientes().get(i);
-                    sbIngredientes.append("- ").append(ingrediente.getCantidad()).append(" ").append(ingrediente.getTipoCantidad()).append(context.getString(R.string.literal_de)).append(ingrediente.getNombre());
+                    float puntuacion = UtilsSrv.obtenerPuntuacion(ingredientMap,ingrediente.getNombre(), -1);
+                    sbIngredientes.append("- ").append(ingrediente.getCantidad()).append(" ").append(ingrediente.getTipoCantidad()).append(context.getString(R.string.literal_de)).append(ingrediente.getNombre()).append(" (Score: ").append(puntuacion).append(")");
 
                     // Agregar dos saltos de línea si no es la última iteración
                     if (i < totalIngredientes - 1) {

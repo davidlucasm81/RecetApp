@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class RecetasSrv {
@@ -117,6 +118,33 @@ public class RecetasSrv {
             CalendarioSrv.addReceta(context);
         }
 
+    }
+    public static void editarReceta(Context context, Receta receta){
+        List<Receta> listaRecetas = cargarListaRecetas(context);
+        Optional<Receta> recetaEncontrada = listaRecetas.stream().filter(r -> receta.getId().equals(r.getId())).findFirst();
+        if(recetaEncontrada.isPresent()){
+            listaRecetas.remove(recetaEncontrada.get());
+            // Agregar la receta al principio de la lista
+            listaRecetas.add(0, receta);
+
+            // Guardar la lista actualizada en el archivo JSON
+            // Convertir la lista de recetas a JSON
+            Gson gson = new Gson();
+            String jsonRecetas = gson.toJson(listaRecetas);
+
+            // Guardar el JSON en el archivo
+            try {
+                FileOutputStream fos = context.openFileOutput(JSON, Context.MODE_PRIVATE);
+                OutputStreamWriter osw = new OutputStreamWriter(fos);
+                osw.write(jsonRecetas);
+                osw.close();
+                fos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            // Añadir receta al calendario si tiene algun dia vacio
+            CalendarioSrv.addReceta(context);
+        }
     }
 
     public static void eliminarReceta(Context context, int position, List<Receta> listaRecetasParcial) {

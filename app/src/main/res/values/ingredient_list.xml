@@ -690,5 +690,49 @@
             <nombre>Aceite de Girasol</nombre>
             <puntuacion>6</puntuacion>
         </item>
+        <item>
+            <nombre>Alitas de pollo</nombre>
+            <puntuacion>3</puntuacion>
+        </item>
+        <item>
+            <nombre>Salsa agridulce</nombre>
+            <puntuacion>5</puntuacion>
+        </item>
+        <item>
+            <nombre>Pimentón dulce</nombre>
+            <puntuacion>8</puntuacion>
+        </item>
+        <item>
+            <nombre>Pimentón picante</nombre>
+            <puntuacion>7</puntuacion>
+        </item>
+        <item>
+            <nombre>Ajo en polvo</nombre>
+            <puntuacion>8</puntuacion>
+        </item>
+        <item>
+            <nombre>Cebolla en polvo</nombre>
+            <puntuacion>8</puntuacion>
+        </item>
+        <item>
+            <nombre>Salsa de tomate</nombre>
+            <puntuacion>6</puntuacion>
+        </item>
+        <item>
+            <nombre>Cubitos de bacon</nombre>
+            <puntuacion>2</puntuacion>
+        </item>
+        <item>
+            <nombre>Carne picada</nombre>
+            <puntuacion>7</puntuacion>
+        </item>
+        <item>
+            <nombre>Queso rallado</nombre>
+            <puntuacion>5</puntuacion>
+        </item>
+        <item>
+            <nombre>Brócoli</nombre>
+            <puntuación>10</puntuación>
+        </item>
     </array>
 </resources>
