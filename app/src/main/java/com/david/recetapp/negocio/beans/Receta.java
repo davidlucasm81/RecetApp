@@ -164,9 +164,11 @@ public class Receta implements Serializable {
                 }
             }
         }
+
         this.puntuacionDada = this.ingredientes.stream()
-                .mapToDouble(Ingrediente::getPuntuacion)
-                .average()
-                .orElse(0.0);;
+                .mapToDouble(ingrediente -> ingrediente.getPuntuacion() * Double.parseDouble(ingrediente.getCantidad()))
+                .sum() / this.ingredientes.stream()
+                .mapToDouble(ingrediente -> Double.parseDouble(ingrediente.getCantidad()))
+                .sum();
     }
 }
