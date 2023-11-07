@@ -1198,5 +1198,25 @@
             <nombre>Cebolla mediana</nombre>
             <puntuación>8</puntuación>
         </item>
+        <item>
+            <nombre>Lomo de bacalao desalado</nombre>
+            <puntuación>8</puntuación>
+        </item>
+        <item>
+            <nombre>Oblea de empanadilla</nombre>
+            <puntuación>6</puntuación>
+        </item>
+        <item>
+            <nombre>Queso</nombre>
+            <puntuación>5</puntuación>
+        </item>
+        <item>
+            <nombre>Jamón York</nombre>
+            <puntuación>6</puntuación>
+        </item>
+        <item>
+            <nombre>Pepinillo en vinagre</nombre>
+            <puntuación>7</puntuación>
+        </item>
     </array>
 </resources>

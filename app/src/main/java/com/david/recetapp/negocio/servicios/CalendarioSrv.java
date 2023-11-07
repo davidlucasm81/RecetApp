@@ -46,16 +46,8 @@ public class CalendarioSrv {
             }
             br.close();
             isr.close();
-            fis.close();
-            Calendar calendar = Calendar.getInstance();
-            int diaActual = calendar.get(Calendar.DAY_OF_WEEK);
-            // Calcular la diferencia en milisegundos entre las dos fechas
-            long diferenciaMilis = Math.abs(new Date().getTime() - calendarioBean.getUltimaActualizacion());
-
-            // Calcular la diferencia en días
-            long milisPorDia = 24 * 60 * 60 * 1000; // Milisegundos en un día
-            long dias = diferenciaMilis / milisPorDia;
-            if (dias >= 8 || (diaActual == Calendar.MONDAY && !UtilsSrv.esMismoDia(calendarioBean.getUltimaActualizacion(), calendar))) {
+            fis.close();;
+            if (UtilsSrv.actualizarCalendario(calendarioBean.getUltimaActualizacion(), new Date().getTime())) {
                 calendarioBean = crearNuevoCalendario(context);
                 actualizarCalendario(context, calendarioBean, true);
             }
@@ -246,7 +238,7 @@ public class CalendarioSrv {
                             for (Ingrediente ingrediente : receta.get().getIngredientes()) {
                                 String nombreIngrediente = ingrediente.getNombre().toLowerCase();
                                 String tipoCantidad = ingrediente.getTipoCantidad().toLowerCase();
-                                ingredientesDia.merge(nombreIngrediente + tipoCantidad, new Ingrediente(nombreIngrediente, ingrediente.getCantidad(), ingrediente.getTipoCantidad()), (ing1, ing2) -> {
+                                ingredientesDia.merge(nombreIngrediente + tipoCantidad, new Ingrediente(nombreIngrediente, ingrediente.getCantidad(), ingrediente.getTipoCantidad(), ingrediente.getPuntuacion()), (ing1, ing2) -> {
                                     ing1.setCantidad(UtilsSrv.sumarStrings(ing1.getCantidad(), ing2.getCantidad()));
                                     return ing1;
                                 });
@@ -279,7 +271,7 @@ public class CalendarioSrv {
                     for (Ingrediente ingrediente : receta.getIngredientes()) {
                         String nombreIngrediente = ingrediente.getNombre().toLowerCase();
                         String tipoCantidad = ingrediente.getTipoCantidad().toLowerCase();
-                        ingredientesMap.merge(nombreIngrediente + tipoCantidad, new Ingrediente(nombreIngrediente, ingrediente.getCantidad(), ingrediente.getTipoCantidad()), (ing1, ing2) -> {
+                        ingredientesMap.merge(nombreIngrediente + tipoCantidad, new Ingrediente(nombreIngrediente, ingrediente.getCantidad(), ingrediente.getTipoCantidad(), ingrediente.getPuntuacion()), (ing1, ing2) -> {
                             ing1.setCantidad(UtilsSrv.sumarStrings(ing1.getCantidad(), ing2.getCantidad()));
                             return ing1;
                         });

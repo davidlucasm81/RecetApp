@@ -11,6 +11,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -24,7 +25,7 @@ public class Receta implements Serializable {
     private List<Ingrediente> ingredientes;
     private List<Paso> pasos;
 
-    private List<Alergeno> alergenos;
+    private Set<Alergeno> alergenos;
 
     private float estrellas;
 
@@ -34,7 +35,7 @@ public class Receta implements Serializable {
 
     private boolean postre;
 
-    private float puntuacionDada;
+    private double puntuacionDada;
 
     public Receta() {
         this.id = UUID.randomUUID().toString();
@@ -44,7 +45,7 @@ public class Receta implements Serializable {
         this.pasos = new ArrayList<>();
         this.estrellas = 0;
         this.fechaCalendario = null;
-        this.alergenos = new ArrayList<>();
+        this.alergenos = new HashSet<>();
         this.shared = false;
         this.postre = false;
         this.puntuacionDada = -1;
@@ -70,9 +71,9 @@ public class Receta implements Serializable {
         return ingredientes;
     }
 
-    public void setIngredientes(Context context, List<Ingrediente> ingredientes) {
+    public void setIngredientes(List<Ingrediente> ingredientes) {
         this.ingredientes = ingredientes;
-        setPuntuacionDada(context);
+        setPuntuacionDada(null);
     }
 
     public List<Paso> getPasos() {
@@ -103,11 +104,11 @@ public class Receta implements Serializable {
         return id;
     }
 
-    public List<Alergeno> getAlergenos() {
+    public Set<Alergeno> getAlergenos() {
         return alergenos;
     }
 
-    public void setAlergenos(List<Alergeno> alergenos) {
+    public void setAlergenos(Set<Alergeno> alergenos) {
         this.alergenos = alergenos;
     }
 
@@ -140,31 +141,32 @@ public class Receta implements Serializable {
         return Objects.hash(id);
     }
 
-    public float getPuntuacionDada() {
+    public double getPuntuacionDada() {
         return puntuacionDada;
     }
     public void setPuntuacionDada(Context context){
-        String[] ingredientList = context.getResources().getStringArray(R.array.ingredient_list);
-
-        Map<String, Integer> ingredientMap = new HashMap<>();
-
-        for (String s : ingredientList) {
-            // Utilizar una expresión regular para encontrar el número al final
-            String regex = "(.+) (\\d+)$";
-            java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(regex);
-            java.util.regex.Matcher matcher = pattern.matcher(s.trim());
-            if (matcher.find()) {
-                // Agregar el nombre y la puntuación al mapa
-                ingredientMap.put(matcher.group(1), Integer.parseInt(Objects.requireNonNull(matcher.group(2))));
+        if(context != null){
+            Map<String,Integer> ingredientMap = new HashMap<>();
+            String[] ingredientList = context.getResources().getStringArray(R.array.ingredient_list);
+            for (String s : ingredientList) {
+                // Utilizar una expresión regular para encontrar el número al final
+                String regex = "(.+) (\\d+)$";
+                java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(regex);
+                java.util.regex.Matcher matcher = pattern.matcher(s.trim());
+                if (matcher.find()) {
+                    // Agregar el nombre y la puntuación al mapa
+                    ingredientMap.put(matcher.group(1), Integer.parseInt(Objects.requireNonNull(matcher.group(2))));
+                }
+            }
+            for(Ingrediente ingrediente : this.ingredientes){
+                if(ingrediente.getPuntuacion() < 1){
+                    ingrediente.setPuntuacion(UtilsSrv.obtenerPuntuacion(ingredientMap,ingrediente.getNombre(),-1));
+                }
             }
         }
-        this.puntuacionDada = 0;
-        int i=1;
-        for(Ingrediente ingrediente : this.ingredientes){
-            float puntuacion = UtilsSrv.obtenerPuntuacion(ingredientMap,ingrediente.getNombre(), this.puntuacionDada/i);
-            this.puntuacionDada += puntuacion;
-            i++;
-        }
-        this.puntuacionDada /=i;
+        this.puntuacionDada = this.ingredientes.stream()
+                .mapToDouble(Ingrediente::getPuntuacion)
+                .average()
+                .orElse(0.0);;
     }
 }

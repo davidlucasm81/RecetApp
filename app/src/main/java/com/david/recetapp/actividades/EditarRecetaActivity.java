@@ -42,8 +42,11 @@ import com.david.recetapp.negocio.servicios.UtilsSrv;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public class EditarRecetaActivity extends AppCompatActivity {
@@ -66,9 +69,11 @@ public class EditarRecetaActivity extends AppCompatActivity {
 
     private int draggedItemPosition = -1;
     private List<Alergeno> alergenos;
-    private List<Alergeno> alergenosSeleccionados;
+    private Set<Alergeno> alergenosSeleccionados;
     private GridLayout gridLayout;
     private RatingBar estrellas;
+
+    private Map<String,Integer> ingredientMap;
 
     @Override
     public void onBackPressed() {
@@ -240,6 +245,19 @@ public class EditarRecetaActivity extends AppCompatActivity {
         estrellas.setRating(receta.getEstrellas());
         Button btnCrear = findViewById(R.id.btnCrear);
 
+        ingredientMap = new HashMap<>();
+
+        for (String s : ingredientList) {
+            // Utilizar una expresión regular para encontrar el número al final
+            String regex = "(.+) (\\d+)$";
+            java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(regex);
+            java.util.regex.Matcher matcher = pattern.matcher(s.trim());
+            if (matcher.find()) {
+                // Agregar el nombre y la puntuación al mapa
+                ingredientMap.put(matcher.group(1), Integer.parseInt(Objects.requireNonNull(matcher.group(2))));
+            }
+        }
+
         btnCrear.setOnClickListener(v -> {
             String nombre = editTextNombre.getText().toString().trim();
 
@@ -275,7 +293,7 @@ public class EditarRecetaActivity extends AppCompatActivity {
             }
 
             receta.setNombre(nombre);
-            receta.setIngredientes(this, ingredientes);
+            receta.setIngredientes(ingredientes);
             receta.setPasos(pasos);
             receta.setTemporadas(temporadas);
             receta.setEstrellas(estrellas.getRating());
@@ -348,7 +366,7 @@ public class EditarRecetaActivity extends AppCompatActivity {
     }
 
     private void agregarIngrediente(String nombre, String numero, String tipoCantidad) {
-        Ingrediente ingrediente = new Ingrediente(nombre, numero, tipoCantidad);
+        Ingrediente ingrediente = new Ingrediente(nombre, numero, tipoCantidad, UtilsSrv.obtenerPuntuacion(ingredientMap,nombre,-1));
         ingredientes.add(ingrediente);
         mostrarIngredientes();
     }

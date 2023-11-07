@@ -82,13 +82,6 @@ public class UtilsSrv {
         return firstLetter + restOfString;
     }
 
-    public static boolean esMismoDia(long fecha1, Calendar fecha2) {
-        Calendar calFecha1 = Calendar.getInstance();
-        calFecha1.setTimeInMillis(fecha1);
-
-        return calFecha1.get(Calendar.YEAR) == fecha2.get(Calendar.YEAR) && calFecha1.get(Calendar.MONTH) == fecha2.get(Calendar.MONTH) && calFecha1.get(Calendar.DAY_OF_MONTH) == fecha2.get(Calendar.DAY_OF_MONTH);
-    }
-
     public static Toast notificacion(Context context, String mensaje, int duracion) {
         // Define new Toast Object
         Toast toast = new Toast(context.getApplicationContext());
@@ -276,7 +269,7 @@ public class UtilsSrv {
         }
     }
 
-    public static float obtenerPuntuacion(Map<String, Integer> ingredientMap, String nombre, float mediaActual) {
+    public static double obtenerPuntuacion(Map<String, Integer> ingredientMap, String nombre, double defaultValue) {
         LevenshteinDistance levenshteinDistance = new LevenshteinDistance();
         Optional<Map.Entry<String, Integer>> ingredienteEncontrado = ingredientMap.entrySet().stream()
                 .filter(entry -> levenshteinDistance.apply(entry.getKey(), nombre) < 2)
@@ -286,7 +279,33 @@ public class UtilsSrv {
             return ingredienteEncontrado.get().getValue();
         }
         else{
-            return mediaActual;
+            return defaultValue;
         }
+    }
+
+    public static boolean actualizarCalendario(long milis, long fechaActual){
+        Calendar currentCalendar = Calendar.getInstance();
+        currentCalendar.setTimeInMillis(fechaActual);
+
+        Calendar targetCalendar = Calendar.getInstance();
+        targetCalendar.setTimeInMillis(milis);
+
+        // Obtener el número de semana del año para la fecha actual y la fecha objetivo
+        int currentWeek = currentCalendar.get(Calendar.WEEK_OF_YEAR);
+        int targetWeek = targetCalendar.get(Calendar.WEEK_OF_YEAR);
+
+        // Si el número de semana objetivo es mayor que el número de semana actual, entonces está en la siguiente semana
+        return targetWeek > currentWeek;
+    }
+
+    public static boolean esMismoDia(long tiempo, Calendar fecha) {
+        // Crear un objeto Calendar a partir del valor de tiempo
+        Calendar calendarTiempo = Calendar.getInstance();
+        calendarTiempo.setTimeInMillis(tiempo);
+
+        // Comprobar si los campos de año, mes y día son iguales
+        return calendarTiempo.get(Calendar.YEAR) == fecha.get(Calendar.YEAR) &&
+                calendarTiempo.get(Calendar.MONTH) == fecha.get(Calendar.MONTH) &&
+                calendarTiempo.get(Calendar.DAY_OF_MONTH) == fecha.get(Calendar.DAY_OF_MONTH);
     }
 }

@@ -7,10 +7,13 @@ public class Ingrediente implements Serializable {
     private String cantidad;
     private String tipoCantidad;
 
-    public Ingrediente(String nombre, String cantidad, String tipoCantidad) {
+    private double puntuacion;
+
+    public Ingrediente(String nombre, String cantidad, String tipoCantidad, double puntuacion) {
         this.nombre = nombre;
         this.cantidad = cantidad;
         this.tipoCantidad = tipoCantidad;
+        this.puntuacion = puntuacion;
     }
 
     public String getNombre() {
@@ -38,4 +41,11 @@ public class Ingrediente implements Serializable {
     }
 
 
+    public double getPuntuacion() {
+        return puntuacion;
+    }
+
+    public void setPuntuacion(double puntuacion) {
+        this.puntuacion = puntuacion;
+    }
 }
