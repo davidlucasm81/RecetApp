@@ -14,13 +14,16 @@ import com.david.recetapp.negocio.beans.Ingrediente;
 
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.Map;
 
 public class ListaCompraTodosIngredientesAdapter extends RecyclerView.Adapter<ListaCompraTodosIngredientesAdapter.IngredienteDiaViewHolder> {
 
     private final List<Ingrediente> ingredientes;
+    private Map<String, Integer> unitImportanceMap;
 
-    public ListaCompraTodosIngredientesAdapter(List<Ingrediente> ingredientes) {
+    public ListaCompraTodosIngredientesAdapter(Map<String, Integer> unitImportanceMap, List<Ingrediente> ingredientes) {
         this.ingredientes = ingredientes;
+        this.unitImportanceMap = unitImportanceMap;
     }
 
     @NonNull

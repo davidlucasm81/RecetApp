@@ -293,7 +293,7 @@ public class EditarRecetaActivity extends AppCompatActivity {
             }
 
             receta.setNombre(nombre);
-            receta.setIngredientes(ingredientes);
+            receta.setIngredientes(ingredientes, this);
             receta.setPasos(pasos);
             receta.setTemporadas(temporadas);
             receta.setEstrellas(estrellas.getRating());

@@ -1218,5 +1218,21 @@
             <nombre>Pepinillo en vinagre</nombre>
             <puntuación>7</puntuación>
         </item>
+        <item>
+            <nombre>Kéfir</nombre>
+            <puntuación>9</puntuación>
+        </item>
+        <item>
+            <nombre>Coliflor pequeña</nombre>
+            <puntuación>9</puntuación>
+        </item>
+        <item>
+            <nombre>Yema de huevo</nombre>
+            <puntuación>6</puntuación>
+        </item>
+        <item>
+            <nombre>Parmesano</nombre>
+            <puntuación>6</puntuación>
+        </item>
     </array>
 </resources>

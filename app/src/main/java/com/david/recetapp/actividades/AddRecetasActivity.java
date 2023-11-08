@@ -272,7 +272,7 @@ public class AddRecetasActivity extends AppCompatActivity {
             Receta receta = new Receta();
 
             receta.setNombre(nombre);
-            receta.setIngredientes(ingredientes);
+            receta.setIngredientes(ingredientes, this);
             receta.setPasos(pasos);
             receta.setTemporadas(temporadas);
             receta.setEstrellas(estrellas.getRating());

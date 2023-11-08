@@ -269,6 +269,38 @@ public class UtilsSrv {
         }
     }
 
+    public static Double convertirNumero(String numero) {
+        // Verificar si el número es una fracción en formato "numerador/denominador"
+        String[] partes = numero.split("/");
+        if (partes.length == 2) {
+            try {
+                int numerador = Integer.parseInt(partes[0]);
+                int denominador = Integer.parseInt(partes[1]);
+                if (denominador != 0) {
+                    return (double) numerador / denominador;
+                } else {
+                    return -1.0; // Fracción no válida
+                }
+            } catch (NumberFormatException e) {
+                // No se puede parsear la fracción, retorna null
+                return -1.0;
+            }
+        } else {
+            try {
+                // Intentar parsear como entero
+                return (double) Integer.parseInt(numero);
+            } catch (NumberFormatException e1) {
+                try {
+                    // Intentar parsear como decimal usando coma o punto como separador decimal
+                    return Double.parseDouble(numero.replace(',', '.'));
+                } catch (NumberFormatException e2) {
+                    // No se puede parsear como entero ni decimal, retorna null
+                    return -1.0;
+                }
+            }
+        }
+    }
+
     public static double obtenerPuntuacion(Map<String, Integer> ingredientMap, String nombre, double defaultValue) {
         LevenshteinDistance levenshteinDistance = new LevenshteinDistance();
         Optional<Map.Entry<String, Integer>> ingredienteEncontrado = ingredientMap.entrySet().stream()

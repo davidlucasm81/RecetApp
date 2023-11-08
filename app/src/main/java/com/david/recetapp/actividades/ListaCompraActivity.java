@@ -20,6 +20,7 @@ import com.david.recetapp.negocio.servicios.CalendarioSrv;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -42,6 +43,13 @@ public class ListaCompraActivity extends AppCompatActivity {
 
         Button btnListaCompraTotal = findViewById(R.id.btnListaCompraTotal);
         Button btnListaCompraPorDias = findViewById(R.id.btnListaCompraPorDias);
+        String[] units =getResources().getStringArray(R.array.quantity_units);
+        int[] importanceValues = getResources().getIntArray(R.array.importance_values);
+
+        Map<String, Integer> unitImportanceMap = new HashMap<>();
+        for (int i = 0; i < units.length; i++) {
+            unitImportanceMap.put(units[i], importanceValues[i]);
+        }
 
         // Definir el comportamiento al hacer clic en los botones
         btnListaCompraTotal.setOnClickListener(v -> {
@@ -55,7 +63,7 @@ public class ListaCompraActivity extends AppCompatActivity {
                 RecyclerView recyclerView = findViewById(R.id.recyclerview);
                 recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
                 // Crear e inicializar el adaptador
-                ListaCompraTodosIngredientesAdapter adapter = new ListaCompraTodosIngredientesAdapter(ingredientes);
+                ListaCompraTodosIngredientesAdapter adapter = new ListaCompraTodosIngredientesAdapter(unitImportanceMap,ingredientes);
 
                 // Configurar el RecyclerView con el adaptador
                 recyclerView.setAdapter(adapter);
@@ -94,6 +102,7 @@ public class ListaCompraActivity extends AppCompatActivity {
         // Inicialmente, el botón de "Lista de Compra Total" estará deshabilitado (seleccionado por defecto)
         btnListaCompraTotal.setEnabled(false);
         btnListaCompraPorDias.setEnabled(true);
+
         // Comportamiento por defecto
         List<Ingrediente> ingredientes = CalendarioSrv.obtenerIngredientesListaCompraTotal(getApplicationContext(), calendario);
         if (calendario != null && !ingredientes.isEmpty()) {
@@ -102,7 +111,7 @@ public class ListaCompraActivity extends AppCompatActivity {
             RecyclerView recyclerView = findViewById(R.id.recyclerview);
             recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
             // Crear e inicializar el adaptador
-            ListaCompraTodosIngredientesAdapter adapter = new ListaCompraTodosIngredientesAdapter(ingredientes);
+            ListaCompraTodosIngredientesAdapter adapter = new ListaCompraTodosIngredientesAdapter(unitImportanceMap,ingredientes);
 
             // Configurar el RecyclerView con el adaptador
             recyclerView.setAdapter(adapter);

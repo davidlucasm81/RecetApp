@@ -71,9 +71,9 @@ public class Receta implements Serializable {
         return ingredientes;
     }
 
-    public void setIngredientes(List<Ingrediente> ingredientes) {
+    public void setIngredientes(List<Ingrediente> ingredientes, Context context) {
         this.ingredientes = ingredientes;
-        setPuntuacionDada(null);
+        setPuntuacionDada(context);
     }
 
     public List<Paso> getPasos() {
@@ -144,31 +144,46 @@ public class Receta implements Serializable {
     public double getPuntuacionDada() {
         return puntuacionDada;
     }
-    public void setPuntuacionDada(Context context){
-        if(context != null){
-            Map<String,Integer> ingredientMap = new HashMap<>();
-            String[] ingredientList = context.getResources().getStringArray(R.array.ingredient_list);
-            for (String s : ingredientList) {
-                // Utilizar una expresión regular para encontrar el número al final
-                String regex = "(.+) (\\d+)$";
-                java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(regex);
-                java.util.regex.Matcher matcher = pattern.matcher(s.trim());
-                if (matcher.find()) {
-                    // Agregar el nombre y la puntuación al mapa
-                    ingredientMap.put(matcher.group(1), Integer.parseInt(Objects.requireNonNull(matcher.group(2))));
-                }
+
+    public void setPuntuacionDada(Context context) {
+        Map<String, Integer> ingredientMap = new HashMap<>();
+        String[] ingredientList = context.getResources().getStringArray(R.array.ingredient_list);
+        for (String s : ingredientList) {
+            // Utilizar una expresión regular para encontrar el número al final
+            String regex = "(.+) (\\d+)$";
+            java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(regex);
+            java.util.regex.Matcher matcher = pattern.matcher(s.trim());
+            if (matcher.find()) {
+                // Agregar el nombre y la puntuación al mapa
+                ingredientMap.put(matcher.group(1), Integer.parseInt(Objects.requireNonNull(matcher.group(2))));
             }
-            for(Ingrediente ingrediente : this.ingredientes){
-                if(ingrediente.getPuntuacion() < 1){
-                    ingrediente.setPuntuacion(UtilsSrv.obtenerPuntuacion(ingredientMap,ingrediente.getNombre(),-1));
-                }
+        }
+        for (Ingrediente ingrediente : this.ingredientes) {
+            if (ingrediente.getPuntuacion() < 1) {
+                ingrediente.setPuntuacion(UtilsSrv.obtenerPuntuacion(ingredientMap, ingrediente.getNombre(), -1));
             }
         }
 
-        this.puntuacionDada = this.ingredientes.stream()
-                .mapToDouble(ingrediente -> ingrediente.getPuntuacion() * Double.parseDouble(ingrediente.getCantidad()))
-                .sum() / this.ingredientes.stream()
-                .mapToDouble(ingrediente -> Double.parseDouble(ingrediente.getCantidad()))
-                .sum();
+        String[] units = context.getResources().getStringArray(R.array.quantity_units);
+        int[] importanceValues = context.getResources().getIntArray(R.array.importance_values);
+
+        Map<String, Integer> unitImportanceMap = new HashMap<>();
+        for (int i = 0; i < units.length; i++) {
+            unitImportanceMap.put(units[i], importanceValues[i]);
+        }
+        double cantidadTotal = this.ingredientes.stream().mapToDouble(ingrediente -> {
+            double cantidad = (UtilsSrv.esNumeroEnteroOFraccionValida(ingrediente.getCantidad())) ? UtilsSrv.convertirNumero(ingrediente.getCantidad()) : 1;
+            double tipoCantidadFactor = unitImportanceMap.getOrDefault(ingrediente.getTipoCantidad(), 1);
+            return cantidad * tipoCantidadFactor;
+        }).sum();
+
+        this.puntuacionDada = this.ingredientes.stream().mapToDouble(ingrediente -> {
+            double cantidad = (UtilsSrv.esNumeroEnteroOFraccionValida(ingrediente.getCantidad())) ? UtilsSrv.convertirNumero(ingrediente.getCantidad()) : 1;
+            double tipoCantidadFactor = unitImportanceMap.getOrDefault(ingrediente.getTipoCantidad(), 1);
+
+            // Pondera la puntuación del ingrediente más que la cantidad y el tipo de cantidad
+            return ingrediente.getPuntuacion() * ((cantidad * tipoCantidadFactor) / cantidadTotal);
+        }).sum();
+
     }
 }
