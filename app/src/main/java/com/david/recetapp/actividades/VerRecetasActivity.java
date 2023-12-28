@@ -1,5 +1,6 @@
 package com.david.recetapp.actividades;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -36,6 +37,8 @@ public class VerRecetasActivity extends AppCompatActivity implements RecetaExpan
 
     private SwitchCompat botonPostres;
 
+    @SuppressWarnings("deprecation")
+    @SuppressLint("MissingSuperCall")
     @Override
     public void onBackPressed() {
         // Controla el comportamiento del botón "Atrás"
@@ -96,17 +99,22 @@ public class VerRecetasActivity extends AppCompatActivity implements RecetaExpan
                 return true;
             });
         });
-
+        botonPostres = findViewById(R.id.botonPostre);
+        TextView textoPostres = findViewById(R.id.textoPostre);
         textViewEmpty = findViewById(R.id.textViewEmpty);
 
         if (listaRecetas.isEmpty()) {
             textViewEmpty.setVisibility(View.VISIBLE); // Muestra el TextView si la lista está vacía
             autoCompleteTextViewRecetas.setVisibility(View.GONE);
             imageViewClearSearch.setVisibility(View.GONE);
+            textoPostres.setVisibility(View.GONE);
+            botonPostres.setVisibility(View.GONE);
         } else {
             textViewEmpty.setVisibility(View.GONE); // Oculta el TextView si la lista no está vacía
             autoCompleteTextViewRecetas.setVisibility(View.VISIBLE);
             imageViewClearSearch.setVisibility(View.VISIBLE);
+            textoPostres.setVisibility(View.VISIBLE);
+            botonPostres.setVisibility(View.VISIBLE);
         }
 
         RecetaExpandableListAdapter expandableListAdapter = new RecetaExpandableListAdapter(this, listaRecetas, expandableListView, this);
@@ -125,10 +133,8 @@ public class VerRecetasActivity extends AppCompatActivity implements RecetaExpan
             Intent intent = new Intent(VerRecetasActivity.this, ImportExportActivity.class);
             startActivity(intent);
         });
-        botonPostres = findViewById(R.id.botonPostre);
-        botonPostres.setOnCheckedChangeListener((v, isChecked) -> {
-            filtrarYActualizarLista(autoCompleteTextViewRecetas.getText().toString());
-        });
+
+        botonPostres.setOnCheckedChangeListener((v, isChecked) -> filtrarYActualizarLista(autoCompleteTextViewRecetas.getText().toString()));
     }
 
     private void filtrarYActualizarLista(String consulta) {

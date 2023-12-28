@@ -1,5 +1,6 @@
 package com.david.recetapp.actividades;
 
+import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.Intent;
 import android.graphics.Rect;
@@ -75,6 +76,8 @@ public class EditarRecetaActivity extends AppCompatActivity {
 
     private Map<String,Integer> ingredientMap;
 
+    @SuppressWarnings("deprecation")
+    @SuppressLint("MissingSuperCall")
     @Override
     public void onBackPressed() {
         // Controla el comportamiento del botón "Atrás"

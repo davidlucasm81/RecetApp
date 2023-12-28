@@ -1,6 +1,7 @@
 package com.david.recetapp.actividades;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -57,6 +58,8 @@ public class ImportExportActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this, permissions.toArray(new String[0]), REQUEST_PERMISSION_READ_EXTERNAL_STORAGE);
         }
     }
+    @SuppressWarnings("deprecation")
+    @SuppressLint("MissingSuperCall")
     @Override
     public void onBackPressed() {
         // Controla el comportamiento del botón "Atrás"

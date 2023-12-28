@@ -41,11 +41,7 @@
         </activity>
         <activity android:name=".actividades.AddRecetasActivity" />
         <activity android:name=".actividades.VerRecetasActivity" />
-        <activity android:name=".actividades.CalendarioActivity" />
-        <activity android:name=".actividades.ListaCompraActivity" />
-        <activity android:name=".actividades.RecetasDiaActivity" />
         <activity android:name=".actividades.EditarRecetaActivity" />
-        <activity android:name=".actividades.AjustesCalendarioActivity" />
         <activity android:name=".actividades.ImportExportActivity" />
     </application>
 

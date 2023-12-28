@@ -1234,5 +1234,9 @@
             <nombre>Parmesano</nombre>
             <puntuación>6</puntuación>
         </item>
+        <item>
+            <nombre>Piñón</nombre>
+            <puntuación>8</puntuación>
+        </item>
     </array>
 </resources>

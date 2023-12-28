@@ -2,12 +2,8 @@ package com.david.recetapp.negocio.servicios;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
-import android.text.Spannable;
-import android.text.SpannableString;
 import android.text.TextUtils;
-import android.text.style.StyleSpan;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.widget.ImageView;
@@ -20,24 +16,13 @@ import com.david.recetapp.negocio.beans.Temporada;
 
 import org.apache.commons.text.similarity.LevenshteinDistance;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class UtilsSrv {
-
-    // Método para obtener el nombre del día de la semana
-    public static String obtenerDiaSemana(Date fecha) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE", Locale.getDefault());
-        return capitalizeFirstLetter(dateFormat.format(fecha));
-    }
 
     // Método para obtener la temporada de un día de la semana
     public static Temporada getTemporadaFecha(Date date) {
@@ -65,21 +50,6 @@ public class UtilsSrv {
             default:
                 return null;
         }
-    }
-
-    public static String capitalizeFirstLetter(String input) {
-        if (input == null || input.isEmpty()) {
-            return input;
-        }
-
-        // Obtener la primera letra en mayúscula utilizando Character.toUpperCase()
-        String firstLetter = Character.toUpperCase(input.charAt(0)) + "";
-
-        // Obtener el resto del String a partir del segundo carácter
-        String restOfString = input.substring(1);
-
-        // Concatenar la primera letra en mayúscula con el resto del String
-        return firstLetter + restOfString;
     }
 
     public static Toast notificacion(Context context, String mensaje, int duracion) {
@@ -159,83 +129,6 @@ public class UtilsSrv {
 
         // Devolver el String original si ya tiene un punto al final
         return firstLetter + restOfWord;
-    }
-
-    public static SpannableString formatTexto(String texto, String[] palabrasClave) {
-        SpannableString spannableTexto = new SpannableString(texto);
-
-        for (String palabraClave : palabrasClave) {
-            // Escapar caracteres especiales de la palabra clave para la expresión regular
-            String palabraClaveEscaped = Pattern.quote(palabraClave);
-
-            // Crear una expresión regular que coincida solo con palabras completas
-            String regex = "\\b" + palabraClaveEscaped + "\\b";
-            Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
-            Matcher matcher = pattern.matcher(texto);
-
-            while (matcher.find()) {
-                int startPos = matcher.start();
-                int endPos = matcher.end();
-                spannableTexto.setSpan(new StyleSpan(Typeface.BOLD), startPos, endPos, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            }
-        }
-
-        return spannableTexto;
-    }
-
-    public static String sumarStrings(String numero1, String numero2) {
-        // Parsear los números para obtener sus valores numéricos
-        double valor1 = parsearNumero(numero1);
-        double valor2 = parsearNumero(numero2);
-
-        // Realizar la suma
-        double resultado = valor1 + valor2;
-
-        // Verificar si el resultado es un número entero
-        if (esEntero(resultado)) {
-            return String.valueOf((int) resultado); // Convertir a string el número entero
-        } else {
-            // Si el resultado es una fracción, obtener el numerador y denominador simplificados
-            int numerador = (int) (resultado * 10000); // Multiplicar por 10000 para evitar errores de redondeo
-            int denominador = 10000; // El denominador será 10000 para obtener 4 decimales
-
-            // Simplificar la fracción dividiendo el numerador y el denominador por su máximo común divisor
-            int mcd = obtenerMCD(numerador, denominador);
-            numerador /= mcd;
-            denominador /= mcd;
-
-            // Devolver el resultado en formato fracción
-            return numerador + "/" + denominador;
-        }
-    }
-
-    private static double parsearNumero(String numero) {
-        // Verificar si el número es una fracción en formato "numerador/denominador"
-        Pattern patron = Pattern.compile("(\\d+)/(\\d+)");
-        Matcher matcher = patron.matcher(numero);
-        if (matcher.matches()) {
-            int numerador = Integer.parseInt(Objects.requireNonNull(matcher.group(1)));
-            int denominador = Integer.parseInt(Objects.requireNonNull(matcher.group(2)));
-            return (double) numerador / denominador;
-        } else {
-            // Si no es una fracción, parsear el número como un double
-            return Double.parseDouble(numero);
-        }
-    }
-
-    private static boolean esEntero(double numero) {
-        // Verificar si el número es un entero (sin decimales)
-        return numero == Math.floor(numero) && !Double.isInfinite(numero);
-    }
-
-    private static int obtenerMCD(int a, int b) {
-        // Calcular el máximo común divisor utilizando el algoritmo de Euclides
-        while (b != 0) {
-            int temp = b;
-            b = a % b;
-            a = temp;
-        }
-        return a;
     }
 
     public static boolean esNumeroEnteroOFraccionValida(String numero) {
@@ -330,14 +223,4 @@ public class UtilsSrv {
         return targetWeek > currentWeek;
     }
 
-    public static boolean esMismoDia(long tiempo, Calendar fecha) {
-        // Crear un objeto Calendar a partir del valor de tiempo
-        Calendar calendarTiempo = Calendar.getInstance();
-        calendarTiempo.setTimeInMillis(tiempo);
-
-        // Comprobar si los campos de año, mes y día son iguales
-        return calendarTiempo.get(Calendar.YEAR) == fecha.get(Calendar.YEAR) &&
-                calendarTiempo.get(Calendar.MONTH) == fecha.get(Calendar.MONTH) &&
-                calendarTiempo.get(Calendar.DAY_OF_MONTH) == fecha.get(Calendar.DAY_OF_MONTH);
-    }
 }

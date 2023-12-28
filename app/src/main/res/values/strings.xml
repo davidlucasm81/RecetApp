@@ -1,27 +1,16 @@
 <resources>
     <string name="app_name" translatable="false">RecetApp</string>
     <string name="add_recipe">Añadir receta</string>
-    <string name="Boton2">Calendario Semanal de Recetas</string>
     <string name="Boton1">Añadir Recetas</string>
-    <string name="Boton3">Lista de la Compra</string>
     <string name="Boton_Nombre_Add_Receta">Ingresa el nombre</string>
     <string name="Aniadir">Añadir</string>
     <string name="temporadas">Temporadas</string>
     <string name="ingredientes">Ingredientes</string>
     <string name="pasos">Pasos</string>
-    <string name="recetas_del_d_a">Recetas del día</string>
     <string name="x" translatable="false">X</string>
     <string name="eliminar">Eliminar</string>
     <string name="recetas">Recetas</string>
     <string name="ver_recetas">Ver Recetas</string>
-    <string name="inicial_domingo">Domingo</string>
-    <string name="incial_sabado">Sabado</string>
-    <string name="inicial_viernes">Viernes</string>
-    <string name="inicial_jueves">Jueves</string>
-    <string name="inicial_miercoles">Miercoles</string>
-    <string name="inicial_martes">Martes</string>
-    <string name="inicial_lunes">Lunes</string>
-    <string name="calendario_semanal">Calendario Semanal</string>
     <string name="nombre">Nombre</string>
     <string name="temporada">Temporada</string>
     <string name="invierno">Invierno</string>
@@ -51,33 +40,19 @@
     <string name="editar">Editar</string>
     <string name="receta_editada">Receta editada</string>
     <string name="edit_recipe">Editar Receta</string>
-    <string name="calendario_eliminado">Calendario Eliminado</string>
     <string name="calendario_actualizado">Calendario Actualizado</string>
-    <string name="alerta_eliminar_calendario">¿Está seguro de que desea eliminar el calendario?</string>
     <string name="ultima_fecha_calendario">Última fecha en el calendario</string>
     <string name="alergenos">Alérgenos</string>
     <string name="placeholder" translatable="false">placeholder</string>
-    <string name="ajustes">Ajustes</string>
-    <string name="ajustes_calendario">Ajustes del calendario</string>
-    <string name="dias_para_repetir_recetas">Días para repetir recetas:</string>
-    <string name="borrar_calendario">Borrar Calendario</string>
     <string name="postre">Postre</string>
     <string name="buscar_recetas">Buscar recetas</string>
     <string name="borrar_busqueda">Borrar búsqueda</string>
     <string name="sin_al_rgenos">Sin alérgenos</string>
-    <string name="no_lista_compra">No hay lista de la compra</string>
-    <string name="titulo_recargar_receta">Sustituir receta</string>
-    <string name="comprobar_si_recargar_receta">¿Estás seguro de que deseas sustituir la receta </string>
-    <string name="por_otra"> por otra?</string>
-    <string name="no_recargar_receta">No hay receta que pueda sustituir a la seleccionada</string>
-    <string name="lista_de_la_compra_total">Lista de la Compra Total</string>
-    <string name="lista_de_compra_por_d_as">Lista de Compra por Días</string>
     <string name="tiempo_total">"Tiempo total de la receta: "</string>
     <string name="literal_de">" de "</string>
     <string name="reordenar">Reordenar</string>
     <string name="importar">Importar</string>
     <string name="error_formato_tiempo">El formato de tiempo es HH:MM</string>
-    <string name="error_borrar">Error al borrar el calendario</string>
     <string name="importacion_ok">Importación correcta</string>
     <string name="importacion_error">Error al importar</string>
     <string name="exportacion_error">Error al exportar</string>
@@ -86,6 +61,5 @@
     <string name="importar_exportar">Importar / Exportar</string>
     <string name="exportar">Exportar</string>
     <string name="buscar_postres">Buscar solo postres</string>
-    <string name="nueva_receta">Nueva receta:</string>
     <string name="puntuacion_dada">Puntuación dada</string>
 </resources>

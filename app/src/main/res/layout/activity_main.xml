@@ -20,18 +20,4 @@
         android:text="@string/ver_recetas"
         tools:ignore="TextContrastCheck" />
 
-    <Button
-        android:id="@+id/btnCalendario"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/Boton2"
-        tools:ignore="TextContrastCheck" />
-
-    <Button
-        android:id="@+id/btnListaCompra"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/Boton3"
-        tools:ignore="TextContrastCheck" />
-
 </LinearLayout>
