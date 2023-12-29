@@ -7,6 +7,7 @@ import android.widget.Toast;
 
 import com.david.recetapp.R;
 import com.david.recetapp.negocio.beans.Day;
+import com.david.recetapp.negocio.beans.Receta;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -14,12 +15,13 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CalendarioSrv {
     public static List<Day> obtenerCalendario(Activity activity) {
         List<Day> days;
         // Cargamos el calendario
-        SharedPreferences preferences = activity.getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences preferences = activity.getSharedPreferences("shared_calendar_prefs",Context.MODE_PRIVATE);
         String savedCalendarJson = preferences.getString("calendario", null);
         if (savedCalendarJson != null) {
             // Si el calendario existe, lo cargamos
@@ -82,7 +84,7 @@ public class CalendarioSrv {
 
     private static void saveCalendarToSharedPreferences(Activity activity, List<Day> days) {
         // Almacenamos el calendario como un JSON
-        SharedPreferences preferences = activity.getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences preferences = activity.getSharedPreferences("shared_calendar_prefs",Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         String calendarJson = new Gson().toJson(days);
         editor.putString("calendario", calendarJson);
@@ -96,5 +98,20 @@ public class CalendarioSrv {
 
         editor.apply();
         UtilsSrv.notificacion(activity, activity.getString(R.string.calendario_actualizado), Toast.LENGTH_SHORT).show();
+    }
+
+    public static void actualizarDia(Activity activity, Day selectedDay) {
+        List<Day> dias = obtenerCalendario(activity);
+        for (Day dia : dias) {
+            if (dia.getDayOfMonth() == selectedDay.getDayOfMonth()) {
+                List<String> recetasAnteriores = dia.getRecetas();
+                dia.setRecetas(selectedDay.getRecetas());
+                saveCalendarToSharedPreferences(activity, dias);
+                RecetasSrv.actualizarRecetasCalendario(activity, selectedDay.getRecetas().stream().filter(r -> recetasAnteriores.stream().noneMatch(ra -> r.equals(ra))).collect(Collectors.toList()));
+                return;
+            }
+        }
+        UtilsSrv.notificacion(activity, activity.getString(R.string.calendario_no_actualizado), Toast.LENGTH_SHORT).show();
+
     }
 }

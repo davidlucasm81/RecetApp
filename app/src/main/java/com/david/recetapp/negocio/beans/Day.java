@@ -6,9 +6,9 @@ import java.util.List;
 
 public class Day implements Serializable {
     private final int dayOfMonth;
-    private List<Receta> recetas;
+    private List<String> recetas;
 
-    public Day(int dayOfMonth, List<Receta> recetas) {
+    public Day(int dayOfMonth, List<String> recetas) {
         this.dayOfMonth = dayOfMonth;
         this.recetas = recetas;
         if(this.recetas == null)
@@ -19,11 +19,11 @@ public class Day implements Serializable {
         return dayOfMonth;
     }
 
-    public List<Receta> getRecetas() {
+    public List<String> getRecetas() {
         return recetas;
     }
 
-    public void setRecetas(List<Receta> recetas) {
+    public void setRecetas(List<String> recetas) {
         this.recetas = recetas;
     }
 }

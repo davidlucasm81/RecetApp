@@ -1,4 +1,7 @@
 package com.david.recetapp.actividades;
+
+import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -8,18 +11,29 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.david.recetapp.R;
-import com.david.recetapp.adaptadores.RecetaExpandableListAdapter;
+import com.david.recetapp.adaptadores.RecetaExpandableListCalendarAdapter;
 import com.david.recetapp.negocio.beans.Day;
 import com.david.recetapp.negocio.beans.Receta;
+import com.david.recetapp.negocio.servicios.RecetasSrv;
 
 import java.util.List;
 
-public class DetalleDiaActivity extends AppCompatActivity implements RecetaExpandableListAdapter.EmptyListListener {
+public class DetalleDiaActivity extends AppCompatActivity implements RecetaExpandableListCalendarAdapter.EmptyListListener {
 
     private TextView textViewEmpty;
     private ExpandableListView expandableListView;
 
     private Button addReceta;
+
+    @SuppressWarnings("deprecation")
+    @SuppressLint("MissingSuperCall")
+    @Override
+    public void onBackPressed() {
+        // Controla el comportamiento del botón "Atrás"
+        Intent intent = new Intent(DetalleDiaActivity.this, CalendarioActivity.class);
+        startActivity(intent);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,14 +44,14 @@ public class DetalleDiaActivity extends AppCompatActivity implements RecetaExpan
         addReceta = findViewById(R.id.addReceta);
         textViewEmpty.setVisibility(View.GONE); // Oculta el TextView
         Day selectedDay = (Day) getIntent().getSerializableExtra("selectedDay");
-        List<Receta> listaRecetas = selectedDay.getRecetas();
+        List<String> listaRecetas = selectedDay.getRecetas();
         if(listaRecetas.size()<2){
             addReceta.setVisibility(View.VISIBLE); // Se muestra el boton de añadir receta
         }
         if(listaRecetas.isEmpty()) {
             textViewEmpty.setVisibility(View.VISIBLE); // Se muestra el TextView
         }
-        RecetaExpandableListAdapter expandableListAdapter = new RecetaExpandableListAdapter(this, listaRecetas, expandableListView, this);
+        RecetaExpandableListCalendarAdapter expandableListAdapter = new RecetaExpandableListCalendarAdapter(this, selectedDay, RecetasSrv.obtenerRecetasPorId(this,listaRecetas), expandableListView, this);
         expandableListView.setAdapter(expandableListAdapter);
 
         expandableListView.setOnGroupClickListener((parent, v, groupPosition, id) -> {
@@ -48,11 +62,24 @@ public class DetalleDiaActivity extends AppCompatActivity implements RecetaExpan
             }
             return true;
         });
+
+        // Manejamos el evento onClick
+        addReceta.setOnClickListener(v -> {
+            // Empezamos la actividad del detalle dia
+            Intent intent = new Intent(this, AddRecetaDiaActivity.class);
+            intent.putExtra("selectedDay", selectedDay);
+            this.startActivity(intent);
+        });
     }
 
     @Override
     public void onListEmpty() {
         textViewEmpty.setVisibility(View.VISIBLE); // Muestra el TextView si la lista está vacía
+        addReceta.setVisibility(View.VISIBLE); // Se muestra el boton de añadir receta
+    }
+
+    @Override
+    public void onListSize() {
         addReceta.setVisibility(View.VISIBLE); // Se muestra el boton de añadir receta
     }
 }

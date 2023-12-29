@@ -1,8 +1,10 @@
 package com.david.recetapp.negocio.servicios;
 
+import android.app.Activity;
 import android.content.Context;
 
 import com.david.recetapp.negocio.beans.Receta;
+import com.david.recetapp.negocio.beans.Temporada;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -16,6 +18,7 @@ import java.io.OutputStreamWriter;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -46,23 +49,8 @@ public class RecetasSrv {
             }.getType();
             // Agregar las recetas a la cola
             List<Receta> recetas = gson.fromJson(jsonBuilder.toString(), listType);
-            recetas/*.filter(r -> r.getIngredientes().stream().anyMatch(i -> i.getPuntuacion()<1))*/.forEach(r -> r.setPuntuacionDada(context));
-            return recetas.stream().sorted((r1, r2) -> {
-                int resultado = Comparator.comparing(Receta::getFechaCalendario)
-                        .compare(r1, r2);
-                if (resultado != 0) {
-                    return resultado;
-                }
-                resultado =  Comparator.comparing(Receta::getPuntuacionDada)
-                        .compare(r2, r1);
-
-                if (resultado != 0) {
-                    return resultado;
-                }
-                resultado = Comparator.comparing(Receta::getEstrellas)
-                        .compare(r2, r1);
-                return resultado;
-            }).collect(Collectors.toList());
+            recetas.forEach(r -> r.setPuntuacionDada(context));
+            return recetas;
         } catch (FileNotFoundException e) {
             // El archivo no existe, no se hace nada
         } catch (IOException e) {
@@ -73,7 +61,7 @@ public class RecetasSrv {
 
     public static void addReceta(Context context, Receta receta) {
         List<Receta> listaRecetas = cargarListaRecetas(context);
-        if(listaRecetas.stream().noneMatch(r -> receta.getId().equals(r.getId()))){
+        if (listaRecetas.stream().noneMatch(r -> receta.getId().equals(r.getId()))) {
             // Agregar la receta al principio de la lista
             listaRecetas.add(0, receta);
 
@@ -95,10 +83,11 @@ public class RecetasSrv {
         }
 
     }
-    public static void editarReceta(Context context, Receta receta){
+
+    public static void editarReceta(Context context, Receta receta) {
         List<Receta> listaRecetas = cargarListaRecetas(context);
         Optional<Receta> recetaEncontrada = listaRecetas.stream().filter(r -> receta.getId().equals(r.getId())).findFirst();
-        if(recetaEncontrada.isPresent()){
+        if (recetaEncontrada.isPresent()) {
             listaRecetas.remove(recetaEncontrada.get());
             // Agregar la receta al principio de la lista
             listaRecetas.add(0, receta);
@@ -143,4 +132,35 @@ public class RecetasSrv {
         }
     }
 
+    public static List<Receta> cargarListaRecetasCalendario(Activity activity, List<String> idRecetas) {
+        List<Receta> recetas = cargarListaRecetas(activity);
+        Temporada temporada = UtilsSrv.getTemporadaFecha(new Date());
+        // Nos quedamos con los que no hayan sido seleccionados y de la temporada actual y ordenamos por fecha de adiccion al calendario (para añadir los que no han sido añadidos), puntuación y estrellas
+        return recetas.stream().filter(r -> !idRecetas.contains(r.getId()) && r.getTemporadas().contains(temporada)).sorted((r1, r2) -> {
+            int resultado = Comparator.comparing(Receta::getFechaCalendario).compare(r1, r2);
+            if (resultado != 0) {
+                return resultado;
+            }
+            resultado = Comparator.comparing(Receta::getPuntuacionDada).compare(r2, r1);
+
+            if (resultado != 0) {
+                return resultado;
+            }
+            resultado = Comparator.comparing(Receta::getEstrellas).compare(r2, r1);
+            return resultado;
+        }).collect(Collectors.toList());
+    }
+
+    public static void actualizarRecetasCalendario(Activity activity, List<String> idRecetas) {
+        List<Receta> listaRecetas = cargarListaRecetas(activity);
+        listaRecetas.stream().filter(r -> idRecetas.contains(r.getId())).forEach(r -> {
+            r.setFechaCalendario(new Date());
+            editarReceta(activity, r);
+        });
+    }
+
+    public static List<Receta> obtenerRecetasPorId(Activity activity, List<String> idRecetas) {
+        List<Receta> listaRecetas = cargarListaRecetas(activity);
+        return listaRecetas.stream().filter(r -> idRecetas.contains(r.getId())).collect(Collectors.toList());
+    }
 }

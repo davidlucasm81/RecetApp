@@ -62,4 +62,8 @@
     <string name="ver_calendario">View Calendar</string>
     <string name="calendario">Calendar</string>
     <string name="detalle_dia">Day Detail</string>
+    <string name="calendario_no_actualizado">Calendar has not been updated</string>
+    <string name="Confirmacion">Confirmation</string>
+    <string name="quieres_anadir_receta">Do you want to add the recipe:</string>
+    <string name="si">Yes</string>
 </resources>

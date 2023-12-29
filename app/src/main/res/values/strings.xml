@@ -65,4 +65,8 @@
     <string name="ver_calendario">Ver Calendario</string>
     <string name="calendario">Calendario</string>
     <string name="detalle_dia">Detalle del día</string>
+    <string name="calendario_no_actualizado">No se ha actualizado el calendario</string>
+    <string name="Confirmacion">Confirmacion</string>
+    <string name="quieres_anadir_receta">¿Quieres añadir la receta:</string>
+    <string name="si">Si</string>
 </resources>
