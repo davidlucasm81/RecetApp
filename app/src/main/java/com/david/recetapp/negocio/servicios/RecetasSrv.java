@@ -137,8 +137,8 @@ public class RecetasSrv {
     public static List<Receta> cargarListaRecetasCalendario(Activity activity, List<String> idRecetas) {
         List<Receta> recetas = cargarListaRecetas(activity);
         Temporada temporada = UtilsSrv.getTemporadaFecha(new Date());
-        // Nos quedamos con los que no hayan sido seleccionados y de la temporada actual y ordenamos por fecha de adiccion al calendario (para añadir los que no han sido añadidos), puntuación y estrellas
-        return recetas.stream().filter(r -> !idRecetas.contains(r.getId()) && r.getTemporadas().contains(temporada)).sorted((r1, r2) -> {
+        // Nos quedamos con los que no hayan sido seleccionados y de la temporada actual (no postres) y ordenamos por fecha de adiccion al calendario (para añadir los que no han sido añadidos), puntuación y estrellas
+        return recetas.stream().filter(r -> !idRecetas.contains(r.getId()) && r.getTemporadas().contains(temporada) && !r.isPostre()).sorted((r1, r2) -> {
             int resultado = Comparator.comparing(Receta::getFechaCalendario).compare(r1, r2);
             if (resultado != 0) {
                 return resultado;
