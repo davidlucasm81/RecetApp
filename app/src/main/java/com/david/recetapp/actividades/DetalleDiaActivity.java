@@ -16,7 +16,10 @@ import com.david.recetapp.negocio.beans.Day;
 import com.david.recetapp.negocio.beans.Receta;
 import com.david.recetapp.negocio.servicios.RecetasSrv;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 public class DetalleDiaActivity extends AppCompatActivity implements RecetaExpandableListCalendarAdapter.EmptyListListener {
 
@@ -44,6 +47,14 @@ public class DetalleDiaActivity extends AppCompatActivity implements RecetaExpan
         addReceta = findViewById(R.id.addReceta);
         textViewEmpty.setVisibility(View.GONE); // Oculta el TextView
         Day selectedDay = (Day) getIntent().getSerializableExtra("selectedDay");
+
+        TextView titleTextView = findViewById(R.id.titleTextView);
+        String textoActual = titleTextView.getText().toString();
+        // Set the month and year in the TextView
+        SimpleDateFormat monthYearFormat = new SimpleDateFormat("MMMM yyyy", Locale.getDefault());
+        String nuevoTexto = textoActual + " "+selectedDay.getDayOfMonth()+" "+monthYearFormat.format(Calendar.getInstance().getTime());
+        titleTextView.setText(nuevoTexto);
+
         List<String> listaRecetas = selectedDay.getRecetas();
         if(listaRecetas.size()<2){
             addReceta.setVisibility(View.VISIBLE); // Se muestra el boton de añadir receta

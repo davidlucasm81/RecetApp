@@ -14,10 +14,15 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Queue;
+import java.util.Set;
 
 public class CalendarioSrv {
+    private static final int LIMITE_DIAS = 3;
     public static List<Day> obtenerCalendario(Activity activity) {
         List<Day> days;
         // Cargamos el calendario
@@ -104,14 +109,136 @@ public class CalendarioSrv {
         List<Day> dias = obtenerCalendario(activity);
         for (Day dia : dias) {
             if (dia.getDayOfMonth() == selectedDay.getDayOfMonth()) {
-                List<String> recetasAnteriores = dia.getRecetas();
                 dia.setRecetas(selectedDay.getRecetas());
                 saveCalendarToSharedPreferences(activity, dias);
-                RecetasSrv.actualizarRecetasCalendario(activity, selectedDay.getRecetas().stream().filter(r -> recetasAnteriores.stream().noneMatch(ra -> r.equals(ra))).collect(Collectors.toList()));
+                RecetasSrv.actualizarRecetasCalendario(activity, dia);
                 return;
             }
         }
         UtilsSrv.notificacion(activity, activity.getString(R.string.calendario_no_actualizado), Toast.LENGTH_SHORT).show();
 
+    }
+
+    public static void cargarRecetas(Activity activity) {
+        List<Day> calendar = CalendarioSrv.obtenerCalendario(activity);
+        List<Receta> recetas = RecetasSrv.cargarListaRecetasCalendario(activity, new ArrayList<>());
+
+        // Convertir la lista a una cola (Queue)
+        Queue<Receta> cola = new LinkedList<>(recetas);
+
+        // Conjunto para realizar un seguimiento de las recetas utilizadas recientemente
+        Set<Receta> recetasUtilizadasRecientemente = new HashSet<>();
+
+        for (Day dia : calendar) {
+            dia.setRecetas(new ArrayList<>());
+            if (!esDiaAnteriorAlActual(dia)) {
+                // Seleccionar una receta que no se haya utilizado recientemente y no se repita en los próximos 3 días
+                addReceta(cola, recetasUtilizadasRecientemente, dia);
+                addReceta(cola, recetasUtilizadasRecientemente, dia);
+                // Actualizar las recetas del calendario
+                RecetasSrv.actualizarRecetasCalendario(activity, dia);
+
+                // Limpiar las recetas utilizadas recientemente después de 3 días
+                limpiarRecetasUtilizadasRecientemente(recetasUtilizadasRecientemente, LIMITE_DIAS, dia);
+            }
+        }
+
+        // Guardar el calendario en las preferencias compartidas
+        saveCalendarToSharedPreferences(activity, calendar);
+    }
+
+    private static void addReceta(Queue<Receta> cola, Set<Receta> recetasUtilizadasRecientemente, Day dia) {
+        Receta receta = obtenerRecetaNoRepetida(cola, recetasUtilizadasRecientemente, dia, LIMITE_DIAS);
+        if (receta != null) {
+            // Marcar la receta como utilizada recientemente
+            recetasUtilizadasRecientemente.add(receta);
+
+            // Poner la receta al final de la cola para su uso futuro
+            cola.offer(receta);
+
+            // Agregar el ID de la receta al día actual
+            dia.getRecetas().add(receta.getId());
+        }
+    }
+
+    private static Receta obtenerRecetaNoRepetida(Queue<Receta> cola, Set<Receta> recetasUtilizadasRecientemente, Day dia, int limiteDias) {
+        // Copiar la cola original para mantener el estado original
+        Queue<Receta> colaOriginal = new LinkedList<>(cola);
+
+        // Obtener y eliminar recetas de la cola hasta encontrar una que no se haya utilizado recientemente y no se repita en los próximos "limiteDias" días
+        while (!cola.isEmpty()) {
+            Receta receta = cola.poll();
+            if (!recetasUtilizadasRecientemente.contains(receta) && !recetaRepetidaEnProximosDias(receta, dia, limiteDias)) {
+                // Poner la receta al final de la cola original
+                colaOriginal.offer(receta);
+
+                return receta;
+            }
+        }
+
+        // Restaurar la cola original
+        cola.addAll(colaOriginal);
+        return null;
+    }
+
+    private static void limpiarRecetasUtilizadasRecientemente(Set<Receta> recetasUtilizadasRecientemente, int limiteDias, Day day) {
+        // Limpiar las recetas utilizadas recientemente que tienen más de "limiteDias" días
+        Set<Receta> recetasAEliminar = new HashSet<>();
+        for (Receta receta : recetasUtilizadasRecientemente) {
+            int diasDesdeUltimaUtilizacion = obtenerDiasDesdeUltimaUtilizacion(receta, day);
+
+            if (diasDesdeUltimaUtilizacion >= limiteDias) {
+                recetasAEliminar.add(receta);
+            }
+        }
+
+        // Eliminar las recetas que han superado el límite de días
+        recetasUtilizadasRecientemente.removeAll(recetasAEliminar);
+    }
+
+    private static boolean recetaRepetidaEnProximosDias(Receta receta, Day dia, int limiteDias) {
+        Date fechaReceta = receta.getFechaCalendario();
+        if (fechaReceta != null) {
+            Calendar calReceta = Calendar.getInstance();
+            calReceta.setTime(fechaReceta);
+
+            for (int i = 1; i <= limiteDias; i++) {
+                calReceta.add(Calendar.DAY_OF_MONTH, 1);
+                int dayOfMonthFuturo = calReceta.get(Calendar.DAY_OF_MONTH);
+                if (dia.getDayOfMonth() + i == dayOfMonthFuturo) {
+                    // Verificar si la receta está programada en el día futuro
+                    return dia.getRecetas().contains(receta.getId());
+                }
+            }
+        }
+        return false;
+    }
+
+    private static int obtenerDiasDesdeUltimaUtilizacion(Receta receta, Day day) {
+        Date fechaUltimaUtilizacion = receta.getFechaCalendario();
+        if (fechaUltimaUtilizacion != null) {
+            Calendar calUltimaUtilizacion = Calendar.getInstance();
+            calUltimaUtilizacion.setTime(fechaUltimaUtilizacion);
+
+            // Utilizar el día del objeto Day proporcionado
+            calUltimaUtilizacion.set(Calendar.DAY_OF_MONTH, day.getDayOfMonth());
+
+            Calendar calDay = Calendar.getInstance();
+            calDay.setTime(receta.getFechaCalendario());
+
+            // Calcular la diferencia en días sin contar las horas exactas
+            long diferenciaMillis = calUltimaUtilizacion.getTimeInMillis() - calDay.getTimeInMillis();
+            int diferenciaDias = (int) (diferenciaMillis / (24 * 60 * 60 * 1000));
+
+            return diferenciaDias;
+        }
+        return 0;
+    }
+
+    public static boolean esDiaAnteriorAlActual(Day day) {
+        Calendar calHoy = Calendar.getInstance();
+        int dayOfMonthHoy = calHoy.get(Calendar.DAY_OF_MONTH);
+
+        return day.getDayOfMonth() < dayOfMonthHoy;
     }
 }

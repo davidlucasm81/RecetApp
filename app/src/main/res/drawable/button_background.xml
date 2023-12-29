@@ -1,0 +1,14 @@
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_enabled="true">
+        <shape android:shape="rectangle">
+            <!-- Cambia el color de fondo cuando el botón está habilitado -->
+            <solid android:color="@color/colorPrimary" />
+        </shape>
+    </item>
+    <item android:state_enabled="false">
+        <shape android:shape="rectangle">
+            <!-- Cambia el color de fondo cuando el botón está deshabilitado -->
+            <solid android:color="@android:color/black" />
+        </shape>
+    </item>
+</selector>

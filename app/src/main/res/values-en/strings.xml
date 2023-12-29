@@ -66,4 +66,6 @@
     <string name="Confirmacion">Confirmation</string>
     <string name="quieres_anadir_receta">Do you want to add the recipe:</string>
     <string name="si">Yes</string>
+    <string name="actualizar_recetas">Update recipes</string>
+    <string name="alerta_actualizar_calendario">Do you want to load the calendar with recipes?</string>
 </resources>

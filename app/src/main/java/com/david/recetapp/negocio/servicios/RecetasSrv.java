@@ -3,6 +3,7 @@ package com.david.recetapp.negocio.servicios;
 import android.app.Activity;
 import android.content.Context;
 
+import com.david.recetapp.negocio.beans.Day;
 import com.david.recetapp.negocio.beans.Receta;
 import com.david.recetapp.negocio.beans.Temporada;
 import com.google.gson.Gson;
@@ -17,6 +18,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -151,10 +153,16 @@ public class RecetasSrv {
         }).collect(Collectors.toList());
     }
 
-    public static void actualizarRecetasCalendario(Activity activity, List<String> idRecetas) {
+    public static void actualizarRecetasCalendario(Activity activity, Day dia) {
         List<Receta> listaRecetas = cargarListaRecetas(activity);
-        listaRecetas.stream().filter(r -> idRecetas.contains(r.getId())).forEach(r -> {
-            r.setFechaCalendario(new Date());
+
+        // Obtener la fecha actual con el año y mes actuales, pero con el día de dayOfMonth
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.DAY_OF_MONTH, dia.getDayOfMonth());
+        Date fechaEspecifica = cal.getTime();
+
+        listaRecetas.stream().filter(r -> dia.getRecetas().contains(r.getId())).forEach(r -> {
+            r.setFechaCalendario(fechaEspecifica);
             editarReceta(activity, r);
         });
     }

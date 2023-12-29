@@ -1,9 +1,11 @@
 package com.david.recetapp.actividades;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -12,9 +14,12 @@ import com.david.recetapp.MainActivity;
 import com.david.recetapp.R;
 import com.david.recetapp.adaptadores.CalendarioAdapter;
 import com.david.recetapp.negocio.beans.Day;
+import com.david.recetapp.negocio.beans.Receta;
 import com.david.recetapp.negocio.servicios.CalendarioSrv;
+import com.david.recetapp.negocio.servicios.RecetasSrv;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
@@ -40,6 +45,15 @@ public class CalendarioActivity extends AppCompatActivity {
 
         calendarGridView = findViewById(R.id.calendarGridView);
         monthYearTextView = findViewById(R.id.monthYearTextView);
+
+        ImageButton btnActualizar = findViewById(R.id.btnActualizar);
+
+        btnActualizar.setOnClickListener(v -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle(this.getString(R.string.confirmacion)).setMessage(this.getString(R.string.alerta_actualizar_calendario)).setPositiveButton(this.getString(R.string.aceptar), (dialog, which) -> {
+                CalendarioSrv.cargarRecetas(this);
+            }).setNegativeButton(this.getString(R.string.cancelar), null).show();
+        });
 
         setupCalendar();
     }
