@@ -20,4 +20,11 @@
         android:text="@string/ver_recetas"
         tools:ignore="TextContrastCheck" />
 
+    <Button
+        android:id="@+id/btnCalendario"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/ver_calendario"
+        tools:ignore="TextContrastCheck" />
+
 </LinearLayout>

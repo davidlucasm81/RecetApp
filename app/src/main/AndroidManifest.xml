@@ -43,6 +43,8 @@
         <activity android:name=".actividades.VerRecetasActivity" />
         <activity android:name=".actividades.EditarRecetaActivity" />
         <activity android:name=".actividades.ImportExportActivity" />
+        <activity android:name=".actividades.CalendarioActivity" />
+        <activity android:name=".actividades.DetalleDiaActivity" />
     </application>
 
 </manifest>

@@ -62,4 +62,7 @@
     <string name="exportar">Exportar</string>
     <string name="buscar_postres">Buscar solo postres</string>
     <string name="puntuacion_dada">Puntuación dada</string>
+    <string name="ver_calendario">Ver Calendario</string>
+    <string name="calendario">Calendario</string>
+    <string name="detalle_dia">Detalle del día</string>
 </resources>

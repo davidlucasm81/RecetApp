@@ -59,4 +59,7 @@
     <string name="exportar">Export</string>
     <string name="buscar_postres">Search only desserts</string>
     <string name="puntuacion_dada">Score given</string>
+    <string name="ver_calendario">View Calendar</string>
+    <string name="calendario">Calendar</string>
+    <string name="detalle_dia">Day Detail</string>
 </resources>

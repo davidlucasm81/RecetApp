@@ -208,19 +208,4 @@ public class UtilsSrv {
         }
     }
 
-    public static boolean actualizarCalendario(long milis, long fechaActual){
-        Calendar currentCalendar = Calendar.getInstance();
-        currentCalendar.setTimeInMillis(fechaActual);
-
-        Calendar targetCalendar = Calendar.getInstance();
-        targetCalendar.setTimeInMillis(milis);
-
-        // Obtener el número de semana del año para la fecha actual y la fecha objetivo
-        int currentWeek = currentCalendar.get(Calendar.WEEK_OF_YEAR);
-        int targetWeek = targetCalendar.get(Calendar.WEEK_OF_YEAR);
-
-        // Si el número de semana objetivo es mayor que el número de semana actual, entonces está en la siguiente semana
-        return targetWeek > currentWeek;
-    }
-
 }
