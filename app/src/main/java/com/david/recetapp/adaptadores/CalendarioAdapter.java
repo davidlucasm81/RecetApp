@@ -2,7 +2,6 @@ package com.david.recetapp.adaptadores;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,13 +11,15 @@ import android.widget.Button;
 import com.david.recetapp.R;
 import com.david.recetapp.actividades.DetalleDiaActivity;
 import com.david.recetapp.negocio.beans.Day;
-import com.david.recetapp.negocio.servicios.CalendarioSrv;
+import com.david.recetapp.negocio.servicios.UtilsSrv;
 
 import java.util.List;
 
 public class CalendarioAdapter extends BaseAdapter {
     private final Context context;
     private final List<Day> days;
+
+    private final List<Integer> diasSemana = UtilsSrv.obtenerDiasSemanaActual();
 
     public CalendarioAdapter(Context context, List<Day> days) {
         this.context = context;
@@ -58,10 +59,8 @@ public class CalendarioAdapter extends BaseAdapter {
             context.startActivity(intent);
         });
         dayButton.setBackgroundResource(R.drawable.button_background);
-        if (CalendarioSrv.esDiaAnteriorAlActual(day)) {
-            // Deshabilitar el botón y cambiar el color de fondo a negro
-            dayButton.setEnabled(false);
-        }
+
+        dayButton.setEnabled(diasSemana.contains(day.getDayOfMonth()));
 
         return convertView;
     }

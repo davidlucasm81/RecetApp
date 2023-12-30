@@ -46,6 +46,7 @@
         <activity android:name=".actividades.CalendarioActivity" />
         <activity android:name=".actividades.DetalleDiaActivity" />
         <activity android:name=".actividades.AddRecetaDiaActivity" />
+        <activity android:name=".actividades.ListaCompraActivity" />
     </application>
 
 </manifest>

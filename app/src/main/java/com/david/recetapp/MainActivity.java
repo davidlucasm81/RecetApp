@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.david.recetapp.actividades.AddRecetasActivity;
 import com.david.recetapp.actividades.CalendarioActivity;
+import com.david.recetapp.actividades.ListaCompraActivity;
 import com.david.recetapp.actividades.VerRecetasActivity;
 
 public class MainActivity extends AppCompatActivity {
@@ -26,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
         Button btnAddRecetas = findViewById(R.id.btnAddRecetas);
         Button btnVerRecetas = findViewById(R.id.btnVerRecetas);
         Button btnCalendario = findViewById(R.id.btnCalendario);
+        Button btnListaCompra = findViewById(R.id.btnListaCompra);
 
         btnAddRecetas.setOnClickListener(v -> {
             // Acción al hacer click en el botón "Añadir Recetas"
@@ -42,6 +44,12 @@ public class MainActivity extends AppCompatActivity {
         btnCalendario.setOnClickListener(v -> {
             // Acción al hacer click en el botón "Ver Calendario"
             Intent intent = new Intent(MainActivity.this, CalendarioActivity.class);
+            startActivity(intent);
+        });
+
+        btnListaCompra.setOnClickListener(v -> {
+            // Acción al hacer click en el botón "Lista de la compra"
+            Intent intent = new Intent(MainActivity.this, ListaCompraActivity.class);
             startActivity(intent);
         });
     }

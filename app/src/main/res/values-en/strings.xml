@@ -68,4 +68,5 @@
     <string name="si">Yes</string>
     <string name="actualizar_recetas">Update recipes</string>
     <string name="alerta_actualizar_calendario">Do you want to load the calendar with recipes?</string>
+    <string name="lista_compra">Shopping list</string>
 </resources>

@@ -27,4 +27,11 @@
         android:text="@string/ver_calendario"
         tools:ignore="TextContrastCheck" />
 
+    <Button
+        android:id="@+id/btnListaCompra"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/lista_compra"
+        tools:ignore="TextContrastCheck" />
+
 </LinearLayout>

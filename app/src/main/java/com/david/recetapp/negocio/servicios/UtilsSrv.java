@@ -16,11 +16,16 @@ import com.david.recetapp.negocio.beans.Temporada;
 
 import org.apache.commons.text.similarity.LevenshteinDistance;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class UtilsSrv {
 
@@ -196,16 +201,27 @@ public class UtilsSrv {
 
     public static double obtenerPuntuacion(Map<String, Integer> ingredientMap, String nombre, double defaultValue) {
         LevenshteinDistance levenshteinDistance = new LevenshteinDistance();
-        Optional<Map.Entry<String, Integer>> ingredienteEncontrado = ingredientMap.entrySet().stream()
-                .filter(entry -> levenshteinDistance.apply(entry.getKey(), nombre) < 2)
-                .max(Comparator.comparingInt(Map.Entry::getValue));
+        Optional<Map.Entry<String, Integer>> ingredienteEncontrado = ingredientMap.entrySet().stream().filter(entry -> levenshteinDistance.apply(entry.getKey(), nombre) < 2).max(Comparator.comparingInt(Map.Entry::getValue));
 
         if (ingredienteEncontrado.isPresent()) {
             return ingredienteEncontrado.get().getValue();
-        }
-        else{
+        } else {
             return defaultValue;
         }
+    }
+
+    public static List<Integer> obtenerDiasSemanaActual() {
+        // Obtener la fecha actual
+        LocalDate fechaActual = LocalDate.now();
+
+        // Calcular el primer día de la semana (lunes)
+        LocalDate primerDiaSemana = fechaActual.with(DayOfWeek.MONDAY);
+
+        // Crear una lista de los días de la semana actual (lunes a domingo)
+        return IntStream.range(0, 7)
+                .mapToObj(primerDiaSemana::plusDays)
+                .map(LocalDate::getDayOfMonth)
+                .collect(Collectors.toList());
     }
 
 }

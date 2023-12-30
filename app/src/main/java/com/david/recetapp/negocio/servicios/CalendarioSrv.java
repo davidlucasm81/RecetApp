@@ -1,32 +1,41 @@
 package com.david.recetapp.negocio.servicios;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
+import android.util.SparseArray;
 import android.widget.Toast;
 
 import com.david.recetapp.R;
 import com.david.recetapp.negocio.beans.Day;
+import com.david.recetapp.negocio.beans.Ingrediente;
 import com.david.recetapp.negocio.beans.Receta;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.stream.Collectors;
+
 
 public class CalendarioSrv {
     private static final int LIMITE_DIAS = 3;
+
     public static List<Day> obtenerCalendario(Activity activity) {
         List<Day> days;
         // Cargamos el calendario
-        SharedPreferences preferences = activity.getSharedPreferences("shared_calendar_prefs",Context.MODE_PRIVATE);
+        SharedPreferences preferences = activity.getSharedPreferences("shared_calendar_prefs", Context.MODE_PRIVATE);
         String savedCalendarJson = preferences.getString("calendario", null);
         if (savedCalendarJson != null) {
             // Si el calendario existe, lo cargamos
@@ -139,7 +148,7 @@ public class CalendarioSrv {
                 RecetasSrv.actualizarRecetasCalendario(activity, dia);
 
                 // Limpiar las recetas utilizadas recientemente después de 3 días
-                limpiarRecetasUtilizadasRecientemente(recetasUtilizadasRecientemente, LIMITE_DIAS, dia);
+                limpiarRecetasUtilizadasRecientemente(recetasUtilizadasRecientemente, dia);
             }
         }
 
@@ -148,7 +157,7 @@ public class CalendarioSrv {
     }
 
     private static void addReceta(Queue<Receta> cola, Set<Receta> recetasUtilizadasRecientemente, Day dia) {
-        Receta receta = obtenerRecetaNoRepetida(cola, recetasUtilizadasRecientemente, dia, LIMITE_DIAS);
+        Receta receta = obtenerRecetaNoRepetida(cola, recetasUtilizadasRecientemente, dia);
         if (receta != null) {
             // Marcar la receta como utilizada recientemente
             recetasUtilizadasRecientemente.add(receta);
@@ -161,18 +170,21 @@ public class CalendarioSrv {
         }
     }
 
-    private static Receta obtenerRecetaNoRepetida(Queue<Receta> cola, Set<Receta> recetasUtilizadasRecientemente, Day dia, int limiteDias) {
+    private static Receta obtenerRecetaNoRepetida(Queue<Receta> cola, Set<Receta> recetasUtilizadasRecientemente, Day dia) {
         // Copiar la cola original para mantener el estado original
         Queue<Receta> colaOriginal = new LinkedList<>(cola);
 
         // Obtener y eliminar recetas de la cola hasta encontrar una que no se haya utilizado recientemente y no se repita en los próximos "limiteDias" días
         while (!cola.isEmpty()) {
             Receta receta = cola.poll();
-            if (!recetasUtilizadasRecientemente.contains(receta) && !recetaRepetidaEnProximosDias(receta, dia, limiteDias)) {
-                // Poner la receta al final de la cola original
-                colaOriginal.offer(receta);
+            if (!recetasUtilizadasRecientemente.contains(receta)) {
+                assert receta != null;
+                if (!recetaRepetidaEnProximosDias(receta, dia)) {
+                    // Poner la receta al final de la cola original
+                    colaOriginal.offer(receta);
 
-                return receta;
+                    return receta;
+                }
             }
         }
 
@@ -181,13 +193,13 @@ public class CalendarioSrv {
         return null;
     }
 
-    private static void limpiarRecetasUtilizadasRecientemente(Set<Receta> recetasUtilizadasRecientemente, int limiteDias, Day day) {
+    private static void limpiarRecetasUtilizadasRecientemente(Set<Receta> recetasUtilizadasRecientemente, Day day) {
         // Limpiar las recetas utilizadas recientemente que tienen más de "limiteDias" días
         Set<Receta> recetasAEliminar = new HashSet<>();
         for (Receta receta : recetasUtilizadasRecientemente) {
             int diasDesdeUltimaUtilizacion = obtenerDiasDesdeUltimaUtilizacion(receta, day);
 
-            if (diasDesdeUltimaUtilizacion >= limiteDias) {
+            if (diasDesdeUltimaUtilizacion >= CalendarioSrv.LIMITE_DIAS) {
                 recetasAEliminar.add(receta);
             }
         }
@@ -196,13 +208,13 @@ public class CalendarioSrv {
         recetasUtilizadasRecientemente.removeAll(recetasAEliminar);
     }
 
-    private static boolean recetaRepetidaEnProximosDias(Receta receta, Day dia, int limiteDias) {
+    private static boolean recetaRepetidaEnProximosDias(Receta receta, Day dia) {
         Date fechaReceta = receta.getFechaCalendario();
         if (fechaReceta != null) {
             Calendar calReceta = Calendar.getInstance();
             calReceta.setTime(fechaReceta);
 
-            for (int i = 1; i <= limiteDias; i++) {
+            for (int i = 1; i <= CalendarioSrv.LIMITE_DIAS; i++) {
                 calReceta.add(Calendar.DAY_OF_MONTH, 1);
                 int dayOfMonthFuturo = calReceta.get(Calendar.DAY_OF_MONTH);
                 if (dia.getDayOfMonth() + i == dayOfMonthFuturo) {
@@ -228,9 +240,8 @@ public class CalendarioSrv {
 
             // Calcular la diferencia en días sin contar las horas exactas
             long diferenciaMillis = calUltimaUtilizacion.getTimeInMillis() - calDay.getTimeInMillis();
-            int diferenciaDias = (int) (diferenciaMillis / (24 * 60 * 60 * 1000));
 
-            return diferenciaDias;
+            return (int) (diferenciaMillis / (24 * 60 * 60 * 1000));
         }
         return 0;
     }
@@ -240,5 +251,57 @@ public class CalendarioSrv {
         int dayOfMonthHoy = calHoy.get(Calendar.DAY_OF_MONTH);
 
         return day.getDayOfMonth() < dayOfMonthHoy;
+    }
+
+
+    public static String obtenerListaCompraSemana(Activity activity) {
+        List<Integer> diasSemana = UtilsSrv.obtenerDiasSemanaActual();
+        List<Day> calendario = obtenerCalendario(activity);
+
+        // Cargar las correspondencias de unidades de cantidad a gramos desde el XML
+        SparseArray<Integer> unidadesAGramos = cargarUnidadesAGramos(activity.getResources());
+
+        Map<String, BigDecimal> resultado = calendario.stream()
+                .filter(d -> diasSemana.contains(d.getDayOfMonth()))
+                .flatMap(dia -> RecetasSrv.obtenerRecetasPorId(activity, dia.getRecetas()).stream())
+                .flatMap(receta -> receta.getIngredientes().stream())
+                .collect(Collectors.groupingBy(
+                        Ingrediente::getNombre,
+                        Collectors.reducing(BigDecimal.ZERO,
+                                ingrediente -> sumarCantidadesAGramos(ingrediente.getCantidad(), ingrediente.getTipoCantidad(), unidadesAGramos, activity.getResources()),
+                                BigDecimal::add)
+                ));
+
+        return resultado.entrySet().stream()
+                .map(entry -> "- " + entry.getValue() + " g " + entry.getKey() + "\n")
+                .collect(Collectors.joining());
+    }
+
+    private static SparseArray<Integer> cargarUnidadesAGramos(Resources resources) {
+        @SuppressLint("UseSparseArrays") SparseArray<Integer> unidadesAGramos = new SparseArray<>();
+        String[] unidadesArray = resources.getStringArray(R.array.quantity_units);
+        int[] valoresArray = resources.getIntArray(R.array.importance_values);
+
+        for (int i = 0; i < unidadesArray.length; i++) {
+            unidadesAGramos.put(i, valoresArray[i]);
+        }
+
+        return unidadesAGramos;
+    }
+
+
+    private static BigDecimal sumarCantidadesAGramos(String cantidad, String tipoCantidad, SparseArray<Integer> unidadesAGramos, Resources resources) {
+        int factorConversion = unidadesAGramos.get(obtenerIndiceTipoCantidad(tipoCantidad, resources), 1);
+        return BigDecimal.valueOf(UtilsSrv.convertirNumero(cantidad)).multiply(BigDecimal.valueOf(factorConversion));
+    }
+
+    private static int obtenerIndiceTipoCantidad(String tipoCantidad, Resources resources) {
+        String[] unidades =  resources.getStringArray(R.array.quantity_units);
+        for (int i = 0; i < unidades.length; i++) {
+            if (unidades[i].equals(tipoCantidad)) {
+                return i;
+            }
+        }
+        return 0;
     }
 }

@@ -13,7 +13,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.david.recetapp.R;
 import com.david.recetapp.adaptadores.RecetaExpandableListCalendarAdapter;
 import com.david.recetapp.negocio.beans.Day;
-import com.david.recetapp.negocio.beans.Receta;
 import com.david.recetapp.negocio.servicios.RecetasSrv;
 
 import java.text.SimpleDateFormat;
