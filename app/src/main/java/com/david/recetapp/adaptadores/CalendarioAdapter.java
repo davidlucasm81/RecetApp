@@ -21,14 +21,17 @@ public class CalendarioAdapter extends BaseAdapter {
 
     private final List<Integer> diasSemana = UtilsSrv.obtenerDiasSemanaActual();
 
+    private final int numeroEnBlanco;
+
     public CalendarioAdapter(Context context, List<Day> days) {
         this.context = context;
         this.days = days;
+        this.numeroEnBlanco = UtilsSrv.obtenerColumnaCalendario(1);
     }
 
     @Override
     public int getCount() {
-        return days.size();
+        return days.size() + numeroEnBlanco; // Dias + espacios en blanco
     }
 
     @Override
@@ -46,9 +49,16 @@ public class CalendarioAdapter extends BaseAdapter {
         if (convertView == null) {
             convertView = LayoutInflater.from(context).inflate(R.layout.grid_item_day, parent, false);
         }
-
         Button dayButton = convertView.findViewById(R.id.dayButton);
-        Day day = days.get(position);
+        dayButton.setBackgroundResource(R.drawable.button_background);
+
+        if(position < numeroEnBlanco){
+            dayButton.setText("");
+            dayButton.setEnabled(false);
+            return convertView;
+        }
+
+        Day day = days.get(position - numeroEnBlanco);
         dayButton.setText(String.valueOf(day.getDayOfMonth()));
 
         // Manejamos el evento onClick
@@ -58,7 +68,6 @@ public class CalendarioAdapter extends BaseAdapter {
             intent.putExtra("selectedDay", day);
             context.startActivity(intent);
         });
-        dayButton.setBackgroundResource(R.drawable.button_background);
 
         dayButton.setEnabled(diasSemana.contains(day.getDayOfMonth()));
 

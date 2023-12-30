@@ -224,4 +224,23 @@ public class UtilsSrv {
                 .collect(Collectors.toList());
     }
 
+    // Método para obtener el nombre del día a partir del día del mes
+    public static int obtenerColumnaCalendario(int diaDelMes) {
+        // Obtener el mes y año actual del sistema
+        Calendar calendario = Calendar.getInstance();
+        int mesActual = calendario.get(Calendar.MONTH);
+        int añoActual = calendario.get(Calendar.YEAR);
+
+        // Configurar la fecha con el día del mes, mes y año
+        calendario.set(añoActual, mesActual, diaDelMes);
+
+        // Obtener el día de la semana
+        int diaDeLaSemana = calendario.get(Calendar.DAY_OF_WEEK);
+
+        // Convertir el número del día de la semana a un nombre de día
+        String[] nombresDias = {"Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"};
+        int numero = (diaDeLaSemana - 1);
+        return (numero == 0) ? 6 : numero - 1;
+    }
+
 }
