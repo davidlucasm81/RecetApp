@@ -1238,5 +1238,65 @@
             <nombre>Piñón</nombre>
             <puntuación>8</puntuación>
         </item>
+        <item>
+            <nombre>Caldo de pescado</nombre>
+            <puntuación>8</puntuación>
+        </item>
+        <item>
+            <nombre>Pimiento del piquillo</nombre>
+            <puntuación>9</puntuación>
+        </item>
+        <item>
+            <nombre>Cubitos de jamón serrano</nombre>
+            <puntuación>3</puntuación>
+        </item>
+        <item>
+            <nombre>Queso crema</nombre>
+            <puntuación>4</puntuación>
+        </item>
+        <item>
+            <nombre>Concentrado de tomate</nombre>
+            <puntuación>7</puntuación>
+        </item>
+        <item>
+            <nombre>Nata para montar</nombre>
+            <puntuación>2</puntuación>
+        </item>
+        <item>
+            <nombre>Picatostes</nombre>
+            <puntuación>3</puntuación>
+        </item>
+        <item>
+            <nombre>Filete de bacalao</nombre>
+            <puntuación>9</puntuación>
+        </item>
+        <item>
+            <nombre>Lentejas</nombre>
+            <puntuación>10</puntuación>
+        </item>
+        <item>
+            <nombre>Costillas carnosas en tacos</nombre>
+            <puntuación>4</puntuación>
+        </item>
+        <item>
+            <nombre>Licor de anís</nombre>
+            <puntuación>1</puntuación>
+        </item>
+        <item>
+            <nombre>Manteca</nombre>
+            <puntuación>1</puntuación>
+        </item>
+        <item>
+            <nombre>Salchicas</nombre>
+            <puntuación>2</puntuación>
+        </item>
+        <item>
+            <nombre>Queso cheddar rallado</nombre>
+            <puntuación>4</puntuación>
+        </item>
+        <item>
+            <nombre>Queso gruyer rallado</nombre>
+            <puntuación>5</puntuación>
+        </item>
     </array>
 </resources>
