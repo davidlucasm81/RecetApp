@@ -99,45 +99,30 @@ public class ImportExportActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * @noinspection ResultOfMethodCallIgnored
-     */
     private void exportarListaRecetas() {
         List<Receta> listaRecetas = obtenerListaRecetas();
 
         String jsonData = convertirListaAJson(listaRecetas);
 
         try {
-            // Crear el directorio en el almacenamiento público
-            File publicDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
-            if (publicDir != null) {
-                //noinspection ResultOfMethodCallIgnored
-                publicDir.mkdirs(); // Asegurarse de que el directorio exista
+            // Crear el archivo en el almacenamiento específico de la aplicación
+            File file = new File(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), RecetasSrv.JSON);
+            FileWriter writer = new FileWriter(file);
+            writer.write(jsonData);
+            writer.close();
 
-                if (publicDir.exists()) { // Verificar si el directorio existe correctamente
-                    // Crear el archivo en el directorio público
-                    File file = new File(publicDir, RecetasSrv.JSON);
-                    FileWriter writer = new FileWriter(file);
-                    writer.write(jsonData);
-                    writer.close();
-
-                    // Compartir el archivo con cualquier aplicación
-                    Uri fileUri = FileProvider.getUriForFile(this, "com.david.recetapp.provider", file);
-                    Intent shareIntent = new Intent(Intent.ACTION_SEND);
-                    shareIntent.setType("application/json");
-                    shareIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
-                    shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    startActivity(Intent.createChooser(shareIntent, getString(R.string.compartir_recetas)));
-                } else {
-                    UtilsSrv.notificacion(this, getString(R.string.exportacion_error) + ": El directorio no existe", Toast.LENGTH_SHORT).show();
-                }
-            } else {
-                UtilsSrv.notificacion(this, getString(R.string.exportacion_error) + ": publicDir is null", Toast.LENGTH_SHORT).show();
-            }
+            // Compartir el archivo con cualquier aplicación
+            Uri fileUri = FileProvider.getUriForFile(this, "com.david.recetapp.provider", file);
+            Intent shareIntent = new Intent(Intent.ACTION_SEND);
+            shareIntent.setType("application/json");
+            shareIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
+            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            startActivity(Intent.createChooser(shareIntent, getString(R.string.compartir_recetas)));
         } catch (IOException e) {
             UtilsSrv.notificacion(this, getString(R.string.exportacion_error) + ": " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
