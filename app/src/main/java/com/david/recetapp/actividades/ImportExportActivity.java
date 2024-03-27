@@ -58,6 +58,7 @@ public class ImportExportActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this, permissions.toArray(new String[0]), REQUEST_PERMISSION_READ_EXTERNAL_STORAGE);
         }
     }
+
     @SuppressWarnings("deprecation")
     @SuppressLint("MissingSuperCall")
     @Override
@@ -66,6 +67,7 @@ public class ImportExportActivity extends AppCompatActivity {
         Intent intent = new Intent(ImportExportActivity.this, VerRecetasActivity.class);
         startActivity(intent);
     }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,13 +94,14 @@ public class ImportExportActivity extends AppCompatActivity {
                 mergeListaRecetas(listaRecetasImportadas);
                 UtilsSrv.notificacion(this, getString(R.string.importacion_ok), Toast.LENGTH_SHORT).show();
             } catch (IOException e) {
-                e.printStackTrace();
-                UtilsSrv.notificacion(this, getString(R.string.importacion_error), Toast.LENGTH_SHORT).show();
+                UtilsSrv.notificacion(this, getString(R.string.importacion_error) + ": " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         }
     }
 
-    /** @noinspection ResultOfMethodCallIgnored*/
+    /**
+     * @noinspection ResultOfMethodCallIgnored
+     */
     private void exportarListaRecetas() {
         List<Receta> listaRecetas = obtenerListaRecetas();
 
@@ -125,13 +128,13 @@ public class ImportExportActivity extends AppCompatActivity {
                 shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 startActivity(Intent.createChooser(shareIntent, getString(R.string.compartir_recetas)));
             } else {
-                UtilsSrv.notificacion(this, getString(R.string.exportacion_error), Toast.LENGTH_SHORT).show();
+                UtilsSrv.notificacion(this, getString(R.string.exportacion_error) + ": publicDir is null", Toast.LENGTH_SHORT).show();
             }
         } catch (IOException e) {
-            e.printStackTrace();
-            UtilsSrv.notificacion(this, getString(R.string.exportacion_error), Toast.LENGTH_SHORT).show();
+            UtilsSrv.notificacion(this, getString(R.string.exportacion_error) + ": " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -143,8 +146,7 @@ public class ImportExportActivity extends AppCompatActivity {
                 mergeListaRecetas(listaRecetasImportadas);
                 UtilsSrv.notificacion(this, getString(R.string.importacion_ok), Toast.LENGTH_SHORT).show();
             } catch (IOException e) {
-                e.printStackTrace();
-                UtilsSrv.notificacion(this, getString(R.string.importacion_error), Toast.LENGTH_SHORT).show();
+                UtilsSrv.notificacion(this, getString(R.string.importacion_error) + ": " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -160,21 +162,17 @@ public class ImportExportActivity extends AppCompatActivity {
 
     private String leerArchivoJSON(Uri fileUri) throws IOException {
         StringBuilder stringBuilder = new StringBuilder();
-        try {
-            ContentResolver contentResolver = getContentResolver();
-            InputStream inputStream = contentResolver.openInputStream(fileUri);
-            if (inputStream != null) {
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-                String line;
-                while ((line = bufferedReader.readLine()) != null) {
-                    stringBuilder.append(line);
-                }
-                inputStream.close();
+        ContentResolver contentResolver = getContentResolver();
+        InputStream inputStream = contentResolver.openInputStream(fileUri);
+        if (inputStream != null) {
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                stringBuilder.append(line);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw e;
+            inputStream.close();
         }
+
         return stringBuilder.toString();
     }
 
@@ -204,7 +202,7 @@ public class ImportExportActivity extends AppCompatActivity {
     }
 
     private void guardarListaRecetas(List<Receta> listaRecetas) {
-        for(Receta receta : listaRecetas)
+        for (Receta receta : listaRecetas)
             RecetasSrv.addReceta(this, receta);
     }
 

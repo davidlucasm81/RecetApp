@@ -51,6 +51,7 @@ public class DetalleDiaActivity extends AppCompatActivity implements RecetaExpan
         String textoActual = titleTextView.getText().toString();
         // Set the month and year in the TextView
         SimpleDateFormat monthYearFormat = new SimpleDateFormat("MMMM yyyy", Locale.getDefault());
+        assert selectedDay != null;
         String nuevoTexto = textoActual + " "+selectedDay.getDayOfMonth()+" "+monthYearFormat.format(Calendar.getInstance().getTime());
         titleTextView.setText(nuevoTexto);
 
