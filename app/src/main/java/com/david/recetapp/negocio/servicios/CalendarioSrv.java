@@ -1,11 +1,9 @@
 package com.david.recetapp.negocio.servicios;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.util.SparseArray;
 import android.widget.Toast;
 
 import com.david.recetapp.R;
@@ -20,10 +18,12 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -257,51 +257,52 @@ public class CalendarioSrv {
     public static String obtenerListaCompraSemana(Activity activity) {
         List<Integer> diasSemana = UtilsSrv.obtenerDiasSemanaActual();
         List<Day> calendario = obtenerCalendario(activity);
+        Map<String, BigDecimal> resultado = new HashMap<>();
 
-        // Cargar las correspondencias de unidades de cantidad a gramos desde el XML
-        SparseArray<Integer> unidadesAGramos = cargarUnidadesAGramos(activity.getResources());
+        Map<String, Integer> unidadesAGramos = cargarUnidadesAGramos(activity.getResources());
 
-        Map<String, BigDecimal> resultado = calendario.stream()
-                .filter(d -> diasSemana.contains(d.getDayOfMonth()))
-                .flatMap(dia -> RecetasSrv.obtenerRecetasPorId(activity, dia.getRecetas()).stream())
-                .flatMap(receta -> receta.getIngredientes().stream())
-                .collect(Collectors.groupingBy(
-                        Ingrediente::getNombre,
-                        Collectors.reducing(BigDecimal.ZERO,
-                                ingrediente -> sumarCantidadesAGramos(ingrediente.getCantidad(), ingrediente.getTipoCantidad(), unidadesAGramos, activity.getResources()),
-                                BigDecimal::add)
-                ));
+        for (Day dia : calendario) {
+            if (diasSemana.contains(dia.getDayOfMonth())) {
+                for (Receta receta : RecetasSrv.obtenerRecetasPorId(activity, dia.getRecetas())) {
+                    for (Ingrediente ingrediente : receta.getIngredientes()) {
+                        BigDecimal cantidadEnGramos = sumarCantidadesAGramos(ingrediente.getCantidad(), ingrediente.getTipoCantidad(), unidadesAGramos);
+                        resultado.put(ingrediente.getNombre(), Objects.requireNonNull(resultado.getOrDefault(ingrediente.getNombre(), BigDecimal.ZERO)).add(cantidadEnGramos));
+                    }
+                }
+            }
+        }
 
         return resultado.entrySet().stream()
                 .map(entry -> "- " + entry.getValue() + " g " + entry.getKey() + "\n")
                 .collect(Collectors.joining());
     }
 
-    private static SparseArray<Integer> cargarUnidadesAGramos(Resources resources) {
-        @SuppressLint("UseSparseArrays") SparseArray<Integer> unidadesAGramos = new SparseArray<>();
+    private static Map<String, Integer> cargarUnidadesAGramos(Resources resources) {
+        Map<String, Integer> unidadesAGramos = new HashMap<>();
         String[] unidadesArray = resources.getStringArray(R.array.quantity_units);
         int[] valoresArray = resources.getIntArray(R.array.importance_values);
 
         for (int i = 0; i < unidadesArray.length; i++) {
-            unidadesAGramos.put(i, valoresArray[i]);
+            unidadesAGramos.put(unidadesArray[i], valoresArray[i]);
         }
 
         return unidadesAGramos;
     }
 
-
-    private static BigDecimal sumarCantidadesAGramos(String cantidad, String tipoCantidad, SparseArray<Integer> unidadesAGramos, Resources resources) {
-        int factorConversion = unidadesAGramos.get(obtenerIndiceTipoCantidad(tipoCantidad, resources), 1);
-        return BigDecimal.valueOf(UtilsSrv.convertirNumero(cantidad)).multiply(BigDecimal.valueOf(factorConversion));
-    }
-
-    private static int obtenerIndiceTipoCantidad(String tipoCantidad, Resources resources) {
-        String[] unidades =  resources.getStringArray(R.array.quantity_units);
-        for (int i = 0; i < unidades.length; i++) {
-            if (unidades[i].equals(tipoCantidad)) {
-                return i;
+    private static BigDecimal sumarCantidadesAGramos(String cantidad, String tipoCantidad, Map<String, Integer> unidadesAGramos) {
+        int factorConversion;
+        if( unidadesAGramos == null || !unidadesAGramos.containsKey(tipoCantidad)){
+            factorConversion = 1;
+        }
+        else {
+            Integer n = unidadesAGramos.get(tipoCantidad);
+            if(n != null){
+                factorConversion = n;
+            }
+            else{
+                factorConversion = 1;
             }
         }
-        return 0;
+        return BigDecimal.valueOf(UtilsSrv.convertirNumero(cantidad)).multiply(BigDecimal.valueOf(factorConversion));
     }
 }

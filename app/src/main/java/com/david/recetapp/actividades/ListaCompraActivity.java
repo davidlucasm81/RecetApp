@@ -1,5 +1,6 @@
 package com.david.recetapp.actividades;
 
+import android.app.AlertDialog;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
@@ -7,12 +8,12 @@ import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.widget.EditText;
+import android.widget.ImageButton;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.david.recetapp.R;
 import com.david.recetapp.negocio.servicios.CalendarioSrv;
-import com.david.recetapp.negocio.servicios.UtilsSrv;
 
 import java.time.LocalDate;
 
@@ -35,18 +36,27 @@ public class ListaCompraActivity extends AppCompatActivity {
         // Cargar el texto y el día de la semana guardados al iniciar la actividad
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         String savedText = prefs.getString(TEXT_KEY, "");
-        int savedDay = prefs.getInt(DAY_KEY, -1);
 
-        // Verificar si hemos cambiado de semana
-        if (!UtilsSrv.obtenerDiasSemanaActual().contains(savedDay)) {
-            // Reiniciar el texto si cambiamos de semana
-            savedText = editText.getText() + "\n" + CalendarioSrv.obtenerListaCompraSemana(this);
-            // Guardar automáticamente el texto ingresado y el día de la semana
-            SharedPreferences.Editor editor = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit();
-            editor.putString(TEXT_KEY, savedText);
-            editor.putInt(DAY_KEY, getCurrentDayOfMonth());
-            editor.apply();
-        }
+        ImageButton btnActualizar = findViewById(R.id.btnActualizar);
+
+        btnActualizar.setOnClickListener(v -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle(this.getString(R.string.confirmacion)).setMessage(this.getString(R.string.alerta_actualizar_lista)).setPositiveButton(this.getString(R.string.aceptar), (dialog, which) -> {
+                handler.removeCallbacksAndMessages(null);
+                handler.postDelayed(() -> {
+                    // Guardar automáticamente el texto ingresado y el día de la semana
+                    String text = editText.getText() + "\n" + CalendarioSrv.obtenerListaCompraSemana(this);
+                    // Guardar automáticamente el texto ingresado y el día de la semana
+                    SharedPreferences.Editor editor = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit();
+                    editor.putString(TEXT_KEY, text);
+                    editor.putInt(DAY_KEY, getCurrentDayOfMonth());
+                    editor.apply();
+                    editText.setText(text);
+                }, GUARDAR_DELAY_MS);
+
+            }).setNegativeButton(this.getString(R.string.cancelar), null).show();
+        });
+
 
         editText.setText(savedText);
 
