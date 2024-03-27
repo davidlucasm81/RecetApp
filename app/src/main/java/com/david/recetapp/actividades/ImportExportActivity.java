@@ -114,19 +114,23 @@ public class ImportExportActivity extends AppCompatActivity {
                 //noinspection ResultOfMethodCallIgnored
                 publicDir.mkdirs(); // Asegurarse de que el directorio exista
 
-                // Crear el archivo en el directorio público
-                File file = new File(publicDir, RecetasSrv.JSON);
-                FileWriter writer = new FileWriter(file);
-                writer.write(jsonData);
-                writer.close();
+                if (publicDir.exists()) { // Verificar si el directorio existe correctamente
+                    // Crear el archivo en el directorio público
+                    File file = new File(publicDir, RecetasSrv.JSON);
+                    FileWriter writer = new FileWriter(file);
+                    writer.write(jsonData);
+                    writer.close();
 
-                // Compartir el archivo con cualquier aplicación
-                Uri fileUri = FileProvider.getUriForFile(this, "com.david.recetapp.provider", file);
-                Intent shareIntent = new Intent(Intent.ACTION_SEND);
-                shareIntent.setType("application/json");
-                shareIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
-                shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                startActivity(Intent.createChooser(shareIntent, getString(R.string.compartir_recetas)));
+                    // Compartir el archivo con cualquier aplicación
+                    Uri fileUri = FileProvider.getUriForFile(this, "com.david.recetapp.provider", file);
+                    Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                    shareIntent.setType("application/json");
+                    shareIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
+                    shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    startActivity(Intent.createChooser(shareIntent, getString(R.string.compartir_recetas)));
+                } else {
+                    UtilsSrv.notificacion(this, getString(R.string.exportacion_error) + ": El directorio no existe", Toast.LENGTH_SHORT).show();
+                }
             } else {
                 UtilsSrv.notificacion(this, getString(R.string.exportacion_error) + ": publicDir is null", Toast.LENGTH_SHORT).show();
             }
