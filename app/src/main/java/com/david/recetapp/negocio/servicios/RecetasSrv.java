@@ -2,6 +2,7 @@ package com.david.recetapp.negocio.servicios;
 
 import android.app.Activity;
 import android.content.Context;
+import android.util.Log;
 
 import com.david.recetapp.negocio.beans.Day;
 import com.david.recetapp.negocio.beans.Receta;
@@ -27,6 +28,7 @@ import java.util.stream.Collectors;
 
 public class RecetasSrv {
     public static final String JSON = "lista_recetas.json";
+    private static final String TAG = "RecetasSrv";
 
     public static List<Receta> cargarListaRecetas(Context context) {
         // Cargar el archivo JSON desde el almacenamiento interno
@@ -56,7 +58,7 @@ public class RecetasSrv {
         } catch (FileNotFoundException e) {
             // El archivo no existe, no se hace nada
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, "Error en 'cargarListaRecetas': " + e.getMessage());
         }
         return new ArrayList<>();
     }
@@ -80,7 +82,7 @@ public class RecetasSrv {
                 osw.close();
                 fos.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e(TAG, "Error en 'addReceta': " + e.getMessage());
             }
         }
 
@@ -107,7 +109,7 @@ public class RecetasSrv {
                 osw.close();
                 fos.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e(TAG, "Error en 'editarReceta': " + e.getMessage());
             }
         }
     }
@@ -130,7 +132,7 @@ public class RecetasSrv {
             osw.close();
             fos.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, "Error en 'eliminarReceta': " + e.getMessage());
         }
     }
 

@@ -145,7 +145,6 @@ public class Receta implements Serializable {
         return puntuacionDada;
     }
 
-    @SuppressWarnings("ConstantConditions")
     public void setPuntuacionDada(Context context) {
         Map<String, Integer> ingredientMap = new HashMap<>();
         String[] ingredientList = context.getResources().getStringArray(R.array.ingredient_list);

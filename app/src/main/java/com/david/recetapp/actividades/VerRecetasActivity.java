@@ -32,7 +32,6 @@ public class VerRecetasActivity extends AppCompatActivity implements RecetaExpan
     private ExpandableListView expandableListView;
     private List<Receta> listaRecetas;
     private AutoCompleteTextView autoCompleteTextViewRecetas;
-    private ImageView imageViewClearSearch;
     private SwitchCompat botonPostres;
     private Handler handler;
     private Runnable runnable;
@@ -52,7 +51,7 @@ public class VerRecetasActivity extends AppCompatActivity implements RecetaExpan
         setContentView(R.layout.activity_ver_recetas);
 
         expandableListView = findViewById(R.id.expandableListView);
-        imageViewClearSearch = findViewById(R.id.imageViewClearSearch);
+        ImageView imageViewClearSearch = findViewById(R.id.imageViewClearSearch);
         textViewEmpty = findViewById(R.id.textViewEmpty);
 
         // Cargar todas las recetas al iniciar la actividad
@@ -140,21 +139,18 @@ public class VerRecetasActivity extends AppCompatActivity implements RecetaExpan
         findViewById(R.id.progressBar).setVisibility(View.GONE);
         if (listaRecetas.isEmpty()) {
             textViewEmpty.setVisibility(View.VISIBLE);
-            autoCompleteTextViewRecetas.setVisibility(View.GONE);
-            imageViewClearSearch.setVisibility(View.GONE);
             botonPostres.setVisibility(View.GONE);
+            findViewById(R.id.textoPostre).setVisibility(View.GONE);
         } else {
             textViewEmpty.setVisibility(View.GONE);
-            autoCompleteTextViewRecetas.setVisibility(View.VISIBLE);
-            imageViewClearSearch.setVisibility(View.VISIBLE);
             botonPostres.setVisibility(View.VISIBLE);
+            findViewById(R.id.textoPostre).setVisibility(View.VISIBLE);
         }
     }
 
     @Override
     public void onListEmpty() {
         textViewEmpty.setVisibility(View.VISIBLE);
-        autoCompleteTextViewRecetas.setVisibility(View.GONE);
-        imageViewClearSearch.setVisibility(View.GONE);
+        findViewById(R.id.textoPostre).setVisibility(View.GONE);
     }
 }
