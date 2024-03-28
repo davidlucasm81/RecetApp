@@ -3,13 +3,13 @@ package com.david.recetapp.actividades;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.ExpandableListView;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -30,12 +30,11 @@ public class VerRecetasActivity extends AppCompatActivity implements RecetaExpan
     private TextView textViewEmpty;
     private ExpandableListView expandableListView;
     private List<Receta> listaRecetas;
-
     private AutoCompleteTextView autoCompleteTextViewRecetas;
-
     private ImageView imageViewClearSearch;
-
     private SwitchCompat botonPostres;
+    private Handler handler;
+    private Runnable runnable;
 
     @SuppressWarnings("deprecation")
     @SuppressLint("MissingSuperCall")
@@ -53,112 +52,73 @@ public class VerRecetasActivity extends AppCompatActivity implements RecetaExpan
 
         expandableListView = findViewById(R.id.expandableListView);
         imageViewClearSearch = findViewById(R.id.imageViewClearSearch);
+        textViewEmpty = findViewById(R.id.textViewEmpty);
 
+        // Cargar todas las recetas al iniciar la actividad
         listaRecetas = RecetasSrv.cargarListaRecetas(this).stream().sorted((r1, r2) -> String.CASE_INSENSITIVE_ORDER.compare(r1.getNombre(), r2.getNombre())).collect(Collectors.toList());
 
         autoCompleteTextViewRecetas = findViewById(R.id.autoCompleteTextViewRecetas);
-
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, new ArrayList<>(listaRecetas.stream().map(Receta::getNombre).collect(Collectors.toSet())));
         autoCompleteTextViewRecetas.setAdapter(adapter);
-        // Configurar el OnItemClickListener para el AutoCompleteTextView
-        autoCompleteTextViewRecetas.setOnItemClickListener((parent, view, position, id) -> {
-            String recetaIngredienteSeleccionado = (String) parent.getItemAtPosition(position);
-            filtrarYActualizarLista(recetaIngredienteSeleccionado);
-        });
 
-        // Configurar el evento de cambio de texto del AutoCompleteTextView
         autoCompleteTextViewRecetas.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                String recetaIngredienteSeleccionado = s.toString();
-                filtrarYActualizarLista(recetaIngredienteSeleccionado);
+                if (handler != null && runnable != null) {
+                    handler.removeCallbacks(runnable); // Elimina la búsqueda pendiente si el usuario sigue escribiendo
+                }
             }
 
             @Override
             public void afterTextChanged(Editable s) {
+                handler = new Handler();
+                runnable = () -> {
+                    String recetaIngredienteSeleccionado = s.toString();
+                    filtrarYActualizarLista(recetaIngredienteSeleccionado);
+                };
+                handler.postDelayed(runnable, 500); // Espera 500 milisegundos antes de realizar la búsqueda
             }
         });
-        // Configurar el click listener para el botón de borrar búsqueda
+
         imageViewClearSearch.setOnClickListener(v -> {
-            // Limpiar el texto del AutoCompleteTextView al hacer clic en el botón
             autoCompleteTextViewRecetas.setText("");
-            listaRecetas = RecetasSrv.cargarListaRecetas(v.getContext()).stream().sorted((r1, r2) -> String.CASE_INSENSITIVE_ORDER.compare(r1.getNombre(), r2.getNombre())).collect(Collectors.toList());
-            RecetaExpandableListAdapter expandableListAdapter = new RecetaExpandableListAdapter(this, listaRecetas, expandableListView, this);
-            expandableListView.setAdapter(expandableListAdapter);
-
-            expandableListView.setOnGroupClickListener((parent1, v1, groupPosition1, id1) -> {
-                if (expandableListView.isGroupExpanded(groupPosition1)) {
-                    expandableListView.collapseGroup(groupPosition1);
-                } else {
-                    expandableListView.expandGroup(groupPosition1);
-                }
-                return true;
-            });
+            filtrarYActualizarLista("");
         });
+
         botonPostres = findViewById(R.id.botonPostre);
-        TextView textoPostres = findViewById(R.id.textoPostre);
-        textViewEmpty = findViewById(R.id.textViewEmpty);
-
-        if (listaRecetas.isEmpty()) {
-            textViewEmpty.setVisibility(View.VISIBLE); // Muestra el TextView si la lista está vacía
-            autoCompleteTextViewRecetas.setVisibility(View.GONE);
-            imageViewClearSearch.setVisibility(View.GONE);
-            textoPostres.setVisibility(View.GONE);
-            botonPostres.setVisibility(View.GONE);
-        } else {
-            textViewEmpty.setVisibility(View.GONE); // Oculta el TextView si la lista no está vacía
-            autoCompleteTextViewRecetas.setVisibility(View.VISIBLE);
-            imageViewClearSearch.setVisibility(View.VISIBLE);
-            textoPostres.setVisibility(View.VISIBLE);
-            botonPostres.setVisibility(View.VISIBLE);
-        }
-
-        RecetaExpandableListAdapter expandableListAdapter = new RecetaExpandableListAdapter(this, listaRecetas, expandableListView, this);
-        expandableListView.setAdapter(expandableListAdapter);
-
-        expandableListView.setOnGroupClickListener((parent, v, groupPosition, id) -> {
-            if (expandableListView.isGroupExpanded(groupPosition)) {
-                expandableListView.collapseGroup(groupPosition);
-            } else {
-                expandableListView.expandGroup(groupPosition);
-            }
-            return true;
-        });
-        ImageButton importar = findViewById(R.id.btnImportar);
-        importar.setOnClickListener(view -> {
-            Intent intent = new Intent(VerRecetasActivity.this, ImportExportActivity.class);
-            startActivity(intent);
-        });
-
         botonPostres.setOnCheckedChangeListener((v, isChecked) -> filtrarYActualizarLista(autoCompleteTextViewRecetas.getText().toString()));
+
+        // Configurar la visibilidad de los elementos según la lista de recetas
+        actualizarVisibilidadListaRecetas();
+
+        // Cargar todas las recetas por defecto al iniciar la actividad
+        filtrarYActualizarLista("");
     }
 
     private void filtrarYActualizarLista(String consulta) {
-        listaRecetas = RecetasSrv.cargarListaRecetas(this).stream().sorted((r1, r2) -> String.CASE_INSENSITIVE_ORDER.compare(r1.getNombre(), r2.getNombre())).collect(Collectors.toList());
+        // Muestra el indicador de carga
+        findViewById(R.id.progressBar).setVisibility(View.VISIBLE);
 
-        if (!consulta.trim().isEmpty()) {
-            listaRecetas.removeIf(r -> !contieneReceta(r, consulta) && !contieneIngredientes(r, consulta));
-        }
+        new Thread(() -> {
+            listaRecetas = RecetasSrv.cargarListaRecetas(this).stream().sorted((r1, r2) -> String.CASE_INSENSITIVE_ORDER.compare(r1.getNombre(), r2.getNombre())).collect(Collectors.toList());
 
-        if (botonPostres.isChecked()) {
-            listaRecetas.removeIf(r -> !r.isPostre());
-        }
-
-        RecetaExpandableListAdapter expandableListAdapter = new RecetaExpandableListAdapter(this, listaRecetas, expandableListView, this);
-        expandableListView.setAdapter(expandableListAdapter);
-
-        expandableListView.setOnGroupClickListener((parent1, v1, groupPosition1, id1) -> {
-            if (expandableListView.isGroupExpanded(groupPosition1)) {
-                expandableListView.collapseGroup(groupPosition1);
-            } else {
-                expandableListView.expandGroup(groupPosition1);
+            if (!consulta.trim().isEmpty()) {
+                listaRecetas.removeIf(r -> !contieneReceta(r, consulta) && !contieneIngredientes(r, consulta));
             }
-            return true;
-        });
+
+            if (botonPostres.isChecked()) {
+                listaRecetas.removeIf(r -> !r.isPostre());
+            }
+
+            runOnUiThread(() -> {
+                RecetaExpandableListAdapter expandableListAdapter = new RecetaExpandableListAdapter(this, listaRecetas, expandableListView, this);
+                expandableListView.setAdapter(expandableListAdapter);
+                actualizarVisibilidadListaRecetas(); // Actualizar visibilidad de elementos después de la búsqueda
+            });
+        }).start();
     }
 
     private boolean contieneReceta(Receta receta, String consulta) {
@@ -169,9 +129,24 @@ public class VerRecetasActivity extends AppCompatActivity implements RecetaExpan
         return receta.getIngredientes().stream().anyMatch(ingrediente -> ingrediente.getNombre().toLowerCase().contains(consulta.toLowerCase()));
     }
 
+    private void actualizarVisibilidadListaRecetas() {
+        findViewById(R.id.progressBar).setVisibility(View.GONE);
+        if (listaRecetas.isEmpty()) {
+            textViewEmpty.setVisibility(View.VISIBLE);
+            autoCompleteTextViewRecetas.setVisibility(View.GONE);
+            imageViewClearSearch.setVisibility(View.GONE);
+            botonPostres.setVisibility(View.GONE);
+        } else {
+            textViewEmpty.setVisibility(View.GONE);
+            autoCompleteTextViewRecetas.setVisibility(View.VISIBLE);
+            imageViewClearSearch.setVisibility(View.VISIBLE);
+            botonPostres.setVisibility(View.VISIBLE);
+        }
+    }
+
     @Override
     public void onListEmpty() {
-        textViewEmpty.setVisibility(View.VISIBLE); // Muestra el TextView si la lista está vacía
+        textViewEmpty.setVisibility(View.VISIBLE);
         autoCompleteTextViewRecetas.setVisibility(View.GONE);
         imageViewClearSearch.setVisibility(View.GONE);
     }
