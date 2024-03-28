@@ -11,6 +11,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -100,7 +101,9 @@ public class VerRecetasActivity extends AppCompatActivity implements RecetaExpan
 
     private void filtrarYActualizarLista(String consulta) {
         // Muestra el indicador de carga
-        findViewById(R.id.progressBar).setVisibility(View.VISIBLE);
+        ProgressBar progressBar = findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.VISIBLE);
+        expandableListView.setVisibility(View.GONE);
 
         new Thread(() -> {
             listaRecetas = RecetasSrv.cargarListaRecetas(this).stream().sorted((r1, r2) -> String.CASE_INSENSITIVE_ORDER.compare(r1.getNombre(), r2.getNombre())).collect(Collectors.toList());
@@ -117,6 +120,10 @@ public class VerRecetasActivity extends AppCompatActivity implements RecetaExpan
                 RecetaExpandableListAdapter expandableListAdapter = new RecetaExpandableListAdapter(this, listaRecetas, expandableListView, this);
                 expandableListView.setAdapter(expandableListAdapter);
                 actualizarVisibilidadListaRecetas(); // Actualizar visibilidad de elementos después de la búsqueda
+
+                // Ocultar el indicador de carga
+                progressBar.setVisibility(View.GONE);
+                expandableListView.setVisibility(View.VISIBLE);
             });
         }).start();
     }
