@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.ExpandableListView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -49,6 +50,12 @@ public class VerRecetasActivity extends AppCompatActivity implements RecetaExpan
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ver_recetas);
+
+        ImageButton importar = findViewById(R.id.btnImportar);
+        importar.setOnClickListener(view -> {
+            Intent intent = new Intent(VerRecetasActivity.this, ImportExportActivity.class);
+            startActivity(intent);
+        });
 
         expandableListView = findViewById(R.id.expandableListView);
         ImageView imageViewClearSearch = findViewById(R.id.imageViewClearSearch);

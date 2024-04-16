@@ -255,14 +255,14 @@ public class CalendarioSrv {
 
 
     public static String obtenerListaCompraSemana(Activity activity) {
-        List<Integer> diasSemana = UtilsSrv.obtenerDiasSemanaActual();
+        List<Integer> dias = UtilsSrv.obtenerDiasRestantesMes();
         List<Day> calendario = obtenerCalendario(activity);
         Map<String, BigDecimal> resultado = new HashMap<>();
 
         Map<String, Integer> unidadesAGramos = cargarUnidadesAGramos(activity.getResources());
 
         for (Day dia : calendario) {
-            if (diasSemana.contains(dia.getDayOfMonth())) {
+            if (dias.contains(dia.getDayOfMonth())) {
                 for (Receta receta : RecetasSrv.obtenerRecetasPorId(activity, dia.getRecetas())) {
                     for (Ingrediente ingrediente : receta.getIngredientes()) {
                         BigDecimal cantidadEnGramos = sumarCantidadesAGramos(ingrediente.getCantidad(), ingrediente.getTipoCantidad(), unidadesAGramos);

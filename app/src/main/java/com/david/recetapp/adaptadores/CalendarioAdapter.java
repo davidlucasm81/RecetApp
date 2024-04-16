@@ -19,8 +19,6 @@ public class CalendarioAdapter extends BaseAdapter {
     private final Context context;
     private final List<Day> days;
 
-    private final List<Integer> diasSemana = UtilsSrv.obtenerDiasSemanaActual();
-
     private final int numeroEnBlanco;
 
     public CalendarioAdapter(Context context, List<Day> days) {
@@ -69,7 +67,7 @@ public class CalendarioAdapter extends BaseAdapter {
             context.startActivity(intent);
         });
 
-        dayButton.setEnabled(diasSemana.contains(day.getDayOfMonth()));
+        dayButton.setEnabled(true);
 
         return convertView;
     }

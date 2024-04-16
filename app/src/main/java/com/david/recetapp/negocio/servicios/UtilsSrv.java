@@ -16,8 +16,8 @@ import com.david.recetapp.negocio.beans.Temporada;
 
 import org.apache.commons.text.similarity.LevenshteinDistance;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
@@ -210,16 +210,16 @@ public class UtilsSrv {
         }
     }
 
-    public static List<Integer> obtenerDiasSemanaActual() {
+    public static List<Integer> obtenerDiasRestantesMes() {
         // Obtener la fecha actual
         LocalDate fechaActual = LocalDate.now();
 
-        // Calcular el primer día de la semana (lunes)
-        LocalDate primerDiaSemana = fechaActual.with(DayOfWeek.MONDAY);
+        // Calcular el último día del mes actual
+        LocalDate ultimoDiaMes = fechaActual.with(TemporalAdjusters.lastDayOfMonth());
 
-        // Crear una lista de los días de la semana actual (lunes a domingo)
-        return IntStream.range(0, 7)
-                .mapToObj(primerDiaSemana::plusDays)
+        // Calcular los días restantes del mes (incluyendo el día actual)
+        return IntStream.range(0, ultimoDiaMes.getDayOfMonth() - fechaActual.getDayOfMonth() + 1)
+                .mapToObj(fechaActual::plusDays)
                 .map(LocalDate::getDayOfMonth)
                 .collect(Collectors.toList());
     }

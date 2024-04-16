@@ -1298,5 +1298,9 @@
             <nombre>Queso gruyer rallado</nombre>
             <puntuación>5</puntuación>
         </item>
+        <item>
+            <nombre>Nuez</nombre>
+            <puntuación>8</puntuación>
+        </item>
     </array>
 </resources>
