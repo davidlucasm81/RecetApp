@@ -3,7 +3,6 @@ package com.david.recetapp.negocio.servicios;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.widget.Toast;
 
 import com.david.recetapp.R;
@@ -23,10 +22,8 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 
 public class CalendarioSrv {
@@ -257,52 +254,45 @@ public class CalendarioSrv {
     public static String obtenerListaCompraSemana(Activity activity) {
         List<Integer> dias = UtilsSrv.obtenerDiasRestantesMes();
         List<Day> calendario = obtenerCalendario(activity);
-        Map<String, BigDecimal> resultado = new HashMap<>();
-
-        Map<String, Integer> unidadesAGramos = cargarUnidadesAGramos(activity.getResources());
+        Map<String, Map<String, BigDecimal>> resultado = new HashMap<>(); // Mapa de Mapas: Nombre del ingrediente -> Tipo de unidad -> Cantidad
 
         for (Day dia : calendario) {
             if (dias.contains(dia.getDayOfMonth())) {
                 for (Receta receta : RecetasSrv.obtenerRecetasPorId(activity, dia.getRecetas())) {
                     for (Ingrediente ingrediente : receta.getIngredientes()) {
-                        BigDecimal cantidadEnGramos = sumarCantidadesAGramos(ingrediente.getCantidad(), ingrediente.getTipoCantidad(), unidadesAGramos);
-                        resultado.put(ingrediente.getNombre(), Objects.requireNonNull(resultado.getOrDefault(ingrediente.getNombre(), BigDecimal.ZERO)).add(cantidadEnGramos));
+                        String nombreIngrediente = ingrediente.getNombre();
+                        String tipoCantidad = ingrediente.getTipoCantidad();
+                        BigDecimal cantidad = BigDecimal.valueOf(UtilsSrv.convertirNumero(ingrediente.getCantidad()));
+
+                        if (!resultado.containsKey(nombreIngrediente)) {
+                            resultado.put(nombreIngrediente, new HashMap<>());
+                        }
+                        Map<String, BigDecimal> ingredientesMap = resultado.get(nombreIngrediente);
+
+                        if (ingredientesMap.containsKey(tipoCantidad)) {
+                            BigDecimal cantidadActual = ingredientesMap.get(tipoCantidad);
+                            ingredientesMap.put(tipoCantidad, cantidadActual.add(cantidad));
+                        } else {
+                            ingredientesMap.put(tipoCantidad, cantidad);
+                        }
                     }
                 }
             }
         }
 
-        return resultado.entrySet().stream()
-                .map(entry -> "- " + entry.getValue() + " g " + entry.getKey() + "\n")
-                .collect(Collectors.joining());
-    }
-
-    private static Map<String, Integer> cargarUnidadesAGramos(Resources resources) {
-        Map<String, Integer> unidadesAGramos = new HashMap<>();
-        String[] unidadesArray = resources.getStringArray(R.array.quantity_units);
-        int[] valoresArray = resources.getIntArray(R.array.importance_values);
-
-        for (int i = 0; i < unidadesArray.length; i++) {
-            unidadesAGramos.put(unidadesArray[i], valoresArray[i]);
-        }
-
-        return unidadesAGramos;
-    }
-
-    private static BigDecimal sumarCantidadesAGramos(String cantidad, String tipoCantidad, Map<String, Integer> unidadesAGramos) {
-        int factorConversion;
-        if( unidadesAGramos == null || !unidadesAGramos.containsKey(tipoCantidad)){
-            factorConversion = 1;
-        }
-        else {
-            Integer n = unidadesAGramos.get(tipoCantidad);
-            if(n != null){
-                factorConversion = n;
-            }
-            else{
-                factorConversion = 1;
+        StringBuilder listaCompra = new StringBuilder();
+        for (Map.Entry<String, Map<String, BigDecimal>> entry : resultado.entrySet()) {
+            String nombreIngrediente = entry.getKey();
+            Map<String, BigDecimal> ingredientesMap = entry.getValue();
+            for (Map.Entry<String, BigDecimal> innerEntry : ingredientesMap.entrySet()) {
+                String tipoCantidad = innerEntry.getKey();
+                BigDecimal cantidad = innerEntry.getValue();
+                String cantidadString = cantidad.stripTrailingZeros().toPlainString();
+                listaCompra.append("- ").append(cantidadString).append(" ").append(tipoCantidad).append(" ").append(nombreIngrediente).append("\n");
             }
         }
-        return BigDecimal.valueOf(UtilsSrv.convertirNumero(cantidad)).multiply(BigDecimal.valueOf(factorConversion));
+
+        return listaCompra.toString();
     }
+
 }

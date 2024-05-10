@@ -1302,5 +1302,29 @@
             <nombre>Nuez</nombre>
             <puntuación>8</puntuación>
         </item>
+        <item>
+            <nombre>Cebolletas chinas</nombre>
+            <puntuación>9</puntuación>
+        </item>
+        <item>
+            <nombre>Salsa teriyaki</nombre>
+            <puntuación>2</puntuación>
+        </item>
+        <item>
+            <nombre>Atún en aceite</nombre>
+            <puntuación>7</puntuación>
+        </item>
+        <item>
+            <nombre>Tomate frito</nombre>
+            <puntuación>4</puntuación>
+        </item>
+        <item>
+            <nombre>Cebolla pequeña</nombre>
+            <puntuación>9</puntuación>
+        </item>
+        <item>
+            <nombre>Pimiento verde</nombre>
+            <puntuación>9</puntuación>
+        </item>
     </array>
 </resources>
