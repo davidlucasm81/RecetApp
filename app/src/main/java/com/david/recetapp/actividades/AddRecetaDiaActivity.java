@@ -4,8 +4,10 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -34,7 +36,10 @@ public class AddRecetaDiaActivity extends AppCompatActivity {
         LinearLayout buttonContainer = findViewById(R.id.buttonContainer);
 
         List<Receta> listaRecetas = obtenerListaRecetas();
-
+        TextView textViewEmpty = findViewById(R.id.textViewEmpty);
+        if(listaRecetas == null || listaRecetas.isEmpty()) {
+            textViewEmpty.setVisibility(View.VISIBLE); // Se muestra el TextView
+        }
         // Crear dinámicamente botones para cada receta
         for (Receta receta : listaRecetas) {
             Button recetaButton = new Button(this);

@@ -56,9 +56,7 @@ public class DetalleDiaActivity extends AppCompatActivity implements RecetaExpan
         titleTextView.setText(nuevoTexto);
 
         List<String> listaRecetas = selectedDay.getRecetas();
-        if(listaRecetas.size()<2){
-            addReceta.setVisibility(View.VISIBLE); // Se muestra el boton de añadir receta
-        }
+
         if(listaRecetas.isEmpty()) {
             textViewEmpty.setVisibility(View.VISIBLE); // Se muestra el TextView
         }

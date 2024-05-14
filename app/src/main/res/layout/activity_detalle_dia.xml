@@ -20,12 +20,12 @@
         android:id="@+id/addReceta"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="8dp"
         android:background="@drawable/boton_redondo"
         android:gravity="center"
         android:text="@string/add_recipe"
         android:textSize="14sp"
-        android:visibility="gone"
-        android:layout_margin="8dp"
+        android:visibility="visible"
         tools:ignore="VisualLintButtonSize,TextContrastCheck" />
 
     <TextView
