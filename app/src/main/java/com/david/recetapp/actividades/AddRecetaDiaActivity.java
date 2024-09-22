@@ -41,16 +41,18 @@ public class AddRecetaDiaActivity extends AppCompatActivity {
             textViewEmpty.setVisibility(View.VISIBLE); // Se muestra el TextView
         }
         // Crear dinámicamente botones para cada receta
-        for (Receta receta : listaRecetas) {
-            Button recetaButton = new Button(this);
-            recetaButton.setText(receta.getNombre());
-            recetaButton.setOnClickListener(v -> {
-                // Mostrar un diálogo de confirmación
-                showConfirmationDialog(receta);
-            });
+        if (listaRecetas != null) {
+            for (Receta receta : listaRecetas) {
+                Button recetaButton = new Button(this);
+                recetaButton.setText(receta.getNombre());
+                recetaButton.setOnClickListener(v -> {
+                    // Mostrar un diálogo de confirmación
+                    showConfirmationDialog(receta);
+                });
 
-            // Agregar el botón al contenedor
-            buttonContainer.addView(recetaButton);
+                // Agregar el botón al contenedor
+                buttonContainer.addView(recetaButton);
+            }
         }
     }
 

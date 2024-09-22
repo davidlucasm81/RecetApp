@@ -173,12 +173,14 @@ public class Receta implements Serializable {
         }
         double cantidadTotal = this.ingredientes.stream().mapToDouble(ingrediente -> {
             double cantidad = (UtilsSrv.esNumeroEnteroOFraccionValida(ingrediente.getCantidad())) ? UtilsSrv.convertirNumero(ingrediente.getCantidad()) : 1;
+            //noinspection DataFlowIssue
             double tipoCantidadFactor = unitImportanceMap.getOrDefault(ingrediente.getTipoCantidad(), 1);
             return cantidad * tipoCantidadFactor;
         }).sum();
 
         this.puntuacionDada = this.ingredientes.stream().mapToDouble(ingrediente -> {
             double cantidad = (UtilsSrv.esNumeroEnteroOFraccionValida(ingrediente.getCantidad())) ? UtilsSrv.convertirNumero(ingrediente.getCantidad()) : 1;
+            //noinspection DataFlowIssue
             double tipoCantidadFactor = unitImportanceMap.getOrDefault(ingrediente.getTipoCantidad(), 1);
 
             // Pondera la puntuación del ingrediente más que la cantidad y el tipo de cantidad

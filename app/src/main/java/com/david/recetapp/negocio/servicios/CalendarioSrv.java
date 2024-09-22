@@ -269,11 +269,13 @@ public class CalendarioSrv {
                         }
                         Map<String, BigDecimal> ingredientesMap = resultado.get(nombreIngrediente);
 
-                        if (ingredientesMap.containsKey(tipoCantidad)) {
-                            BigDecimal cantidadActual = ingredientesMap.get(tipoCantidad);
-                            ingredientesMap.put(tipoCantidad, cantidadActual.add(cantidad));
-                        } else {
-                            ingredientesMap.put(tipoCantidad, cantidad);
+                        if (ingredientesMap != null && ingredientesMap.containsKey(tipoCantidad)) {
+                            ingredientesMap.compute(tipoCantidad, (k, cantidadActual) -> {
+                                if (cantidadActual != null) {
+                                    return cantidadActual.add(cantidad);
+                                }
+                                return BigDecimal.ZERO;
+                            });
                         }
                     }
                 }
