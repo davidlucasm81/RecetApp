@@ -1390,5 +1390,94 @@
             <nombre>Noodles</nombre>
             <puntuación>4</puntuación>
         </item>
+        <item>
+            <nombre>Jamón serrano</nombre>
+            <puntuación>3</puntuación>
+        </item>
+        <item>
+            <nombre>Queso Asturiano</nombre>
+            <puntuación>4</puntuación>
+        </item>
+        <item>
+            <nombre>Cebolla grande</nombre>
+            <puntuación>9</puntuación>
+        </item>
+        <item>
+            <nombre>Tomate grande</nombre>
+            <puntuación>10</puntuación>
+        </item>
+        <item>
+            <nombre>Yogur natural</nombre>
+            <puntuación>8</puntuación>
+        </item>
+        <item>
+            <nombre>Comino molido</nombre>
+            <puntuación>9</puntuación>
+        </item>
+        <item>
+            <nombre>Cilantro molido</nombre>
+            <puntuación>9</puntuación>
+        </item>
+        <item>
+            <nombre>Garam masala</nombre>
+            <puntuación>7</puntuación>
+        </item>
+        <item>
+            <nombre>Caldo de carne</nombre>
+            <puntuación>4</puntuación>
+        </item>
+        <item>
+            <nombre>Lámina de hojaldre</nombre>
+            <puntuación>2</puntuación>
+        </item>
+        <item>
+            <nombre>Harina de maíz</nombre>
+            <puntuación>5</puntuación>
+        </item>
+        <item>
+            <nombre>Cebollino</nombre>
+            <puntuación>9</puntuación>
+        </item>
+        <item>
+            <nombre>Pepinillo encurtido</nombre>
+            <puntuación>6</puntuación>
+        </item>
+        <item>
+            <nombre>Langostino</nombre>
+            <puntuación>7</puntuación>
+        </item>
+        <item>
+            <nombre>Aceitunas</nombre>
+            <puntuación>6</puntuación>
+        </item>
+        <item>
+            <nombre>Pepinillo</nombre>
+            <puntuación>6</puntuación>
+        </item>
+        <item>
+            <nombre>Rábano</nombre>
+            <puntuación>9</puntuación>
+        </item>
+        <item>
+            <nombre>Mantequilla sin sal</nombre>
+            <puntuación>3</puntuación>
+        </item>
+        <item>
+            <nombre>Salsa de ostras</nombre>
+            <puntuación>4</puntuación>
+        </item>
+        <item>
+            <nombre>Leche</nombre>
+            <puntuación>7</puntuación>
+        </item>
+        <item>
+            <nombre>Muslo de pollo</nombre>
+            <puntuación>6</puntuación>
+        </item>
+        <item>
+            <nombre>Picadillo de jamón</nombre>
+            <puntuación>4</puntuación>
+        </item>
+
     </array>
 </resources>
