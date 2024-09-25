@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 
@@ -123,6 +124,18 @@ public class CalendarioSrv {
         }
         UtilsSrv.notificacion(activity, activity.getString(R.string.calendario_no_actualizado), Toast.LENGTH_SHORT).show();
 
+    }
+
+    public static void actualizarFechaCalendario(Activity activity, Receta receta){
+        List<Day> dias = obtenerCalendario(activity);
+
+        Optional<Day> dia = dias.stream().sorted((d1,d2)->d2.getDayOfMonth()-d1.getDayOfMonth()).filter(d -> d.getRecetas().contains(receta.getId())).findFirst();
+        if(dia.isPresent()){
+            RecetasSrv.actualizarRecetaCalendario(activity,receta,dia.get().getDayOfMonth(),false);
+        }
+        else{
+            RecetasSrv.actualizarRecetaCalendario(activity,receta,-1,false);
+        }
     }
 
     public static void cargarRecetas(Activity activity) {
@@ -269,13 +282,11 @@ public class CalendarioSrv {
                         }
                         Map<String, BigDecimal> ingredientesMap = resultado.get(nombreIngrediente);
 
-                        if (ingredientesMap != null && ingredientesMap.containsKey(tipoCantidad)) {
-                            ingredientesMap.compute(tipoCantidad, (k, cantidadActual) -> {
-                                if (cantidadActual != null) {
-                                    return cantidadActual.add(cantidad);
-                                }
-                                return BigDecimal.ZERO;
-                            });
+                        if (ingredientesMap.containsKey(tipoCantidad)) {
+                            BigDecimal cantidadActual = ingredientesMap.get(tipoCantidad);
+                            ingredientesMap.put(tipoCantidad, cantidadActual.add(cantidad));
+                        } else {
+                            ingredientesMap.put(tipoCantidad, cantidad);
                         }
                     }
                 }

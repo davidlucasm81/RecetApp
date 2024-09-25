@@ -125,9 +125,10 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
             AlertDialog.Builder builder = new AlertDialog.Builder(activity);
             builder.setTitle(activity.getString(R.string.confirmacion)).setMessage(activity.getString(R.string.alerta_eliminar) + " '" + receta.getNombre() + "' ?").setPositiveButton(activity.getString(R.string.aceptar), (dialog, which) -> {
                 // Eliminar la receta del calendario y refrescar la pantalla
-                listaRecetas.remove(groupPosition);
+                Receta eliminada = listaRecetas.remove(groupPosition);
                 selectedDay.setRecetas(listaRecetas.stream().map(Receta::getId).collect(Collectors.toList()));
                 CalendarioSrv.actualizarDia(activity, selectedDay);
+                CalendarioSrv.actualizarFechaCalendario(activity,eliminada);
                 if(listaRecetas.size()<2){
                     emptyListListener.onListSize();
                 }

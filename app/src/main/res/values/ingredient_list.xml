@@ -1478,6 +1478,17 @@
             <nombre>Picadillo de jamón</nombre>
             <puntuación>4</puntuación>
         </item>
-
+        <item>
+            <nombre>Sidra natural</nombre>
+            <puntuación>6</puntuación>
+        </item>
+        <item>
+            <nombre>Lomo de cerdo</nombre>
+            <puntuación>5</puntuación>
+        </item>
+        <item>
+            <nombre>Caldo</nombre>
+            <puntuación>4</puntuación>
+        </item>
     </array>
 </resources>

@@ -158,15 +158,24 @@ public class RecetasSrv {
     public static void actualizarRecetasCalendario(Activity activity, Day dia) {
         List<Receta> listaRecetas = cargarListaRecetas(activity);
 
-        // Obtener la fecha actual con el año y mes actuales, pero con el día de dayOfMonth
-        Calendar cal = Calendar.getInstance();
-        cal.set(Calendar.DAY_OF_MONTH, dia.getDayOfMonth());
-        Date fechaEspecifica = cal.getTime();
-
         listaRecetas.stream().filter(r -> dia.getRecetas().contains(r.getId())).forEach(r -> {
-            r.setFechaCalendario(fechaEspecifica);
-            editarReceta(activity, r);
+            actualizarRecetaCalendario(activity, r, dia.getDayOfMonth(),true);
         });
+    }
+
+    public static void actualizarRecetaCalendario(Activity activity, Receta receta, int diaMes,boolean add) {
+        // Obtener la fecha actual con el año y mes actuales, pero con el día de dayOfMonth
+        Date fechaEspecifica = new Date(0);
+        if (diaMes > 0) {
+            Calendar cal = Calendar.getInstance();
+            cal.set(Calendar.DAY_OF_MONTH, diaMes);
+            fechaEspecifica = cal.getTime();
+            if(add && receta.getFechaCalendario().after(fechaEspecifica)){
+                return;
+            }
+        }
+        receta.setFechaCalendario(fechaEspecifica);
+        editarReceta(activity, receta);
     }
 
     public static List<Receta> obtenerRecetasPorId(Activity activity, List<String> idRecetas) {
