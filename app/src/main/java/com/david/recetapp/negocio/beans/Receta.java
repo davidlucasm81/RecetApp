@@ -158,9 +158,8 @@ public class Receta implements Serializable {
                 ingredientMap.put(matcher.group(1), Integer.parseInt(Objects.requireNonNull(matcher.group(2))));
             }
         }
-        for (Ingrediente ingrediente : this.ingredientes) {
-            ingrediente.setPuntuacion(UtilsSrv.obtenerPuntuacion(ingredientMap, ingrediente.getNombre(), -1));
-        }
+
+        this.ingredientes.parallelStream().forEach(i -> i.setPuntuacion(UtilsSrv.obtenerPuntuacion(ingredientMap, i.getNombre(), -1)));
 
         String[] units = context.getResources().getStringArray(R.array.quantity_units);
         int[] importanceValues = context.getResources().getIntArray(R.array.importance_values);

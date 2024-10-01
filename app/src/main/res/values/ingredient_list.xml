@@ -1243,6 +1243,10 @@
             <puntuación>2</puntuación>
         </item>
         <item>
+            <nombre>Cubitos de jamón</nombre>
+            <puntuación>2</puntuación>
+        </item>
+        <item>
             <nombre>Queso crema</nombre>
             <puntuación>6</puntuación>
         </item>
@@ -1280,6 +1284,10 @@
         </item>
         <item>
             <nombre>Salchichas</nombre>
+            <puntuación>2</puntuación>
+        </item>
+        <item>
+            <nombre>Salchichas frescas</nombre>
             <puntuación>2</puntuación>
         </item>
         <item>
@@ -1510,5 +1518,30 @@
             <nombre>Canela en rama</nombre>
             <puntuación>9</puntuación>
         </item>
+        <item>
+            <nombre>Cerveza</nombre>
+            <puntuación>3</puntuación>
+        </item>
+        <item>
+            <nombre>Piripiri</nombre>
+            <puntuación>8</puntuación>
+        </item>
+        <item>
+            <nombre>Espárragos verdes</nombre>
+            <puntuación>9</puntuación>
+        </item>
+        <item>
+            <nombre>Tomate troceado</nombre>
+            <puntuación>9</puntuación>
+        </item>
+        <item>
+            <nombre>Chili rojo</nombre>
+            <puntuación>8</puntuación>
+        </item>
+        <item>
+            <nombre>Pollo entero alimentado con cereal</nombre>
+            <puntuación>6</puntuación>
+        </item>
+
     </array>
 </resources>
