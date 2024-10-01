@@ -114,18 +114,14 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
 
         Receta receta = listaRecetas.get(groupPosition);
         txtTituloReceta.setText(receta.getNombre());
+        ImageView warning = convertView.findViewById(R.id.warning);
         ImageView postre = convertView.findViewById(R.id.imageViewPostreIcono);
         ImageView shared = convertView.findViewById(R.id.imageViewSharedIcono);
-        if (receta.isPostre()) {
-            postre.setVisibility(View.VISIBLE);
-        } else {
-            postre.setVisibility(View.GONE);
-        }
-        if (receta.isShared()) {
-            shared.setVisibility(View.VISIBLE);
-        } else {
-            shared.setVisibility(View.GONE);
-        }
+
+        postre.setVisibility(receta.isPostre() ? View.VISIBLE : View.GONE);
+        shared.setVisibility(receta.isShared() ? View.VISIBLE : View.GONE);
+        warning.setVisibility(receta.getIngredientes().stream().anyMatch(i -> i.getPuntuacion() < 0) ? View.VISIBLE : View.GONE);
+
         btnEliminar.setOnClickListener(v -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
             builder.setTitle(context.getString(R.string.confirmacion)).setMessage(context.getString(R.string.alerta_eliminar) + " '" + receta.getNombre() + "' ?").setPositiveButton(context.getString(R.string.aceptar), (dialog, which) -> {

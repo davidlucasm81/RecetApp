@@ -21,6 +21,17 @@
         android:orientation="horizontal">
 
         <ImageView
+            android:id="@+id/warning"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="15dp"
+            android:layout_weight="1"
+            android:contentDescription="@string/warning"
+            android:src="@drawable/warning"
+            android:visibility="gone"
+            tools:ignore="RtlSymmetry" />
+
+        <ImageView
             android:id="@+id/imageViewPostreIcono"
             android:layout_width="24dp"
             android:layout_height="24dp"

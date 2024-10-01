@@ -73,4 +73,5 @@
     <string name="alerta_actualizar_calendario">¿Quiere cargar de recetas el calendario?</string>
     <string name="lista_compra">Lista de la compra</string>
     <string name="alerta_actualizar_lista">¿Quiere crear la lista de la compra según las recetas del calendario?</string>
+    <string name="warning">Warning</string>
 </resources>
