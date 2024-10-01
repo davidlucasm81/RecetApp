@@ -159,9 +159,7 @@ public class Receta implements Serializable {
             }
         }
         for (Ingrediente ingrediente : this.ingredientes) {
-            if (ingrediente.getPuntuacion() < 1) {
-                ingrediente.setPuntuacion(UtilsSrv.obtenerPuntuacion(ingredientMap, ingrediente.getNombre(), -1));
-            }
+            ingrediente.setPuntuacion(UtilsSrv.obtenerPuntuacion(ingredientMap, ingrediente.getNombre(), -1));
         }
 
         String[] units = context.getResources().getStringArray(R.array.quantity_units);
