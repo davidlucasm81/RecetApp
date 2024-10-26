@@ -19,10 +19,10 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -208,18 +208,16 @@ public class UtilsSrv {
         }
     }
 
-    public static List<Integer> obtenerDiasRestantesMes() {
-        // Obtener la fecha actual
+    public static Set<Integer> obtenerDiasRestantesMes() {
         LocalDate fechaActual = LocalDate.now();
-
-        // Calcular el último día del mes actual
         LocalDate ultimoDiaMes = fechaActual.with(TemporalAdjusters.lastDayOfMonth());
+        int diasRestantes = ultimoDiaMes.getDayOfMonth() - fechaActual.getDayOfMonth() + 1;
 
-        // Calcular los días restantes del mes (incluyendo el día actual)
-        return IntStream.range(0, ultimoDiaMes.getDayOfMonth() - fechaActual.getDayOfMonth() + 1)
+        return IntStream.iterate(0, i -> i + 1)
+                .limit(diasRestantes)
                 .mapToObj(fechaActual::plusDays)
                 .map(LocalDate::getDayOfMonth)
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
     }
 
     // Método para obtener el nombre del día a partir del día del mes

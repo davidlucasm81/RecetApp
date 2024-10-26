@@ -1542,6 +1542,33 @@
             <nombre>Pollo entero alimentado con cereal</nombre>
             <puntuación>6</puntuación>
         </item>
-
+        <item>
+            <nombre>Parmesano rallado</nombre>
+            <puntuación>5</puntuación>
+        </item>
+        <item>
+            <nombre>Lubina limpia sin espinas</nombre>
+            <puntuación>9</puntuación>
+        </item>
+        <item>
+            <nombre>Perejil fresco</nombre>
+            <puntuación>10</puntuación>
+        </item>
+        <item>
+            <nombre>Pimientos del padrón</nombre>
+            <puntuación>8</puntuación>
+        </item>
+        <item>
+            <nombre>Oreja de cerdo</nombre>
+            <puntuación>3</puntuación>
+        </item>
+        <item>
+            <nombre>Chorizo fresco</nombre>
+            <puntuación>3</puntuación>
+        </item>
+        <item>
+            <nombre>Tomate natural triturado</nombre>
+            <puntuación>9</puntuación>
+        </item>
     </array>
 </resources>

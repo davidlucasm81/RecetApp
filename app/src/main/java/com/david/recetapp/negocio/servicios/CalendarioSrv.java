@@ -45,12 +45,12 @@ public class CalendarioSrv {
             if (!isCurrentMonthSaved(preferences)) {
                 // Si es del mes actual entonces creamos uno nuevo
                 days = generateDays(activity);
-                saveCalendarToSharedPreferences(activity,days);
+                saveCalendarToSharedPreferences(activity, days);
             }
         } else {
             // Si no existe, creamos uno nuevo
             days = generateDays(activity);
-            saveCalendarToSharedPreferences(activity,days);
+            saveCalendarToSharedPreferences(activity, days);
         }
         return days;
     }
@@ -75,7 +75,7 @@ public class CalendarioSrv {
         }
 
         // Guardamos el calendario
-        saveCalendarToSharedPreferences(activity,days);
+        saveCalendarToSharedPreferences(activity, days);
 
         return days;
     }
@@ -96,7 +96,7 @@ public class CalendarioSrv {
 
     private static void saveCalendarToSharedPreferences(Activity activity, List<Day> days) {
         // Almacenamos el calendario como un JSON
-        SharedPreferences preferences = activity.getSharedPreferences("shared_calendar_prefs",Context.MODE_PRIVATE);
+        SharedPreferences preferences = activity.getSharedPreferences("shared_calendar_prefs", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         String calendarJson = new Gson().toJson(days);
         editor.putString("calendario", calendarJson);
@@ -126,15 +126,14 @@ public class CalendarioSrv {
 
     }
 
-    public static void actualizarFechaCalendario(Activity activity, Receta receta){
+    public static void actualizarFechaCalendario(Activity activity, Receta receta) {
         List<Day> dias = obtenerCalendario(activity);
 
-        Optional<Day> dia = dias.stream().sorted((d1,d2)->d2.getDayOfMonth()-d1.getDayOfMonth()).filter(d -> d.getRecetas().contains(receta.getId())).findFirst();
-        if(dia.isPresent()){
-            RecetasSrv.actualizarRecetaCalendario(activity,receta,dia.get().getDayOfMonth(),false);
-        }
-        else{
-            RecetasSrv.actualizarRecetaCalendario(activity,receta,-1,false);
+        Optional<Day> dia = dias.stream().sorted((d1, d2) -> d2.getDayOfMonth() - d1.getDayOfMonth()).filter(d -> d.getRecetas().contains(receta.getId())).findFirst();
+        if (dia.isPresent()) {
+            RecetasSrv.actualizarRecetaCalendario(activity, receta, dia.get().getDayOfMonth(), false);
+        } else {
+            RecetasSrv.actualizarRecetaCalendario(activity, receta, -1, false);
         }
     }
 
@@ -265,45 +264,40 @@ public class CalendarioSrv {
 
 
     public static String obtenerListaCompraSemana(Activity activity) {
-        List<Integer> dias = UtilsSrv.obtenerDiasRestantesMes();
+        Set<Integer> diasSet = UtilsSrv.obtenerDiasRestantesMes();
         List<Day> calendario = obtenerCalendario(activity);
-        Map<String, Map<String, BigDecimal>> resultado = new HashMap<>(); // Mapa de Mapas: Nombre del ingrediente -> Tipo de unidad -> Cantidad
+        Map<String, Map<String, BigDecimal>> resultado = new HashMap<>(); // Nombre del ingrediente -> Tipo de unidad -> Cantidad
+
+        List<Receta> recetasDelDia;
 
         for (Day dia : calendario) {
-            if (dias.contains(dia.getDayOfMonth())) {
-                for (Receta receta : RecetasSrv.obtenerRecetasPorId(activity, dia.getRecetas())) {
+            if (diasSet.contains(dia.getDayOfMonth())) { // Mejora de rendimiento en la búsqueda de días
+                recetasDelDia = RecetasSrv.obtenerRecetasPorId(activity, dia.getRecetas());
+
+                for (Receta receta : recetasDelDia) {
                     for (Ingrediente ingrediente : receta.getIngredientes()) {
                         String nombreIngrediente = ingrediente.getNombre();
                         String tipoCantidad = ingrediente.getTipoCantidad();
                         BigDecimal cantidad = BigDecimal.valueOf(UtilsSrv.convertirNumero(ingrediente.getCantidad()));
 
-                        if (!resultado.containsKey(nombreIngrediente)) {
-                            resultado.put(nombreIngrediente, new HashMap<>());
-                        }
-                        Map<String, BigDecimal> ingredientesMap = resultado.get(nombreIngrediente);
-
-                        if (ingredientesMap.containsKey(tipoCantidad)) {
-                            BigDecimal cantidadActual = ingredientesMap.get(tipoCantidad);
-                            ingredientesMap.put(tipoCantidad, cantidadActual.add(cantidad));
-                        } else {
-                            ingredientesMap.put(tipoCantidad, cantidad);
-                        }
+                        // Agrupación y acumulación de cantidades de ingredientes
+                        resultado
+                                .computeIfAbsent(nombreIngrediente, k -> new HashMap<>())
+                                .merge(tipoCantidad, cantidad, BigDecimal::add);
                     }
                 }
             }
         }
 
+        // Construcción de la lista de compra como texto
         StringBuilder listaCompra = new StringBuilder();
-        for (Map.Entry<String, Map<String, BigDecimal>> entry : resultado.entrySet()) {
-            String nombreIngrediente = entry.getKey();
-            Map<String, BigDecimal> ingredientesMap = entry.getValue();
-            for (Map.Entry<String, BigDecimal> innerEntry : ingredientesMap.entrySet()) {
-                String tipoCantidad = innerEntry.getKey();
-                BigDecimal cantidad = innerEntry.getValue();
-                String cantidadString = cantidad.stripTrailingZeros().toPlainString();
-                listaCompra.append("- ").append(cantidadString).append(" ").append(tipoCantidad).append(" ").append(nombreIngrediente).append("\n");
-            }
-        }
+        resultado.forEach((nombreIngrediente, ingredientesMap) -> ingredientesMap.forEach((tipoCantidad, cantidad) -> listaCompra.append("- ")
+                .append(cantidad.stripTrailingZeros().toPlainString())
+                .append(" ")
+                .append(tipoCantidad)
+                .append(" ")
+                .append(nombreIngrediente)
+                .append("\n")));
 
         return listaCompra.toString();
     }
