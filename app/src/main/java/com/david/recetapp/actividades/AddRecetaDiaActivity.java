@@ -37,7 +37,7 @@ public class AddRecetaDiaActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_receta_dia);
-        selectedDay = (Day) getIntent().getSerializableExtra("selectedDay");
+        selectedDay = getIntent().getSerializableExtra("selectedDay", Day.class);
         LinearLayout buttonContainer = findViewById(R.id.buttonContainer);
 
         List<Receta> listaRecetas = obtenerListaRecetas();

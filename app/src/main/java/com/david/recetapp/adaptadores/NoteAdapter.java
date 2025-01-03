@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -21,8 +20,8 @@ import java.util.List;
 
 public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder> {
 
-    private List<NoteItem> notes;
-    private OnDeleteClickListener onDeleteClickListener;
+    private final List<NoteItem> notes;
+    private final OnDeleteClickListener onDeleteClickListener;
 
     public NoteAdapter(List<NoteItem> notes, OnDeleteClickListener onDeleteClickListener) {
         this.notes = notes;
@@ -79,9 +78,9 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
     }
 
     public static class NoteViewHolder extends RecyclerView.ViewHolder {
-        public CheckBox checkBox;
-        public EditText noteText;
-        public ImageButton deleteButton;
+        public final CheckBox checkBox;
+        public final EditText noteText;
+        public final ImageButton deleteButton;
 
         public NoteViewHolder(View itemView) {
             super(itemView);

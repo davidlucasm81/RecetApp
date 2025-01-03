@@ -74,7 +74,7 @@ public class EditarRecetaActivity extends AppCompatActivity {
     private GridLayout gridLayout;
     private RatingBar estrellas;
 
-    private Map<String,Integer> ingredientMap;
+    private Map<String, Integer> ingredientMap;
 
     @SuppressWarnings("deprecation")
     @SuppressLint("MissingSuperCall")
@@ -102,8 +102,8 @@ public class EditarRecetaActivity extends AppCompatActivity {
         setContentView(R.layout.activity_editar_receta);
 
         // Obtiene índice del día seleccionado del Intent
-        int posicion = (int) getIntent().getSerializableExtra("position");
-        @SuppressWarnings("unchecked") List<Receta> recetas = (List<Receta>) getIntent().getSerializableExtra("listaRecetas");
+        int posicion = getIntent().getSerializableExtra("position", Integer.class);
+        List<Receta> recetas = (List<Receta>) getIntent().getSerializableExtra("listaRecetas", ArrayList.class);
         assert recetas != null;
         Receta receta = recetas.get(posicion);
 
@@ -317,8 +317,8 @@ public class EditarRecetaActivity extends AppCompatActivity {
         });
 
         if (savedInstanceState != null) {
-            ingredientes = (ArrayList<Ingrediente>) savedInstanceState.getSerializable(KEY_INGREDIENTES);
-            pasos = (ArrayList<Paso>) savedInstanceState.getSerializable(KEY_PASOS);
+            ingredientes = (ArrayList<Ingrediente>) savedInstanceState.getSerializable(KEY_INGREDIENTES, ArrayList.class);
+            pasos = (ArrayList<Paso>) savedInstanceState.getSerializable(KEY_PASOS, ArrayList.class);
             mostrarIngredientes();
             mostrarPasos();
         }
@@ -369,7 +369,7 @@ public class EditarRecetaActivity extends AppCompatActivity {
     }
 
     private void agregarIngrediente(String nombre, String numero, String tipoCantidad) {
-        Ingrediente ingrediente = new Ingrediente(nombre, numero, tipoCantidad, UtilsSrv.obtenerPuntuacion(ingredientMap,nombre,-1));
+        Ingrediente ingrediente = new Ingrediente(nombre, numero, tipoCantidad, UtilsSrv.obtenerPuntuacion(ingredientMap, nombre, -1));
         ingredientes.add(ingrediente);
         mostrarIngredientes();
     }

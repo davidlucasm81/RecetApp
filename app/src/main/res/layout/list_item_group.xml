@@ -29,7 +29,7 @@
             android:contentDescription="@string/warning"
             android:src="@drawable/warning"
             android:visibility="gone"
-            tools:ignore="RtlSymmetry" />
+            tools:ignore="InefficientWeight,RtlSymmetry" />
 
         <ImageView
             android:id="@+id/imageViewPostreIcono"

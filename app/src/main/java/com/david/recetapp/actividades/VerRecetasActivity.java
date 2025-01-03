@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -26,6 +27,7 @@ import com.david.recetapp.negocio.servicios.RecetasSrv;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class VerRecetasActivity extends AppCompatActivity implements RecetaExpandableListAdapter.EmptyListListener {
@@ -70,7 +72,8 @@ public class VerRecetasActivity extends AppCompatActivity implements RecetaExpan
 
         autoCompleteTextViewRecetas.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -81,7 +84,7 @@ public class VerRecetasActivity extends AppCompatActivity implements RecetaExpan
 
             @Override
             public void afterTextChanged(Editable s) {
-                handler = new Handler();
+                handler = new Handler(Objects.requireNonNull(Looper.myLooper()));
                 runnable = () -> {
                     String recetaIngredienteSeleccionado = s.toString();
                     filtrarYActualizarLista(recetaIngredienteSeleccionado);

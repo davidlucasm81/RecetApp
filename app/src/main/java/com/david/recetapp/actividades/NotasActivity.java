@@ -1,14 +1,9 @@
 package com.david.recetapp.actividades;
 
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -32,7 +27,6 @@ public class NotasActivity extends AppCompatActivity {
     private static final String PREFS_NAME = "notes_prefs";
     private static final String NOTES_KEY = "notes_list";
 
-    private RecyclerView recyclerView;
     private NoteAdapter adapter;
     private List<NoteItem> notes;
 
@@ -41,7 +35,7 @@ public class NotasActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_note);
 
-        recyclerView = findViewById(R.id.recyclerView);
+        RecyclerView recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         notes = loadNotesFromSharedPreferences();

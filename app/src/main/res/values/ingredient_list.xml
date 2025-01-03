@@ -316,6 +316,10 @@
             <puntuacion>8</puntuacion>
         </item>
         <item>
+            <nombre>Pollo en trozos</nombre>
+            <puntuacion>8</puntuacion>
+        </item>
+        <item>
             <nombre>Cerdo</nombre>
             <puntuacion>5</puntuacion>
         </item>
@@ -1569,6 +1573,110 @@
         <item>
             <nombre>Tomate natural triturado</nombre>
             <puntuación>9</puntuación>
+        </item>
+        <item>
+            <nombre>Mozarella fresca</nombre>
+            <puntuacion>6</puntuacion>
+        </item>
+        <item>
+            <nombre>Requesón</nombre>
+            <puntuacion>7</puntuacion>
+        </item>
+        <item>
+            <nombre>Albahaca fresca</nombre>
+            <puntuacion>10</puntuacion>
+        </item>
+        <item>
+            <nombre>Carne picada de pollo</nombre>
+            <puntuacion>7</puntuacion>
+        </item>
+        <item>
+            <nombre>Ñoquis</nombre>
+            <puntuacion>5</puntuacion>
+        </item>
+        <item>
+            <nombre>Cuartos traseros de pollo</nombre>
+            <puntuacion>6</puntuacion>
+        </item>
+        <item>
+            <nombre>Semillas de cilantro</nombre>
+            <puntuacion>9</puntuacion>
+        </item>
+        <item>
+            <nombre>Semillas de comino</nombre>
+            <puntuacion>9</puntuacion>
+        </item>
+        <item>
+            <nombre>Jengibre fresco</nombre>
+            <puntuacion>10</puntuacion>
+        </item>
+        <item>
+            <nombre>Colorante alimentario rojo</nombre>
+            <puntuacion>2</puntuacion>
+        </item>
+        <item>
+            <nombre>Lima</nombre>
+            <puntuacion>10</puntuacion>
+        </item>
+        <item>
+            <nombre>Arroz basmati</nombre>
+            <puntuacion>7</puntuacion>
+        </item>
+        <item>
+            <nombre>Cardamomo negro</nombre>
+            <puntuacion>8</puntuacion>
+        </item>
+        <item>
+            <nombre>Cardamomo verde</nombre>
+            <puntuacion>9</puntuacion>
+        </item>
+        <item>
+            <nombre>Anís estrellado</nombre>
+            <puntuacion>8</puntuacion>
+        </item>
+        <item>
+            <nombre>Cilantro fresco</nombre>
+            <puntuacion>10</puntuacion>
+        </item>
+        <item>
+            <nombre>Hojas de hierbabuena</nombre>
+            <puntuacion>10</puntuacion>
+        </item>
+        <item>
+            <nombre>Comino en grano</nombre>
+            <puntuacion>9</puntuacion>
+        </item>
+        <item>
+            <nombre>Chile verde</nombre>
+            <puntuacion>8</puntuacion>
+        </item>
+        <item>
+            <nombre>Carcasa de pollo</nombre>
+            <puntuacion>5</puntuacion>
+        </item>
+        <item>
+            <nombre>Costilla de ternera</nombre>
+            <puntuacion>6</puntuacion>
+        </item>
+        <item>
+            <nombre>Fabes</nombre>
+            <puntuacion>8</puntuacion>
+        </item>
+        <item>
+            <nombre>Tocino</nombre>
+            <puntuacion>3</puntuacion>
+        </item>
+        <item>
+            <nombre>Jengibre fresco rallado</nombre>
+            <puntuacion>10</puntuacion>
+        </item>
+        <item>
+            <nombre>Jengibre</nombre>
+            <puntuacion>10</puntuacion>
+        </item>
+        <item>
+            <nombre>Merengue</nombre>
+            <puntuacion>2</puntuacion>
         </item>
     </array>
 </resources>

@@ -9,11 +9,13 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.david.recetapp.R;
 import com.david.recetapp.negocio.servicios.CalendarioSrv;
+import com.david.recetapp.negocio.servicios.UtilsSrv;
 
 import java.time.LocalDate;
 
@@ -52,6 +54,7 @@ public class ListaCompraActivity extends AppCompatActivity {
                     editor.putInt(DAY_KEY, getCurrentDayOfMonth());
                     editor.apply();
                     editText.setText(text);
+                    UtilsSrv.notificacion(ListaCompraActivity.this, this.getString(R.string.lista_compra), Toast.LENGTH_SHORT).show();
                 }, GUARDAR_DELAY_MS);
 
             }).setNegativeButton(this.getString(R.string.cancelar), null).show();

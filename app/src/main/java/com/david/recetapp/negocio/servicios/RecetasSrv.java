@@ -158,9 +158,7 @@ public class RecetasSrv {
     public static void actualizarRecetasCalendario(Activity activity, Day dia) {
         List<Receta> listaRecetas = cargarListaRecetas(activity);
 
-        listaRecetas.stream().filter(r -> dia.getRecetas().contains(r.getId())).forEach(r -> {
-            actualizarRecetaCalendario(activity, r, dia.getDayOfMonth(),true);
-        });
+        listaRecetas.stream().filter(r -> dia.getRecetas().contains(r.getId())).forEach(r -> actualizarRecetaCalendario(activity, r, dia.getDayOfMonth(),true));
     }
 
     public static void actualizarRecetaCalendario(Activity activity, Receta receta, int diaMes,boolean add) {

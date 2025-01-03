@@ -7,7 +7,6 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.DisplayMetrics;
 import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -31,6 +30,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.collection.ArraySet;
+import androidx.core.view.ViewCompat;
 
 import com.david.recetapp.MainActivity;
 import com.david.recetapp.R;
@@ -42,8 +42,6 @@ import com.david.recetapp.negocio.beans.Temporada;
 import com.david.recetapp.negocio.servicios.AlergenosSrv;
 import com.david.recetapp.negocio.servicios.RecetasSrv;
 import com.david.recetapp.negocio.servicios.UtilsSrv;
-
-import androidx.core.view.ViewCompat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -296,8 +294,8 @@ public class AddRecetasActivity extends AppCompatActivity {
             startActivity(intent);
         });
         if (savedInstanceState != null) {
-            ingredientes = (ArrayList<Ingrediente>) savedInstanceState.getSerializable(KEY_INGREDIENTES);
-            pasos = (ArrayList<Paso>) savedInstanceState.getSerializable(KEY_PASOS);
+            ingredientes = (ArrayList<Ingrediente>) savedInstanceState.getSerializable(KEY_INGREDIENTES,ArrayList.class);
+            pasos = (ArrayList<Paso>) savedInstanceState.getSerializable(KEY_PASOS,ArrayList.class);
             mostrarIngredientes();
             mostrarPasos();
         }
@@ -470,9 +468,6 @@ public class AddRecetasActivity extends AppCompatActivity {
             final Paso paso = pasos.get(position);
             final int posicion = position;
 
-            // Antes del setOnTouchListener, obtenemos las dimensiones de la pantalla
-            DisplayMetrics displayMetrics = new DisplayMetrics();
-            getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
             // Establece el OnTouchListener para el convertView
             convertView.setOnTouchListener((view, event) -> {
                 int action = event.getAction();

@@ -42,7 +42,6 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/calendarLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/titleLL"

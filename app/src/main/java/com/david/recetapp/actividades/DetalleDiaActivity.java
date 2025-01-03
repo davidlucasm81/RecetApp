@@ -45,7 +45,7 @@ public class DetalleDiaActivity extends AppCompatActivity implements RecetaExpan
         textViewEmpty = findViewById(R.id.textViewEmpty);
         addReceta = findViewById(R.id.addReceta);
         textViewEmpty.setVisibility(View.GONE); // Oculta el TextView
-        Day selectedDay = (Day) getIntent().getSerializableExtra("selectedDay");
+        Day selectedDay = getIntent().getSerializableExtra("selectedDay",Day.class);
 
         TextView titleTextView = findViewById(R.id.titleTextView);
         String textoActual = titleTextView.getText().toString();

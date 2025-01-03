@@ -1,15 +1,18 @@
 package com.david.recetapp.negocio.servicios;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
+import com.google.android.material.snackbar.Snackbar;
+import android.widget.FrameLayout;
 
 import com.david.recetapp.R;
 import com.david.recetapp.negocio.beans.Temporada;
@@ -56,57 +59,54 @@ public class UtilsSrv {
         }
     }
 
-    public static Toast notificacion(Context context, String mensaje, int duracion) {
-        // Define new Toast Object
-        Toast toast = new Toast(context.getApplicationContext());
-        // Create a LinearLayout to hold the icon and text
+    public static Snackbar notificacion(Context context, String mensaje, int duracion) {
+        // Crear un Snackbar con el mensaje
+        View view = ((Activity) context).findViewById(android.R.id.content); // Vista raíz de la actividad
+        Snackbar snackbar = Snackbar.make(view, mensaje, duracion);
+
+        // Obtener la vista del Snackbar
+        View snackbarView = snackbar.getView();
+
+        // Crear un LinearLayout para personalizar el diseño
         LinearLayout layout = new LinearLayout(context);
         layout.setOrientation(LinearLayout.HORIZONTAL);
         layout.setGravity(Gravity.CENTER);
         layout.setPadding(dpToPx(context, 16), dpToPx(context, 8), dpToPx(context, 16), dpToPx(context, 8));
 
-        // Create an ImageView for the icon
+        // Crear un ImageView para el icono
         ImageView iv_icon = new ImageView(context);
-        iv_icon.setImageResource(R.mipmap.icono_app);
-        // Set the desired dimensions for the icon (adjust as needed)
-        int iconSize = dpToPx(context, 32); // 32dp in this example
+        iv_icon.setImageResource(R.mipmap.icono_app); // Ajusta el recurso de tu icono aquí
+        int iconSize = dpToPx(context, 32); // Tamaño del icono en dp
         LinearLayout.LayoutParams iconParams = new LinearLayout.LayoutParams(iconSize, iconSize);
         iv_icon.setLayoutParams(iconParams);
         layout.addView(iv_icon);
 
-        // Create TextView Object to set the text
+        // Crear un TextView para el mensaje
         TextView tv_toast = new TextView(context);
-        // Get text from parameter for toast
         tv_toast.setText(mensaje);
-        // Set text color (white in this example)
-        tv_toast.setTextColor(context.getColor(R.color.colorIcono));
-        // Set text size (adjust as needed)
-        tv_toast.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16); // 16sp in this example
-        // Set text gravity to center
+        tv_toast.setTextColor(context.getColor(R.color.colorIcono)); // Color del texto
+        tv_toast.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16); // Tamaño del texto en sp
         tv_toast.setGravity(Gravity.CENTER);
-        // Set some extra padding between icon and text (adjust as needed)
-        tv_toast.setPadding(dpToPx(context, 8), 0, 0, 0);
-        // Set the maximum number of lines to 2 (you can change this based on your preference)
-        tv_toast.setMaxLines(2);
-        // Set ellipsize mode to end (if the text is longer than 2 lines, it will be truncated with "...")
-        tv_toast.setEllipsize(TextUtils.TruncateAt.END);
+        tv_toast.setPadding(dpToPx(context, 8), 0, 0, 0); // Padding entre icono y texto
+        tv_toast.setMaxLines(2); // Limitar el texto a dos líneas
+        tv_toast.setEllipsize(TextUtils.TruncateAt.END); // Truncar el texto si es largo
         layout.addView(tv_toast);
 
-        // Set background color and radius for my toast
+        // Establecer el fondo con color y radio de esquina
         GradientDrawable gd = new GradientDrawable();
-        gd.setColor(context.getColor(R.color.colorBackground)); // Adjust the RGB values as per your desired color
-        gd.setCornerRadius(20);
-        // Remove the stroke to have a solid background color
-        gd.setStroke(0, Color.TRANSPARENT);
+        gd.setColor(context.getColor(R.color.colorBackground)); // Color de fondo
+        gd.setCornerRadius(20); // Radio de las esquinas
+        gd.setStroke(0, Color.TRANSPARENT); // Sin borde
         layout.setBackground(gd);
 
-        // Set duration
-        toast.setDuration(duracion);
-        // Set the custom layout as the view for the Toast
-        toast.setView(layout);
+        // Ahora sustituimos el diseño de la vista del Snackbar con nuestro LinearLayout personalizado
+        snackbarView.setPadding(0, 0, 0, 0); // Eliminar el padding predeterminado
+        ((FrameLayout) snackbarView).addView(layout, 0); // Añadir el layout personalizado al Snackbar
 
-        return toast;
+        // Retornar el Snackbar para que lo puedas mostrar
+        return snackbar;
     }
+
 
     // Helper method to convert dp to pixels
     private static int dpToPx(Context context, int dp) {
