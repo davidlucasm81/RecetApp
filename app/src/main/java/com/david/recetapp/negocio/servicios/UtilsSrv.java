@@ -1,5 +1,6 @@
 package com.david.recetapp.negocio.servicios;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
@@ -11,7 +12,9 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import com.google.android.material.snackbar.Snackbar;
+
 import android.widget.FrameLayout;
 
 import com.david.recetapp.R;
@@ -59,10 +62,11 @@ public class UtilsSrv {
         }
     }
 
+    @SuppressLint("RestrictedApi")
     public static Snackbar notificacion(Context context, String mensaje, int duracion) {
         // Crear un Snackbar con el mensaje
         View view = ((Activity) context).findViewById(android.R.id.content); // Vista raíz de la actividad
-        Snackbar snackbar = Snackbar.make(view, mensaje, duracion);
+        Snackbar snackbar = Snackbar.make(view, "", duracion); // No mostramos el mensaje aquí porque lo personalizamos
 
         // Obtener la vista del Snackbar
         View snackbarView = snackbar.getView();
@@ -86,7 +90,7 @@ public class UtilsSrv {
         tv_toast.setText(mensaje);
         tv_toast.setTextColor(context.getColor(R.color.colorIcono)); // Color del texto
         tv_toast.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16); // Tamaño del texto en sp
-        tv_toast.setGravity(Gravity.CENTER);
+        tv_toast.setGravity(Gravity.CENTER_VERTICAL);
         tv_toast.setPadding(dpToPx(context, 8), 0, 0, 0); // Padding entre icono y texto
         tv_toast.setMaxLines(2); // Limitar el texto a dos líneas
         tv_toast.setEllipsize(TextUtils.TruncateAt.END); // Truncar el texto si es largo
@@ -99,19 +103,26 @@ public class UtilsSrv {
         gd.setStroke(0, Color.TRANSPARENT); // Sin borde
         layout.setBackground(gd);
 
-        // Ahora sustituimos el diseño de la vista del Snackbar con nuestro LinearLayout personalizado
+        // Configurar el diseño personalizado en el Snackbar
+        snackbarView.setBackgroundColor(Color.TRANSPARENT); // Hacer el fondo del Snackbar transparente
         snackbarView.setPadding(0, 0, 0, 0); // Eliminar el padding predeterminado
-        ((FrameLayout) snackbarView).addView(layout, 0); // Añadir el layout personalizado al Snackbar
+
+        // Añadir el diseño personalizado
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT
+        );
+        params.gravity = Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM; // Centrar horizontalmente, posición inferior
+        layout.setLayoutParams(params);
+
+        ((Snackbar.SnackbarLayout) snackbarView).addView(layout);
 
         // Retornar el Snackbar para que lo puedas mostrar
         return snackbar;
     }
 
-
-    // Helper method to convert dp to pixels
     private static int dpToPx(Context context, int dp) {
-        float density = context.getResources().getDisplayMetrics().density;
-        return (int) (dp * density + 0.5f);
+        return Math.round(dp * context.getResources().getDisplayMetrics().density);
     }
 
     public static String capitalizeAndAddPeriod(String input) {
