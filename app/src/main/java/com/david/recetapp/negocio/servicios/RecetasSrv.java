@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 
-import com.david.recetapp.negocio.beans.Day;
 import com.david.recetapp.negocio.beans.Receta;
 import com.david.recetapp.negocio.beans.Temporada;
 import com.google.gson.Gson;
@@ -18,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Type;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
@@ -138,19 +138,13 @@ public class RecetasSrv {
 
     public static List<Receta> cargarListaRecetasCalendario(Activity activity, List<String> idRecetas) {
         List<Receta> recetas = cargarListaRecetas(activity);
-        Temporada temporada = UtilsSrv.getTemporadaFecha(new Date());
+        Temporada temporada = UtilsSrv.getTemporadaFecha(LocalDate.now());
         // Nos quedamos con los que no hayan sido seleccionados y de la temporada actual y ordenamos por puntuación y estrellas
         return recetas.stream()
                 .filter(r -> !idRecetas.contains(r.getId()) && r.getTemporadas().contains(temporada))
                 .sorted(Comparator.comparing(Receta::getPuntuacionDada, Comparator.reverseOrder())
                         .thenComparing(Receta::getEstrellas, Comparator.reverseOrder()))
                 .collect(Collectors.toList());
-    }
-
-    public static void actualizarRecetasCalendario(Activity activity, Day dia) {
-        List<Receta> listaRecetas = cargarListaRecetas(activity);
-
-        listaRecetas.stream().filter(r -> dia.getRecetas().contains(r.getId())).forEach(r -> actualizarRecetaCalendario(activity, r, dia.getDayOfMonth(), true));
     }
 
     public static void actualizarRecetaCalendario(Activity activity, Receta receta, int diaMes, boolean add) {
@@ -166,10 +160,5 @@ public class RecetasSrv {
         }
         receta.setFechaCalendario(fechaEspecifica);
         editarReceta(activity, receta);
-    }
-
-    public static List<Receta> obtenerRecetasPorId(Activity activity, List<String> idRecetas) {
-        List<Receta> listaRecetas = cargarListaRecetas(activity);
-        return listaRecetas.stream().filter(r -> idRecetas.contains(r.getId())).collect(Collectors.toList());
     }
 }

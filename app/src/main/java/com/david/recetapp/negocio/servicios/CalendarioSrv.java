@@ -7,7 +7,6 @@ import android.widget.Toast;
 
 import com.david.recetapp.R;
 import com.david.recetapp.negocio.beans.Day;
-import com.david.recetapp.negocio.beans.Ingrediente;
 import com.david.recetapp.negocio.beans.Receta;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -25,6 +24,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 
 public class CalendarioSrv {
@@ -114,17 +114,26 @@ public class CalendarioSrv {
 
     public static void actualizarDia(Activity activity, Day selectedDay) {
         List<Day> dias = obtenerCalendario(activity);
-        for (Day dia : dias) {
-            if (dia.getDayOfMonth() == selectedDay.getDayOfMonth()) {
-                dia.setRecetas(selectedDay.getRecetas());
-                saveCalendarToSharedPreferences(activity, dias);
-                RecetasSrv.actualizarRecetasCalendario(activity, dia);
-                return;
-            }
-        }
-        UtilsSrv.notificacion(activity, activity.getString(R.string.calendario_no_actualizado), Toast.LENGTH_SHORT).show();
+        List<Receta> listaRecetas = RecetasSrv.cargarListaRecetas(activity);
 
+        // Mapeamos los días por día del mes para búsqueda más eficiente
+        Map<Integer, Day> diasMap = dias.stream()
+                .collect(Collectors.toMap(Day::getDayOfMonth, day -> day));
+
+        Day dia = diasMap.get(selectedDay.getDayOfMonth());
+
+        if (dia != null) {
+            dia.setRecetas(selectedDay.getRecetas());
+            saveCalendarToSharedPreferences(activity, dias);
+
+            listaRecetas.stream()
+                    .filter(r -> dia.getRecetas().contains(r.getId()))
+                    .forEach(r -> RecetasSrv.actualizarRecetaCalendario(activity, r, dia.getDayOfMonth(), true));
+        } else {
+            UtilsSrv.notificacion(activity, activity.getString(R.string.calendario_no_actualizado), Toast.LENGTH_SHORT).show();
+        }
     }
+
 
     public static void actualizarFechaCalendario(Activity activity, Receta receta) {
         List<Day> dias = obtenerCalendario(activity);
@@ -140,7 +149,7 @@ public class CalendarioSrv {
     public static void cargarRecetas(Activity activity) {
         List<Day> calendar = CalendarioSrv.obtenerCalendario(activity);
         List<Receta> recetas = RecetasSrv.cargarListaRecetasCalendario(activity, new ArrayList<>());
-
+        List<Receta> listaRecetas = RecetasSrv.cargarListaRecetas(activity);
         // Convertir la lista a una cola (Queue)
         Queue<Receta> cola = new LinkedList<>(recetas);
 
@@ -154,8 +163,7 @@ public class CalendarioSrv {
                 addReceta(cola, recetasUtilizadasRecientemente, dia);
                 addReceta(cola, recetasUtilizadasRecientemente, dia);
                 // Actualizar las recetas del calendario
-                RecetasSrv.actualizarRecetasCalendario(activity, dia);
-
+                listaRecetas.stream().filter(r -> dia.getRecetas().contains(r.getId())).forEach(r -> RecetasSrv.actualizarRecetaCalendario(activity, r, dia.getDayOfMonth(), true));
                 // Limpiar las recetas utilizadas recientemente después de 3 días
                 limpiarRecetasUtilizadasRecientemente(recetasUtilizadasRecientemente, dia);
             }
@@ -262,44 +270,43 @@ public class CalendarioSrv {
         return day.getDayOfMonth() < dayOfMonthHoy;
     }
 
-
     public static String obtenerListaCompraSemana(Activity activity) {
         Set<Integer> diasSet = UtilsSrv.obtenerDiasRestantesMes();
         List<Day> calendario = obtenerCalendario(activity);
-        Map<String, Map<String, BigDecimal>> resultado = new HashMap<>(); // Nombre del ingrediente -> Tipo de unidad -> Cantidad
+        List<Receta> listaRecetas = RecetasSrv.cargarListaRecetas(activity);
+        // Usar TreeMap para orden alfabético de ingredientes, si es necesario
+        Map<String, Map<String, BigDecimal>> resultado = new HashMap<>();
 
-        List<Receta> recetasDelDia;
+        // Filtrar días relevantes de una sola vez
+        calendario.parallelStream()
+                .filter(dia -> diasSet.contains(dia.getDayOfMonth()))
+                .flatMap(dia -> listaRecetas.stream().filter(r -> dia.getRecetas().contains(r.getId())))
+                .flatMap(receta -> receta.getIngredientes().stream())
+                .forEach(ingrediente -> {
+                    String nombreIngrediente = ingrediente.getNombre();
+                    String tipoCantidad = ingrediente.getTipoCantidad();
+                    BigDecimal cantidad = BigDecimal.valueOf(UtilsSrv.convertirNumero(ingrediente.getCantidad()));
 
-        for (Day dia : calendario) {
-            if (diasSet.contains(dia.getDayOfMonth())) { // Mejora de rendimiento en la búsqueda de días
-                recetasDelDia = RecetasSrv.obtenerRecetasPorId(activity, dia.getRecetas());
+                    resultado
+                            .computeIfAbsent(nombreIngrediente, k -> new HashMap<>())
+                            .merge(tipoCantidad, cantidad, BigDecimal::add);
+                });
 
-                for (Receta receta : recetasDelDia) {
-                    for (Ingrediente ingrediente : receta.getIngredientes()) {
-                        String nombreIngrediente = ingrediente.getNombre();
-                        String tipoCantidad = ingrediente.getTipoCantidad();
-                        BigDecimal cantidad = BigDecimal.valueOf(UtilsSrv.convertirNumero(ingrediente.getCantidad()));
-
-                        // Agrupación y acumulación de cantidades de ingredientes
-                        resultado
-                                .computeIfAbsent(nombreIngrediente, k -> new HashMap<>())
-                                .merge(tipoCantidad, cantidad, BigDecimal::add);
-                    }
-                }
-            }
-        }
-
-        // Construcción de la lista de compra como texto
+        // Construcción de la lista de compra como texto usando StringBuilder
         StringBuilder listaCompra = new StringBuilder();
-        resultado.forEach((nombreIngrediente, ingredientesMap) -> ingredientesMap.forEach((tipoCantidad, cantidad) -> listaCompra.append("- ")
-                .append(cantidad.stripTrailingZeros().toPlainString())
-                .append(" ")
-                .append(tipoCantidad)
-                .append(" ")
-                .append(nombreIngrediente)
-                .append("\n")));
+        resultado.forEach((nombreIngrediente, ingredientesMap) ->
+                ingredientesMap.forEach((tipoCantidad, cantidad) -> listaCompra
+                        .append(cantidad.stripTrailingZeros().toPlainString())
+                        .append(" ")
+                        .append(tipoCantidad)
+                        .append(" ")
+                        .append(nombreIngrediente)
+                        .append("\n")
+                )
+        );
 
         return listaCompra.toString();
     }
+
 
 }

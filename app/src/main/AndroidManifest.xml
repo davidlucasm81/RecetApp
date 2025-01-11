@@ -1,9 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="com.david.recetapp">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Without this folders will be inaccessible in Android-11 and above devices -->
-    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+    <uses-permission
+        android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
 
     <!-- Without this entry storage-permission entry will not be visible under app-info permissions list Android-10 and below -->
@@ -21,7 +21,7 @@
         android:theme="@style/Theme.RecetApp">
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="com.david.recetapp.provider"
+            android:authorities="provider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

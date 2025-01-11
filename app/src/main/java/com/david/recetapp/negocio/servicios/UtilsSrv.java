@@ -9,22 +9,17 @@ import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.google.android.material.snackbar.Snackbar;
-
-import android.widget.FrameLayout;
-
 import com.david.recetapp.R;
 import com.david.recetapp.negocio.beans.Temporada;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.time.LocalDate;
-import java.time.temporal.TemporalAdjusters;
-import java.util.Calendar;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
@@ -34,31 +29,20 @@ import java.util.stream.IntStream;
 
 public class UtilsSrv {
 
-    // Método para obtener la temporada de un día de la semana
-    public static Temporada getTemporadaFecha(Date date) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        int month = calendar.get(Calendar.MONTH);
+    // Devuelve la temporada dado un día de la semana
+    public static Temporada getTemporadaFecha(LocalDate date) {
+        // Obtener el mes de la fecha
+        int month = date.getMonthValue(); // Enero = 1, Diciembre = 12
 
-        switch (month) {
-            case Calendar.DECEMBER:
-            case Calendar.JANUARY:
-            case Calendar.FEBRUARY:
-                return Temporada.INVIERNO;
-            case Calendar.MARCH:
-            case Calendar.APRIL:
-            case Calendar.MAY:
-                return Temporada.PRIMAVERA;
-            case Calendar.JUNE:
-            case Calendar.JULY:
-            case Calendar.AUGUST:
-                return Temporada.VERANO;
-            case Calendar.SEPTEMBER:
-            case Calendar.OCTOBER:
-            case Calendar.NOVEMBER:
-                return Temporada.OTONIO;
-            default:
-                return null;
+        // Mapear el mes a la temporada
+        if (month == 12 || month <= 2) {
+            return Temporada.INVIERNO;
+        } else if (month <= 5) {
+            return Temporada.PRIMAVERA;
+        } else if (month <= 8) {
+            return Temporada.VERANO;
+        } else {
+            return Temporada.OTONIO;
         }
     }
 
@@ -108,10 +92,7 @@ public class UtilsSrv {
         snackbarView.setPadding(0, 0, 0, 0); // Eliminar el padding predeterminado
 
         // Añadir el diseño personalizado
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.WRAP_CONTENT,
-                FrameLayout.LayoutParams.WRAP_CONTENT
-        );
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
         params.gravity = Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM; // Centrar horizontalmente, posición inferior
         layout.setLayoutParams(params);
 
@@ -130,82 +111,51 @@ public class UtilsSrv {
             return input; // Devolver el String sin modificar si es nulo o vacío
         }
 
-        // Convertir la primera letra a mayúscula
-        String firstLetter = input.substring(0, 1).toUpperCase();
-        String restOfWord = input.substring(1);
+        // Convertir la primera letra a mayúscula y mantener el resto igual
+        String result = input.substring(0, 1).toUpperCase() + input.substring(1);
 
-        // Verificar si ya hay un punto al final
-        boolean hasPeriod = input.charAt(input.length() - 1) == '.';
-
-        // Agregar un punto al final si no se encuentra
-        if (!hasPeriod) {
-            return firstLetter + restOfWord + ".";
+        // Verificar si el texto ya tiene un punto al final y agregar uno si no lo tiene
+        if (!result.endsWith(".")) {
+            result += ".";
         }
 
-        // Devolver el String original si ya tiene un punto al final
-        return firstLetter + restOfWord;
+        return result;
     }
 
     public static boolean esNumeroEnteroOFraccionValida(String numero) {
-        // Verificar si el número es una fracción en formato "numerador/denominador"
-        String[] partes = numero.split("/");
-        if (partes.length == 2) {
-            try {
-                Integer.parseInt(partes[0]);
-                int denominador = Integer.parseInt(partes[1]);
-                return denominador != 0; // Es una fracción válida si el denominador no es cero
-            } catch (NumberFormatException e) {
-                // No se puede parsear la fracción, no es válida
-                return false;
-            }
-        } else {
-            // No es una fracción, verificar si es un número (entero o decimal) válido
-            try {
-                // Intentar parsear como entero
-                Integer.parseInt(numero);
-                return true; // Es un número entero válido
-            } catch (NumberFormatException e1) {
-                try {
-                    // Intentar parsear como decimal usando coma o punto como separador decimal
-                    Double.parseDouble(numero.replace(',', '.'));
-                    return true; // Es un número decimal válido
-                } catch (NumberFormatException e2) {
-                    // No se puede parsear como entero ni decimal, no es válido
-                    return false;
-                }
-            }
+        // Expresión regular para validar una fracción (numerador/denominador)
+        String fraccionRegex = "^(-?\\d+)/(\\d+)$";
+
+        // Si es una fracción, validar que el denominador no sea cero
+        if (numero.matches(fraccionRegex)) {
+            String[] partes = numero.split("/");
+            int denominador = Integer.parseInt(partes[1]);
+            return denominador != 0;
         }
+
+        // Expresión regular para validar un número entero o decimal
+        String numeroRegex = "^-?\\d*(\\.\\d+)?$";
+
+        // Verificar si el número coincide con la expresión regular de un número entero o decimal
+        return numero.matches(numeroRegex);
     }
 
     public static Double convertirNumero(String numero) {
-        // Verificar si el número es una fracción en formato "numerador/denominador"
-        String[] partes = numero.split("/");
-        if (partes.length == 2) {
-            try {
-                int numerador = Integer.parseInt(partes[0]);
-                int denominador = Integer.parseInt(partes[1]);
-                if (denominador != 0) {
-                    return (double) numerador / denominador;
-                } else {
-                    return -1.0; // Fracción no válida
-                }
-            } catch (NumberFormatException e) {
-                // No se puede parsear la fracción, retorna null
-                return -1.0;
-            }
-        } else {
-            try {
-                // Intentar parsear como entero
-                return (double) Integer.parseInt(numero);
-            } catch (NumberFormatException e1) {
-                try {
-                    // Intentar parsear como decimal usando coma o punto como separador decimal
-                    return Double.parseDouble(numero.replace(',', '.'));
-                } catch (NumberFormatException e2) {
-                    // No se puede parsear como entero ni decimal, retorna null
-                    return -1.0;
+        try {
+            // Manejo de fracciones en formato "numerador/denominador"
+            if (numero.contains("/")) {
+                String[] partes = numero.split("/");
+                if (partes.length == 2) {
+                    int numerador = Integer.parseInt(partes[0].trim());
+                    int denominador = Integer.parseInt(partes[1].trim());
+                    return denominador != 0 ? (double) numerador / denominador : -1.0;
                 }
             }
+            // Manejo de enteros y decimales con punto o coma
+            return Double.parseDouble(numero.replace(',', '.').trim());
+        } catch (NumberFormatException e) {
+            // Valor no válido
+            return -1.0;
         }
     }
 
@@ -221,32 +171,26 @@ public class UtilsSrv {
 
     public static Set<Integer> obtenerDiasRestantesMes() {
         LocalDate fechaActual = LocalDate.now();
-        LocalDate ultimoDiaMes = fechaActual.with(TemporalAdjusters.lastDayOfMonth());
-        int diasRestantes = ultimoDiaMes.getDayOfMonth() - fechaActual.getDayOfMonth() + 1;
+        int diaActual = fechaActual.getDayOfMonth();
+        int ultimoDiaMes = fechaActual.lengthOfMonth();
 
-        return IntStream.iterate(0, i -> i + 1)
-                .limit(diasRestantes)
-                .mapToObj(fechaActual::plusDays)
-                .map(LocalDate::getDayOfMonth)
-                .collect(Collectors.toSet());
+        // Usar un Stream optimizado para generar el rango de días
+        return IntStream.rangeClosed(diaActual, ultimoDiaMes).boxed().collect(Collectors.toSet());
     }
 
-    // Método para obtener el nombre del día a partir del día del mes
     public static int obtenerColumnaCalendario(int diaDelMes) {
-        // Obtener el mes y año actual del sistema
-        Calendar calendario = Calendar.getInstance();
-        int mesActual = calendario.get(Calendar.MONTH);
-        int anioActual = calendario.get(Calendar.YEAR);
+        // Obtener la fecha actual
+        LocalDate fechaActual = LocalDate.now();
 
-        // Configurar la fecha con el día del mes, mes y año
-        calendario.set(anioActual, mesActual, diaDelMes);
+        // Crear una fecha con el día proporcionado, mes actual y año actual
+        LocalDate fecha = fechaActual.withDayOfMonth(diaDelMes);
 
-        // Obtener el día de la semana
-        int diaDeLaSemana = calendario.get(Calendar.DAY_OF_WEEK);
+        // Obtener el día de la semana (1 = Lunes, 7 = Domingo)
+        int diaDeLaSemana = fecha.getDayOfWeek().getValue();
 
-        // Convertir el número del día de la semana a un nombre de día
-        int numero = (diaDeLaSemana - 1);
-        return (numero == 0) ? 6 : numero - 1;
+        // Convertir el día de la semana a la columna correspondiente
+        // Lunes = 0, Domingo = 6
+        return (diaDeLaSemana == 7) ? 6 : diaDeLaSemana - 1;
     }
 
 }

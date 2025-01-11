@@ -13,12 +13,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.david.recetapp.R;
 import com.david.recetapp.adaptadores.RecetaExpandableListCalendarAdapter;
 import com.david.recetapp.negocio.beans.Day;
+import com.david.recetapp.negocio.beans.Receta;
 import com.david.recetapp.negocio.servicios.RecetasSrv;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 public class DetalleDiaActivity extends AppCompatActivity implements RecetaExpandableListCalendarAdapter.EmptyListListener {
 
@@ -60,7 +62,10 @@ public class DetalleDiaActivity extends AppCompatActivity implements RecetaExpan
         if(listaRecetas.isEmpty()) {
             textViewEmpty.setVisibility(View.VISIBLE); // Se muestra el TextView
         }
-        RecetaExpandableListCalendarAdapter expandableListAdapter = new RecetaExpandableListCalendarAdapter(this, selectedDay, RecetasSrv.obtenerRecetasPorId(this,listaRecetas), expandableListView, this);
+
+        List<Receta> recetasTotales = RecetasSrv.cargarListaRecetas(this);
+
+        RecetaExpandableListCalendarAdapter expandableListAdapter = new RecetaExpandableListCalendarAdapter(this, selectedDay,   recetasTotales.stream().filter(r -> selectedDay.getRecetas().contains(r.getId())).collect(Collectors.toList()), expandableListView, this);
         expandableListView.setAdapter(expandableListAdapter);
 
         expandableListView.setOnGroupClickListener((parent, v, groupPosition, id) -> {
