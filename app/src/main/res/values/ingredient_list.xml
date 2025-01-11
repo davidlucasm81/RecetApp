@@ -1678,5 +1678,9 @@
             <nombre>Merengue</nombre>
             <puntuacion>2</puntuacion>
         </item>
+        <item>
+            <nombre>Alcachofas en trozos congeladas</nombre>
+            <puntuacion>9</puntuacion>
+        </item>
     </array>
 </resources>
