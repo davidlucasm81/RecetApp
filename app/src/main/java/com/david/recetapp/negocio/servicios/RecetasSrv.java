@@ -139,36 +139,28 @@ public class RecetasSrv {
     public static List<Receta> cargarListaRecetasCalendario(Activity activity, List<String> idRecetas) {
         List<Receta> recetas = cargarListaRecetas(activity);
         Temporada temporada = UtilsSrv.getTemporadaFecha(new Date());
-        // Nos quedamos con los que no hayan sido seleccionados y de la temporada actual (no postres) y ordenamos por fecha de adiccion al calendario (para añadir los que no han sido añadidos), puntuación y estrellas
-        return recetas.stream().filter(r -> !idRecetas.contains(r.getId()) && r.getTemporadas().contains(temporada) && !r.isPostre()).sorted((r1, r2) -> {
-            int resultado = Comparator.comparing(Receta::getFechaCalendario).compare(r1, r2);
-            if (resultado != 0) {
-                return resultado;
-            }
-            resultado = Comparator.comparing(Receta::getPuntuacionDada).compare(r2, r1);
-
-            if (resultado != 0) {
-                return resultado;
-            }
-            resultado = Comparator.comparing(Receta::getEstrellas).compare(r2, r1);
-            return resultado;
-        }).collect(Collectors.toList());
+        // Nos quedamos con los que no hayan sido seleccionados y de la temporada actual y ordenamos por puntuación y estrellas
+        return recetas.stream()
+                .filter(r -> !idRecetas.contains(r.getId()) && r.getTemporadas().contains(temporada))
+                .sorted(Comparator.comparing(Receta::getPuntuacionDada, Comparator.reverseOrder())
+                        .thenComparing(Receta::getEstrellas, Comparator.reverseOrder()))
+                .collect(Collectors.toList());
     }
 
     public static void actualizarRecetasCalendario(Activity activity, Day dia) {
         List<Receta> listaRecetas = cargarListaRecetas(activity);
 
-        listaRecetas.stream().filter(r -> dia.getRecetas().contains(r.getId())).forEach(r -> actualizarRecetaCalendario(activity, r, dia.getDayOfMonth(),true));
+        listaRecetas.stream().filter(r -> dia.getRecetas().contains(r.getId())).forEach(r -> actualizarRecetaCalendario(activity, r, dia.getDayOfMonth(), true));
     }
 
-    public static void actualizarRecetaCalendario(Activity activity, Receta receta, int diaMes,boolean add) {
+    public static void actualizarRecetaCalendario(Activity activity, Receta receta, int diaMes, boolean add) {
         // Obtener la fecha actual con el año y mes actuales, pero con el día de dayOfMonth
         Date fechaEspecifica = new Date(0);
         if (diaMes > 0) {
             Calendar cal = Calendar.getInstance();
             cal.set(Calendar.DAY_OF_MONTH, diaMes);
             fechaEspecifica = cal.getTime();
-            if(add && receta.getFechaCalendario().after(fechaEspecifica)){
+            if (add && receta.getFechaCalendario().after(fechaEspecifica)) {
                 return;
             }
         }

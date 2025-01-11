@@ -73,13 +73,18 @@ public class AddRecetaDiaActivity extends AppCompatActivity {
         recetaButton.setText(receta.getNombre());
 
         Date fechaComparar = receta.getFechaCalendario();
-
-        // Comparar si la fecha está entre hace 2 semanas y hoy
-        if (fechaComparar.after(fechaIntervaloPrevio) && fechaComparar.before(fechaElegida)) {
-            recetaButton.setBackgroundResource(R.drawable.previous_selected_background);
+        // Color si es postre
+        if (receta.isPostre()) {
+            recetaButton.setBackgroundResource(R.drawable.dessert_background);
         } else {
-            recetaButton.setBackgroundResource(R.drawable.edittext_background);
+            // Color por fechas
+            if (fechaComparar.after(fechaIntervaloPrevio) && fechaComparar.before(fechaElegida)) {
+                recetaButton.setBackgroundResource(R.drawable.previous_selected_background);
+            } else {
+                recetaButton.setBackgroundResource(R.drawable.edittext_background);
+            }
         }
+
         recetaButton.setOnClickListener(v -> {
             // Mostrar un diálogo de confirmación
             showConfirmationDialog(receta);
