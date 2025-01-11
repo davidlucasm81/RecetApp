@@ -56,26 +56,26 @@ public class AddRecetaDiaActivity extends AppCompatActivity {
             // Fecha actual (hoy)
             Date fechaElegida = calendarComparar.getTime();
             // Fecha hace 2 semanas
-            Calendar calendarHaceDosSemanas = (Calendar) calendarComparar.clone();
-            calendarHaceDosSemanas.add(Calendar.WEEK_OF_YEAR, -2);
-            Date haceDosSemanas = calendarHaceDosSemanas.getTime();
+            Calendar calendarioIntervaloPrevio = (Calendar) calendarComparar.clone();
+            calendarioIntervaloPrevio.add(Calendar.MONTH, -1);
+            Date fechaIntervaloPrevio = calendarioIntervaloPrevio.getTime();
 
             for (Receta receta : listaRecetas) {
-                Button recetaButton = obtenerBotonAdd(receta,fechaElegida, haceDosSemanas);
+                Button recetaButton = obtenerBotonAdd(receta, fechaElegida, fechaIntervaloPrevio);
                 // Agregar el botón al contenedor
                 buttonContainer.addView(recetaButton);
             }
         }
     }
 
-    private @NonNull Button obtenerBotonAdd(Receta receta, Date fechaElegida, Date haceDosSemanas) {
+    private @NonNull Button obtenerBotonAdd(Receta receta, Date fechaElegida, Date fechaIntervaloPrevio) {
         Button recetaButton = new Button(this);
         recetaButton.setText(receta.getNombre());
 
         Date fechaComparar = receta.getFechaCalendario();
 
         // Comparar si la fecha está entre hace 2 semanas y hoy
-        if (fechaComparar.after(haceDosSemanas) && fechaComparar.before(fechaElegida)) {
+        if (fechaComparar.after(fechaIntervaloPrevio) && fechaComparar.before(fechaElegida)) {
             recetaButton.setBackgroundResource(R.drawable.previous_selected_background);
         } else {
             recetaButton.setBackgroundResource(R.drawable.edittext_background);
@@ -100,11 +100,11 @@ public class AddRecetaDiaActivity extends AppCompatActivity {
             CalendarioSrv.actualizarDia(activity, selectedDay);
             volverADetalleDiaActivity();
         }).setNegativeButton("No", (dialog, which) -> {
-            // No hacer nada o realizar otra acción según sea necesario
+            // No se hace nada
         }).show();
     }
 
-    // Método para volver a DetalleDiaActivity
+    // Volver a DetalleDiaActivity
     private void volverADetalleDiaActivity() {
         Intent intent = new Intent(this, DetalleDiaActivity.class);
         intent.putExtra("selectedDay", selectedDay);
