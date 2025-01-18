@@ -6,32 +6,59 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
-    <Button
-        android:id="@+id/btnAddRecetas"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/Boton1"
-        tools:ignore="TextContrastCheck" />
+    <LinearLayout
+        style="?android:attr/buttonBarStyle"
+        android:layout_width="match_parent"
+        android:layout_height="58dp"
+        android:gravity="center"
+        android:orientation="horizontal">
 
-    <Button
-        android:id="@+id/btnVerRecetas"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/ver_recetas"
-        tools:ignore="TextContrastCheck" />
+        <!-- Botón Recetas con Icono -->
+        <ImageButton
+            android:id="@+id/btnVerRecetas"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:background="@drawable/button_background"
+            android:contentDescription="@string/ver_recetas"
+            android:padding="0dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_recetas"
+            tools:ignore="SpeakableTextPresentCheck" />
 
-    <Button
-        android:id="@+id/btnCalendario"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/ver_calendario"
-        tools:ignore="TextContrastCheck" />
+        <!-- Botón Calendario con Icono -->
+        <ImageButton
+            android:id="@+id/btnCalendario"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:background="@drawable/button_background"
+            android:contentDescription="@string/ver_calendario"
+            android:padding="0dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_calendar"
+            tools:ignore="SpeakableTextPresentCheck" />
 
-    <Button
-        android:id="@+id/btnListaCompra"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/lista_compra"
-        tools:ignore="TextContrastCheck" />
+        <!-- Botón Lista Compra con Icono -->
+        <ImageButton
+            android:id="@+id/btnListaCompra"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:background="@drawable/button_background"
+            android:contentDescription="@string/lista_compra"
+            android:padding="0dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/baseline_shopping_cart_24"
+            tools:ignore="SpeakableTextPresentCheck" />
+    </LinearLayout>
 
+    <FrameLayout
+        android:id="@+id/fragmentContainer"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
 </LinearLayout>

@@ -31,10 +31,10 @@ import java.util.stream.Collectors;
 public class CalendarioSrv {
     private static final int LIMITE_DIAS = 3;
 
-    public static List<Day> obtenerCalendario(Activity activity) {
+    public static List<Day> obtenerCalendario(Context context) {
         List<Day> days;
         // Cargamos el calendario
-        SharedPreferences preferences = activity.getSharedPreferences("shared_calendar_prefs", Context.MODE_PRIVATE);
+        SharedPreferences preferences = context.getSharedPreferences("shared_calendar_prefs", Context.MODE_PRIVATE);
         String savedCalendarJson = preferences.getString("calendario", null);
         if (savedCalendarJson != null) {
             // Si el calendario existe, lo cargamos
@@ -45,18 +45,18 @@ public class CalendarioSrv {
             // Comprobamos si el calendario es del mes actual
             if (!isCurrentMonthSaved(preferences)) {
                 // Si es del mes actual entonces creamos uno nuevo
-                days = generateDays(activity);
-                saveCalendarToSharedPreferences(activity, days);
+                days = generateDays(context);
+                saveCalendarToSharedPreferences(context, days);
             }
         } else {
             // Si no existe, creamos uno nuevo
-            days = generateDays(activity);
-            saveCalendarToSharedPreferences(activity, days);
+            days = generateDays(context);
+            saveCalendarToSharedPreferences(context, days);
         }
         return days;
     }
 
-    private static List<Day> generateDays(Activity activity) {
+    private static List<Day> generateDays(Context context) {
         List<Day> days = new ArrayList<>();
 
         // Obtenemos el mes y el año
@@ -76,7 +76,7 @@ public class CalendarioSrv {
         }
 
         // Guardamos el calendario
-        saveCalendarToSharedPreferences(activity, days);
+        saveCalendarToSharedPreferences(context, days);
 
         return days;
     }
@@ -95,9 +95,9 @@ public class CalendarioSrv {
         return savedMonth == currentMonth && savedYear == currentYear;
     }
 
-    private static void saveCalendarToSharedPreferences(Activity activity, List<Day> days) {
+    private static void saveCalendarToSharedPreferences(Context context, List<Day> days) {
         // Almacenamos el calendario como un JSON
-        SharedPreferences preferences = activity.getSharedPreferences("shared_calendar_prefs", Context.MODE_PRIVATE);
+        SharedPreferences preferences = context.getSharedPreferences("shared_calendar_prefs", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         String calendarJson = new Gson().toJson(days);
         editor.putString("calendario", calendarJson);
@@ -110,7 +110,7 @@ public class CalendarioSrv {
         editor.putInt("savedYear", currentYear);
 
         editor.apply();
-        UtilsSrv.notificacion(activity, activity.getString(R.string.calendario_actualizado), Toast.LENGTH_SHORT).show();
+        UtilsSrv.notificacion(context, context.getString(R.string.calendario_actualizado), Toast.LENGTH_SHORT).show();
     }
 
     public static void actualizarDia(Activity activity, Day selectedDay) {
@@ -147,10 +147,10 @@ public class CalendarioSrv {
         }
     }
 
-    public static void cargarRecetas(Activity activity) {
-        List<Day> calendar = CalendarioSrv.obtenerCalendario(activity);
-        List<Receta> recetas = RecetasSrv.cargarListaRecetasCalendario(activity, new ArrayList<>());
-        List<Receta> listaRecetas = RecetasSrv.cargarListaRecetas(activity);
+    public static void cargarRecetas(Context context) {
+        List<Day> calendar = CalendarioSrv.obtenerCalendario(context);
+        List<Receta> recetas = RecetasSrv.cargarListaRecetasCalendario(context, new ArrayList<>());
+        List<Receta> listaRecetas = RecetasSrv.cargarListaRecetas(context);
         // Convertir la lista a una cola (Queue)
         Queue<Receta> cola = new LinkedList<>(recetas);
 
@@ -164,14 +164,14 @@ public class CalendarioSrv {
                 addReceta(cola, recetasUtilizadasRecientemente, dia);
                 addReceta(cola, recetasUtilizadasRecientemente, dia);
                 // Actualizar las recetas del calendario
-                listaRecetas.stream().filter(r -> dia.getRecetas().contains(r.getId())).forEach(r -> RecetasSrv.actualizarRecetaCalendario(activity, r, dia.getDayOfMonth(), true));
+                listaRecetas.stream().filter(r -> dia.getRecetas().contains(r.getId())).forEach(r -> RecetasSrv.actualizarRecetaCalendario(context, r, dia.getDayOfMonth(), true));
                 // Limpiar las recetas utilizadas recientemente después de 3 días
                 limpiarRecetasUtilizadasRecientemente(recetasUtilizadasRecientemente, dia);
             }
         }
 
         // Guardar el calendario en las preferencias compartidas
-        saveCalendarToSharedPreferences(activity, calendar);
+        saveCalendarToSharedPreferences(context, calendar);
     }
 
     private static void addReceta(Queue<Receta> cola, Set<Receta> recetasUtilizadasRecientemente, Day dia) {
@@ -271,9 +271,9 @@ public class CalendarioSrv {
         return day.getDayOfMonth() < dayOfMonthHoy;
     }
 
-    public static String obtenerListaCompraSemana(Activity activity, int diaInicio, int diaFin) {
-        List<Day> calendario = obtenerCalendario(activity);
-        List<Receta> listaRecetas = RecetasSrv.cargarListaRecetas(activity);
+    public static String obtenerListaCompraSemana(Context context, int diaInicio, int diaFin) {
+        List<Day> calendario = obtenerCalendario(context);
+        List<Receta> listaRecetas = RecetasSrv.cargarListaRecetas(context);
         // Usar TreeMap para orden alfabético de ingredientes, si es necesario
         Map<String, Map<String, BigDecimal>> resultado = new ConcurrentHashMap<>();
 

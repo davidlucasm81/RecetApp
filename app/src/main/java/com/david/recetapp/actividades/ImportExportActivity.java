@@ -19,6 +19,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
+import com.david.recetapp.MainActivity;
 import com.david.recetapp.R;
 import com.david.recetapp.negocio.beans.Receta;
 import com.david.recetapp.negocio.servicios.RecetasSrv;
@@ -64,7 +65,7 @@ public class ImportExportActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         // Controla el comportamiento del botón "Atrás"
-        Intent intent = new Intent(ImportExportActivity.this, VerRecetasActivity.class);
+        Intent intent = new Intent(ImportExportActivity.this, MainActivity.class);
         startActivity(intent);
     }
 
@@ -80,8 +81,7 @@ public class ImportExportActivity extends AppCompatActivity {
         exportButton.setOnClickListener(v -> exportarListaRecetas());
 
         // Inicializar el lanzador de resultados para la selección de archivos
-        mGetContentLauncher = registerForActivityResult(new ActivityResultContracts.GetContent(),
-                this::onFileSelected);
+        mGetContentLauncher = registerForActivityResult(new ActivityResultContracts.GetContent(), this::onFileSelected);
         // Solicitar permisos
         checkAndRequestPermissions();
     }

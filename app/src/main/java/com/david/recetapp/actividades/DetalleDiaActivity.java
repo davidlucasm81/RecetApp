@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.david.recetapp.MainActivity;
 import com.david.recetapp.R;
 import com.david.recetapp.adaptadores.RecetaExpandableListCalendarAdapter;
 import com.david.recetapp.negocio.beans.Day;
@@ -33,9 +34,10 @@ public class DetalleDiaActivity extends AppCompatActivity implements RecetaExpan
     @SuppressLint("MissingSuperCall")
     @Override
     public void onBackPressed() {
-        // Controla el comportamiento del botón "Atrás"
-        Intent intent = new Intent(DetalleDiaActivity.this, CalendarioActivity.class);
+        Intent intent = new Intent(DetalleDiaActivity.this, MainActivity.class);
+        intent.putExtra("FRAGMENT_TO_LOAD", "CalendarioFragment");
         startActivity(intent);
+        finish(); // Opcional, si quieres finalizar esta actividad
     }
 
     @Override
@@ -47,25 +49,25 @@ public class DetalleDiaActivity extends AppCompatActivity implements RecetaExpan
         textViewEmpty = findViewById(R.id.textViewEmpty);
         addReceta = findViewById(R.id.addReceta);
         textViewEmpty.setVisibility(View.GONE); // Oculta el TextView
-        Day selectedDay = getIntent().getSerializableExtra("selectedDay",Day.class);
+        Day selectedDay = getIntent().getSerializableExtra("selectedDay", Day.class);
 
         TextView titleTextView = findViewById(R.id.titleTextView);
         String textoActual = titleTextView.getText().toString();
         // Set the month and year in the TextView
         SimpleDateFormat monthYearFormat = new SimpleDateFormat("MMMM yyyy", Locale.getDefault());
         assert selectedDay != null;
-        String nuevoTexto = textoActual + " "+selectedDay.getDayOfMonth()+" "+monthYearFormat.format(Calendar.getInstance().getTime());
+        String nuevoTexto = textoActual + " " + selectedDay.getDayOfMonth() + " " + monthYearFormat.format(Calendar.getInstance().getTime());
         titleTextView.setText(nuevoTexto);
 
         List<String> listaRecetas = selectedDay.getRecetas();
 
-        if(listaRecetas.isEmpty()) {
+        if (listaRecetas.isEmpty()) {
             textViewEmpty.setVisibility(View.VISIBLE); // Se muestra el TextView
         }
 
         List<Receta> recetasTotales = RecetasSrv.cargarListaRecetas(this);
 
-        RecetaExpandableListCalendarAdapter expandableListAdapter = new RecetaExpandableListCalendarAdapter(this, selectedDay,   recetasTotales.stream().filter(r -> selectedDay.getRecetas().contains(r.getId())).collect(Collectors.toList()), expandableListView, this);
+        RecetaExpandableListCalendarAdapter expandableListAdapter = new RecetaExpandableListCalendarAdapter(this, selectedDay, recetasTotales.stream().filter(r -> selectedDay.getRecetas().contains(r.getId())).collect(Collectors.toList()), expandableListView, this);
         expandableListView.setAdapter(expandableListAdapter);
 
         expandableListView.setOnGroupClickListener((parent, v, groupPosition, id) -> {

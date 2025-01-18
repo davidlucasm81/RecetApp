@@ -38,14 +38,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".actividades.AddRecetasActivity" />
-        <activity android:name=".actividades.VerRecetasActivity" />
+        <activity android:name=".actividades.AddRecetaActivity" />
         <activity android:name=".actividades.EditarRecetaActivity" />
         <activity android:name=".actividades.ImportExportActivity" />
-        <activity android:name=".actividades.CalendarioActivity" />
         <activity android:name=".actividades.DetalleDiaActivity" />
         <activity android:name=".actividades.AddRecetaDiaActivity" />
-        <activity android:name=".actividades.ListaCompraActivity" />
     </application>
 
 </manifest>

@@ -1,56 +1,81 @@
 package com.david.recetapp;
 
 import android.annotation.SuppressLint;
-import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Button;
+import android.widget.ImageButton;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
-import com.david.recetapp.actividades.AddRecetasActivity;
-import com.david.recetapp.actividades.CalendarioActivity;
-import com.david.recetapp.actividades.ListaCompraActivity;
-import com.david.recetapp.actividades.VerRecetasActivity;
+import com.david.recetapp.fragments.CalendarioFragment;
+import com.david.recetapp.fragments.ListaCompraFragment;
+import com.david.recetapp.fragments.RecetasFragment;
 
 public class MainActivity extends AppCompatActivity {
-    @SuppressWarnings("deprecation")
+
+    /**
+     * @noinspection deprecation
+     */
     @SuppressLint("MissingSuperCall")
     @Override
     public void onBackPressed() {
-        // No hace nada
+        // Nada
     }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Button btnAddRecetas = findViewById(R.id.btnAddRecetas);
-        Button btnVerRecetas = findViewById(R.id.btnVerRecetas);
-        Button btnCalendario = findViewById(R.id.btnCalendario);
-        Button btnListaCompra = findViewById(R.id.btnListaCompra);
+        // Referencia a los botones
+        ImageButton btnVerRecetas = findViewById(R.id.btnVerRecetas);
+        ImageButton btnCalendario = findViewById(R.id.btnCalendario);
+        ImageButton btnListaCompra = findViewById(R.id.btnListaCompra);
 
-        btnAddRecetas.setOnClickListener(v -> {
-            // Acción al hacer click en el botón "Añadir Recetas"
-            Intent intent = new Intent(MainActivity.this, AddRecetasActivity.class);
-            startActivity(intent);
-        });
+        // Verifica si se debe cargar un fragmento específico desde el Intent
+        if (savedInstanceState == null) {
+            String fragmentToLoad = getIntent().getStringExtra("FRAGMENT_TO_LOAD");
 
+            if ("CalendarioFragment".equals(fragmentToLoad)) {
+                cargarFragmento(new CalendarioFragment());
+                marcarBotonSeleccionado(btnCalendario);
+            } else {
+                cargarFragmento(new RecetasFragment()); // Cargar el fragmento inicial (Recetas)
+                marcarBotonSeleccionado(btnVerRecetas);
+            }
+        }
+
+        // Configurar los listeners para cambiar entre fragments
         btnVerRecetas.setOnClickListener(v -> {
-            // Acción al hacer click en el botón "Ver Recetas"
-            Intent intent = new Intent(MainActivity.this, VerRecetasActivity.class);
-            startActivity(intent);
+            cargarFragmento(new RecetasFragment());
+            marcarBotonSeleccionado(btnVerRecetas);
         });
 
         btnCalendario.setOnClickListener(v -> {
-            // Acción al hacer click en el botón "Ver Calendario"
-            Intent intent = new Intent(MainActivity.this, CalendarioActivity.class);
-            startActivity(intent);
+            cargarFragmento(new CalendarioFragment());
+            marcarBotonSeleccionado(btnCalendario);
         });
 
         btnListaCompra.setOnClickListener(v -> {
-            // Acción al hacer click en el botón "Lista de la compra"
-            Intent intent = new Intent(MainActivity.this, ListaCompraActivity.class);
-            startActivity(intent);
+            cargarFragmento(new ListaCompraFragment());
+            marcarBotonSeleccionado(btnListaCompra);
         });
+    }
+
+    // Carga un fragmento en el contenedor
+    private void cargarFragmento(Fragment fragment) {
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragmentContainer, fragment);
+        transaction.commit();
+    }
+
+    // Destacar el botón seleccionado
+    private void marcarBotonSeleccionado(ImageButton botonSeleccionado) {
+        findViewById(R.id.btnVerRecetas).setEnabled(true);
+        findViewById(R.id.btnCalendario).setEnabled(true);
+        findViewById(R.id.btnListaCompra).setEnabled(true);
+
+        botonSeleccionado.setEnabled(false); // Deshabilita el botón seleccionado
     }
 }

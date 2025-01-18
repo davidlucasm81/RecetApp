@@ -136,8 +136,8 @@ public class RecetasSrv {
         }
     }
 
-    public static List<Receta> cargarListaRecetasCalendario(Activity activity, List<String> idRecetas) {
-        List<Receta> recetas = cargarListaRecetas(activity);
+    public static List<Receta> cargarListaRecetasCalendario(Context context, List<String> idRecetas) {
+        List<Receta> recetas = cargarListaRecetas(context);
         Temporada temporada = UtilsSrv.getTemporadaFecha(LocalDate.now());
         // Nos quedamos con los que no hayan sido seleccionados y de la temporada actual y ordenamos por puntuación y estrellas
         return recetas.stream()
@@ -147,7 +147,7 @@ public class RecetasSrv {
                 .collect(Collectors.toList());
     }
 
-    public static void actualizarRecetaCalendario(Activity activity, Receta receta, int diaMes, boolean add) {
+    public static void actualizarRecetaCalendario(Context context, Receta receta, int diaMes, boolean add) {
         // Obtener la fecha actual con el año y mes actuales, pero con el día de dayOfMonth
         Date fechaEspecifica = new Date(0);
         if (diaMes > 0) {
@@ -159,6 +159,6 @@ public class RecetasSrv {
             }
         }
         receta.setFechaCalendario(fechaEspecifica);
-        editarReceta(activity, receta);
+        editarReceta(context, receta);
     }
 }

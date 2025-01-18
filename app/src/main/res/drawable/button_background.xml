@@ -8,7 +8,7 @@
     <item android:state_enabled="false">
         <shape android:shape="rectangle">
             <!-- Cambia el color de fondo cuando el botón está deshabilitado -->
-            <solid android:color="@android:color/black" />
+            <solid android:color="@color/colorBackground" />
         </shape>
     </item>
 </selector>

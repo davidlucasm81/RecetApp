@@ -54,7 +54,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-public class AddRecetasActivity extends AppCompatActivity {
+public class AddRecetaActivity extends AppCompatActivity {
 
     private static final String KEY_INGREDIENTES = "ingredientes";
     private static final String KEY_PASOS = "pasos";
@@ -80,14 +80,14 @@ public class AddRecetasActivity extends AppCompatActivity {
     private GridLayout gridLayout;
     private RatingBar estrellas;
 
-    private Map<String,Integer> ingredientMap;
+    private Map<String, Integer> ingredientMap;
 
     @SuppressWarnings("deprecation")
     @SuppressLint("MissingSuperCall")
     @Override
     public void onBackPressed() {
         // Controla el comportamiento del botón "Atrás"
-        Intent intent = new Intent(AddRecetasActivity.this, MainActivity.class);
+        Intent intent = new Intent(AddRecetaActivity.this, MainActivity.class);
         startActivity(intent);
     }
 
@@ -156,9 +156,9 @@ public class AddRecetasActivity extends AppCompatActivity {
                 agregarIngrediente(nombreIngrediente, cantidad, tipoCantidad);
                 autoCompleteTextViewNombreIngrediente.setText("");
                 editTextCantidad.setText("1");
-                UtilsSrv.notificacion(AddRecetasActivity.this, this.getString(R.string.ingrediente_aniadido), Toast.LENGTH_SHORT).show();
+                UtilsSrv.notificacion(AddRecetaActivity.this, this.getString(R.string.ingrediente_aniadido), Toast.LENGTH_SHORT).show();
             } else {
-                UtilsSrv.notificacion(AddRecetasActivity.this, this.getString(R.string.ingrediente_no_aniadido), Toast.LENGTH_SHORT).show();
+                UtilsSrv.notificacion(AddRecetaActivity.this, this.getString(R.string.ingrediente_no_aniadido), Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -205,9 +205,9 @@ public class AddRecetasActivity extends AppCompatActivity {
                 editTextHoras.setText("0");
                 editTextMinutos.setText("0");
                 mostrarPasos();
-                UtilsSrv.notificacion(AddRecetasActivity.this, this.getString(R.string.paso_aniadido), Toast.LENGTH_SHORT).show();
+                UtilsSrv.notificacion(AddRecetaActivity.this, this.getString(R.string.paso_aniadido), Toast.LENGTH_SHORT).show();
             } else {
-                UtilsSrv.notificacion(AddRecetasActivity.this, this.getString(R.string.paso_no_aniadido), Toast.LENGTH_SHORT).show();
+                UtilsSrv.notificacion(AddRecetaActivity.this, this.getString(R.string.paso_no_aniadido), Toast.LENGTH_SHORT).show();
             }
         });
         // Obtener arrays de recursos
@@ -240,20 +240,20 @@ public class AddRecetasActivity extends AppCompatActivity {
             String nombre = editTextNombre.getText().toString().trim();
 
             if (nombre.isEmpty()) {
-                UtilsSrv.notificacion(AddRecetasActivity.this, this.getString(R.string.no_nombre), Toast.LENGTH_SHORT).show();
+                UtilsSrv.notificacion(AddRecetaActivity.this, this.getString(R.string.no_nombre), Toast.LENGTH_SHORT).show();
                 return;
             }
 
             if (!checkboxInvierno.isChecked() && !checkboxVerano.isChecked() && !checkboxOtonio.isChecked() && !checkboxPrimavera.isChecked()) {
-                UtilsSrv.notificacion(AddRecetasActivity.this, this.getString(R.string.no_temporadas), Toast.LENGTH_SHORT).show();
+                UtilsSrv.notificacion(AddRecetaActivity.this, this.getString(R.string.no_temporadas), Toast.LENGTH_SHORT).show();
                 return;
             }
             if (ingredientes.isEmpty()) {
-                UtilsSrv.notificacion(AddRecetasActivity.this, this.getString(R.string.ingrediente_no_aniadido), Toast.LENGTH_SHORT).show();
+                UtilsSrv.notificacion(AddRecetaActivity.this, this.getString(R.string.ingrediente_no_aniadido), Toast.LENGTH_SHORT).show();
                 return;
             }
             if (pasos.isEmpty()) {
-                UtilsSrv.notificacion(AddRecetasActivity.this, this.getString(R.string.paso_no_aniadido), Toast.LENGTH_SHORT).show();
+                UtilsSrv.notificacion(AddRecetaActivity.this, this.getString(R.string.paso_no_aniadido), Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -286,16 +286,16 @@ public class AddRecetasActivity extends AppCompatActivity {
             RecetasSrv.addReceta(this, receta);
 
             // Crear un Intent para volver a la pantalla inicial
-            UtilsSrv.notificacion(AddRecetasActivity.this, this.getString(R.string.receta_creada), Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(AddRecetasActivity.this, MainActivity.class);
+            UtilsSrv.notificacion(AddRecetaActivity.this, this.getString(R.string.receta_creada), Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(AddRecetaActivity.this, MainActivity.class);
             intent.putExtra("aviso_receta_creada", this.getString(R.string.receta_creada));
 
             // Iniciar la actividad y pasar el Intent
             startActivity(intent);
         });
         if (savedInstanceState != null) {
-            ingredientes = (ArrayList<Ingrediente>) savedInstanceState.getSerializable(KEY_INGREDIENTES,ArrayList.class);
-            pasos = (ArrayList<Paso>) savedInstanceState.getSerializable(KEY_PASOS,ArrayList.class);
+            ingredientes = (ArrayList<Ingrediente>) savedInstanceState.getSerializable(KEY_INGREDIENTES, ArrayList.class);
+            pasos = (ArrayList<Paso>) savedInstanceState.getSerializable(KEY_PASOS, ArrayList.class);
             mostrarIngredientes();
             mostrarPasos();
         }
@@ -346,12 +346,12 @@ public class AddRecetasActivity extends AppCompatActivity {
     }
 
     private void agregarIngrediente(String nombre, String numero, String tipoCantidad) {
-        Ingrediente ingrediente = new Ingrediente(nombre, numero, tipoCantidad, UtilsSrv.obtenerPuntuacion(ingredientMap,nombre,-1));
+        Ingrediente ingrediente = new Ingrediente(nombre, numero, tipoCantidad, UtilsSrv.obtenerPuntuacion(ingredientMap, nombre, -1));
         ingredientes.add(ingrediente);
         mostrarIngredientes();
     }
 
-    // Agregar un método para mostrar los ingredientes en el LinearLayout
+    // Mostrar los ingredientes en el LinearLayout
     private void mostrarIngredientes() {
         linearLayoutIngredientes.removeAllViews();
 
@@ -437,7 +437,7 @@ public class AddRecetasActivity extends AppCompatActivity {
             btnEliminar.setOnClickListener(v -> {
                 ingredientes.remove(ingrediente);
                 mostrarIngredientes();
-                UtilsSrv.notificacion(AddRecetasActivity.this, getString(R.string.ingrediente_eliminado), Toast.LENGTH_SHORT).show();
+                UtilsSrv.notificacion(AddRecetaActivity.this, getString(R.string.ingrediente_eliminado), Toast.LENGTH_SHORT).show();
             });
 
             linearLayoutIngredientes.addView(ingredienteView);
@@ -447,7 +447,7 @@ public class AddRecetasActivity extends AppCompatActivity {
     // Declara una nueva variable para indicar si el usuario está arrastrando el paso
     private boolean isDragging = false;
 
-    // Agregar un método para mostrar los pasos en el LinearLayout
+    // Mostrar los pasos en el LinearLayout
     private void mostrarPasos() {
         linearLayoutListaPasos.removeAllViews();
 
@@ -589,7 +589,7 @@ public class AddRecetasActivity extends AppCompatActivity {
                 btnEliminarPaso.setOnClickListener(v -> {
                     pasos.remove(paso);
                     mostrarPasos();
-                    UtilsSrv.notificacion(AddRecetasActivity.this, getString(R.string.paso_eliminado), Toast.LENGTH_SHORT).show();
+                    UtilsSrv.notificacion(AddRecetaActivity.this, getString(R.string.paso_eliminado), Toast.LENGTH_SHORT).show();
                 });
             }
 

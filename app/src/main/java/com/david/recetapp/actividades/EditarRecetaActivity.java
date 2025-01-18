@@ -31,6 +31,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
 
+import com.david.recetapp.MainActivity;
 import com.david.recetapp.R;
 import com.david.recetapp.negocio.beans.Alergeno;
 import com.david.recetapp.negocio.beans.Ingrediente;
@@ -81,7 +82,7 @@ public class EditarRecetaActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         // Controla el comportamiento del botón "Atrás"
-        Intent intent = new Intent(EditarRecetaActivity.this, VerRecetasActivity.class);
+        Intent intent = new Intent(EditarRecetaActivity.this, MainActivity.class);
         startActivity(intent);
     }
 
@@ -309,7 +310,7 @@ public class EditarRecetaActivity extends AppCompatActivity {
 
             // Crear un Intent para volver a la pantalla inicial
             UtilsSrv.notificacion(EditarRecetaActivity.this, this.getString(R.string.receta_editada), Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(EditarRecetaActivity.this, VerRecetasActivity.class);
+            Intent intent = new Intent(EditarRecetaActivity.this, MainActivity.class);
             intent.putExtra("aviso_receta_editada", this.getString(R.string.receta_editada));
 
             // Iniciar la actividad y pasar el Intent

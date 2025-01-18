@@ -1,7 +1,6 @@
 <resources>
     <string name="app_name" translatable="false">RecetApp</string>
     <string name="add_recipe">Añadir receta</string>
-    <string name="Boton1">Añadir Recetas</string>
     <string name="Boton_Nombre_Add_Receta">Ingresa el nombre</string>
     <string name="Aniadir">Añadir</string>
     <string name="temporadas">Temporadas</string>
@@ -72,10 +71,7 @@
     <string name="actualizar_recetas">Actualizar recetas</string>
     <string name="alerta_actualizar_calendario">¿Quiere cargar de recetas el calendario?</string>
     <string name="lista_compra">Lista de la compra</string>
-    <string name="alerta_actualizar_lista">¿Quiere crear la lista de la compra según las recetas del calendario?</string>
     <string name="warning" translatable="false">Warning</string>
-    <string name="pruebas">Pruebas</string>
-    <string name="a_adir_nota">Añadir Nota</string>
     <string name="seleccionar_dias">Seleccionar días</string>
     <string name="selecciona_dias">Selecciona los días del mes:</string>
     <string name="dia_inicio">Día Inicial:</string>
