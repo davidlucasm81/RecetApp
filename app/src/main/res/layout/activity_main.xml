@@ -34,11 +34,4 @@
         android:text="@string/lista_compra"
         tools:ignore="TextContrastCheck" />
 
-    <Button
-        android:id="@+id/btnPruebas"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/pruebas"
-        tools:ignore="TextContrastCheck" />
-
 </LinearLayout>
