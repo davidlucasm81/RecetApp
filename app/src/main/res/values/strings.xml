@@ -76,4 +76,8 @@
     <string name="warning" translatable="false">Warning</string>
     <string name="pruebas">Pruebas</string>
     <string name="a_adir_nota">Añadir Nota</string>
+    <string name="seleccionar_dias">Seleccionar días</string>
+    <string name="selecciona_dias">Selecciona los días del mes:</string>
+    <string name="dia_inicio">Día Inicial:</string>
+    <string name="dia_fin">Díá Fin:</string>
 </resources>

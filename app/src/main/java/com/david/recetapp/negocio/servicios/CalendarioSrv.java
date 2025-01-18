@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 
@@ -270,16 +271,15 @@ public class CalendarioSrv {
         return day.getDayOfMonth() < dayOfMonthHoy;
     }
 
-    public static String obtenerListaCompraSemana(Activity activity) {
-        Set<Integer> diasSet = UtilsSrv.obtenerDiasRestantesMes();
+    public static String obtenerListaCompraSemana(Activity activity, int diaInicio, int diaFin) {
         List<Day> calendario = obtenerCalendario(activity);
         List<Receta> listaRecetas = RecetasSrv.cargarListaRecetas(activity);
         // Usar TreeMap para orden alfabético de ingredientes, si es necesario
-        Map<String, Map<String, BigDecimal>> resultado = new HashMap<>();
+        Map<String, Map<String, BigDecimal>> resultado = new ConcurrentHashMap<>();
 
         // Filtrar días relevantes de una sola vez
         calendario.parallelStream()
-                .filter(dia -> diasSet.contains(dia.getDayOfMonth()))
+                .filter(dia -> dia.getDayOfMonth() >= diaInicio && dia.getDayOfMonth() <= diaFin)
                 .flatMap(dia -> listaRecetas.stream().filter(r -> dia.getRecetas().contains(r.getId())))
                 .flatMap(receta -> receta.getIngredientes().stream())
                 .forEach(ingrediente -> {

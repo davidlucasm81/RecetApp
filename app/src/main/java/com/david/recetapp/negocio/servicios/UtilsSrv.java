@@ -23,9 +23,6 @@ import java.util.Comparator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class UtilsSrv {
 
@@ -167,15 +164,6 @@ public class UtilsSrv {
         } else {
             return defaultValue;
         }
-    }
-
-    public static Set<Integer> obtenerDiasRestantesMes() {
-        LocalDate fechaActual = LocalDate.now();
-        int diaActual = fechaActual.getDayOfMonth();
-        int ultimoDiaMes = fechaActual.lengthOfMonth();
-
-        // Usar un Stream optimizado para generar el rango de días
-        return IntStream.rangeClosed(diaActual, ultimoDiaMes).boxed().collect(Collectors.toSet());
     }
 
     public static int obtenerColumnaCalendario(int diaDelMes) {

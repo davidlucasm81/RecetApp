@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:background="@color/colorBackground"
+    android:gravity="center_horizontal">
+
+    <!-- Título -->
+    <TextView
+        android:id="@+id/tvSeleccionaDias"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/selecciona_dias"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="@color/colorIcono"
+        android:layout_marginBottom="16dp"
+        android:gravity="center" />
+
+    <!-- Contenedor Día de Inicio -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:id="@+id/tvDiaInicio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/dia_inicio"
+            android:textSize="16sp"
+            android:textColor="@color/colorIcono"
+            android:layout_marginBottom="8dp" />
+
+        <NumberPicker
+            android:id="@+id/numberPickerInicio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/number_picker_background" />
+    </LinearLayout>
+
+    <!-- Contenedor Día de Fin -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvDiaFin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/dia_fin"
+            android:textSize="16sp"
+            android:textColor="@color/colorIcono"
+            android:layout_marginBottom="8dp" />
+
+        <NumberPicker
+            android:id="@+id/numberPickerFin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/number_picker_background" />
+    </LinearLayout>
+</LinearLayout>

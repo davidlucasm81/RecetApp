@@ -7,11 +7,16 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.NumberPicker;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.david.recetapp.R;
 import com.david.recetapp.negocio.servicios.CalendarioSrv;
@@ -42,24 +47,64 @@ public class ListaCompraActivity extends AppCompatActivity {
         ImageButton btnActualizar = findViewById(R.id.btnActualizar);
 
         btnActualizar.setOnClickListener(v -> {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle(this.getString(R.string.confirmacion)).setMessage(this.getString(R.string.alerta_actualizar_lista)).setPositiveButton(this.getString(R.string.aceptar), (dialog, which) -> {
-                handler.removeCallbacksAndMessages(null);
-                handler.postDelayed(() -> {
-                    // Guardar automáticamente el texto ingresado y el día de la semana
-                    String text = editText.getText() + "\n" + CalendarioSrv.obtenerListaCompraSemana(this);
-                    // Guardar automáticamente el texto ingresado y el día de la semana
-                    SharedPreferences.Editor editor = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit();
-                    editor.putString(TEXT_KEY, text);
-                    editor.putInt(DAY_KEY, getCurrentDayOfMonth());
-                    editor.apply();
-                    editText.setText(text);
-                    UtilsSrv.notificacion(ListaCompraActivity.this, this.getString(R.string.lista_compra), Toast.LENGTH_SHORT).show();
-                }, GUARDAR_DELAY_MS);
+            // Inflar el diseño del selector de rango de fechas
+            LayoutInflater inflater = LayoutInflater.from(this);
+            View dialogView = inflater.inflate(R.layout.dialog_date_range_picker, null);
 
-            }).setNegativeButton(this.getString(R.string.cancelar), null).show();
+            // Obtener referencias a los componentes del diseño
+            NumberPicker numberPickerInicio = dialogView.findViewById(R.id.numberPickerInicio);
+            NumberPicker numberPickerFin = dialogView.findViewById(R.id.numberPickerFin);
+
+            // Configurar los NumberPickers para mostrar los días del mes
+            numberPickerInicio.setMinValue(1);
+            numberPickerInicio.setMaxValue(31);
+            numberPickerFin.setMinValue(1);
+            numberPickerFin.setMaxValue(31);
+
+            // Establecer listeners para ajustar dinámicamente el rango
+            numberPickerInicio.setOnValueChangedListener((picker, oldVal, newVal) -> {
+                // Asegurarse de que el día de fin sea siempre mayor al día de inicio
+                numberPickerFin.setMinValue(newVal + 1); // El día de fin debe ser al menos un día después
+            });
+
+            numberPickerFin.setOnValueChangedListener((picker, oldVal, newVal) -> {
+                // Asegurarse de que el día de inicio no exceda el día de fin
+                numberPickerInicio.setMaxValue(newVal - 1); // El día de inicio debe ser al menos un día antes
+            });
+
+            // Crear el diálogo
+            AlertDialog alert = new AlertDialog.Builder(this, R.style.CustomAlertDialog)
+                    .setTitle(this.getString(R.string.seleccionar_dias))
+                    .setView(dialogView)
+                    .setPositiveButton(this.getString(R.string.aceptar), (dialog, which) -> {
+                        handler.removeCallbacksAndMessages(null);
+                        handler.postDelayed(() -> {
+                            // Guardar automáticamente el texto ingresado y el día de la semana
+                            String text = editText.getText() + "\n" + CalendarioSrv.obtenerListaCompraSemana(this, numberPickerInicio.getValue(), numberPickerFin.getValue());
+                            // Guardar automáticamente el texto ingresado y el día de la semana
+                            SharedPreferences.Editor editor = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit();
+                            editor.putString(TEXT_KEY, text);
+                            editor.putInt(DAY_KEY, getCurrentDayOfMonth());
+                            editor.apply();
+                            editText.setText(text);
+                            UtilsSrv.notificacion(ListaCompraActivity.this, this.getString(R.string.lista_compra), Toast.LENGTH_SHORT).show();
+                        }, GUARDAR_DELAY_MS);
+                    })
+                    .setNegativeButton(this.getString(R.string.cancelar), null)
+                    .create();
+
+            // Asegúrate de que los botones tengan el color adecuado
+            alert.setOnShowListener(dialogInterface -> {
+                Button positiveButton = alert.getButton(AlertDialog.BUTTON_POSITIVE);
+                Button negativeButton = alert.getButton(AlertDialog.BUTTON_NEGATIVE);
+
+                // Aquí asignamos manualmente el color del texto de los botones
+                positiveButton.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary));
+                negativeButton.setTextColor(ContextCompat.getColor(this, R.color.colorPrimary));
+            });
+            // Mostrar el diálogo
+            alert.show();
         });
-
 
         editText.setText(savedText);
 

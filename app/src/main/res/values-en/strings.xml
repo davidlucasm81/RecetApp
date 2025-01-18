@@ -23,6 +23,7 @@
     <string name="no_hay_recetas">There is no recipes</string>
     <string name="confirmacion">Confirmation</string>
     <string name="alerta_eliminar">Are you sure you want to delete the recipe</string>
+    <string name="dia_fin">End day:</string>
     <string name="aceptar">Accept</string>
     <string name="cancelar">Cancel</string>
     <string name="ingrediente_aniadido">Ingredient added</string>
@@ -72,4 +73,7 @@
     <string name="alerta_actualizar_lista">Do you want to create the shopping list according to the recipes in the calendar?</string>
     <string name="pruebas">Testing</string>
     <string name="a_adir_nota">Add Note</string>
+    <string name="seleccionar_dias">Select days</string>
+    <string name="selecciona_dias">Select days range:</string>
+    <string name="dia_inicio">Start day:</string>
 </resources>
