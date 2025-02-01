@@ -147,7 +147,6 @@ public class AddRecetaDiaActivity extends AppCompatActivity {
                 .show();
     }
 
-
     // Volver a DetalleDiaActivity
     private void volverADetalleDiaActivity() {
         Intent intent = new Intent(this, DetalleDiaActivity.class);

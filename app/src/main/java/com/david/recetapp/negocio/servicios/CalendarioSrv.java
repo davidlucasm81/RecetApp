@@ -33,24 +33,29 @@ public class CalendarioSrv {
     private static final int LIMITE_DIAS = 3;
 
     public static List<Day> obtenerCalendario(Context context) {
-        List<Day> days;
-        // Cargamos el calendario
-        SharedPreferences preferences = context.getSharedPreferences("shared_calendar_prefs", Context.MODE_PRIVATE);
-        String savedCalendarJson = preferences.getString("calendario", null);
-        if (savedCalendarJson != null) {
-            // Si el calendario existe, lo cargamos
-            Type listType = new TypeToken<List<Day>>() {
-            }.getType();
-            days = new Gson().fromJson(savedCalendarJson, listType);
+        List<Day> days = new ArrayList<>();
+        try {
+            // Cargamos el calendario
+            SharedPreferences preferences = context.getSharedPreferences("shared_calendar_prefs", Context.MODE_PRIVATE);
+            String savedCalendarJson = preferences.getString("calendario", null);
+            if (savedCalendarJson != null) {
+                // Si el calendario existe, lo cargamos
+                Type listType = new TypeToken<List<Day>>() {
+                }.getType();
+                days = new Gson().fromJson(savedCalendarJson, listType);
 
-            // Comprobamos si el calendario es del mes actual
-            if (!isCurrentMonthSaved(preferences)) {
-                // Si es del mes actual entonces creamos uno nuevo
+                // Comprobamos si el calendario es del mes actual
+                if (!isCurrentMonthSaved(preferences)) {
+                    // Si es del mes actual entonces creamos uno nuevo
+                    days = generateDays(context);
+                    saveCalendarToSharedPreferences(context, days);
+                }
+            } else {
+                // Si no existe, creamos uno nuevo
                 days = generateDays(context);
                 saveCalendarToSharedPreferences(context, days);
             }
-        } else {
-            // Si no existe, creamos uno nuevo
+        } catch (Exception e) {
             days = generateDays(context);
             saveCalendarToSharedPreferences(context, days);
         }
@@ -276,15 +281,11 @@ public class CalendarioSrv {
         Map<String, Map<String, BigDecimal>> resultado = new ConcurrentHashMap<>();
 
         List<Receta> listaRecetas = RecetasSrv.cargarListaRecetas(context);
-        calendario.parallelStream()
-                .filter(dia -> dia.getDayOfMonth() >= diaInicio && dia.getDayOfMonth() <= diaFin)
-                .flatMap(d -> RecetasSrv.getRecetasAdaptadasCalendario(listaRecetas, d).stream())
-                .flatMap(receta -> receta.getIngredientes().stream())
-                .forEach(ingrediente -> {
-                    String nombreIngrediente = ingrediente.getNombre();
-                    String tipoCantidad = ingrediente.getTipoCantidad();
-                    BigDecimal cantidad = BigDecimal.valueOf(UtilsSrv.convertirNumero(ingrediente.getCantidad()));
-                    resultado.computeIfAbsent(nombreIngrediente, k -> new HashMap<>()).merge(tipoCantidad, cantidad, BigDecimal::add);
+        calendario.parallelStream().filter(dia -> dia.getDayOfMonth() >= diaInicio && dia.getDayOfMonth() <= diaFin).flatMap(d -> RecetasSrv.getRecetasAdaptadasCalendario(listaRecetas, d).stream()).flatMap(receta -> receta.getIngredientes().stream()).forEach(ingrediente -> {
+            String nombreIngrediente = ingrediente.getNombre();
+            String tipoCantidad = ingrediente.getTipoCantidad();
+            BigDecimal cantidad = BigDecimal.valueOf(UtilsSrv.convertirNumero(ingrediente.getCantidad()));
+            resultado.computeIfAbsent(nombreIngrediente, k -> new HashMap<>()).merge(tipoCantidad, cantidad, BigDecimal::add);
         });
 
         // Construcción de la lista de compra como texto usando StringBuilder
