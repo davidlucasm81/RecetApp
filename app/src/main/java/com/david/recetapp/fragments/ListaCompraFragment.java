@@ -81,7 +81,7 @@ public class ListaCompraFragment extends Fragment {
                 handler.postDelayed(() -> {
                     if (isAdded()) {
                         // Guardar automáticamente el texto ingresado y el día de la semana
-                        String text = editText.getText() + "\n" + CalendarioSrv.obtenerListaCompraSemana(getContext(), numberPickerInicio.getValue(), numberPickerFin.getValue());
+                        String text = editText.getText() + "\n" + CalendarioSrv.getListaCompra(getContext(), numberPickerInicio.getValue(), numberPickerFin.getValue());
                         // Guardar automáticamente el texto ingresado y el día de la semana
                         SharedPreferences.Editor editor = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit();
                         editor.putString(TEXT_KEY, text);

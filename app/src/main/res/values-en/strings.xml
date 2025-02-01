@@ -72,4 +72,6 @@
     <string name="seleccionar_dias">Select days</string>
     <string name="selecciona_dias">Select days range:</string>
     <string name="dia_inicio">Start day:</string>
+    <string name="numero_personas">Number of people</string>
+    <string name="numero_personas_incorrecto">Wrong number of people</string>
 </resources>

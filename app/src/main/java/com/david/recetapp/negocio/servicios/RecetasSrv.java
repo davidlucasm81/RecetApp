@@ -1,10 +1,14 @@
 package com.david.recetapp.negocio.servicios;
 
-import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
+import com.david.recetapp.negocio.beans.Day;
+import com.david.recetapp.negocio.beans.Ingrediente;
 import com.david.recetapp.negocio.beans.Receta;
+import com.david.recetapp.negocio.beans.RecetaDia;
 import com.david.recetapp.negocio.beans.Temporada;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -24,6 +28,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class RecetasSrv {
@@ -136,29 +141,62 @@ public class RecetasSrv {
         }
     }
 
-    public static List<Receta> cargarListaRecetasCalendario(Context context, List<String> idRecetas) {
+    public static List<Receta> cargarListaRecetasCalendario(Context context, List<RecetaDia> idRecetas) {
         List<Receta> recetas = cargarListaRecetas(context);
         Temporada temporada = UtilsSrv.getTemporadaFecha(LocalDate.now());
-        // Nos quedamos con los que no hayan sido seleccionados y de la temporada actual y ordenamos por puntuación y estrellas
-        return recetas.stream()
-                .filter(r -> !idRecetas.contains(r.getId()) && r.getTemporadas().contains(temporada))
-                .sorted(Comparator.comparing(Receta::getPuntuacionDada, Comparator.reverseOrder())
-                        .thenComparing(Receta::getEstrellas, Comparator.reverseOrder()))
-                .collect(Collectors.toList());
+
+        // Convertimos la lista de recetas ya seleccionadas en un Set para mejorar eficiencia en la búsqueda
+        Set<String> recetasSeleccionadas = idRecetas.stream().map(RecetaDia::getIdReceta).collect(Collectors.toSet());
+
+        return recetas.stream().filter(r -> !recetasSeleccionadas.contains(r.getId()) && r.getTemporadas().contains(temporada)).sorted(Comparator.comparing(Receta::getPuntuacionDada, Comparator.reverseOrder()).thenComparing(Receta::getEstrellas, Comparator.reverseOrder())).collect(Collectors.toList());
     }
 
-    public static void actualizarRecetaCalendario(Context context, Receta receta, int diaMes, boolean add) {
-        // Obtener la fecha actual con el año y mes actuales, pero con el día de dayOfMonth
-        Date fechaEspecifica = new Date(0);
-        if (diaMes > 0) {
-            Calendar cal = Calendar.getInstance();
-            cal.set(Calendar.DAY_OF_MONTH, diaMes);
-            fechaEspecifica = cal.getTime();
-            if (add && receta.getFechaCalendario().after(fechaEspecifica)) {
-                return;
+
+    public static void actualizarRecetaCalendario(Context context, String idReceta, int diaMes, boolean add) {
+        Optional<Receta> optionalReceta = cargarListaRecetas(context).stream().filter(r -> r.getId().equals(idReceta)).findAny();
+        if(optionalReceta.isPresent()) {
+            Receta receta = optionalReceta.get();
+            // Obtener la fecha actual con el año y mes actuales, pero con el día de dayOfMonth
+            Date fechaEspecifica = new Date(0);
+            if (diaMes > 0) {
+                Calendar cal = Calendar.getInstance();
+                cal.set(Calendar.DAY_OF_MONTH, diaMes);
+                fechaEspecifica = cal.getTime();
+                if (add && receta.getFechaCalendario().after(fechaEspecifica)) {
+                    return;
+                }
+            }
+            receta.setFechaCalendario(fechaEspecifica);
+            editarReceta(context, receta);
+        }
+    }
+
+    @NonNull
+    public static List<Receta> getRecetasAdaptadasCalendario(List<Receta> recetasTotales, Day selectedDay) {
+        final List<Receta> listaRecetas;
+        Set<String> recetasIdsDia = selectedDay.getRecetas().stream().map(RecetaDia::getIdReceta).collect(Collectors.toSet());
+
+        // Filtrar las recetas que están en el día seleccionado
+        listaRecetas = recetasTotales.stream().filter(r -> recetasIdsDia.contains(r.getId())).collect(Collectors.toList());
+
+        // Recorrer la lista de recetas
+        for (Receta r : listaRecetas) {
+            Integer numPersonasOriginal = r.getNumPersonas();
+
+            // Obtener el número de personas del día seleccionado
+            Integer numPersonas = selectedDay.getRecetas().stream().filter(dr -> dr.getIdReceta().equals(r.getId())).map(RecetaDia::getNumeroPersonas).findAny().orElse(numPersonasOriginal);
+
+            r.setNumPersonas(numPersonas);
+
+            // Calcular el factor de multiplicación de los ingredientes
+            int factor = numPersonas / numPersonasOriginal;
+
+            // Actualizar la cantidad de los ingredientes
+            for (Ingrediente i : r.getIngredientes()) {
+                double cantidadOriginal = UtilsSrv.convertirNumero(i.getCantidad());
+                i.setCantidad(String.valueOf(cantidadOriginal * factor));
             }
         }
-        receta.setFechaCalendario(fechaEspecifica);
-        editarReceta(context, receta);
+        return listaRecetas;
     }
 }

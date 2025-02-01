@@ -27,6 +27,7 @@ import com.david.recetapp.negocio.beans.Ingrediente;
 import com.david.recetapp.negocio.beans.Receta;
 import com.david.recetapp.negocio.servicios.AlergenosSrv;
 import com.david.recetapp.negocio.servicios.CalendarioSrv;
+import com.david.recetapp.negocio.servicios.RecetasSrv;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -37,17 +38,16 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
     private final Day selectedDay;
     private final Activity activity;
     private final List<Receta> listaRecetas;
-
     private final ExpandableListView expandableListView;
 
     private final EmptyListListener emptyListListener;
 
-    public RecetaExpandableListCalendarAdapter(Activity activity, Day selectedDay, List<Receta> listaRecetas, ExpandableListView expandableListView, EmptyListListener emptyListListener) {
+    public RecetaExpandableListCalendarAdapter(Activity activity, Day selectedDay, ExpandableListView expandableListView, EmptyListListener emptyListListener) {
         this.selectedDay = selectedDay;
         this.activity = activity;
-        this.listaRecetas = listaRecetas;
         this.expandableListView = expandableListView;
         this.emptyListListener = emptyListListener;
+        this.listaRecetas = RecetasSrv.getRecetasAdaptadasCalendario(RecetasSrv.cargarListaRecetas(activity), selectedDay);
     }
 
     @Override
@@ -57,7 +57,7 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
 
     @Override
     public int getChildrenCount(int groupPosition) {
-        return 7; // Hay 4 elementos hijos: Temporadas, Ingredientes, Pasos, Alergenos, Estrellas, Fecha en el calendario y Puntuacion
+        return 8; // Temporadas, Ingredientes, Pasos, Alergenos, Estrellas, Fecha en el calendario y Puntuacion
     }
 
     @Override
@@ -72,16 +72,18 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
             case 0:
                 return receta.getTemporadas();
             case 1:
-                return receta.getIngredientes();
+                return receta.getNumPersonas();
             case 2:
-                return receta.getPasos();
+                return receta.getIngredientes();
             case 3:
-                return receta.getAlergenos();
+                return receta.getPasos();
             case 4:
-                return receta.getEstrellas();
+                return receta.getAlergenos();
             case 5:
-                return receta.getFechaCalendario();
+                return receta.getEstrellas();
             case 6:
+                return receta.getFechaCalendario();
+            case 7:
                 return receta.getPuntuacionDada();
             default:
                 return null;
@@ -126,10 +128,10 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
             builder.setTitle(activity.getString(R.string.confirmacion)).setMessage(activity.getString(R.string.alerta_eliminar) + " '" + receta.getNombre() + "' ?").setPositiveButton(activity.getString(R.string.aceptar), (dialog, which) -> {
                 // Eliminar la receta del calendario y refrescar la pantalla
                 Receta eliminada = listaRecetas.remove(groupPosition);
-                selectedDay.setRecetas(listaRecetas.stream().map(Receta::getId).collect(Collectors.toList()));
+                selectedDay.removeReceta(eliminada.getId());
                 CalendarioSrv.actualizarDia(activity, selectedDay);
-                CalendarioSrv.actualizarFechaCalendario(activity,eliminada);
-                if(listaRecetas.size()<2){
+                CalendarioSrv.actualizarFechaCalendario(activity, eliminada.getId());
+                if (listaRecetas.size() < 2) {
                     emptyListListener.onListSize();
                 }
                 if (listaRecetas.isEmpty()) {
@@ -182,6 +184,11 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
                 break;
             case 1:
                 txtInformacion.setVisibility(View.VISIBLE);
+                txtTitulo.setText(R.string.numero_personas);
+                txtInformacion.setText(String.valueOf(receta.getNumPersonas()));
+                break;
+            case 2:
+                txtInformacion.setVisibility(View.VISIBLE);
                 txtTitulo.setText(R.string.ingredientes);
                 StringBuilder sbIngredientes = new StringBuilder();
                 int totalIngredientes = receta.getIngredientes().size();
@@ -199,7 +206,7 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
                 }
                 txtInformacion.setText(sbIngredientes.substring(0, sbIngredientes.length() - 1));
                 break;
-            case 2:
+            case 3:
                 txtInformacion.setVisibility(View.VISIBLE);
                 txtTitulo.setText(R.string.pasos);
                 SpannableStringBuilder sbPasos = new SpannableStringBuilder();
@@ -255,7 +262,7 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
 
                 txtInformacion.setText(sbPasos);
                 break;
-            case 3:
+            case 4:
                 txtTitulo.setText(R.string.alergenos);
                 txtInformacion.setVisibility(View.GONE);
                 iconosAlergenos.setVisibility(View.VISIBLE);
@@ -280,19 +287,19 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
                 }
                 break;
 
-            case 4:
+            case 5:
                 txtTitulo.setText(R.string.estrellas);
                 ratingBar.setVisibility(View.VISIBLE);
                 ratingBar.setRating(receta.getEstrellas());
                 txtInformacion.setVisibility(View.GONE);
                 break;
-            case 5:
+            case 6:
                 txtInformacion.setVisibility(View.VISIBLE);
                 txtTitulo.setText(R.string.ultima_fecha_calendario);
                 SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
                 txtInformacion.setText(dateFormat.format(receta.getFechaCalendario()));
                 break;
-            case 6:
+            case 7:
                 txtInformacion.setVisibility(View.VISIBLE);
                 txtTitulo.setText(R.string.puntuacion_dada);
                 txtInformacion.setText(String.valueOf(receta.getPuntuacionDada()));

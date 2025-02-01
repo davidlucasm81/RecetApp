@@ -29,6 +29,8 @@ public class Receta implements Serializable {
 
     private float estrellas;
 
+    private int numPersonas;
+
     private Date fechaCalendario;
 
     private boolean shared;
@@ -44,6 +46,7 @@ public class Receta implements Serializable {
         this.ingredientes = new ArrayList<>();
         this.pasos = new ArrayList<>();
         this.estrellas = 0;
+        this.numPersonas = -1;
         this.fechaCalendario = null;
         this.alergenos = new HashSet<>();
         this.shared = false;
@@ -90,6 +93,14 @@ public class Receta implements Serializable {
 
     public void setEstrellas(float estrellas) {
         this.estrellas = estrellas;
+    }
+
+    public int getNumPersonas() {
+        return numPersonas;
+    }
+
+    public void setNumPersonas(int numPersonas) {
+        this.numPersonas = numPersonas;
     }
 
     public Date getFechaCalendario() {
@@ -185,4 +196,5 @@ public class Receta implements Serializable {
         }).sum();
 
     }
+
 }

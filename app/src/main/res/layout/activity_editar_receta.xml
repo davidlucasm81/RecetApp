@@ -118,6 +118,30 @@
 
         </GridLayout>
 
+        <!-- Sección para Número de personas para la receta -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/numero_personas"
+                tools:ignore="TextContrastCheck" />
+
+            <EditText
+                android:id="@+id/numeroPersonas"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:hint="@string/numero_personas"
+                android:inputType="number"
+                android:minHeight="48dp"
+                android:textAlignment="center"
+                tools:ignore="Autofill,DuplicateSpeakableTextCheck,VisualLintTextFieldSize" />
+        </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

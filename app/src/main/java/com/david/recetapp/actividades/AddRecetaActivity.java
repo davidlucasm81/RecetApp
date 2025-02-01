@@ -64,7 +64,7 @@ public class AddRecetaActivity extends AppCompatActivity {
     private CheckBox checkboxOtonio;
     private CheckBox checkboxPrimavera;
     private Set<Temporada> temporadas;
-
+    private EditText numberPickerNumeroPersonas;
     private AutoCompleteTextView autoCompleteTextViewNombreIngrediente;
     private EditText editTextCantidad;
     private LinearLayout linearLayoutIngredientes;
@@ -81,6 +81,8 @@ public class AddRecetaActivity extends AppCompatActivity {
     private RatingBar estrellas;
 
     private Map<String, Integer> ingredientMap;
+    // Declara una nueva variable para indicar si el usuario está arrastrando el paso
+    private boolean isDragging = false;
 
     @SuppressWarnings("deprecation")
     @SuppressLint("MissingSuperCall")
@@ -121,6 +123,8 @@ public class AddRecetaActivity extends AppCompatActivity {
         for (int i = 0; i < ingredientList.length; i++) {
             ingredientNames[i] = ingredientList[i].split("\\s\\d+")[0]; // Obtener el nombre sin la puntuación
         }
+
+        numberPickerNumeroPersonas = findViewById(R.id.numeroPersonas);
 
         // Crear un adaptador con la lista de nombres de ingredientes y configurarlo en el AutoCompleteTextView
         ArrayAdapter<String> adapterIngrediente = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, ingredientNames);
@@ -276,6 +280,7 @@ public class AddRecetaActivity extends AppCompatActivity {
             receta.setIngredientes(ingredientes, this);
             receta.setPasos(pasos);
             receta.setTemporadas(temporadas);
+            receta.setNumPersonas(Integer.parseInt(numberPickerNumeroPersonas.getText().toString()));
             receta.setEstrellas(estrellas.getRating());
             receta.setFechaCalendario(new Date(0));
             receta.setAlergenos(alergenosSeleccionados);
@@ -443,9 +448,6 @@ public class AddRecetaActivity extends AppCompatActivity {
             linearLayoutIngredientes.addView(ingredienteView);
         }
     }
-
-    // Declara una nueva variable para indicar si el usuario está arrastrando el paso
-    private boolean isDragging = false;
 
     // Mostrar los pasos en el LinearLayout
     private void mostrarPasos() {

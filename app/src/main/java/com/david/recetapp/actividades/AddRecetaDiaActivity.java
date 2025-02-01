@@ -4,10 +4,13 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -16,8 +19,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.david.recetapp.R;
 import com.david.recetapp.negocio.beans.Day;
 import com.david.recetapp.negocio.beans.Receta;
+import com.david.recetapp.negocio.beans.RecetaDia;
 import com.david.recetapp.negocio.servicios.CalendarioSrv;
 import com.david.recetapp.negocio.servicios.RecetasSrv;
+import com.david.recetapp.negocio.servicios.UtilsSrv;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -100,14 +105,48 @@ public class AddRecetaDiaActivity extends AppCompatActivity {
     private void showConfirmationDialog(Receta receta) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         final Activity activity = this;
-        builder.setTitle(activity.getString(R.string.Confirmacion)).setMessage(activity.getString(R.string.quieres_anadir_receta) + " " + receta.getNombre() + "?").setPositiveButton(activity.getString(R.string.si), (dialog, which) -> {
-            selectedDay.getRecetas().add(receta.getId());
-            CalendarioSrv.actualizarDia(activity, selectedDay);
-            volverADetalleDiaActivity();
-        }).setNegativeButton("No", (dialog, which) -> {
-            // No se hace nada
-        }).show();
+
+        builder.setTitle(activity.getString(R.string.Confirmacion))
+                .setMessage(activity.getString(R.string.quieres_anadir_receta) + " " + receta.getNombre() + "?")
+                .setPositiveButton(activity.getString(R.string.si), (dialog, which) -> showNumberTextDialog(receta))
+                .setNegativeButton("No", (dialog, which) -> {
+                    // No se hace nada
+                }).show();
     }
+
+    private void showNumberTextDialog(Receta receta) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final EditText editText = new EditText(this);
+        editText.setInputType(InputType.TYPE_CLASS_NUMBER); // Permite ingresar solo números
+        editText.setHint(getString(R.string.numero_personas)); // Puedes agregar un hint si lo deseas
+        editText.setText(String.valueOf(receta.getNumPersonas())); // Valor por defecto
+        editText.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+
+        builder.setTitle(R.string.numero_personas)
+                .setView(editText)
+                .setPositiveButton(R.string.aceptar, (dialog, which) -> {
+                    String input = editText.getText().toString();
+                    if (!input.isEmpty()) {
+                        try {
+                            int numPersonas = Integer.parseInt(input);
+                            if (numPersonas >= 1) {
+                                selectedDay.getRecetas().add(new RecetaDia(receta.getId(), numPersonas));
+                                CalendarioSrv.actualizarDia(this, selectedDay);
+                                volverADetalleDiaActivity();
+                            } else {
+                                UtilsSrv.notificacion(this, getString(R.string.numero_personas_incorrecto), Toast.LENGTH_SHORT).show();
+                            }
+                        } catch (NumberFormatException e) {
+                            UtilsSrv.notificacion(this, getString(R.string.numero_personas_incorrecto), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                })
+                .setNegativeButton(R.string.cancelar, (dialog, which) -> {
+                    // No hacer nada si se cancela
+                })
+                .show();
+    }
+
 
     // Volver a DetalleDiaActivity
     private void volverADetalleDiaActivity() {

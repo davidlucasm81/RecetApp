@@ -60,7 +60,7 @@ public class EditarRecetaActivity extends AppCompatActivity {
     private CheckBox checkboxOtonio;
     private CheckBox checkboxPrimavera;
     private Set<Temporada> temporadas;
-
+    private EditText numberPickerNumeroPersonas;
     private AutoCompleteTextView autoCompleteTextViewNombreIngrediente;
     private EditText editTextCantidad;
     private LinearLayout linearLayoutIngredientes;
@@ -76,6 +76,8 @@ public class EditarRecetaActivity extends AppCompatActivity {
     private RatingBar estrellas;
 
     private Map<String, Integer> ingredientMap;
+    // Declara una nueva variable para indicar si el usuario está arrastrando el paso
+    private boolean isDragging = false;
 
     @SuppressWarnings("deprecation")
     @SuppressLint("MissingSuperCall")
@@ -132,6 +134,10 @@ public class EditarRecetaActivity extends AppCompatActivity {
             checkboxPrimavera.setChecked(true);
         }
         temporadas = receta.getTemporadas();
+
+        numberPickerNumeroPersonas = findViewById(R.id.numeroPersonas);
+        numberPickerNumeroPersonas.setText(String.valueOf(receta.getNumPersonas()));
+
         autoCompleteTextViewNombreIngrediente = findViewById(R.id.autoCompleteTextViewNombreIngrediente);
         // Obtener la lista de ingredientes desde resources (strings.xml) o cualquier otra fuente de datos
         String[] ingredientList = getResources().getStringArray(R.array.ingredient_list);
@@ -300,6 +306,7 @@ public class EditarRecetaActivity extends AppCompatActivity {
             receta.setIngredientes(ingredientes, this);
             receta.setPasos(pasos);
             receta.setTemporadas(temporadas);
+            receta.setNumPersonas(Integer.parseInt(numberPickerNumeroPersonas.getText().toString()));
             receta.setEstrellas(estrellas.getRating());
             receta.setAlergenos(alergenosSeleccionados);
             receta.setShared(false);
@@ -375,7 +382,7 @@ public class EditarRecetaActivity extends AppCompatActivity {
         mostrarIngredientes();
     }
 
-    // Agregar un método para mostrar los ingredientes en el LinearLayout
+    // Method para mostrar los ingredientes en el LinearLayout
     private void mostrarIngredientes() {
         linearLayoutIngredientes.removeAllViews();
 
@@ -468,10 +475,7 @@ public class EditarRecetaActivity extends AppCompatActivity {
         }
     }
 
-    // Declara una nueva variable para indicar si el usuario está arrastrando el paso
-    private boolean isDragging = false;
-
-    // Agregar un método para mostrar los pasos en el LinearLayout
+    // Method para mostrar los pasos en el LinearLayout
     private void mostrarPasos() {
         linearLayoutListaPasos.removeAllViews();
 

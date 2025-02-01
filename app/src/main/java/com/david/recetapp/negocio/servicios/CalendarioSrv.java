@@ -8,6 +8,7 @@ import android.widget.Toast;
 import com.david.recetapp.R;
 import com.david.recetapp.negocio.beans.Day;
 import com.david.recetapp.negocio.beans.Receta;
+import com.david.recetapp.negocio.beans.RecetaDia;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -118,8 +119,7 @@ public class CalendarioSrv {
         List<Receta> listaRecetas = RecetasSrv.cargarListaRecetas(activity);
 
         // Mapeamos los días por día del mes para búsqueda más eficiente
-        Map<Integer, Day> diasMap = dias.stream()
-                .collect(Collectors.toMap(Day::getDayOfMonth, day -> day));
+        Map<Integer, Day> diasMap = dias.stream().collect(Collectors.toMap(Day::getDayOfMonth, day -> day));
 
         Day dia = diasMap.get(selectedDay.getDayOfMonth());
 
@@ -127,23 +127,21 @@ public class CalendarioSrv {
             dia.setRecetas(selectedDay.getRecetas());
             saveCalendarToSharedPreferences(activity, dias);
 
-            listaRecetas.stream()
-                    .filter(r -> dia.getRecetas().contains(r.getId()))
-                    .forEach(r -> RecetasSrv.actualizarRecetaCalendario(activity, r, dia.getDayOfMonth(), true));
+            listaRecetas.stream().filter(r -> dia.getRecetas().stream().map(RecetaDia::getIdReceta).anyMatch(dr -> dr.equals(r.getId()))).forEach(r -> RecetasSrv.actualizarRecetaCalendario(activity, r.getId(), dia.getDayOfMonth(), true));
         } else {
             UtilsSrv.notificacion(activity, activity.getString(R.string.calendario_no_actualizado), Toast.LENGTH_SHORT).show();
         }
     }
 
 
-    public static void actualizarFechaCalendario(Activity activity, Receta receta) {
+    public static void actualizarFechaCalendario(Activity activity, String idReceta) {
         List<Day> dias = obtenerCalendario(activity);
 
-        Optional<Day> dia = dias.stream().sorted((d1, d2) -> d2.getDayOfMonth() - d1.getDayOfMonth()).filter(d -> d.getRecetas().contains(receta.getId())).findFirst();
+        Optional<Day> dia = dias.stream().sorted((d1, d2) -> d2.getDayOfMonth() - d1.getDayOfMonth()).filter(d -> d.getRecetas().stream().map(RecetaDia::getIdReceta).anyMatch(dr -> dr.equals(idReceta))).findFirst();
         if (dia.isPresent()) {
-            RecetasSrv.actualizarRecetaCalendario(activity, receta, dia.get().getDayOfMonth(), false);
+            RecetasSrv.actualizarRecetaCalendario(activity, idReceta, dia.get().getDayOfMonth(), false);
         } else {
-            RecetasSrv.actualizarRecetaCalendario(activity, receta, -1, false);
+            RecetasSrv.actualizarRecetaCalendario(activity, idReceta, -1, false);
         }
     }
 
@@ -164,7 +162,7 @@ public class CalendarioSrv {
                 addReceta(cola, recetasUtilizadasRecientemente, dia);
                 addReceta(cola, recetasUtilizadasRecientemente, dia);
                 // Actualizar las recetas del calendario
-                listaRecetas.stream().filter(r -> dia.getRecetas().contains(r.getId())).forEach(r -> RecetasSrv.actualizarRecetaCalendario(context, r, dia.getDayOfMonth(), true));
+                listaRecetas.stream().filter(r -> dia.getRecetas().stream().map(RecetaDia::getIdReceta).anyMatch(dr -> dr.equals(r.getId()))).forEach(r -> RecetasSrv.actualizarRecetaCalendario(context, r.getId(), dia.getDayOfMonth(), true));
                 // Limpiar las recetas utilizadas recientemente después de 3 días
                 limpiarRecetasUtilizadasRecientemente(recetasUtilizadasRecientemente, dia);
             }
@@ -184,7 +182,7 @@ public class CalendarioSrv {
             cola.offer(receta);
 
             // Agregar el ID de la receta al día actual
-            dia.getRecetas().add(receta.getId());
+            dia.getRecetas().add(new RecetaDia(receta.getId(), receta.getNumPersonas()));
         }
     }
 
@@ -237,7 +235,7 @@ public class CalendarioSrv {
                 int dayOfMonthFuturo = calReceta.get(Calendar.DAY_OF_MONTH);
                 if (dia.getDayOfMonth() + i == dayOfMonthFuturo) {
                     // Verificar si la receta está programada en el día futuro
-                    return dia.getRecetas().contains(receta.getId());
+                    return dia.getRecetas().stream().map(RecetaDia::getIdReceta).anyMatch(dr -> dr.equals(receta.getId()));
                 }
             }
         }
@@ -271,39 +269,27 @@ public class CalendarioSrv {
         return day.getDayOfMonth() < dayOfMonthHoy;
     }
 
-    public static String obtenerListaCompraSemana(Context context, int diaInicio, int diaFin) {
+    public static String getListaCompra(Context context, int diaInicio, int diaFin) {
         List<Day> calendario = obtenerCalendario(context);
-        List<Receta> listaRecetas = RecetasSrv.cargarListaRecetas(context);
+
         // Usar TreeMap para orden alfabético de ingredientes, si es necesario
         Map<String, Map<String, BigDecimal>> resultado = new ConcurrentHashMap<>();
 
-        // Filtrar días relevantes de una sola vez
+        List<Receta> listaRecetas = RecetasSrv.cargarListaRecetas(context);
         calendario.parallelStream()
                 .filter(dia -> dia.getDayOfMonth() >= diaInicio && dia.getDayOfMonth() <= diaFin)
-                .flatMap(dia -> listaRecetas.stream().filter(r -> dia.getRecetas().contains(r.getId())))
+                .flatMap(d -> RecetasSrv.getRecetasAdaptadasCalendario(listaRecetas, d).stream())
                 .flatMap(receta -> receta.getIngredientes().stream())
                 .forEach(ingrediente -> {
                     String nombreIngrediente = ingrediente.getNombre();
                     String tipoCantidad = ingrediente.getTipoCantidad();
                     BigDecimal cantidad = BigDecimal.valueOf(UtilsSrv.convertirNumero(ingrediente.getCantidad()));
-
-                    resultado
-                            .computeIfAbsent(nombreIngrediente, k -> new HashMap<>())
-                            .merge(tipoCantidad, cantidad, BigDecimal::add);
-                });
+                    resultado.computeIfAbsent(nombreIngrediente, k -> new HashMap<>()).merge(tipoCantidad, cantidad, BigDecimal::add);
+        });
 
         // Construcción de la lista de compra como texto usando StringBuilder
         StringBuilder listaCompra = new StringBuilder();
-        resultado.forEach((nombreIngrediente, ingredientesMap) ->
-                ingredientesMap.forEach((tipoCantidad, cantidad) -> listaCompra
-                        .append(cantidad.stripTrailingZeros().toPlainString())
-                        .append(" ")
-                        .append(tipoCantidad)
-                        .append(" ")
-                        .append(nombreIngrediente)
-                        .append("\n")
-                )
-        );
+        resultado.forEach((nombreIngrediente, ingredientesMap) -> ingredientesMap.forEach((tipoCantidad, cantidad) -> listaCompra.append(cantidad.stripTrailingZeros().toPlainString()).append(" ").append(tipoCantidad).append(" ").append(nombreIngrediente).append("\n")));
 
         return listaCompra.toString();
     }
