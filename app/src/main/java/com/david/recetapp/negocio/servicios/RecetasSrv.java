@@ -181,15 +181,15 @@ public class RecetasSrv {
 
         // Recorrer la lista de recetas
         for (Receta r : listaRecetas) {
-            Integer numPersonasOriginal = r.getNumPersonas();
+            double numPersonasOriginal = r.getNumPersonas();
 
             // Obtener el número de personas del día seleccionado
-            Integer numPersonas = selectedDay.getRecetas().stream().filter(dr -> dr.getIdReceta().equals(r.getId())).map(RecetaDia::getNumeroPersonas).findAny().orElse(numPersonasOriginal);
+            double numPersonas = selectedDay.getRecetas().stream().filter(dr -> dr.getIdReceta().equals(r.getId())).map(RecetaDia::getNumeroPersonas).findAny().orElse((int) numPersonasOriginal);
 
-            r.setNumPersonas(numPersonas);
+            r.setNumPersonas((int) numPersonas);
 
             // Calcular el factor de multiplicación de los ingredientes
-            int factor = numPersonas / numPersonasOriginal;
+            double factor = numPersonas / numPersonasOriginal;
 
             // Actualizar la cantidad de los ingredientes
             for (Ingrediente i : r.getIngredientes()) {
