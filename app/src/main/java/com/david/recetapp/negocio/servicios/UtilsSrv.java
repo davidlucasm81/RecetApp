@@ -19,10 +19,6 @@ import com.david.recetapp.negocio.beans.Temporada;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.time.LocalDate;
-import java.util.Comparator;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
 
 public class UtilsSrv {
 
@@ -153,16 +149,6 @@ public class UtilsSrv {
         } catch (NumberFormatException e) {
             // Valor no válido
             return -1.0;
-        }
-    }
-
-    public static double obtenerPuntuacion(Map<String, Integer> ingredientMap, String nombre, double defaultValue) {
-        Optional<Map.Entry<String, Integer>> ingredienteEncontrado = ingredientMap.entrySet().stream().filter(entry -> nombre.toLowerCase(Locale.getDefault()).equals(entry.getKey().toLowerCase(Locale.getDefault()))).max(Comparator.comparingInt(Map.Entry::getValue));
-
-        if (ingredienteEncontrado.isPresent()) {
-            return ingredienteEncontrado.get().getValue();
-        } else {
-            return defaultValue;
         }
     }
 

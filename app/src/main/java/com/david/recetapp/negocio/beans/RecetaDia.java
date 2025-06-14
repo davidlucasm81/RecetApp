@@ -4,8 +4,8 @@ import java.io.Serializable;
 
 public class RecetaDia implements Serializable {
 
-    private String idReceta;
-    private int numeroPersonas;
+    private final String idReceta;
+    private final int numeroPersonas;
 
 
     public RecetaDia(String idReceta, int numeroPersonas) {
@@ -17,15 +17,7 @@ public class RecetaDia implements Serializable {
         return idReceta;
     }
 
-    public void setIdReceta(String idReceta) {
-        this.idReceta = idReceta;
-    }
-
     public int getNumeroPersonas() {
         return numeroPersonas;
-    }
-
-    public void setNumeroPersonas(int numeroPersonas) {
-        this.numeroPersonas = numeroPersonas;
     }
 }

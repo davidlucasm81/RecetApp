@@ -21,12 +21,15 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -180,21 +183,35 @@ public class RecetasSrv {
         listaRecetas = recetasTotales.stream().filter(r -> recetasIdsDia.contains(r.getId())).collect(Collectors.toList());
 
         // Recorrer la lista de recetas
+        // 1) Prepara un mapa de idReceta → numPersonas para acceso O(1)
+        Map<String, Integer> personasPorReceta = selectedDay.getRecetas().stream()
+                .collect(Collectors.toMap(
+                        RecetaDia::getIdReceta,
+                        RecetaDia::getNumeroPersonas
+                ));
+
         for (Receta r : listaRecetas) {
-            double numPersonasOriginal = r.getNumPersonas();
+            // 2) Calcula el número de personas objetivo (o usa el original si no está en el mapa)
+            double original = r.getNumPersonas();
+            //noinspection DataFlowIssue
+            double objetivo = personasPorReceta.getOrDefault(r.getId(), (int) original);
+            r.setNumPersonas((int) objetivo);
 
-            // Obtener el número de personas del día seleccionado
-            double numPersonas = selectedDay.getRecetas().stream().filter(dr -> dr.getIdReceta().equals(r.getId())).map(RecetaDia::getNumeroPersonas).findAny().orElse((int) numPersonasOriginal);
+            // 3) Factor de escalado
+            double factor = objetivo / original;
 
-            r.setNumPersonas((int) numPersonas);
+            // 4) Actualiza cada ingrediente con redondeo a 2 decimales
+            for (Ingrediente ing : r.getIngredientes()) {
+                double base = UtilsSrv.convertirNumero(ing.getCantidad());
+                double escalada = base * factor;
 
-            // Calcular el factor de multiplicación de los ingredientes
-            double factor = numPersonas / numPersonasOriginal;
+                // BigDecimal para redondear HALF_UP a 2 decimales
+                BigDecimal bd = BigDecimal
+                        .valueOf(escalada)
+                        .setScale(2, RoundingMode.HALF_UP);
 
-            // Actualizar la cantidad de los ingredientes
-            for (Ingrediente i : r.getIngredientes()) {
-                double cantidadOriginal = UtilsSrv.convertirNumero(i.getCantidad());
-                i.setCantidad(String.valueOf(cantidadOriginal * factor));
+                // stripTrailingZeros convierte "2.00" → "2", "2.50" → "2.5"
+                ing.setCantidad(bd.stripTrailingZeros().toPlainString());
             }
         }
         return listaRecetas;

@@ -1,99 +1,100 @@
+<?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <!-- Ingredientes para recetas típicas españolas -->
+
     <array name="ingredient_list">
         <item>
             <nombre>Azafrán</nombre>
-            <puntuacion>9</puntuacion>
+            <puntuacion>-1</puntuacion>
         </item>
         <item>
             <nombre>Pimentón</nombre>
-            <puntuacion>8</puntuacion>
+            <puntuacion>-1</puntuacion>
         </item>
         <item>
             <nombre>Comino</nombre>
-            <puntuacion>7</puntuacion>
+            <puntuacion>-1</puntuacion>
         </item>
         <item>
             <nombre>Orégano</nombre>
-            <puntuacion>8</puntuacion>
+            <puntuacion>-1</puntuacion>
         </item>
         <item>
             <nombre>Tomillo</nombre>
-            <puntuacion>8</puntuacion>
+            <puntuacion>-1</puntuacion>
         </item>
         <item>
             <nombre>Perejil</nombre>
-            <puntuacion>9</puntuacion>
+            <puntuacion>-1</puntuacion>
         </item>
         <item>
             <nombre>Laurel</nombre>
-            <puntuacion>8</puntuacion>
+            <puntuacion>-1</puntuacion>
         </item>
         <item>
             <nombre>Clavo</nombre>
-            <puntuacion>7</puntuacion>
+            <puntuacion>-1</puntuacion>
         </item>
         <item>
             <nombre>Canela</nombre>
-            <puntuacion>7</puntuacion>
+            <puntuacion>-1</puntuacion>
         </item>
         <item>
             <nombre>Albahaca</nombre>
-            <puntuacion>9</puntuacion>
+            <puntuacion>-1</puntuacion>
         </item>
         <item>
             <nombre>Eneldo</nombre>
-            <puntuacion>8</puntuacion>
+            <puntuacion>-1</puntuacion>
         </item>
         <item>
             <nombre>Guindilla</nombre>
-            <puntuacion>7</puntuacion>
+            <puntuacion>-1</puntuacion>
         </item>
         <item>
             <nombre>Nuez moscada</nombre>
-            <puntuacion>7</puntuacion>
+            <puntuacion>-1</puntuacion>
         </item>
         <item>
             <nombre>Cúrcuma</nombre>
-            <puntuacion>8</puntuacion>
+            <puntuacion>-1</puntuacion>
         </item>
         <item>
             <nombre>Cardamomo</nombre>
-            <puntuacion>8</puntuacion>
+            <puntuacion>-1</puntuacion>
         </item>
         <item>
             <nombre>Mostaza</nombre>
-            <puntuacion>7</puntuacion>
+            <puntuacion>-1</puntuacion>
         </item>
         <item>
             <nombre>Hinojo</nombre>
-            <puntuacion>8</puntuacion>
+            <puntuacion>-1</puntuacion>
         </item>
         <item>
             <nombre>Pimienta negra</nombre>
-            <puntuacion>8</puntuacion>
+            <puntuacion>-1</puntuacion>
         </item>
         <item>
             <nombre>Salvia</nombre>
-            <puntuacion>9</puntuacion>
+            <puntuacion>-1</puntuacion>
         </item>
         <item>
             <nombre>Romero</nombre>
-            <puntuacion>8</puntuacion>
+            <puntuacion>-1</puntuacion>
         </item>
         <item>
             <nombre>Manzanilla</nombre>
-            <puntuacion>9</puntuacion>
+            <puntuacion>-1</puntuacion>
         </item>
         <item>
             <nombre>Anís</nombre>
-            <puntuacion>7</puntuacion>
+            <puntuacion>-1</puntuacion>
         </item>
         <item>
             <nombre>Hierbabuena</nombre>
-            <puntuacion>9</puntuacion>
+            <puntuacion>-1</puntuacion>
         </item>
-        <!-- FRUTA Y VERDURA -->
+
         <item>
             <nombre>Tomate</nombre>
             <puntuacion>8</puntuacion>
@@ -310,7 +311,7 @@
             <nombre>Habas</nombre>
             <puntuacion>8</puntuacion>
         </item>
-        <!-- CARNES -->
+
         <item>
             <nombre>Pollo</nombre>
             <puntuacion>8</puntuacion>
@@ -439,7 +440,6 @@
             <nombre>Cocido</nombre>
             <puntuacion>3</puntuacion>
         </item>
-        <!-- PESCADOS -->
         <item>
             <nombre>Bacalao</nombre>
             <puntuacion>9</puntuacion>
@@ -569,10 +569,6 @@
             <puntuacion>8</puntuacion>
         </item>
         <item>
-            <nombre>San Pedro</nombre>
-            <puntuacion>9</puntuacion>
-        </item>
-        <item>
             <nombre>Pescadilla</nombre>
             <puntuacion>9</puntuacion>
         </item>
@@ -604,14 +600,13 @@
             <nombre>Angula</nombre>
             <puntuacion>9</puntuacion>
         </item>
-        <!-- CONDIMENTOS -->
         <item>
             <nombre>Sal</nombre>
-            <puntuacion>5</puntuacion>
+            <puntuacion>-1</puntuacion>
         </item>
         <item>
             <nombre>Pimienta blanca</nombre>
-            <puntuacion>6</puntuacion>
+            <puntuacion>-1</puntuacion>
         </item>
         <item>
             <nombre>Aceite de oliva</nombre>
@@ -619,41 +614,41 @@
         </item>
         <item>
             <nombre>Vinagre de Jerez</nombre>
-            <puntuacion>8</puntuacion>
+            <puntuacion>-1</puntuacion>
         </item>
         <item>
             <nombre>Vinagre de vino</nombre>
-            <puntuacion>8</puntuacion>
+            <puntuacion>-1</puntuacion>
         </item>
         <item>
             <nombre>Vinagre balsámico</nombre>
-            <puntuacion>7</puntuacion>
+            <puntuacion>-1</puntuacion>
         </item>
         <item>
             <nombre>Cilantro</nombre>
-            <puntuacion>8</puntuacion>
+            <puntuacion>-1</puntuacion>
         </item>
         <item>
             <nombre>Menta</nombre>
-            <puntuacion>9</puntuacion>
+            <puntuacion>-1</puntuacion>
         </item>
         <item>
             <nombre>Chile</nombre>
-            <puntuacion>7</puntuacion>
+            <puntuacion>-1</puntuacion>
         </item>
         <item>
             <nombre>Pimiento choricero</nombre>
-            <puntuacion>7</puntuacion>
+            <puntuacion>-1</puntuacion>
         </item>
         <item>
             <nombre>Clavo de olor</nombre>
-            <puntuacion>6</puntuacion>
+            <puntuacion>-1</puntuacion>
         </item>
         <item>
             <nombre>Regaliz</nombre>
-            <puntuacion>6</puntuacion>
+            <puntuacion>-1</puntuacion>
         </item>
-        <!-- FALTABAN POR AÑADIR -->
+
         <item>
             <nombre>Huevo</nombre>
             <puntuacion>8</puntuacion>
@@ -676,7 +671,7 @@
         </item>
         <item>
             <nombre>Jengibre rallado</nombre>
-            <puntuacion>8</puntuacion>
+            <puntuacion>-1</puntuacion>
         </item>
         <item>
             <nombre>Maicena</nombre>
@@ -704,11 +699,11 @@
         </item>
         <item>
             <nombre>Ajo en polvo</nombre>
-            <puntuacion>8</puntuacion>
+            <puntuacion>-1</puntuacion>
         </item>
         <item>
             <nombre>Cebolla en polvo</nombre>
-            <puntuacion>8</puntuacion>
+            <puntuacion>-1</puntuacion>
         </item>
         <item>
             <nombre>Salsa de tomate</nombre>
@@ -796,7 +791,7 @@
         </item>
         <item>
             <nombre>Azúcar blanco</nombre>
-            <puntuación>2</puntuación>
+            <puntuación>1</puntuación>
         </item>
         <item>
             <nombre>Caldo de pollo</nombre>
@@ -808,11 +803,11 @@
         </item>
         <item>
             <nombre>Levadura seca de panadería</nombre>
-            <puntuación>8</puntuación>
+            <puntuación>-1</puntuación>
         </item>
         <item>
             <nombre>Extracto de Vainilla</nombre>
-            <puntuación>9</puntuación>
+            <puntuación>-1</puntuación>
         </item>
         <item>
             <nombre>Azúcar glas</nombre>
@@ -820,7 +815,7 @@
         </item>
         <item>
             <nombre>Colorante alimentario rosa</nombre>
-            <puntuación>10</puntuación>
+            <puntuación>-1</puntuación>
         </item>
         <item>
             <nombre>Mermelada de fresa</nombre>
@@ -832,7 +827,7 @@
         </item>
         <item>
             <nombre>Vinagre de Modena</nombre>
-            <puntuación>7</puntuación>
+            <puntuación>-1</puntuación>
         </item>
         <item>
             <nombre>Mostaza de Dijon</nombre>
@@ -840,11 +835,11 @@
         </item>
         <item>
             <nombre>Agua</nombre>
-            <puntuación>10</puntuación>
+            <puntuación>-1</puntuación>
         </item>
         <item>
             <nombre>Vinagre</nombre>
-            <puntuación>10</puntuación>
+            <puntuación>-1</puntuación>
         </item>
         <item>
             <nombre>Perrins</nombre>
@@ -892,11 +887,11 @@
         </item>
         <item>
             <nombre>Azúcar moreno</nombre>
-            <puntuación>2</puntuación>
+            <puntuación>1</puntuación>
         </item>
         <item>
             <nombre>Bicarbonato sódico</nombre>
-            <puntuación>7</puntuación>
+            <puntuación>-1</puntuación>
         </item>
         <item>
             <nombre>Chips de chocolate</nombre>
@@ -908,7 +903,7 @@
         </item>
         <item>
             <nombre>Colorante</nombre>
-            <puntuación>10</puntuación>
+            <puntuación>-1</puntuación>
         </item>
         <item>
             <nombre>Garbanzos cocidos</nombre>
@@ -940,7 +935,7 @@
         </item>
         <item>
             <nombre>Pimentón ahumado</nombre>
-            <puntuación>7</puntuación>
+            <puntuación>-1</puntuación>
         </item>
         <item>
             <nombre>Queso rallado para gratinar</nombre>
@@ -968,7 +963,7 @@
         </item>
         <item>
             <nombre>Vino blanco</nombre>
-            <puntuación>2</puntuación>
+            <puntuación>-1</puntuación>
         </item>
         <item>
             <nombre>Tomate natural</nombre>
@@ -996,11 +991,11 @@
         </item>
         <item>
             <nombre>Canela molida</nombre>
-            <puntuación>9</puntuación>
+            <puntuación>-1</puntuación>
         </item>
         <item>
             <nombre>Levadura</nombre>
-            <puntuación>8</puntuación>
+            <puntuación>-1</puntuación>
         </item>
         <item>
             <nombre>Pan</nombre>
@@ -1036,7 +1031,7 @@
         </item>
         <item>
             <nombre>Vino tinto</nombre>
-            <puntuación>8</puntuación>
+            <puntuación>-1</puntuación>
         </item>
         <item>
             <nombre>Harina de fuerza</nombre>
@@ -1060,11 +1055,11 @@
         </item>
         <item>
             <nombre>Pechuga de pollo</nombre>
-            <puntuación>9</puntuación>
+            <puntuación>8</puntuación>
         </item>
         <item>
             <nombre>Pasta Harissa</nombre>
-            <puntuación>5</puntuación>
+            <puntuación>3</puntuación>
         </item>
         <item>
             <nombre>Muslo de pollo con hueso y piel</nombre>
@@ -1072,11 +1067,11 @@
         </item>
         <item>
             <nombre>Sal gruesa</nombre>
-            <puntuación>2</puntuación>
+            <puntuación>-1</puntuación>
         </item>
         <item>
             <nombre>Jerez seco</nombre>
-            <puntuación>4</puntuación>
+            <puntuación>-1</puntuación>
         </item>
         <item>
             <nombre>Clara de huevo</nombre>
@@ -1084,19 +1079,19 @@
         </item>
         <item>
             <nombre>Aceite de sésamo</nombre>
-            <puntuación>7</puntuación>
+            <puntuación>4</puntuación>
         </item>
         <item>
             <nombre>Vinagre de arroz</nombre>
-            <puntuación>7</puntuación>
+            <puntuación>-1</puntuación>
         </item>
         <item>
             <nombre>Semillas de sésamo</nombre>
-            <puntuación>8</puntuación>
+            <puntuación>-1</puntuación>
         </item>
         <item>
             <nombre>Jengibre en polvo</nombre>
-            <puntuación>8</puntuación>
+            <puntuación>-1</puntuación>
         </item>
         <item>
             <nombre>Salsa Perrins</nombre>
@@ -1180,7 +1175,7 @@
         </item>
         <item>
             <nombre>Azafrán (colorante amarillo)</nombre>
-            <puntuación>8</puntuación>
+            <puntuación>-1</puntuación>
         </item>
         <item>
             <nombre>Huevos grandes</nombre>
@@ -1256,7 +1251,7 @@
         </item>
         <item>
             <nombre>Concentrado de tomate</nombre>
-            <puntuación>7</puntuación>
+            <puntuación>-1</puntuación>
         </item>
         <item>
             <nombre>Nata para montar</nombre>
@@ -1284,7 +1279,7 @@
         </item>
         <item>
             <nombre>Manteca</nombre>
-            <puntuación>1</puntuación>
+            <puntuación>0</puntuación>
         </item>
         <item>
             <nombre>Salchichas</nombre>
@@ -1332,64 +1327,52 @@
         </item>
         <item>
             <nombre>Café</nombre>
-            <puntuación>5</puntuación>
+            <puntuación>-1</puntuación>
         </item>
-
         <item>
             <nombre>Cacao en polvo</nombre>
             <puntuación>2</puntuación>
         </item>
-
         <item>
             <nombre>Tableta chocolate negro</nombre>
             <puntuación>2</puntuación>
         </item>
-
         <item>
             <nombre>Leche de cabra</nombre>
             <puntuación>6</puntuación>
         </item>
-
         <item>
             <nombre>Vinagre de sidra de manzana</nombre>
-            <puntuación>8</puntuación>
+            <puntuación>-1</puntuación>
         </item>
-
         <item>
             <nombre>Pan rallado panko</nombre>
-            <puntuación>3</puntuación>
+            <puntuación>5</puntuación>
         </item>
-
         <item>
             <nombre>Queso parmesano</nombre>
             <puntuación>3</puntuación>
         </item>
-
         <item>
             <nombre>Solomillo de cerdo</nombre>
             <puntuación>4</puntuación>
         </item>
-
         <item>
             <nombre>Seta Shiitake</nombre>
             <puntuación>9</puntuación>
         </item>
-
         <item>
             <nombre>Panceta</nombre>
             <puntuación>1</puntuación>
         </item>
-
         <item>
             <nombre>Pimiento amarillo</nombre>
             <puntuación>8</puntuación>
         </item>
-
         <item>
             <nombre>Piña en almíbar</nombre>
             <puntuación>3</puntuación>
         </item>
-
         <item>
             <nombre>Noodles</nombre>
             <puntuación>4</puntuación>
@@ -1416,15 +1399,15 @@
         </item>
         <item>
             <nombre>Comino molido</nombre>
-            <puntuación>9</puntuación>
+            <puntuación>-1</puntuación>
         </item>
         <item>
             <nombre>Cilantro molido</nombre>
-            <puntuación>9</puntuación>
+            <puntuación>-1</puntuación>
         </item>
         <item>
             <nombre>Garam masala</nombre>
-            <puntuación>7</puntuación>
+            <puntuación>-1</puntuación>
         </item>
         <item>
             <nombre>Caldo de carne</nombre>
@@ -1484,7 +1467,7 @@
         </item>
         <item>
             <nombre>Sidra natural</nombre>
-            <puntuación>6</puntuación>
+            <puntuación>-1</puntuación>
         </item>
         <item>
             <nombre>Lomo de cerdo</nombre>
@@ -1516,11 +1499,11 @@
         </item>
         <item>
             <nombre>Cayena</nombre>
-            <puntuación>8</puntuación>
+            <puntuación>-1</puntuación>
         </item>
         <item>
             <nombre>Canela en rama</nombre>
-            <puntuación>9</puntuación>
+            <puntuación>-1</puntuación>
         </item>
         <item>
             <nombre>Cerveza</nombre>
@@ -1528,7 +1511,7 @@
         </item>
         <item>
             <nombre>Piripiri</nombre>
-            <puntuación>8</puntuación>
+            <puntuación>-1</puntuación>
         </item>
         <item>
             <nombre>Espárragos verdes</nombre>
@@ -1556,7 +1539,7 @@
         </item>
         <item>
             <nombre>Perejil fresco</nombre>
-            <puntuación>10</puntuación>
+            <puntuación>-1</puntuación>
         </item>
         <item>
             <nombre>Pimientos del padrón</nombre>
@@ -1600,19 +1583,19 @@
         </item>
         <item>
             <nombre>Semillas de cilantro</nombre>
-            <puntuacion>9</puntuacion>
+            <puntuacion>-1</puntuacion>
         </item>
         <item>
             <nombre>Semillas de comino</nombre>
-            <puntuacion>9</puntuacion>
+            <puntuacion>-1</puntuacion>
         </item>
         <item>
             <nombre>Jengibre fresco</nombre>
-            <puntuacion>10</puntuacion>
+            <puntuacion>-1</puntuacion>
         </item>
         <item>
             <nombre>Colorante alimentario rojo</nombre>
-            <puntuacion>2</puntuacion>
+            <puntuacion>-1</puntuacion>
         </item>
         <item>
             <nombre>Lima</nombre>
@@ -1624,27 +1607,27 @@
         </item>
         <item>
             <nombre>Cardamomo negro</nombre>
-            <puntuacion>8</puntuacion>
+            <puntuacion>-1</puntuacion>
         </item>
         <item>
             <nombre>Cardamomo verde</nombre>
-            <puntuacion>9</puntuacion>
+            <puntuacion>-1</puntuacion>
         </item>
         <item>
             <nombre>Anís estrellado</nombre>
-            <puntuacion>8</puntuacion>
+            <puntuacion>-1</puntuacion>
         </item>
         <item>
             <nombre>Cilantro fresco</nombre>
-            <puntuacion>10</puntuacion>
+            <puntuacion>-1</puntuacion>
         </item>
         <item>
             <nombre>Hojas de hierbabuena</nombre>
-            <puntuacion>10</puntuacion>
+            <puntuacion>-1</puntuacion>
         </item>
         <item>
             <nombre>Comino en grano</nombre>
-            <puntuacion>9</puntuacion>
+            <puntuacion>-1</puntuacion>
         </item>
         <item>
             <nombre>Chile verde</nombre>
@@ -1672,7 +1655,7 @@
         </item>
         <item>
             <nombre>Jengibre</nombre>
-            <puntuacion>10</puntuacion>
+            <puntuacion>-1</puntuacion>
         </item>
         <item>
             <nombre>Merengue</nombre>
@@ -1681,6 +1664,30 @@
         <item>
             <nombre>Alcachofas en trozos congeladas</nombre>
             <puntuacion>9</puntuacion>
+        </item>
+        <item>
+            <nombre>Fideos de estrellitas</nombre>
+            <puntuacion>4</puntuacion>
+        </item>
+        <item>
+            <nombre>Gambas pequeñas</nombre>
+            <puntuacion>8</puntuacion>
+        </item>
+        <item>
+            <nombre>Coliflor</nombre>
+            <puntuacion>10</puntuacion>
+        </item>
+        <item>
+            <nombre>Queso manchego</nombre>
+            <puntuacion>6</puntuacion>
+        </item>
+        <item>
+            <nombre>Levadura instantánea de panadero</nombre>
+            <puntuacion>-1</puntuacion>
+        </item>
+        <item>
+            <nombre>Harina de trigo de fuerza</nombre>
+            <puntuacion>5</puntuacion>
         </item>
     </array>
 </resources>

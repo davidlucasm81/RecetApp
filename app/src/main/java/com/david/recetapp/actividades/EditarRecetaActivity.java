@@ -50,8 +50,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class EditarRecetaActivity extends AppCompatActivity {
+    private static final Pattern patternIngredient = Pattern.compile("^(.+)\\s(-?\\d+)$");  // grupo 1 = nombre; grupo 2 = puntuación (pos. o neg.)
     private static final String KEY_INGREDIENTES = "ingredientes";
     private static final String KEY_PASOS = "pasos";
     private EditText editTextNombre;
@@ -145,7 +148,15 @@ public class EditarRecetaActivity extends AppCompatActivity {
         // Crear una nueva lista que contenga solo los nombres de los ingredientes
         String[] ingredientNames = new String[ingredientList.length];
         for (int i = 0; i < ingredientList.length; i++) {
-            ingredientNames[i] = ingredientList[i].split("\\s\\d+")[0]; // Obtener el nombre sin la puntuación
+            String entry = ingredientList[i].trim();
+            Matcher matcher = patternIngredient.matcher(entry);
+            if (matcher.matches()) {
+                // Grupo 1 = nombre sin puntuación
+                ingredientNames[i] = matcher.group(1);
+            } else {
+                // Caída segura: si no encaja con el patrón, dejamos el texto entero
+                ingredientNames[i] = entry;
+            }
         }
 
         // Crear un adaptador con la lista de nombres de ingredientes y configurarlo en el AutoCompleteTextView
@@ -258,13 +269,10 @@ public class EditarRecetaActivity extends AppCompatActivity {
         ingredientMap = new HashMap<>();
 
         for (String s : ingredientList) {
-            // Utilizar una expresión regular para encontrar el número al final
-            String regex = "(.+) (\\d+)$";
-            java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(regex);
-            java.util.regex.Matcher matcher = pattern.matcher(s.trim());
-            if (matcher.find()) {
-                // Agregar el nombre y la puntuación al mapa
-                ingredientMap.put(matcher.group(1), Integer.parseInt(Objects.requireNonNull(matcher.group(2))));
+            Matcher m = patternIngredient.matcher(s.trim());
+            if (m.matches()) {
+                // guardamos la clave ya en minúsculas
+                ingredientMap.put(Objects.requireNonNull(m.group(1)).toLowerCase(Locale.getDefault()), Integer.parseInt(m.group(2)));
             }
         }
 
@@ -377,7 +385,8 @@ public class EditarRecetaActivity extends AppCompatActivity {
     }
 
     private void agregarIngrediente(String nombre, String numero, String tipoCantidad) {
-        Ingrediente ingrediente = new Ingrediente(nombre, numero, tipoCantidad, UtilsSrv.obtenerPuntuacion(ingredientMap, nombre, -1));
+        //noinspection DataFlowIssue
+        Ingrediente ingrediente = new Ingrediente(nombre, numero, tipoCantidad, ingredientMap.getOrDefault(nombre.toLowerCase(Locale.getDefault()),-2));
         ingredientes.add(ingrediente);
         mostrarIngredientes();
     }

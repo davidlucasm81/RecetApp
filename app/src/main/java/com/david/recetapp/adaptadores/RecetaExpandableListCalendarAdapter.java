@@ -195,7 +195,7 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
 
                 for (int i = 0; i < totalIngredientes; i++) {
                     Ingrediente ingrediente = receta.getIngredientes().get(i);
-                    sbIngredientes.append("- ").append(ingrediente.getCantidad()).append(" ").append(ingrediente.getTipoCantidad()).append(activity.getString(R.string.literal_de)).append(ingrediente.getNombre()).append(" (Score: ").append(ingrediente.getPuntuacion()).append(")");
+                    sbIngredientes.append("- ").append(ingrediente.getCantidad()).append(" ").append(ingrediente.getTipoCantidad()).append(activity.getString(R.string.literal_de)).append(ingrediente.getNombre()).append(ingrediente.getPuntuacion()>=0? " (Score: "+ingrediente.getPuntuacion()+")" : "");
 
                     // Agregar dos saltos de línea si no es la última iteración
                     if (i < totalIngredientes - 1) {

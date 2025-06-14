@@ -122,7 +122,7 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
 
         postre.setVisibility(receta.isPostre() ? View.VISIBLE : View.GONE);
         shared.setVisibility(receta.isShared() ? View.VISIBLE : View.GONE);
-        warning.setVisibility(receta.getNumPersonas() <= 0 || receta.getIngredientes().stream().anyMatch(i -> i.getPuntuacion() < 0) ? View.VISIBLE : View.GONE);
+        warning.setVisibility(receta.getNumPersonas() <= 0 || receta.getIngredientes().stream().anyMatch(i -> i.getPuntuacion() < -1) ? View.VISIBLE : View.GONE);
 
         btnEliminar.setOnClickListener(v -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -204,7 +204,7 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
 
                 for (int i = 0; i < totalIngredientes; i++) {
                     Ingrediente ingrediente = receta.getIngredientes().get(i);
-                    sbIngredientes.append("- ").append(ingrediente.getCantidad()).append(" ").append(ingrediente.getTipoCantidad()).append(context.getString(R.string.literal_de)).append(ingrediente.getNombre()).append(" (Score: ").append(ingrediente.getPuntuacion()).append(")");
+                    sbIngredientes.append("- ").append(ingrediente.getCantidad()).append(" ").append(ingrediente.getTipoCantidad()).append(context.getString(R.string.literal_de)).append(ingrediente.getNombre()).append(ingrediente.getPuntuacion()>=0? " (Score: "+ingrediente.getPuntuacion()+")" : "");
 
                     // Agregar dos saltos de línea si no es la última iteración
                     if (i < totalIngredientes - 1) {

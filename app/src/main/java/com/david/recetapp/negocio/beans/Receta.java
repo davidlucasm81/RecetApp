@@ -13,12 +13,17 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Receta implements Serializable {
+    private static final Pattern patternIngredient = Pattern.compile("^(.+)\\s(-?\\d+)$");  // grupo 1 = nombre; grupo 2 = puntuación (pos. o neg.)
+
     private final String id;
     private String nombre;
     private Set<Temporada> temporadas;
@@ -159,18 +164,26 @@ public class Receta implements Serializable {
     public void setPuntuacionDada(Context context) {
         Map<String, Integer> ingredientMap = new HashMap<>();
         String[] ingredientList = context.getResources().getStringArray(R.array.ingredient_list);
+
         for (String s : ingredientList) {
-            // Utilizar una expresión regular para encontrar el número al final
-            String regex = "(.+) (\\d+)$";
-            java.util.regex.Pattern pattern = java.util.regex.Pattern.compile(regex);
-            java.util.regex.Matcher matcher = pattern.matcher(s.trim());
-            if (matcher.find()) {
-                // Agregar el nombre y la puntuación al mapa
-                ingredientMap.put(matcher.group(1), Integer.parseInt(Objects.requireNonNull(matcher.group(2))));
+            Matcher m = patternIngredient.matcher(s.trim());
+            if (m.matches()) {
+                // guardamos la clave ya en minúsculas
+                ingredientMap.put(Objects.requireNonNull(m.group(1)).toLowerCase(Locale.getDefault()), Integer.parseInt(m.group(2)));
             }
         }
 
-        this.ingredientes.parallelStream().forEach(i -> i.setPuntuacion(UtilsSrv.obtenerPuntuacion(ingredientMap, i.getNombre(), -1)));
+        for (Ingrediente ingredient : this.ingredientes) {
+            if (ingredientMap.containsKey(ingredient.getNombre().toLowerCase(Locale.getDefault()))) {
+                //noinspection DataFlowIssue
+                double puntuacion = ingredientMap.get(ingredient.getNombre().toLowerCase(Locale.getDefault()));
+                ingredient.setPuntuacion(puntuacion);
+            }
+            else{
+                ingredient.setPuntuacion(-2);
+            }
+        }
+
 
         String[] units = context.getResources().getStringArray(R.array.quantity_units);
         int[] importanceValues = context.getResources().getIntArray(R.array.importance_values);
@@ -179,14 +192,14 @@ public class Receta implements Serializable {
         for (int i = 0; i < units.length; i++) {
             unitImportanceMap.put(units[i], importanceValues[i]);
         }
-        double cantidadTotal = this.ingredientes.stream().mapToDouble(ingrediente -> {
+        double cantidadTotal = this.ingredientes.stream().filter(i -> i.getPuntuacion()>=0).mapToDouble(ingrediente -> {
             double cantidad = (UtilsSrv.esNumeroEnteroOFraccionValida(ingrediente.getCantidad())) ? UtilsSrv.convertirNumero(ingrediente.getCantidad()) : 1;
             //noinspection DataFlowIssue
             double tipoCantidadFactor = unitImportanceMap.getOrDefault(ingrediente.getTipoCantidad(), 1);
             return cantidad * tipoCantidadFactor;
         }).sum();
 
-        this.puntuacionDada = this.ingredientes.stream().mapToDouble(ingrediente -> {
+        this.puntuacionDada = this.ingredientes.stream().filter(i -> i.getPuntuacion()>=0).mapToDouble(ingrediente -> {
             double cantidad = (UtilsSrv.esNumeroEnteroOFraccionValida(ingrediente.getCantidad())) ? UtilsSrv.convertirNumero(ingrediente.getCantidad()) : 1;
             //noinspection DataFlowIssue
             double tipoCantidadFactor = unitImportanceMap.getOrDefault(ingrediente.getTipoCantidad(), 1);
