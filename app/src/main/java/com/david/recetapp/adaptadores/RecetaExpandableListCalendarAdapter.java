@@ -68,26 +68,17 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
     @Override
     public Object getChild(int groupPosition, int childPosition) {
         Receta receta = listaRecetas.get(groupPosition);
-        switch (childPosition) {
-            case 0:
-                return receta.getTemporadas();
-            case 1:
-                return receta.getNumPersonas();
-            case 2:
-                return receta.getIngredientes();
-            case 3:
-                return receta.getPasos();
-            case 4:
-                return receta.getAlergenos();
-            case 5:
-                return receta.getEstrellas();
-            case 6:
-                return receta.getFechaCalendario();
-            case 7:
-                return receta.getPuntuacionDada();
-            default:
-                return null;
-        }
+        return switch (childPosition) {
+            case 0 -> receta.getTemporadas();
+            case 1 -> receta.getNumPersonas();
+            case 2 -> receta.getIngredientes();
+            case 3 -> receta.getPasos();
+            case 4 -> receta.getAlergenos();
+            case 5 -> receta.getEstrellas();
+            case 6 -> receta.getFechaCalendario();
+            case 7 -> receta.getPuntuacionDada();
+            default -> null;
+        };
     }
 
     @Override

@@ -33,7 +33,7 @@ public class CalendarioSrv {
     private static final int LIMITE_DIAS = 3;
 
     public static List<Day> obtenerCalendario(Context context) {
-        List<Day> days = new ArrayList<>();
+        List<Day> days;
         try {
             // Cargamos el calendario
             SharedPreferences preferences = context.getSharedPreferences("shared_calendar_prefs", Context.MODE_PRIVATE);
@@ -132,7 +132,7 @@ public class CalendarioSrv {
             dia.setRecetas(selectedDay.getRecetas());
             saveCalendarToSharedPreferences(activity, dias);
 
-            listaRecetas.stream().filter(r -> dia.getRecetas().stream().map(RecetaDia::getIdReceta).anyMatch(dr -> dr.equals(r.getId()))).forEach(r -> RecetasSrv.actualizarRecetaCalendario(activity, r.getId(), dia.getDayOfMonth(), true));
+            listaRecetas.stream().filter(r -> dia.getRecetas().stream().map(RecetaDia::idReceta).anyMatch(dr -> dr.equals(r.getId()))).forEach(r -> RecetasSrv.actualizarRecetaCalendario(activity, r.getId(), dia.getDayOfMonth(), true));
         } else {
             UtilsSrv.notificacion(activity, activity.getString(R.string.calendario_no_actualizado), Toast.LENGTH_SHORT).show();
         }
@@ -142,7 +142,7 @@ public class CalendarioSrv {
     public static void actualizarFechaCalendario(Activity activity, String idReceta) {
         List<Day> dias = obtenerCalendario(activity);
 
-        Optional<Day> dia = dias.stream().sorted((d1, d2) -> d2.getDayOfMonth() - d1.getDayOfMonth()).filter(d -> d.getRecetas().stream().map(RecetaDia::getIdReceta).anyMatch(dr -> dr.equals(idReceta))).findFirst();
+        Optional<Day> dia = dias.stream().sorted((d1, d2) -> d2.getDayOfMonth() - d1.getDayOfMonth()).filter(d -> d.getRecetas().stream().map(RecetaDia::idReceta).anyMatch(dr -> dr.equals(idReceta))).findFirst();
         if (dia.isPresent()) {
             RecetasSrv.actualizarRecetaCalendario(activity, idReceta, dia.get().getDayOfMonth(), false);
         } else {
@@ -167,7 +167,7 @@ public class CalendarioSrv {
                 addReceta(cola, recetasUtilizadasRecientemente, dia);
                 addReceta(cola, recetasUtilizadasRecientemente, dia);
                 // Actualizar las recetas del calendario
-                listaRecetas.stream().filter(r -> dia.getRecetas().stream().map(RecetaDia::getIdReceta).anyMatch(dr -> dr.equals(r.getId()))).forEach(r -> RecetasSrv.actualizarRecetaCalendario(context, r.getId(), dia.getDayOfMonth(), true));
+                listaRecetas.stream().filter(r -> dia.getRecetas().stream().map(RecetaDia::idReceta).anyMatch(dr -> dr.equals(r.getId()))).forEach(r -> RecetasSrv.actualizarRecetaCalendario(context, r.getId(), dia.getDayOfMonth(), true));
                 // Limpiar las recetas utilizadas recientemente después de 3 días
                 limpiarRecetasUtilizadasRecientemente(recetasUtilizadasRecientemente, dia);
             }
@@ -240,7 +240,7 @@ public class CalendarioSrv {
                 int dayOfMonthFuturo = calReceta.get(Calendar.DAY_OF_MONTH);
                 if (dia.getDayOfMonth() + i == dayOfMonthFuturo) {
                     // Verificar si la receta está programada en el día futuro
-                    return dia.getRecetas().stream().map(RecetaDia::getIdReceta).anyMatch(dr -> dr.equals(receta.getId()));
+                    return dia.getRecetas().stream().map(RecetaDia::idReceta).anyMatch(dr -> dr.equals(receta.getId()));
                 }
             }
         }

@@ -1,12 +1,12 @@
 package com.david.recetapp.negocio.beans;
 
-import java.io.Serializable;
+import android.os.Parcel;
+import android.os.Parcelable;
 
-public class Ingrediente implements Serializable {
+public class Ingrediente implements Parcelable {
     private String nombre;
     private String cantidad;
     private String tipoCantidad;
-
     private double puntuacion;
 
     public Ingrediente(String nombre, String cantidad, String tipoCantidad, double puntuacion) {
@@ -16,6 +16,39 @@ public class Ingrediente implements Serializable {
         this.puntuacion = puntuacion;
     }
 
+    protected Ingrediente(Parcel in) {
+        nombre = in.readString();
+        cantidad = in.readString();
+        tipoCantidad = in.readString();
+        puntuacion = in.readDouble();
+    }
+
+    public static final Creator<Ingrediente> CREATOR = new Creator<>() {
+        @Override
+        public Ingrediente createFromParcel(Parcel in) {
+            return new Ingrediente(in);
+        }
+
+        @Override
+        public Ingrediente[] newArray(int size) {
+            return new Ingrediente[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(nombre);
+        dest.writeString(cantidad);
+        dest.writeString(tipoCantidad);
+        dest.writeDouble(puntuacion);
+    }
+
+    // getters and setters
     public String getNombre() {
         return nombre;
     }
@@ -39,7 +72,6 @@ public class Ingrediente implements Serializable {
     public void setTipoCantidad(String tipoCantidad) {
         this.tipoCantidad = tipoCantidad;
     }
-
 
     public double getPuntuacion() {
         return puntuacion;

@@ -1,10 +1,22 @@
 package com.david.recetapp.negocio.beans;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.david.recetapp.negocio.servicios.UtilsSrv;
 
-import java.io.Serializable;
+public class Paso implements Parcelable {
+    public static final Creator<Paso> CREATOR = new Creator<>() {
+        @Override
+        public Paso createFromParcel(Parcel in) {
+            return new Paso(in);
+        }
 
-public class Paso implements Serializable {
+        @Override
+        public Paso[] newArray(int size) {
+            return new Paso[size];
+        }
+    };
     private String tiempo;
     private String paso;
 
@@ -13,16 +25,32 @@ public class Paso implements Serializable {
         this.tiempo = tiempo;
     }
 
+    protected Paso(Parcel in) {
+        tiempo = in.readString();
+        paso = in.readString();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(tiempo);
+        dest.writeString(paso);
+    }
+
     public String getTiempo() {
         return tiempo;
     }
 
-    public String getPaso() {
-        return paso;
-    }
-
     public void setTiempo(String tiempo) {
         this.tiempo = tiempo;
+    }
+
+    public String getPaso() {
+        return paso;
     }
 
     public void setPaso(String paso) {

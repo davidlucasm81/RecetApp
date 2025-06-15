@@ -6,7 +6,8 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp"
-    tools:ignore="SpeakableTextPresentCheck">
+    tools:ignore="SpeakableTextPresentCheck"
+    android:fitsSystemWindows="true">
 
     <LinearLayout
         android:id="@+id/buttonContainer"

@@ -1,17 +1,20 @@
 package com.david.recetapp.negocio.beans;
 
 import android.content.Context;
+import android.os.Parcelable;
 
 import androidx.collection.ArraySet;
 
 import com.david.recetapp.R;
 import com.david.recetapp.negocio.servicios.UtilsSrv;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+
+import android.os.Parcel;
+
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -21,27 +24,20 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Receta implements Serializable {
-    private static final Pattern patternIngredient = Pattern.compile("^(.+)\\s(-?\\d+)$");  // grupo 1 = nombre; grupo 2 = puntuación (pos. o neg.)
+public class Receta implements Parcelable {
+    private static final Pattern patternIngredient = Pattern.compile("^(.+)\\s(-?\\d+)$");
 
     private final String id;
     private String nombre;
     private Set<Temporada> temporadas;
     private List<Ingrediente> ingredientes;
     private List<Paso> pasos;
-
     private Set<Alergeno> alergenos;
-
     private float estrellas;
-
     private int numPersonas;
-
     private Date fechaCalendario;
-
     private boolean shared;
-
     private boolean postre;
-
     private double puntuacionDada;
 
     public Receta() {
@@ -50,14 +46,89 @@ public class Receta implements Serializable {
         this.temporadas = new ArraySet<>();
         this.ingredientes = new ArrayList<>();
         this.pasos = new ArrayList<>();
+        this.alergenos = new HashSet<>();
         this.estrellas = 0;
         this.numPersonas = -1;
         this.fechaCalendario = null;
-        this.alergenos = new HashSet<>();
         this.shared = false;
         this.postre = false;
         this.puntuacionDada = -1;
     }
+
+    protected Receta(Parcel in) {
+        id = in.readString();
+        nombre = in.readString();
+
+        // Temporadas
+        int seasonCount = in.readInt();
+        temporadas = new ArraySet<>();
+        for (int i = 0; i < seasonCount; i++) {
+            int ord = in.readInt();
+            temporadas.add(Temporada.values()[ord]);
+        }
+
+        // Ingredientes & Pasos
+        ingredientes = in.createTypedArrayList(Ingrediente.CREATOR);
+        pasos        = in.createTypedArrayList(Paso.CREATOR);
+
+        // Alergenos
+        List<Alergeno> algList = in.createTypedArrayList(Alergeno.CREATOR);
+        assert algList != null;
+        alergenos = new HashSet<>(algList);
+
+        estrellas       = in.readFloat();
+        numPersonas     = in.readInt();
+        long ts         = in.readLong();
+        fechaCalendario = (ts != -1L) ? new Date(ts) : null;
+        shared          = in.readByte() != 0;
+        postre          = in.readByte() != 0;
+        puntuacionDada  = in.readDouble();
+    }
+
+    public static final Creator<Receta> CREATOR = new Creator<>() {
+        @Override
+        public Receta createFromParcel(Parcel in) {
+            return new Receta(in);
+        }
+
+        @Override
+        public Receta[] newArray(int size) {
+            return new Receta[size];
+        }
+    };
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeString(nombre);
+
+        // Temporadas
+        dest.writeInt(temporadas.size());
+        for (Temporada t : temporadas) {
+            dest.writeInt(t.ordinal());
+        }
+
+        // Ingredientes & Pasos
+        dest.writeTypedList(ingredientes);
+        dest.writeTypedList(pasos);
+
+        // Alergenos
+        dest.writeTypedList(new ArrayList<>(alergenos));
+
+        dest.writeFloat(estrellas);
+        dest.writeInt(numPersonas);
+        dest.writeLong(fechaCalendario != null ? fechaCalendario.getTime() : -1L);
+        dest.writeByte((byte) (shared ? 1 : 0));
+        dest.writeByte((byte) (postre ? 1 : 0));
+        dest.writeDouble(puntuacionDada);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    // Getters, setters y lógica de puntuación idéntica a la versión Serializable
 
     public String getNombre() {
         return nombre;
@@ -169,7 +240,7 @@ public class Receta implements Serializable {
             Matcher m = patternIngredient.matcher(s.trim());
             if (m.matches()) {
                 // guardamos la clave ya en minúsculas
-                ingredientMap.put(Objects.requireNonNull(m.group(1)).toLowerCase(Locale.getDefault()), Integer.parseInt(m.group(2)));
+                ingredientMap.put(Objects.requireNonNull(m.group(1)).toLowerCase(Locale.getDefault()), Integer.parseInt(Objects.requireNonNull(m.group(2))));
             }
         }
 

@@ -691,11 +691,11 @@
         </item>
         <item>
             <nombre>Pimentón dulce</nombre>
-            <puntuacion>8</puntuacion>
+            <puntuacion>-1</puntuacion>
         </item>
         <item>
             <nombre>Pimentón picante</nombre>
-            <puntuacion>7</puntuacion>
+            <puntuacion>-1</puntuacion>
         </item>
         <item>
             <nombre>Ajo en polvo</nombre>

@@ -23,7 +23,7 @@ import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
 
 import com.david.recetapp.R;
-import com.david.recetapp.actividades.AddRecetaActivity;
+import com.david.recetapp.actividades.recetas.AddRecetaActivity;
 import com.david.recetapp.actividades.ImportExportActivity;
 import com.david.recetapp.adaptadores.RecetaExpandableListAdapter;
 import com.david.recetapp.negocio.beans.Receta;

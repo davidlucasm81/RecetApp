@@ -75,7 +75,7 @@ public class RecetasSrv {
         List<Receta> listaRecetas = cargarListaRecetas(context);
         if (listaRecetas.stream().noneMatch(r -> receta.getId().equals(r.getId()))) {
             // Agregar la receta al principio de la lista
-            listaRecetas.add(0, receta);
+            listaRecetas.addFirst(receta);
 
             // Guardar la lista actualizada en el archivo JSON
             // Convertir la lista de recetas a JSON
@@ -149,7 +149,7 @@ public class RecetasSrv {
         Temporada temporada = UtilsSrv.getTemporadaFecha(LocalDate.now());
 
         // Convertimos la lista de recetas ya seleccionadas en un Set para mejorar eficiencia en la búsqueda
-        Set<String> recetasSeleccionadas = idRecetas.stream().map(RecetaDia::getIdReceta).collect(Collectors.toSet());
+        Set<String> recetasSeleccionadas = idRecetas.stream().map(RecetaDia::idReceta).collect(Collectors.toSet());
 
         return recetas.stream().filter(r -> !recetasSeleccionadas.contains(r.getId()) && r.getTemporadas().contains(temporada)).sorted(Comparator.comparing(Receta::getPuntuacionDada, Comparator.reverseOrder()).thenComparing(Receta::getEstrellas, Comparator.reverseOrder())).collect(Collectors.toList());
     }
@@ -177,7 +177,7 @@ public class RecetasSrv {
     @NonNull
     public static List<Receta> getRecetasAdaptadasCalendario(List<Receta> recetasTotales, Day selectedDay) {
         final List<Receta> listaRecetas;
-        Set<String> recetasIdsDia = selectedDay.getRecetas().stream().map(RecetaDia::getIdReceta).collect(Collectors.toSet());
+        Set<String> recetasIdsDia = selectedDay.getRecetas().stream().map(RecetaDia::idReceta).collect(Collectors.toSet());
 
         // Filtrar las recetas que están en el día seleccionado
         listaRecetas = recetasTotales.stream().filter(r -> recetasIdsDia.contains(r.getId())).collect(Collectors.toList());
@@ -186,8 +186,8 @@ public class RecetasSrv {
         // 1) Prepara un mapa de idReceta → numPersonas para acceso O(1)
         Map<String, Integer> personasPorReceta = selectedDay.getRecetas().stream()
                 .collect(Collectors.toMap(
-                        RecetaDia::getIdReceta,
-                        RecetaDia::getNumeroPersonas
+                        RecetaDia::idReceta,
+                        RecetaDia::numeroPersonas
                 ));
 
         for (Receta r : listaRecetas) {
