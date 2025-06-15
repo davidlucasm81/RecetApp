@@ -6,4 +6,5 @@
     <color name="colorGrisTextoFondo">#A0A0A0</color>
     <color name="estrellas">#27A727</color>
     <color name="colorPrimary">#FF5722</color>
+    <color name="colorPostre">#FFD4E5</color>
 </resources>

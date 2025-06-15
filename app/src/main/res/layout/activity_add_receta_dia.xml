@@ -9,11 +9,9 @@
     tools:ignore="SpeakableTextPresentCheck"
     android:fitsSystemWindows="true">
 
-    <LinearLayout
-        android:id="@+id/buttonContainer"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="wrap_content">
 
         <TextView
             android:id="@+id/textViewEmpty"
@@ -26,7 +24,13 @@
             android:textStyle="bold"
             android:visibility="gone" />
 
-        <!-- Lista de botones de recetas -->
-    </LinearLayout>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewRecetas"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clipToPadding="false"
+            android:paddingBottom="16dp"
+            tools:listitem="@layout/item_receta_button" />
 
+    </FrameLayout>
 </ScrollView>

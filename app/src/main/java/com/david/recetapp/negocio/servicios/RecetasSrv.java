@@ -2,6 +2,7 @@ package com.david.recetapp.negocio.servicios;
 
 import android.content.Context;
 import android.util.Log;
+import android.util.LruCache;
 
 import androidx.annotation.NonNull;
 
@@ -32,188 +33,199 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+/** @noinspection DataFlowIssue*/
 public class RecetasSrv {
     public static final String JSON = "lista_recetas.json";
     private static final String TAG = "RecetasSrv";
 
-    public static List<Receta> cargarListaRecetas(Context context) {
-        // Cargar el archivo JSON desde el almacenamiento interno
-        try {
-            FileInputStream fis = context.openFileInput(JSON);
-            InputStreamReader isr = new InputStreamReader(fis);
-            BufferedReader br = new BufferedReader(isr);
+    // Cache: key → lista de recetas
+    private static final LruCache<String, List<Receta>> recetasCache = new LruCache<>(4 * 1024 * 1024);
+    // Timestamps para validación
+    private static final Map<String, Long> cacheTimestamps = new ConcurrentHashMap<>();
+    private static final long CACHE_VALIDITY_MS = 5 * 60 * 1000; // 5 minutos
 
-            StringBuilder jsonBuilder = new StringBuilder();
+    /** Carga todas las recetas, usa cache si está válida */
+    public static List<Receta> cargarListaRecetas(Context context) {
+        final String cacheKey = "todas_las_recetas";
+        List<Receta> recetas = recetasCache.get(cacheKey);
+        long lastUpdate = cacheTimestamps.getOrDefault(cacheKey, 0L);
+
+        if (recetas != null && System.currentTimeMillis() - lastUpdate < CACHE_VALIDITY_MS) {
+            return new ArrayList<>(recetas);
+        }
+
+        try (FileInputStream fis = context.openFileInput(JSON);
+             BufferedReader br = new BufferedReader(new InputStreamReader(fis))) {
+
+            StringBuilder sb = new StringBuilder();
             String line;
             while ((line = br.readLine()) != null) {
-                jsonBuilder.append(line);
+                sb.append(line);
             }
 
-            br.close();
-            isr.close();
-            fis.close();
-
-            // Convertir el JSON a una lista de objetos Receta utilizando GSON
-            Gson gson = new Gson();
-            Type listType = new TypeToken<List<Receta>>() {
-            }.getType();
-            // Agregar las recetas a la cola
-            List<Receta> recetas = gson.fromJson(jsonBuilder.toString(), listType);
+            Type listType = new TypeToken<List<Receta>>(){}.getType();
+            recetas = new Gson().fromJson(sb.toString(), listType);
             recetas.forEach(r -> r.setPuntuacionDada(context));
-            return recetas;
+
+            recetasCache.put(cacheKey, new ArrayList<>(recetas));
+            cacheTimestamps.put(cacheKey, System.currentTimeMillis());
+
+            return new ArrayList<>(recetas);
+
         } catch (FileNotFoundException e) {
-            // El archivo no existe, no se hace nada
+            // archivo no existe → lista vacía
         } catch (IOException e) {
             Log.e(TAG, "Error en 'cargarListaRecetas': " + e.getMessage());
         }
+
         return new ArrayList<>();
     }
 
+    /** Añade una receta y limpia la cache */
     public static void addReceta(Context context, Receta receta) {
-        List<Receta> listaRecetas = cargarListaRecetas(context);
-        if (listaRecetas.stream().noneMatch(r -> receta.getId().equals(r.getId()))) {
-            // Agregar la receta al principio de la lista
-            listaRecetas.addFirst(receta);
-
-            // Guardar la lista actualizada en el archivo JSON
-            // Convertir la lista de recetas a JSON
-            Gson gson = new Gson();
-            String jsonRecetas = gson.toJson(listaRecetas);
-
-            // Guardar el JSON en el archivo
-            try {
-                FileOutputStream fos = context.openFileOutput(JSON, Context.MODE_PRIVATE);
-                OutputStreamWriter osw = new OutputStreamWriter(fos);
-                osw.write(jsonRecetas);
-                osw.close();
-                fos.close();
-            } catch (IOException e) {
-                Log.e(TAG, "Error en 'addReceta': " + e.getMessage());
-            }
+        List<Receta> lista = cargarListaRecetas(context);
+        boolean existe = lista.stream().anyMatch(r -> r.getId().equals(receta.getId()));
+        if (!existe) {
+            lista.addFirst(receta);
+            persistirRecetas(context, lista);
+            invalidateCaches();
         }
-
     }
 
+    /** Edita una receta existente y limpia la cache */
     public static void editarReceta(Context context, Receta receta) {
-        List<Receta> listaRecetas = cargarListaRecetas(context);
-        Optional<Receta> recetaEncontrada = listaRecetas.stream().filter(r -> receta.getId().equals(r.getId())).findFirst();
-        if (recetaEncontrada.isPresent()) {
-            listaRecetas.remove(recetaEncontrada.get());
-            // Agregar la receta al principio de la lista
-            listaRecetas.add(0, receta);
+        List<Receta> lista = cargarListaRecetas(context);
+        Optional<Receta> opt = lista.stream()
+                .filter(r -> r.getId().equals(receta.getId()))
+                .findFirst();
 
-            // Guardar la lista actualizada en el archivo JSON
-            // Convertir la lista de recetas a JSON
-            Gson gson = new Gson();
-            String jsonRecetas = gson.toJson(listaRecetas);
-
-            // Guardar el JSON en el archivo
-            try {
-                FileOutputStream fos = context.openFileOutput(JSON, Context.MODE_PRIVATE);
-                OutputStreamWriter osw = new OutputStreamWriter(fos);
-                osw.write(jsonRecetas);
-                osw.close();
-                fos.close();
-            } catch (IOException e) {
-                Log.e(TAG, "Error en 'editarReceta': " + e.getMessage());
-            }
+        if (opt.isPresent()) {
+            lista.remove(opt.get());
+            lista.addFirst(receta);
+            persistirRecetas(context, lista);
+            invalidateCaches();
         }
     }
 
-    public static void eliminarReceta(Context context, int position, List<Receta> listaRecetasParcial) {
-        // Eliminar la receta de la lista de recetas y actualizar el archivo JSON
-        Receta receta = listaRecetasParcial.remove(position);
+    /** Elimina una receta (por posición dentro de una lista parcial) y limpia la cache */
+    public static void eliminarReceta(Context context, int position, List<Receta> listaParcial) {
+        Receta receta = listaParcial.remove(position);
 
-        List<Receta> listaRecetas = cargarListaRecetas(context);
-        listaRecetas.removeIf(r -> r.getId().equals(receta.getId()));
-        // Convertir la lista de recetas a JSON
-        Gson gson = new Gson();
-        String jsonRecetas = gson.toJson(listaRecetas);
-
-        // Guardar el JSON en el archivo
-        try {
-            FileOutputStream fos = context.openFileOutput(JSON, Context.MODE_PRIVATE);
-            OutputStreamWriter osw = new OutputStreamWriter(fos);
-            osw.write(jsonRecetas);
-            osw.close();
-            fos.close();
-        } catch (IOException e) {
-            Log.e(TAG, "Error en 'eliminarReceta': " + e.getMessage());
-        }
+        List<Receta> lista = cargarListaRecetas(context);
+        lista.removeIf(r -> r.getId().equals(receta.getId()));
+        persistirRecetas(context, lista);
+        invalidateCaches();
     }
 
+    /** Carga recetas para calendario, usa cache si válida */
     public static List<Receta> cargarListaRecetasCalendario(Context context, List<RecetaDia> idRecetas) {
-        List<Receta> recetas = cargarListaRecetas(context);
+        String cacheKey = "recetas_calendario_" + idRecetas.hashCode();
+        List<Receta> recetas = recetasCache.get(cacheKey);
+        long lastUpdate = cacheTimestamps.getOrDefault(cacheKey, 0L);
+
+        if (recetas != null && System.currentTimeMillis() - lastUpdate < CACHE_VALIDITY_MS) {
+            return recetas;
+        }
+
+        List<Receta> todas = cargarListaRecetas(context);
         Temporada temporada = UtilsSrv.getTemporadaFecha(LocalDate.now());
+        Set<String> seleccionadas = idRecetas.stream()
+                .map(RecetaDia::idReceta)
+                .collect(Collectors.toSet());
 
-        // Convertimos la lista de recetas ya seleccionadas en un Set para mejorar eficiencia en la búsqueda
-        Set<String> recetasSeleccionadas = idRecetas.stream().map(RecetaDia::idReceta).collect(Collectors.toSet());
+        recetas = todas.stream()
+                .filter(r -> !seleccionadas.contains(r.getId()) && r.getTemporadas().contains(temporada))
+                .sorted(Comparator.comparing(Receta::getPuntuacionDada, Comparator.reverseOrder())
+                        .thenComparing(Receta::getEstrellas, Comparator.reverseOrder()))
+                .collect(Collectors.toList());
 
-        return recetas.stream().filter(r -> !recetasSeleccionadas.contains(r.getId()) && r.getTemporadas().contains(temporada)).sorted(Comparator.comparing(Receta::getPuntuacionDada, Comparator.reverseOrder()).thenComparing(Receta::getEstrellas, Comparator.reverseOrder())).collect(Collectors.toList());
+        recetasCache.put(cacheKey, recetas);
+        cacheTimestamps.put(cacheKey, System.currentTimeMillis());
+        return recetas;
     }
 
-
+    /** Actualiza sólo la fecha de calendario de una receta */
     public static void actualizarRecetaCalendario(Context context, String idReceta, int diaMes, boolean add) {
-        Optional<Receta> optionalReceta = cargarListaRecetas(context).stream().filter(r -> r.getId().equals(idReceta)).findAny();
-        if(optionalReceta.isPresent()) {
-            Receta receta = optionalReceta.get();
-            // Obtener la fecha actual con el año y mes actuales, pero con el día de dayOfMonth
-            Date fechaEspecifica = new Date(0);
+        Optional<Receta> opt = cargarListaRecetas(context).stream()
+                .filter(r -> r.getId().equals(idReceta))
+                .findAny();
+
+        if (opt.isPresent()) {
+            Receta r = opt.get();
+            Date fecha = new Date(0);
             if (diaMes > 0) {
                 Calendar cal = Calendar.getInstance();
                 cal.set(Calendar.DAY_OF_MONTH, diaMes);
-                fechaEspecifica = cal.getTime();
-                if (add && receta.getFechaCalendario().after(fechaEspecifica)) {
+                fecha = cal.getTime();
+                if (add && r.getFechaCalendario().after(fecha)) {
                     return;
                 }
             }
-            receta.setFechaCalendario(fechaEspecifica);
-            editarReceta(context, receta);
+            r.setFechaCalendario(fecha);
+            editarReceta(context, r);
         }
     }
 
     @NonNull
     public static List<Receta> getRecetasAdaptadasCalendario(List<Receta> recetasTotales, Day selectedDay) {
-        final List<Receta> listaRecetas;
-        Set<String> recetasIdsDia = selectedDay.getRecetas().stream().map(RecetaDia::idReceta).collect(Collectors.toSet());
+        Set<String> ids = selectedDay.getRecetas().stream()
+                .map(RecetaDia::idReceta)
+                .collect(Collectors.toSet());
 
-        // Filtrar las recetas que están en el día seleccionado
-        listaRecetas = recetasTotales.stream().filter(r -> recetasIdsDia.contains(r.getId())).collect(Collectors.toList());
+        List<Receta> lista = recetasTotales.stream()
+                .filter(r -> ids.contains(r.getId()))
+                .collect(Collectors.toList());
 
-        // Recorrer la lista de recetas
-        // 1) Prepara un mapa de idReceta → numPersonas para acceso O(1)
-        Map<String, Integer> personasPorReceta = selectedDay.getRecetas().stream()
-                .collect(Collectors.toMap(
-                        RecetaDia::idReceta,
-                        RecetaDia::numeroPersonas
-                ));
+        Map<String, Integer> personasMap = selectedDay.getRecetas().stream()
+                .collect(Collectors.toMap(RecetaDia::idReceta, RecetaDia::numeroPersonas));
 
-        for (Receta r : listaRecetas) {
-            // 2) Calcula el número de personas objetivo (o usa el original si no está en el mapa)
-            double original = r.getNumPersonas();
-            //noinspection DataFlowIssue
-            double objetivo = personasPorReceta.getOrDefault(r.getId(), (int) original);
-            r.setNumPersonas((int) objetivo);
+        for (Receta r : lista) {
+            double orig = r.getNumPersonas();
+            double obj = personasMap.getOrDefault(r.getId(), (int) orig);
+            r.setNumPersonas((int) obj);
+            double factor = obj / orig;
 
-            // 3) Factor de escalado
-            double factor = objetivo / original;
-
-            // 4) Actualiza cada ingrediente con redondeo a 2 decimales
             for (Ingrediente ing : r.getIngredientes()) {
                 double base = UtilsSrv.convertirNumero(ing.getCantidad());
                 double escalada = base * factor;
-
-                // BigDecimal para redondear HALF_UP a 2 decimales
-                BigDecimal bd = BigDecimal
-                        .valueOf(escalada)
+                BigDecimal bd = BigDecimal.valueOf(escalada)
                         .setScale(2, RoundingMode.HALF_UP);
-
-                // stripTrailingZeros convierte "2.00" → "2", "2.50" → "2.5"
                 ing.setCantidad(bd.stripTrailingZeros().toPlainString());
             }
         }
-        return listaRecetas;
+
+        return lista;
+    }
+
+    // —————— Métodos auxiliares ——————
+
+    /** Escribe la lista completa de recetas en el archivo JSON */
+    private static void persistirRecetas(Context context, List<Receta> lista) {
+        Gson gson = new Gson();
+        String json = gson.toJson(lista);
+        try (FileOutputStream fos = context.openFileOutput(JSON, Context.MODE_PRIVATE);
+             OutputStreamWriter osw = new OutputStreamWriter(fos)) {
+            osw.write(json);
+        } catch (IOException e) {
+            Log.e(TAG, "Error al persistir recetas: " + e.getMessage());
+        }
+    }
+
+    /** Limpia la cache principal y de calendario */
+    private static void invalidateCaches() {
+        String mainKey = "todas_las_recetas";
+        recetasCache.remove(mainKey);
+        cacheTimestamps.remove(mainKey);
+
+        // Limpia también todas las entradas de calendario
+        for (String key : cacheTimestamps.keySet()) {
+            if (key.startsWith("recetas_calendario_")) {
+                recetasCache.remove(key);
+                cacheTimestamps.remove(key);
+            }
+        }
     }
 }
