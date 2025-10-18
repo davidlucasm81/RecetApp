@@ -89,7 +89,7 @@ public class RecetasSrv {
         List<Receta> lista = cargarListaRecetas(context);
         boolean existe = lista.stream().anyMatch(r -> r.getId().equals(receta.getId()));
         if (!existe) {
-            lista.addFirst(receta);
+            lista.add(0,receta);
             persistirRecetas(context, lista);
             invalidateCaches();
         }
@@ -104,7 +104,7 @@ public class RecetasSrv {
 
         if (opt.isPresent()) {
             lista.remove(opt.get());
-            lista.addFirst(receta);
+            lista.add(0,receta);
             persistirRecetas(context, lista);
             invalidateCaches();
         }

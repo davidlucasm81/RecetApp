@@ -30,4 +30,12 @@ public class Day implements Serializable {
     public void removeReceta(String id) {
         recetas.removeIf(r -> r.idReceta().equals(id));
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Day other = (Day) obj;
+        return dayOfMonth == other.dayOfMonth && recetas.equals(other.recetas);
+    }
 }
