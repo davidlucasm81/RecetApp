@@ -1,4 +1,3 @@
-// Java
 package com.david.recetapp.fragments;
 
 import android.content.Intent;
@@ -43,6 +42,7 @@ import java.util.stream.Collectors;
 
 public class RecetasFragment extends Fragment implements RecetaExpandableListAdapter.EmptyListListener {
     private TextView textViewEmpty;
+    private TextView contadorTextView; // nuevo: contador
     private ExpandableListView expandableListView;
     private List<Receta> listaRecetas = new ArrayList<>();     // lista filtrada que se muestra
     private final List<Receta> allRecetas = new ArrayList<>();       // cache: todas las recetas cargadas
@@ -80,6 +80,11 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
 
         // Inicializamos el Switch **antes** de cualquier filtrado para evitar NPE
         botonPostres = rootView.findViewById(R.id.botonPostre);
+
+        // Inicializar el contador (nuevo)
+        contadorTextView = rootView.findViewById(R.id.textViewContadorRecetas);
+        // aseguramos valor inicial
+        actualizarContadorUI(0);
 
         // Handler y executor
         mainHandler = new Handler(Looper.getMainLooper());
@@ -215,6 +220,9 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
 
                 actualizarVisibilidadListaRecetas();
 
+                // Actualizar el contador con el número de recetas visibles
+                actualizarContador();
+
                 // Recalcular visibilidad del FAB tras actualizar el adaptador
                 actualizarFabSegunScroll();
 
@@ -258,12 +266,31 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
         }
     }
 
+    // Nuevo: actualiza el TextView del contador usando listaRecetas (debe llamarse en UI thread)
+    private void actualizarContador() {
+        int count = (listaRecetas == null) ? 0 : listaRecetas.size();
+        actualizarContadorUI(count);
+    }
+
+    // helper que actualiza la UI del contador (asegura ejecución en UI thread)
+    private void actualizarContadorUI(int count) {
+        if (contadorTextView == null) return;
+        // Texto sencillo en español. Puedes cambiar a recursos si prefieres.
+        contadorTextView.setText(String.format(Locale.getDefault(), "%d %s", count, (count == 1 ? "receta" : "recetas")));
+    }
+
     @Override
     public void onListEmpty() {
         textViewEmpty.setVisibility(View.VISIBLE);
         View view = getView();
         if (view != null) {
             view.findViewById(R.id.textoPostre).setVisibility(View.GONE);
+        }
+        // cuando la lista está vacía el contador debe mostrar 0
+        if (mainHandler != null) {
+            mainHandler.post(() -> actualizarContadorUI(0));
+        } else {
+            actualizarContadorUI(0);
         }
     }
 

@@ -17,23 +17,39 @@
             android:orientation="vertical"
             android:padding="16dp">
 
+            <!-- Header: título + contador + botón importar -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 tools:ignore="RtlSymmetry">
 
+                <!-- Título: ocupa el espacio restante -->
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:id="@+id/textViewTituloRecetas"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:layout_gravity="start"
                     android:padding="8dp"
                     android:text="@string/recetas"
                     android:textSize="20sp"
                     android:textStyle="bold" />
 
+                <!-- Contador de recetas (nuevo) -->
+                <TextView
+                    android:id="@+id/textViewContadorRecetas"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:padding="8dp"
+                    android:text="@string/_0_recetas"
+                    android:textSize="14sp"
+                    android:textStyle="normal" />
+
+                <!-- Contenedor para el botón importar (queda a la derecha) -->
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:gravity="center|end"
                     android:orientation="horizontal">
@@ -42,6 +58,7 @@
                         android:id="@+id/btnImportar"
                         android:layout_width="30dp"
                         android:layout_height="30dp"
+                        android:layout_marginStart="8dp"
                         android:layout_marginEnd="8dp"
                         android:background="@drawable/boton_redondo"
                         android:contentDescription="@string/importar"
@@ -50,6 +67,7 @@
                 </LinearLayout>
             </LinearLayout>
 
+            <!-- resto del layout (sin cambios salvo indent) -->
             <GridLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
