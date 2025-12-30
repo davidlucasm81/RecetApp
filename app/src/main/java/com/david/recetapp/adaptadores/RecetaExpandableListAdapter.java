@@ -195,9 +195,15 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
 
                 for (int i = 0; i < totalIngredientes; i++) {
                     Ingrediente ingrediente = receta.getIngredientes().get(i);
-                    sbIngredientes.append("- ").append(ingrediente.getCantidad()).append(" ").append(ingrediente.getTipoCantidad()).append(context.getString(R.string.literal_de)).append(ingrediente.getNombre()).append(ingrediente.getPuntuacion()>=0? " (Score: "+ingrediente.getPuntuacion()+")" : "");
+                    sbIngredientes.append("- ").append(ingrediente.getCantidad()).append(" ").append(ingrediente.getTipoCantidad()).append(context.getString(R.string.literal_de)).append(ingrediente.getNombre());
 
-                    // Agregar dos saltos de línea si no es la última iteración
+                    double puntuacion = ingrediente.getPuntuacion();
+                    if (puntuacion >= 0) {
+                        sbIngredientes.append(" (Score: ").append(puntuacion).append(")");
+                    } else if (puntuacion != -1) {
+                        sbIngredientes.append(" (Score no encontrado)");
+                    }
+
                     if (i < totalIngredientes - 1) {
                         sbIngredientes.append("\n\n");
                     } else {

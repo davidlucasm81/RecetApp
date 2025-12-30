@@ -240,7 +240,8 @@ public class Receta implements Parcelable {
             Matcher m = patternIngredient.matcher(s.trim());
             if (m.matches()) {
                 // guardamos la clave ya en minúsculas
-                ingredientMap.put(Objects.requireNonNull(m.group(1)).toLowerCase(Locale.getDefault()), Integer.parseInt(Objects.requireNonNull(m.group(2))));
+                ingredientMap.put(Objects.requireNonNull(m.group(1)).toLowerCase(Locale.getDefault()),
+                        Integer.parseInt(Objects.requireNonNull(m.group(2))));
             }
         }
 
@@ -249,8 +250,8 @@ public class Receta implements Parcelable {
                 //noinspection DataFlowIssue
                 double puntuacion = ingredientMap.get(ingredient.getNombre().toLowerCase(Locale.getDefault()));
                 ingredient.setPuntuacion(puntuacion);
-            }
-            else{
+            } else {
+                // dejamos -2 para ingredientes no listados (se sigue usando en otras partes de la app)
                 ingredient.setPuntuacion(-2);
             }
         }
@@ -263,22 +264,38 @@ public class Receta implements Parcelable {
         for (int i = 0; i < units.length; i++) {
             unitImportanceMap.put(units[i], importanceValues[i]);
         }
-        double cantidadTotal = this.ingredientes.stream().filter(i -> i.getPuntuacion()>=0).mapToDouble(ingrediente -> {
-            double cantidad = (UtilsSrv.esNumeroEnteroOFraccionValida(ingrediente.getCantidad())) ? UtilsSrv.convertirNumero(ingrediente.getCantidad()) : 1;
-            //noinspection DataFlowIssue
-            double tipoCantidadFactor = unitImportanceMap.getOrDefault(ingrediente.getTipoCantidad(), 1);
-            return cantidad * tipoCantidadFactor;
-        }).sum();
 
-        this.puntuacionDada = this.ingredientes.stream().filter(i -> i.getPuntuacion()>=0).mapToDouble(ingrediente -> {
-            double cantidad = (UtilsSrv.esNumeroEnteroOFraccionValida(ingrediente.getCantidad())) ? UtilsSrv.convertirNumero(ingrediente.getCantidad()) : 1;
-            //noinspection DataFlowIssue
-            double tipoCantidadFactor = unitImportanceMap.getOrDefault(ingrediente.getTipoCantidad(), 1);
+        // Para el cálculo de la puntuación de la receta se IGNORAN las puntuaciones negativas
+        // (por ejemplo: -1 = explícitamente ignorar, -2 = no existe en la lista y también ignorar)
+        double cantidadTotal = this.ingredientes.stream()
+                .filter(i -> i.getPuntuacion() >= 0)
+                .mapToDouble(ingrediente -> {
+                    double cantidad = (UtilsSrv.esNumeroEnteroOFraccionValida(ingrediente.getCantidad()))
+                            ? UtilsSrv.convertirNumero(ingrediente.getCantidad()) : 1;
+                    //noinspection DataFlowIssue
+                    double tipoCantidadFactor = unitImportanceMap.getOrDefault(ingrediente.getTipoCantidad(), 1);
+                    return cantidad * tipoCantidadFactor;
+                }).sum();
 
-            // Pondera la puntuación del ingrediente más que la cantidad y el tipo de cantidad
-            return ingrediente.getPuntuacion() * ((cantidad * tipoCantidadFactor) / cantidadTotal);
-        }).sum();
+        if (cantidadTotal == 0) {
+            // evitar división por cero: si no hay ingredientes válidos, la puntuación dada será 0
+            this.puntuacionDada = 0;
+            return;
+        }
+
+        this.puntuacionDada = this.ingredientes.stream()
+                .filter(i -> i.getPuntuacion() >= 0)
+                .mapToDouble(ingrediente -> {
+                    double cantidad = (UtilsSrv.esNumeroEnteroOFraccionValida(ingrediente.getCantidad()))
+                            ? UtilsSrv.convertirNumero(ingrediente.getCantidad()) : 1;
+                    //noinspection DataFlowIssue
+                    double tipoCantidadFactor = unitImportanceMap.getOrDefault(ingrediente.getTipoCantidad(), 1);
+
+                    // Pondera la puntuación del ingrediente más que la cantidad y el tipo de cantidad
+                    return ingrediente.getPuntuacion() * ((cantidad * tipoCantidadFactor) / cantidadTotal);
+                }).sum();
 
     }
+
 
 }
