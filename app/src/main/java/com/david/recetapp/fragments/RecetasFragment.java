@@ -1,3 +1,4 @@
+// Java
 package com.david.recetapp.fragments;
 
 import android.content.Intent;
@@ -9,6 +10,7 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.ExpandableListView;
@@ -51,6 +53,7 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
     private Runnable debounceRunnable;
     private View rootView;
     private ExecutorService executor;
+    private FloatingActionButton fab; // ahora campo para poder modificar su estado
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -64,7 +67,7 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
             startActivity(intent);
         });
 
-        FloatingActionButton fab = rootView.findViewById(R.id.fabAddReceta);
+        fab = rootView.findViewById(R.id.fabAddReceta);
         fab.setOnClickListener(v -> {
             Intent intent = new Intent(requireActivity(), AddRecetaActivity.class);
             startActivity(intent);
@@ -93,7 +96,6 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
         // Listener del Switch: llama a filtrar leyendo el estado desde el hilo UI
         botonPostres.setOnCheckedChangeListener((buttonView, isChecked) -> {
             // llamamos a filtrar pasándole la consulta actual
-            // esto lee el estado en UI thread; filtrarYActualizarLista se encarga de pasar el boolean al background
             filtrarYActualizarLista(autoCompleteTextViewRecetas.getText().toString());
         });
 
@@ -113,6 +115,17 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
             autoCompleteTextViewRecetas.setText("");
             filtrarYActualizarLista("");
         });
+
+        // Detectar scroll para esconder/mostrar el FAB cuando estemos al final
+        expandableListView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override public void onScrollStateChanged(AbsListView view, int scrollState) { }
+            @Override public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                mainHandler.post(RecetasFragment.this::actualizarFabSegunScroll);
+            }
+        });
+
+        // Al expandir un grupo también recalculamos (por si aparecen más items)
+        expandableListView.setOnGroupExpandListener(groupPosition -> mainHandler.post(RecetasFragment.this::actualizarFabSegunScroll));
 
         // Carga inicial de recetas en background (una única vez)
         executor.submit(() -> {
@@ -202,6 +215,9 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
 
                 actualizarVisibilidadListaRecetas();
 
+                // Recalcular visibilidad del FAB tras actualizar el adaptador
+                actualizarFabSegunScroll();
+
                 progressBar.setVisibility(View.GONE);
                 expandableListView.setVisibility(View.VISIBLE);
             });
@@ -213,6 +229,32 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
             textViewEmpty.setVisibility(View.VISIBLE);
         } else {
             textViewEmpty.setVisibility(View.GONE);
+        }
+    }
+
+    /**
+     * Ajusta el FAB: si la lista está al final lo deshabilita y baja la opacidad,
+     * en caso contrario lo restaura.
+     */
+    private void actualizarFabSegunScroll() {
+        if (fab == null || expandableListView == null) return;
+        int total = expandableListView.getCount();
+        if (total == 0) {
+            fab.setAlpha(1f);
+            fab.setEnabled(true);
+            fab.setClickable(true);
+            return;
+        }
+        int lastVisible = expandableListView.getLastVisiblePosition();
+        boolean atBottom = lastVisible >= total - 1;
+        if (atBottom) {
+            fab.setAlpha(0.35f); // semi-transparente
+            fab.setEnabled(false);
+            fab.setClickable(false);
+        } else {
+            fab.setAlpha(1f);
+            fab.setEnabled(true);
+            fab.setClickable(true);
         }
     }
 
