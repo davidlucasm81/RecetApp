@@ -1689,5 +1689,73 @@
             <nombre>Harina de trigo de fuerza</nombre>
             <puntuacion>5</puntuacion>
         </item>
+        <item>
+            <nombre>Creme Fresh</nombre>
+            <puntuacion>2</puntuacion>
+        </item>
+        <item>
+            <nombre>Chalota</nombre>
+            <puntuacion>8</puntuacion>
+        </item>
+        <item>
+            <nombre>Queso feta</nombre>
+            <puntuacion>3</puntuacion>
+        </item>
+        <item>
+            <nombre>Tomate cherry</nombre>
+            <puntuacion>10</puntuacion>
+        </item>
+        <item>
+            <nombre>Chile seco</nombre>
+            <puntuacion>9</puntuacion>
+        </item>
+        <item>
+            <nombre>Arroz de sushi</nombre>
+            <puntuacion>3</puntuacion>
+        </item>
+        <item>
+            <nombre>Cebolla morada</nombre>
+            <puntuacion>8</puntuacion>
+        </item>
+        <item>
+            <nombre>Boniato</nombre>
+            <puntuacion>9</puntuacion>
+        </item>
+        <item>
+            <nombre>Setas ostra</nombre>
+            <puntuacion>9</puntuacion>
+        </item>
+        <item>
+            <nombre>Kale</nombre>
+            <puntuacion>10</puntuacion>
+        </item>
+        <item>
+            <nombre>Salsa pesto</nombre>
+            <puntuacion>4</puntuacion>
+        </item>
+        <item>
+            <nombre>Sake</nombre>
+            <puntuacion>2</puntuacion>
+        </item>
+        <item>
+            <nombre>Almendra cruda sin piel</nombre>
+            <puntuacion>9</puntuacion>
+        </item>
+        <item>
+            <nombre>Rebanada de pan</nombre>
+            <puntuacion>5</puntuacion>
+        </item>
+        <item>
+            <nombre>Vinagre de manzana</nombre>
+            <puntuacion>8</puntuacion>
+        </item>
+        <item>
+            <nombre>Caldo de verduras</nombre>
+            <puntuacion>8</puntuacion>
+        </item>
+        <item>
+            <nombre>Espinacas frescas</nombre>
+            <puntuacion>10</puntuacion>
+        </item>
     </array>
 </resources>
