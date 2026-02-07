@@ -16,4 +16,5 @@
     android:background="@drawable/edittext_background"
     android:backgroundTint="@null"
     android:stateListAnimator="@null"
-    tools:ignore="SpeakableTextPresentCheck,VisualLintButtonSize" />
+    tools:ignore="SpeakableTextPresentCheck,VisualLintButtonSize"
+    android:id="@+id/buttonReceta"/>

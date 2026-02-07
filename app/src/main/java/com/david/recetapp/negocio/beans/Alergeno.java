@@ -6,8 +6,8 @@ import android.os.Parcelable;
 import java.util.Objects;
 
 public class Alergeno implements Parcelable {
-    private final String nombre;
-    private final int numero;
+    private String nombre;
+    private int numero;
 
     public Alergeno(String nombre, int numero) {
         this.nombre = nombre;
@@ -46,8 +46,16 @@ public class Alergeno implements Parcelable {
         return nombre;
     }
 
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
     public int getNumero() {
         return numero;
+    }
+
+    public void setNumero(int numero) {
+        this.numero = numero;
     }
 
     @Override
@@ -61,5 +69,9 @@ public class Alergeno implements Parcelable {
     @Override
     public int hashCode() {
         return Objects.hash(nombre, numero);
+    }
+
+    public Alergeno(){
+
     }
 }

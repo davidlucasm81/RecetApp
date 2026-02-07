@@ -42,7 +42,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -55,7 +54,7 @@ public abstract class RecetaBaseActivity extends AppCompatActivity {
     protected CheckBox checkboxVerano;
     protected CheckBox checkboxOtonio;
     protected CheckBox checkboxPrimavera;
-    protected Set<Temporada> temporadas;
+    protected List<Temporada> temporadas;
     protected EditText numberPickerNumeroPersonas;
     protected AutoCompleteTextView autoCompleteTextViewNombreIngrediente;
     protected EditText editTextCantidad;
@@ -65,7 +64,7 @@ public abstract class RecetaBaseActivity extends AppCompatActivity {
     protected ArrayList<Paso> pasos;
     protected int draggedItemPosition = -1;
     protected List<Alergeno> alergenos;
-    protected Set<Alergeno> alergenosSeleccionados;
+    protected List<Alergeno> alergenosSeleccionados;
     protected GridLayout gridLayout;
     protected RatingBar estrellas;
     protected Map<String, Integer> ingredientMap;

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <color name="colorBackground">#F1F1F1</color>
     <color name="colorIcono">#212121</color>
     <color name="dividerColor">#DDDDDD</color>
     <color name="colorGrisTextoFondo">#A0A0A0</color>
     <color name="estrellas">#27A727</color>
     <color name="colorPrimary">#FF5722</color>
-    <color name="colorPostre">#FFD4E5</color>
+    <color name="colorPostre" tools:ignore="UnusedResources">#FFD4E5</color>
 </resources>

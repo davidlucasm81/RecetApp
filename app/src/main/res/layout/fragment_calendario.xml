@@ -14,7 +14,6 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="start"
             android:padding="8dp"
             android:text="@string/calendario"
             android:textSize="20sp"
@@ -58,5 +57,14 @@
         android:paddingTop="8dp"
         android:paddingBottom="8dp"
         tools:listitem="@layout/grid_item_day" />
+
+    <!-- 🔹 Barra de carga centrada -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="gone" />
 
 </RelativeLayout>

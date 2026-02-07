@@ -1,50 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:padding="16dp"
     android:fitsSystemWindows="true">
 
-    <TextView
-        android:id="@+id/titleTextView"
+    <LinearLayout
+        android:id="@+id/contentLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/titleTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:padding="8dp"
+            android:text="@string/detalle_dia"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/addReceta"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:background="@drawable/boton_redondo"
+            android:gravity="center"
+            android:text="@string/add_recipe"
+            android:textSize="14sp"
+            tools:ignore="VisualLintButtonSize,TextContrastCheck" />
+
+        <TextView
+            android:id="@+id/textViewEmpty"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="@string/no_hay_recetas"
+            android:textColor="@color/colorGrisTextoFondo"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
+        <ExpandableListView
+            android:id="@+id/expandableListView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:divider="@color/dividerColor"
+            android:dividerHeight="1dp" />
+    </LinearLayout>
+
+    <!-- ProgressBar centrada -->
+    <ProgressBar
+        android:id="@+id/progressBarDetalle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="start"
-        android:padding="8dp"
-        android:text="@string/detalle_dia"
-        android:textSize="20sp"
-        android:textStyle="bold" />
-
-    <Button
-        android:id="@+id/addReceta"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="8dp"
-        android:background="@drawable/boton_redondo"
-        android:gravity="center"
-        android:text="@string/add_recipe"
-        android:textSize="14sp"
-        android:visibility="visible"
-        tools:ignore="VisualLintButtonSize,TextContrastCheck" />
-
-    <TextView
-        android:id="@+id/textViewEmpty"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:text="@string/no_hay_recetas"
-        android:textColor="@color/colorGrisTextoFondo"
-        android:textSize="20sp"
-        android:textStyle="bold"
+        android:layout_gravity="center"
         android:visibility="gone" />
 
-    <ExpandableListView
-        android:id="@+id/expandableListView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:divider="@color/dividerColor"
-        android:dividerHeight="1dp" />
-
-</LinearLayout>
+</FrameLayout>

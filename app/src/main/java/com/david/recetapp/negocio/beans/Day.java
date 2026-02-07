@@ -28,7 +28,7 @@ public class Day implements Serializable {
     }
 
     public void removeReceta(String id) {
-        recetas.removeIf(r -> r.idReceta().equals(id));
+        recetas.removeIf(r -> r.getIdReceta().equals(id));
     }
 
     @Override

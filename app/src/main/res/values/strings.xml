@@ -79,4 +79,27 @@
     <string name="numero_personas">Número de personas para la receta</string>
     <string name="numero_personas_incorrecto">Número de personas incorrecto</string>
     <string name="_0_recetas">0 recetas</string>
+    <string name="exportando_recetas">Exportando recetas…</string>
+    <string name="exportacion_ok">Recetas exportadas correctamente</string>
+    <string name="no_recetas_importar">No hay recetas para importar</string>
+    <string name="importando_recetas">Importando</string>
+    <string name="todas_recetas_ya_existen">Todas las recetas ya existen</string>
+    <string name="importando_todas_recetas">Importando todas las recetas…</string>
+    <!-- Mensajes de error -->
+    <string name="error_cargar_recetas">Error al cargar las recetas</string>
+    <string name="error_eliminar_receta">Error al eliminar la receta</string>
+    <string name="error_actualizar_calendario">Error al actualizar el calendario</string>
+    <string name="error_cargar_calendario">Error al cargar el calendario</string>
+    <string name="error_generar_lista_compra">Error al generar la lista de compra</string>
+
+    <!-- Mensajes de progreso -->
+    <string name="cargando_recetas">Cargando recetas…</string>
+    <string name="cargando_calendario">Cargando calendario…</string>
+    <string name="actualizando_calendario">Actualizando calendario…</string>
+    <string name="generando_lista_compra">Generando lista de compra…</string>
+
+    <!-- Mensajes existentes que podrían faltar -->
+    <string name="no">No</string>
+    <string name="error_crear_receta">Error al crear la receta</string>
+    <string name="error_editar_receta">Error al editar la receta. Por favor, inténtalo de nuevo.</string>
 </resources>

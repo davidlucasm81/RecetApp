@@ -21,11 +21,11 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
-public class DetalleDiaActivity extends AppCompatActivity implements RecetaExpandableListCalendarAdapter.EmptyListListener {
+public class DetalleDiaActivity extends AppCompatActivity
+        implements RecetaExpandableListCalendarAdapter.EmptyListListener {
 
     private TextView textViewEmpty;
     private ExpandableListView expandableListView;
-
     private Button addReceta;
 
     @SuppressWarnings("deprecation")
@@ -35,7 +35,7 @@ public class DetalleDiaActivity extends AppCompatActivity implements RecetaExpan
         Intent intent = new Intent(DetalleDiaActivity.this, MainActivity.class);
         intent.putExtra("FRAGMENT_TO_LOAD", "CalendarioFragment");
         startActivity(intent);
-        finish(); // Opcional, si quieres finalizar esta actividad
+        finish();
     }
 
     @Override
@@ -46,25 +46,41 @@ public class DetalleDiaActivity extends AppCompatActivity implements RecetaExpan
         expandableListView = findViewById(R.id.expandableListView);
         textViewEmpty = findViewById(R.id.textViewEmpty);
         addReceta = findViewById(R.id.addReceta);
-        textViewEmpty.setVisibility(View.GONE); // Oculta el TextView
+        View progressBar = findViewById(R.id.progressBarDetalle);
+
+        // 👉 Mostrar loading mientras se monta el adapter
+        progressBar.setVisibility(View.VISIBLE);
+
         Day selectedDay = getIntent().getSerializableExtra("selectedDay", Day.class);
 
         TextView titleTextView = findViewById(R.id.titleTextView);
-        String textoActual = titleTextView.getText().toString();
-        // Set the month and year in the TextView
-        SimpleDateFormat monthYearFormat = new SimpleDateFormat("MMMM yyyy", Locale.getDefault());
+        SimpleDateFormat monthYearFormat =
+                new SimpleDateFormat("MMMM yyyy", Locale.getDefault());
+
         assert selectedDay != null;
-        String nuevoTexto = textoActual + " " + selectedDay.getDayOfMonth() + " " + monthYearFormat.format(Calendar.getInstance().getTime());
+        String nuevoTexto = getString(R.string.detalle_dia) + " "
+                + selectedDay.getDayOfMonth() + " "
+                + monthYearFormat.format(Calendar.getInstance().getTime());
+
         titleTextView.setText(nuevoTexto);
 
         List<RecetaDia> listaRecetas = selectedDay.getRecetas();
-
-        if (listaRecetas.isEmpty()) {
-            textViewEmpty.setVisibility(View.VISIBLE); // Se muestra el TextView
+        if (listaRecetas == null || listaRecetas.isEmpty()) {
+            textViewEmpty.setVisibility(View.VISIBLE);
+        } else {
+            textViewEmpty.setVisibility(View.GONE);
         }
 
-        RecetaExpandableListCalendarAdapter expandableListAdapter = new RecetaExpandableListCalendarAdapter(this, selectedDay, expandableListView, this);
-        expandableListView.setAdapter(expandableListAdapter);
+        // ⚠️ IMPORTANTE: NO se pide nada a Firebase aquí
+        RecetaExpandableListCalendarAdapter adapter =
+                new RecetaExpandableListCalendarAdapter(
+                        this,
+                        selectedDay,
+                        expandableListView,
+                        this
+                );
+
+        expandableListView.setAdapter(adapter);
 
         expandableListView.setOnGroupClickListener((parent, v, groupPosition, id) -> {
             if (expandableListView.isGroupExpanded(groupPosition)) {
@@ -75,23 +91,24 @@ public class DetalleDiaActivity extends AppCompatActivity implements RecetaExpan
             return true;
         });
 
-        // Manejamos el evento onClick
+        // Ya está listo → ocultamos loading
+        progressBar.setVisibility(View.GONE);
+
         addReceta.setOnClickListener(v -> {
-            // Empezamos la actividad del detalle dia
             Intent intent = new Intent(this, AddRecetaDiaActivity.class);
             intent.putExtra("selectedDay", selectedDay);
-            this.startActivity(intent);
+            startActivity(intent);
         });
     }
 
     @Override
     public void onListEmpty() {
-        textViewEmpty.setVisibility(View.VISIBLE); // Muestra el TextView si la lista está vacía
-        addReceta.setVisibility(View.VISIBLE); // Se muestra el boton de añadir receta
+        textViewEmpty.setVisibility(View.VISIBLE);
+        addReceta.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void onListSize() {
-        addReceta.setVisibility(View.VISIBLE); // Se muestra el boton de añadir receta
+        addReceta.setVisibility(View.VISIBLE);
     }
 }

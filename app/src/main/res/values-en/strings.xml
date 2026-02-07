@@ -75,4 +75,27 @@
     <string name="numero_personas">Number of people</string>
     <string name="numero_personas_incorrecto">Wrong number of people</string>
     <string name="_0_recetas">0 recipes</string>
+    <string name="exportando_recetas">Exporting recipes…</string>
+    <string name="exportacion_ok">Recipes exported successfully</string>
+    <string name="no_recetas_importar">There is no recipes to import</string>
+    <string name="importando_recetas">Importing…</string>
+    <string name="todas_recetas_ya_existen">All recipes alredy exists</string>
+    <string name="importando_todas_recetas">Importing all recipes…</string>
+    <!-- Error messages -->
+    <string name="error_cargar_recetas">Error loading recipes</string>
+    <string name="error_eliminar_receta">Error deleting recipe</string>
+    <string name="error_actualizar_calendario">Error updating calendar</string>
+    <string name="error_cargar_calendario">Error loading calendar</string>
+    <string name="error_generar_lista_compra">Error generating shopping list</string>
+
+    <!-- Progress messages -->
+    <string name="cargando_recetas">Loading recipes…</string>
+    <string name="cargando_calendario">Loading calendar…</string>
+    <string name="actualizando_calendario">Updating calendar…</string>
+    <string name="generando_lista_compra">Generating shopping list…</string>
+
+    <!-- Existing messages that might be missing -->
+    <string name="no">No</string>
+    <string name="error_crear_receta">Error creating recipe</string>
+    <string name="error_editar_receta">Error editing recipe. Please try again.</string>
 </resources>

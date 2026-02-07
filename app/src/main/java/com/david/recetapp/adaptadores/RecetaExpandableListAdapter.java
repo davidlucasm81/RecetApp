@@ -3,6 +3,8 @@ package com.david.recetapp.adaptadores;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
@@ -19,6 +21,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.david.recetapp.R;
 import com.david.recetapp.actividades.recetas.EditarRecetaActivity;
@@ -27,6 +30,7 @@ import com.david.recetapp.negocio.beans.Ingrediente;
 import com.david.recetapp.negocio.beans.Receta;
 import com.david.recetapp.negocio.servicios.AlergenosSrv;
 import com.david.recetapp.negocio.servicios.RecetasSrv;
+import com.david.recetapp.negocio.servicios.UtilsSrv;
 
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
@@ -37,16 +41,16 @@ import java.util.stream.Collectors;
 public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
     private final Context context;
     private final List<Receta> listaRecetas;
-
     private final ExpandableListView expandableListView;
-
     private final EmptyListListener emptyListListener;
+    private final Handler mainHandler;
 
     public RecetaExpandableListAdapter(Context context, List<Receta> listaRecetas, ExpandableListView expandableListView, EmptyListListener emptyListListener) {
         this.context = context;
         this.listaRecetas = listaRecetas;
         this.expandableListView = expandableListView;
         this.emptyListListener = emptyListListener;
+        this.mainHandler = new Handler(Looper.getMainLooper());
     }
 
     @Override
@@ -117,14 +121,30 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
 
         btnEliminar.setOnClickListener(v -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
-            builder.setTitle(context.getString(R.string.confirmacion)).setMessage(context.getString(R.string.alerta_eliminar) + " '" + receta.getNombre() + "' ?").setPositiveButton(context.getString(R.string.aceptar), (dialog, which) -> {
-                // Eliminar la receta del JSON y refrescar la pantalla
-                RecetasSrv.eliminarReceta(context, groupPosition, listaRecetas);
-                if (listaRecetas.isEmpty()) {
-                    emptyListListener.onListEmpty();
-                }
-                notifyDataSetChanged();
-            }).setNegativeButton(context.getString(R.string.cancelar), null).show();
+            builder.setTitle(context.getString(R.string.confirmacion))
+                    .setMessage(context.getString(R.string.alerta_eliminar) + " '" + receta.getNombre() + "' ?")
+                    .setPositiveButton(context.getString(R.string.aceptar), (dialog, which) -> {
+                        // Eliminar la receta del JSON y refrescar la pantalla
+                        RecetasSrv.eliminarReceta(groupPosition, listaRecetas, new RecetasSrv.SimpleCallback() {
+                            @Override
+                            public void onSuccess() {
+                                mainHandler.post(() -> {
+                                    emptyListListener.reloadList(listaRecetas.size());
+                                    notifyDataSetChanged();
+                                });
+                            }
+
+                            @Override
+                            public void onFailure(Exception e) {
+                                mainHandler.post(() -> {
+                                    UtilsSrv.notificacion(context, context.getString(R.string.error_eliminar_receta), Toast.LENGTH_SHORT).show();
+                                    notifyDataSetChanged();
+                                });
+                            }
+                        });
+                    })
+                    .setNegativeButton(context.getString(R.string.cancelar), null)
+                    .show();
         });
 
         ImageButton btnEditar = convertView.findViewById(R.id.btnEditar);
@@ -175,11 +195,12 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
         ratingBar.setVisibility(View.GONE);
         LinearLayout iconosAlergenos = convertView.findViewById(R.id.iconosAlergenos);
         iconosAlergenos.setVisibility(View.GONE);
+
         switch (childPosition) {
             case 0:
                 txtInformacion.setVisibility(View.VISIBLE);
                 txtTitulo.setText(R.string.temporadas);
-                List<String> temporadas = receta.getTemporadas().stream().map(T -> T.getNombre(this.context)).collect(Collectors.toList());
+                List<String> temporadas = receta.getTemporadas().stream().map(Enum::name).collect(Collectors.toList());
                 txtInformacion.setText(TextUtils.join(", ", temporadas));
                 break;
             case 1:
@@ -195,7 +216,9 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
 
                 for (int i = 0; i < totalIngredientes; i++) {
                     Ingrediente ingrediente = receta.getIngredientes().get(i);
-                    sbIngredientes.append("- ").append(ingrediente.getCantidad()).append(" ").append(ingrediente.getTipoCantidad()).append(context.getString(R.string.literal_de)).append(ingrediente.getNombre());
+                    sbIngredientes.append("- ").append(ingrediente.getCantidad()).append(" ")
+                            .append(ingrediente.getTipoCantidad()).append(context.getString(R.string.literal_de))
+                            .append(ingrediente.getNombre());
 
                     double puntuacion = ingrediente.getPuntuacion();
                     if (puntuacion >= 0) {
@@ -320,8 +343,7 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
         return false;
     }
 
-
     public interface EmptyListListener {
-        void onListEmpty();
+        void reloadList(int count);
     }
 }

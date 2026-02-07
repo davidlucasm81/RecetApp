@@ -1,38 +1,23 @@
 package com.david.recetapp.negocio.beans;
 
-import android.content.Context;
+import android.os.Parcel;
 import android.os.Parcelable;
-
-import androidx.collection.ArraySet;
-
-import com.david.recetapp.R;
-import com.david.recetapp.negocio.servicios.UtilsSrv;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-
-import android.os.Parcel;
-
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class Receta implements Parcelable {
-    private static final Pattern patternIngredient = Pattern.compile("^(.+)\\s(-?\\d+)$");
+
 
     private final String id;
     private String nombre;
-    private Set<Temporada> temporadas;
+    private List<Temporada> temporadas;
     private List<Ingrediente> ingredientes;
     private List<Paso> pasos;
-    private Set<Alergeno> alergenos;
+    private List<Alergeno> alergenos;
     private float estrellas;
     private int numPersonas;
     private Date fechaCalendario;
@@ -43,10 +28,10 @@ public class Receta implements Parcelable {
     public Receta() {
         this.id = UUID.randomUUID().toString();
         this.nombre = "";
-        this.temporadas = new ArraySet<>();
+        this.temporadas = new ArrayList<>();
         this.ingredientes = new ArrayList<>();
         this.pasos = new ArrayList<>();
-        this.alergenos = new HashSet<>();
+        this.alergenos = new ArrayList<>();
         this.estrellas = 0;
         this.numPersonas = -1;
         this.fechaCalendario = null;
@@ -61,7 +46,7 @@ public class Receta implements Parcelable {
 
         // Temporadas
         int seasonCount = in.readInt();
-        temporadas = new ArraySet<>();
+        temporadas = new ArrayList<>();
         for (int i = 0; i < seasonCount; i++) {
             int ord = in.readInt();
             temporadas.add(Temporada.values()[ord]);
@@ -74,7 +59,7 @@ public class Receta implements Parcelable {
         // Alergenos
         List<Alergeno> algList = in.createTypedArrayList(Alergeno.CREATOR);
         assert algList != null;
-        alergenos = new HashSet<>(algList);
+        alergenos = new ArrayList<>(algList);
 
         estrellas       = in.readFloat();
         numPersonas     = in.readInt();
@@ -138,11 +123,11 @@ public class Receta implements Parcelable {
         this.nombre = nombre;
     }
 
-    public Set<Temporada> getTemporadas() {
+    public List<Temporada> getTemporadas() {
         return temporadas;
     }
 
-    public void setTemporadas(Set<Temporada> temporadas) {
+    public void setTemporadas(List<Temporada> temporadas) {
         this.temporadas = temporadas;
     }
 
@@ -150,10 +135,10 @@ public class Receta implements Parcelable {
         return ingredientes;
     }
 
-    public void setIngredientes(List<Ingrediente> ingredientes, Context context) {
+    public void setIngredientes(List<Ingrediente> ingredientes) {
         this.ingredientes = ingredientes;
-        setPuntuacionDada(context);
     }
+
 
     public List<Paso> getPasos() {
         return pasos;
@@ -191,11 +176,11 @@ public class Receta implements Parcelable {
         return id;
     }
 
-    public Set<Alergeno> getAlergenos() {
+    public List<Alergeno> getAlergenos() {
         return alergenos;
     }
 
-    public void setAlergenos(Set<Alergeno> alergenos) {
+    public void setAlergenos(List<Alergeno> alergenos) {
         this.alergenos = alergenos;
     }
 
@@ -232,70 +217,8 @@ public class Receta implements Parcelable {
         return puntuacionDada;
     }
 
-    public void setPuntuacionDada(Context context) {
-        Map<String, Integer> ingredientMap = new HashMap<>();
-        String[] ingredientList = context.getResources().getStringArray(R.array.ingredient_list);
-
-        for (String s : ingredientList) {
-            Matcher m = patternIngredient.matcher(s.trim());
-            if (m.matches()) {
-                // guardamos la clave ya en minúsculas
-                ingredientMap.put(Objects.requireNonNull(m.group(1)).toLowerCase(Locale.getDefault()),
-                        Integer.parseInt(Objects.requireNonNull(m.group(2))));
-            }
-        }
-
-        for (Ingrediente ingredient : this.ingredientes) {
-            if (ingredientMap.containsKey(ingredient.getNombre().toLowerCase(Locale.getDefault()))) {
-                //noinspection DataFlowIssue
-                double puntuacion = ingredientMap.get(ingredient.getNombre().toLowerCase(Locale.getDefault()));
-                ingredient.setPuntuacion(puntuacion);
-            } else {
-                // dejamos -2 para ingredientes no listados (se sigue usando en otras partes de la app)
-                ingredient.setPuntuacion(-2);
-            }
-        }
-
-
-        String[] units = context.getResources().getStringArray(R.array.quantity_units);
-        int[] importanceValues = context.getResources().getIntArray(R.array.importance_values);
-
-        Map<String, Integer> unitImportanceMap = new HashMap<>();
-        for (int i = 0; i < units.length; i++) {
-            unitImportanceMap.put(units[i], importanceValues[i]);
-        }
-
-        // Para el cálculo de la puntuación de la receta se IGNORAN las puntuaciones negativas
-        // (por ejemplo: -1 = explícitamente ignorar, -2 = no existe en la lista y también ignorar)
-        double cantidadTotal = this.ingredientes.stream()
-                .filter(i -> i.getPuntuacion() >= 0)
-                .mapToDouble(ingrediente -> {
-                    double cantidad = (UtilsSrv.esNumeroEnteroOFraccionValida(ingrediente.getCantidad()))
-                            ? UtilsSrv.convertirNumero(ingrediente.getCantidad()) : 1;
-                    //noinspection DataFlowIssue
-                    double tipoCantidadFactor = unitImportanceMap.getOrDefault(ingrediente.getTipoCantidad(), 1);
-                    return cantidad * tipoCantidadFactor;
-                }).sum();
-
-        if (cantidadTotal == 0) {
-            // evitar división por cero: si no hay ingredientes válidos, la puntuación dada será 0
-            this.puntuacionDada = 0;
-            return;
-        }
-
-        this.puntuacionDada = this.ingredientes.stream()
-                .filter(i -> i.getPuntuacion() >= 0)
-                .mapToDouble(ingrediente -> {
-                    double cantidad = (UtilsSrv.esNumeroEnteroOFraccionValida(ingrediente.getCantidad()))
-                            ? UtilsSrv.convertirNumero(ingrediente.getCantidad()) : 1;
-                    //noinspection DataFlowIssue
-                    double tipoCantidadFactor = unitImportanceMap.getOrDefault(ingrediente.getTipoCantidad(), 1);
-
-                    // Pondera la puntuación del ingrediente más que la cantidad y el tipo de cantidad
-                    return ingrediente.getPuntuacion() * ((cantidad * tipoCantidadFactor) / cantidadTotal);
-                }).sum();
-
+    public void setPuntuacionDada(double puntuacionDada){
+        this.puntuacionDada = puntuacionDada;
     }
-
 
 }

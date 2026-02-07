@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -19,12 +20,14 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
-import com.david.recetapp.MainActivity;
 import com.david.recetapp.R;
 import com.david.recetapp.negocio.beans.Receta;
+import com.david.recetapp.negocio.servicios.FirebaseManager;
 import com.david.recetapp.negocio.servicios.RecetasSrv;
 import com.david.recetapp.negocio.servicios.UtilsSrv;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializer;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.BufferedReader;
@@ -43,8 +46,8 @@ public class ImportExportActivity extends AppCompatActivity {
 
     private static final int PICK_JSON_FILE_REQUEST = 1;
     private ActivityResultLauncher<String> mGetContentLauncher;
-
     private static final int REQUEST_PERMISSION_READ_EXTERNAL_STORAGE = 1;
+    private final FirebaseManager firebaseManager = new FirebaseManager();
 
     private void checkAndRequestPermissions() {
         int permissionReadStorage = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
@@ -64,9 +67,9 @@ public class ImportExportActivity extends AppCompatActivity {
     @SuppressLint("MissingSuperCall")
     @Override
     public void onBackPressed() {
-        // Controla el comportamiento del botón "Atrás"
-        Intent intent = new Intent(ImportExportActivity.this, MainActivity.class);
-        startActivity(intent);
+        // Devolver que no se importó nada si el usuario sale manualmente
+        setResult(RESULT_CANCELED);
+        finish();
     }
 
     @Override
@@ -92,7 +95,6 @@ public class ImportExportActivity extends AppCompatActivity {
                 String jsonData = leerArchivoJSON(fileUri);
                 List<Receta> listaRecetasImportadas = convertirJsonAListaRecetas(jsonData);
                 mergeListaRecetas(listaRecetasImportadas);
-                UtilsSrv.notificacion(this, getString(R.string.importacion_ok), Toast.LENGTH_SHORT).show();
             } catch (IOException e) {
                 UtilsSrv.notificacion(this, getString(R.string.importacion_error) + ": " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
@@ -100,29 +102,41 @@ public class ImportExportActivity extends AppCompatActivity {
     }
 
     private void exportarListaRecetas() {
-        List<Receta> listaRecetas = obtenerListaRecetas();
+        // Mostrar progreso
+        UtilsSrv.notificacion(this, getString(R.string.exportando_recetas), Toast.LENGTH_SHORT).show();
 
-        String jsonData = convertirListaAJson(listaRecetas);
+        RecetasSrv.cargarListaRecetas(this, new RecetasSrv.RecetasCallback() {
+            @Override
+            public void onSuccess(List<Receta> listaRecetas) {
+                String jsonData = convertirListaAJson(listaRecetas);
 
-        try {
-            // Crear el archivo en el almacenamiento específico de la aplicación
-            File file = new File(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), RecetasSrv.JSON);
-            FileWriter writer = new FileWriter(file);
-            writer.write(jsonData);
-            writer.close();
+                try {
+                    // Crear el archivo en el almacenamiento específico de la aplicación
+                    File file = new File(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "lista_recetas_firebase.json");
+                    FileWriter writer = new FileWriter(file);
+                    writer.write(jsonData);
+                    writer.close();
 
-            // Compartir el archivo con cualquier aplicación
-            Uri fileUri = FileProvider.getUriForFile(this, "com.david.recetapp.provider", file);
-            Intent shareIntent = new Intent(Intent.ACTION_SEND);
-            shareIntent.setType("application/json");
-            shareIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
-            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            startActivity(Intent.createChooser(shareIntent, getString(R.string.compartir_recetas)));
-        } catch (IOException e) {
-            UtilsSrv.notificacion(this, getString(R.string.exportacion_error) + ": " + e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
+                    // Compartir el archivo con cualquier aplicación
+                    Uri fileUri = FileProvider.getUriForFile(ImportExportActivity.this, "com.david.recetapp.provider", file);
+                    Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                    shareIntent.setType("application/json");
+                    shareIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
+                    shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    startActivity(Intent.createChooser(shareIntent, getString(R.string.compartir_recetas)));
+
+                    UtilsSrv.notificacion(ImportExportActivity.this, getString(R.string.exportacion_ok), Toast.LENGTH_SHORT).show();
+                } catch (IOException e) {
+                    UtilsSrv.notificacion(ImportExportActivity.this, getString(R.string.exportacion_error) + ": " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                UtilsSrv.notificacion(ImportExportActivity.this, getString(R.string.exportacion_error) + ": " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -133,15 +147,10 @@ public class ImportExportActivity extends AppCompatActivity {
                 String jsonData = leerArchivoJSON(fileUri);
                 List<Receta> listaRecetasImportadas = convertirJsonAListaRecetas(jsonData);
                 mergeListaRecetas(listaRecetasImportadas);
-                UtilsSrv.notificacion(this, getString(R.string.importacion_ok), Toast.LENGTH_SHORT).show();
             } catch (IOException e) {
                 UtilsSrv.notificacion(this, getString(R.string.importacion_error) + ": " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         }
-    }
-
-    private List<Receta> obtenerListaRecetas() {
-        return RecetasSrv.cargarListaRecetas(this);
     }
 
     private String convertirListaAJson(List<Receta> listaRecetas) {
@@ -166,33 +175,160 @@ public class ImportExportActivity extends AppCompatActivity {
     }
 
     private List<Receta> convertirJsonAListaRecetas(String jsonData) {
-        // Convertir el JSON a una lista de objetos Receta utilizando GSON
-        Gson gson = new Gson();
-        Type listType = new TypeToken<List<Receta>>() {
-        }.getType();
-        // Agregar las recetas a la cola
-        List<Receta> listaRecetas = gson.fromJson(jsonData, listType);
-        return listaRecetas != null ? listaRecetas : new ArrayList<>();
+        if (jsonData == null || jsonData.trim().isEmpty()) return new ArrayList<>();
+
+        // Gson con deserializer tolerante para Date
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(Date.class, (JsonDeserializer<Date>) (jsonElem, type, ctx) -> {
+                    if (jsonElem == null || jsonElem.isJsonNull()) return null;
+
+                    if (jsonElem.isJsonPrimitive()) {
+                        if (jsonElem.getAsJsonPrimitive().isNumber()) {
+                            // Número → milisegundos
+                            return new Date(jsonElem.getAsLong());
+                        } else if (jsonElem.getAsJsonPrimitive().isString()) {
+                            String s = jsonElem.getAsString();
+                            // Intentar varios formatos
+                            return parseDateString(s);
+                        }
+                    }
+
+                    // fallback
+                    return null;
+                })
+                .create();
+
+        Type listType = new TypeToken<List<Receta>>() {}.getType();
+        try {
+            return gson.fromJson(jsonData, listType);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
     }
 
-    private void mergeListaRecetas(List<Receta> listaRecetasImportadas) {
-        List<Receta> listaRecetasActuales = obtenerListaRecetas();
-        HashSet<Receta> recetasUnicas = new HashSet<>(listaRecetasActuales);
+    // Helper para parsear strings como "Jan 4, 2026 10:54:20"
+    private static Date parseDateString(String s) {
+        if (s == null) return null;
+        s = s.trim();
+        if (s.isEmpty()) return null;
 
-        for (Receta recetaImportada : listaRecetasImportadas) {
-            // Establecer el atributo "shared" como true en las recetas importadas
-            recetaImportada.setShared(true);
-            recetaImportada.setFechaCalendario(new Date(0));
-            recetasUnicas.add(recetaImportada);
+        String[] patterns = new String[] {
+                "MMM d, yyyy HH:mm:ss",      // Jan 4, 2026 10:54:20
+                "MMM dd, yyyy HH:mm:ss",
+                "yyyy-MM-dd'T'HH:mm:ss'Z'",  // ISO
+                "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+        };
+
+        for (String p : patterns) {
+            try {
+                return new java.text.SimpleDateFormat(p, java.util.Locale.ENGLISH).parse(s);
+            } catch (Exception ignored) {}
         }
 
-        List<Receta> listaRecetasMerge = new ArrayList<>(recetasUnicas);
-        guardarListaRecetas(listaRecetasMerge);
+        return null;
     }
 
-    private void guardarListaRecetas(List<Receta> listaRecetas) {
-        for (Receta receta : listaRecetas)
-            RecetasSrv.addReceta(this, receta);
-    }
 
+    private void mergeListaRecetas(List<Receta> listaRecetasImportadas) {
+        if (listaRecetasImportadas.isEmpty()) {
+            UtilsSrv.notificacion(this, getString(R.string.no_recetas_importar), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Mostrar progreso
+        UtilsSrv.notificacion(this, getString(R.string.importando_recetas) + " " + listaRecetasImportadas.size(), Toast.LENGTH_SHORT).show();
+
+        // Primero cargar las recetas actuales
+        RecetasSrv.cargarListaRecetas(this, new RecetasSrv.RecetasCallback() {
+            @Override
+            public void onSuccess(List<Receta> listaRecetasActuales) {
+                HashSet<String> idsExistentes = new HashSet<>();
+                for (Receta receta : listaRecetasActuales) {
+                    idsExistentes.add(receta.getId());
+                }
+
+                // Filtrar recetas que no existen
+                List<Receta> recetasNuevas = new ArrayList<>();
+                for (Receta recetaImportada : listaRecetasImportadas) {
+                    if (!idsExistentes.contains(recetaImportada.getId())) {
+                        // Establecer atributos para recetas importadas
+                        recetaImportada.setShared(true);
+                        recetaImportada.setFechaCalendario(new Date(0));
+                        recetasNuevas.add(recetaImportada);
+                    }
+                }
+
+                if (recetasNuevas.isEmpty()) {
+                    String msg = getString(R.string.todas_recetas_ya_existen);
+                    Log.d("ImportExportActivity", "No new recipes to import. Msg: " + msg);
+                    runOnUiThread(() -> {
+                        Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
+                        setResult(RESULT_CANCELED);
+                        finish();
+                    });
+                    return;
+                }
+
+
+                // Importar usando batch en Firebase
+                firebaseManager.importarRecetas(recetasNuevas, new FirebaseManager.SimpleCallback() {
+                    @Override
+                    public void onSuccess() {
+                        runOnUiThread(() -> {
+                            String msg = getString(R.string.importacion_ok) + ": " + recetasNuevas.size() + " recetas";
+                            Log.d("ImportExportActivity", "Import finished OK -> setting RESULT_OK. Msg: " + msg);
+                            // Mostrar Toast explícito con application context (más fiable si se hace justo antes de finish())
+                            Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
+                            // Devolver resultado OK antes de cerrar
+                            setResult(RESULT_OK);
+                            finish();
+                        });
+                    }
+
+                    @Override
+                    public void onFailure(Exception e) {
+                        UtilsSrv.notificacion(ImportExportActivity.this,
+                                getString(R.string.importacion_error) + ": " + e.getMessage(),
+                                Toast.LENGTH_SHORT).show();
+                        // No cerramos la activity para que el usuario revise el error
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                // Si falla la carga, importar de todas formas
+                UtilsSrv.notificacion(ImportExportActivity.this, getString(R.string.importando_todas_recetas), Toast.LENGTH_SHORT).show();
+
+                for (Receta receta : listaRecetasImportadas) {
+                    receta.setShared(true);
+                    receta.setFechaCalendario(new Date(0));
+                }
+
+                firebaseManager.importarRecetas(listaRecetasImportadas, new FirebaseManager.SimpleCallback() {
+                    @Override
+                    public void onSuccess() {
+                        runOnUiThread(() -> {
+                            String msg = getString(R.string.importacion_ok) + ": " + listaRecetasImportadas.size() + " recetas";
+                            Log.d("ImportExportActivity", "Import finished OK -> setting RESULT_OK. Msg: " + msg);
+                            // Mostrar Toast explícito con application context (más fiable si se hace justo antes de finish())
+                            Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_LONG).show();
+                            // Devolver resultado OK antes de cerrar
+                            setResult(RESULT_OK);
+                            finish();
+                        });
+                    }
+
+                    @Override
+                    public void onFailure(Exception e) {
+                        UtilsSrv.notificacion(ImportExportActivity.this,
+                                getString(R.string.importacion_error) + ": " + e.getMessage(),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+            }
+        });
+    }
 }

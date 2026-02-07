@@ -3,6 +3,8 @@ package com.david.recetapp.adaptadores;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
@@ -19,6 +21,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.david.recetapp.R;
 import com.david.recetapp.negocio.beans.Alergeno;
@@ -28,8 +31,10 @@ import com.david.recetapp.negocio.beans.Receta;
 import com.david.recetapp.negocio.servicios.AlergenosSrv;
 import com.david.recetapp.negocio.servicios.CalendarioSrv;
 import com.david.recetapp.negocio.servicios.RecetasSrv;
+import com.david.recetapp.negocio.servicios.UtilsSrv;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -37,17 +42,40 @@ import java.util.stream.Collectors;
 public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapter {
     private final Day selectedDay;
     private final Activity activity;
-    private final List<Receta> listaRecetas;
+    private List<Receta> listaRecetas;
     private final ExpandableListView expandableListView;
-
     private final EmptyListListener emptyListListener;
+    private final Handler mainHandler;
 
     public RecetaExpandableListCalendarAdapter(Activity activity, Day selectedDay, ExpandableListView expandableListView, EmptyListListener emptyListListener) {
         this.selectedDay = selectedDay;
         this.activity = activity;
         this.expandableListView = expandableListView;
         this.emptyListListener = emptyListListener;
-        this.listaRecetas = RecetasSrv.getRecetasAdaptadasCalendario(RecetasSrv.cargarListaRecetas(activity), selectedDay);
+        this.listaRecetas = new ArrayList<>();
+        this.mainHandler = new Handler(Looper.getMainLooper());
+
+        // Cargar recetas adaptadas
+        cargarRecetasAdaptadas();
+    }
+
+    private void cargarRecetasAdaptadas() {
+        RecetasSrv.cargarListaRecetas(activity, new RecetasSrv.RecetasCallback() {
+            @Override
+            public void onSuccess(List<Receta> recetas) {
+                listaRecetas = RecetasSrv.getRecetasAdaptadasCalendario(recetas, selectedDay);
+                mainHandler.post(() -> notifyDataSetChanged());
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                listaRecetas = new ArrayList<>();
+                mainHandler.post(() -> {
+                    UtilsSrv.notificacion(activity, activity.getString(R.string.error_cargar_recetas), Toast.LENGTH_SHORT).show();
+                    notifyDataSetChanged();
+                });
+            }
+        });
     }
 
     @Override
@@ -116,20 +144,43 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
 
         btnEliminar.setOnClickListener(v -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-            builder.setTitle(activity.getString(R.string.confirmacion)).setMessage(activity.getString(R.string.alerta_eliminar) + " '" + receta.getNombre() + "' ?").setPositiveButton(activity.getString(R.string.aceptar), (dialog, which) -> {
-                // Eliminar la receta del calendario y refrescar la pantalla
-                Receta eliminada = listaRecetas.remove(groupPosition);
-                selectedDay.removeReceta(eliminada.getId());
-                CalendarioSrv.actualizarDia(activity, selectedDay);
-                CalendarioSrv.actualizarFechaCalendario(activity, eliminada.getId());
-                if (listaRecetas.size() < 2) {
-                    emptyListListener.onListSize();
-                }
-                if (listaRecetas.isEmpty()) {
-                    emptyListListener.onListEmpty();
-                }
-                notifyDataSetChanged();
-            }).setNegativeButton(activity.getString(R.string.cancelar), null).show();
+            builder.setTitle(activity.getString(R.string.confirmacion))
+                    .setMessage(activity.getString(R.string.alerta_eliminar) + " '" + receta.getNombre() + "' ?")
+                    .setPositiveButton(activity.getString(R.string.aceptar), (dialog, which) -> {
+                        // Eliminar la receta del calendario y refrescar la pantalla
+                        Receta eliminada = listaRecetas.remove(groupPosition);
+                        selectedDay.removeReceta(eliminada.getId());
+
+                        CalendarioSrv.actualizarDia(activity, selectedDay, new CalendarioSrv.SimpleCallback() {
+                            @Override
+                            public void onSuccess() {
+                                CalendarioSrv.actualizarFechaCalendario(activity, eliminada.getId());
+                                mainHandler.post(() -> {
+                                    if (listaRecetas.size() < 2) {
+                                        emptyListListener.onListSize();
+                                    }
+                                    if (listaRecetas.isEmpty()) {
+                                        emptyListListener.onListEmpty();
+                                    }
+                                    notifyDataSetChanged();
+                                });
+                            }
+
+                            @Override
+                            public void onFailure(Exception e) {
+                                // Restaurar la receta si falla
+                                listaRecetas.add(groupPosition, eliminada);
+                                selectedDay.getRecetas().add(new com.david.recetapp.negocio.beans.RecetaDia(
+                                        eliminada.getId(), eliminada.getNumPersonas()));
+                                mainHandler.post(() -> {
+                                    UtilsSrv.notificacion(activity, activity.getString(R.string.error_eliminar_receta), Toast.LENGTH_SHORT).show();
+                                    notifyDataSetChanged();
+                                });
+                            }
+                        });
+                    })
+                    .setNegativeButton(activity.getString(R.string.cancelar), null)
+                    .show();
         });
 
         ImageButton btnEditar = convertView.findViewById(R.id.btnEditar);
@@ -166,11 +217,12 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
         ratingBar.setVisibility(View.GONE);
         LinearLayout iconosAlergenos = convertView.findViewById(R.id.iconosAlergenos);
         iconosAlergenos.setVisibility(View.GONE);
+
         switch (childPosition) {
             case 0:
                 txtInformacion.setVisibility(View.VISIBLE);
                 txtTitulo.setText(R.string.temporadas);
-                List<String> temporadas = receta.getTemporadas().stream().map(T -> T.getNombre(this.activity)).collect(Collectors.toList());
+                List<String> temporadas = receta.getTemporadas().stream().map(Enum::name).collect(Collectors.toList());
                 txtInformacion.setText(TextUtils.join(", ", temporadas));
                 break;
             case 1:
@@ -186,7 +238,10 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
 
                 for (int i = 0; i < totalIngredientes; i++) {
                     Ingrediente ingrediente = receta.getIngredientes().get(i);
-                    sbIngredientes.append("- ").append(ingrediente.getCantidad()).append(" ").append(ingrediente.getTipoCantidad()).append(activity.getString(R.string.literal_de)).append(ingrediente.getNombre()).append(ingrediente.getPuntuacion()>=0? " (Score: "+ingrediente.getPuntuacion()+")" : "");
+                    sbIngredientes.append("- ").append(ingrediente.getCantidad()).append(" ")
+                            .append(ingrediente.getTipoCantidad()).append(activity.getString(R.string.literal_de))
+                            .append(ingrediente.getNombre())
+                            .append(ingrediente.getPuntuacion() >= 0 ? " (Score: " + ingrediente.getPuntuacion() + ")" : "");
 
                     // Agregar dos saltos de línea si no es la última iteración
                     if (i < totalIngredientes - 1) {
@@ -305,10 +360,8 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
         return false;
     }
 
-
     public interface EmptyListListener {
         void onListEmpty();
-
         void onListSize();
     }
 }

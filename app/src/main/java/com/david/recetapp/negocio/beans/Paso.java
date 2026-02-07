@@ -56,4 +56,8 @@ public class Paso implements Parcelable {
     public void setPaso(String paso) {
         this.paso = UtilsSrv.capitalizeAndAddPeriod(paso);
     }
+
+    public Paso(){
+
+    }
 }

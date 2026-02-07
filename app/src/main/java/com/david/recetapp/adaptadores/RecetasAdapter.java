@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -28,10 +27,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 /**
- * RecetasAdapter actualizado para pintar un badge con la puntuación a la derecha del AppCompatButton
- * (sin crear/editar layouts: reutiliza item_receta_button).
+ * RecetasAdapter corregido:
+ *  - Busca el Button por id dentro del itemView (no castea itemView directamente)
+ *  - DiffUtil.areContentsTheSame compara puntuación y fecha para forzar rebind cuando cambian
+ *  - Mejora centrado del texto en el badge
  */
 public class RecetasAdapter extends RecyclerView.Adapter<RecetasAdapter.RecetaViewHolder> {
     private final OnRecetaClickListener listener;
@@ -44,18 +46,13 @@ public class RecetasAdapter extends RecyclerView.Adapter<RecetasAdapter.RecetaVi
         this.listener = listener;
     }
 
-    /**
-     * Crea un BitmapDrawable circular con el número (scoreText) centrado.
-     * Color por rango: >=4.0 verde, >=3.0 ámbar, <3.0 rojo.
-     */
     private static Drawable createScoreBadgeDrawable(Context ctx, String scoreText, double score) {
         final int sizeDp = 36; // diámetro del badge
-
         int sizePx = dpToPx(ctx, sizeDp);
         Bitmap bmp = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bmp);
 
-        // color del fondo según score
+        // fondo
         int bgColor = colorByScore(score);
         Paint circlePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         circlePaint.setColor(bgColor);
@@ -64,15 +61,20 @@ public class RecetasAdapter extends RecyclerView.Adapter<RecetasAdapter.RecetaVi
         float radius = sizePx / 2f;
         canvas.drawCircle(cx, cy, radius, circlePaint);
 
-        // texto centrado
+        // texto centrado (medición más fiable)
         Paint textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         textPaint.setColor(Color.WHITE);
         textPaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
-        textPaint.setTextSize(spToPx(ctx));
-        Rect textBounds = new Rect();
-        textPaint.getTextBounds(scoreText, 0, scoreText.length(), textBounds);
-        float tx = cx - textBounds.width() / 2f - textBounds.left;
-        float ty = cy + textBounds.height() / 2f - textBounds.bottom;
+        float textSizePx = spToPx(ctx);
+        textPaint.setTextSize(textSizePx);
+
+        float textWidth = textPaint.measureText(scoreText);
+        // centrar verticalmente con ascent/descent
+        float textHeightOffset = (textPaint.descent() + textPaint.ascent()) / 2f;
+
+        float tx = cx - (textWidth / 2f);
+        float ty = cy - textHeightOffset;
+
         canvas.drawText(scoreText, tx, ty, textPaint);
 
         BitmapDrawable drawable = new BitmapDrawable(ctx.getResources(), bmp);
@@ -91,7 +93,6 @@ public class RecetasAdapter extends RecyclerView.Adapter<RecetasAdapter.RecetaVi
             return Color.parseColor("#F44336"); // rojo
         }
     }
-
 
     private static int dpToPx(Context ctx, int dp) {
         float density = ctx.getResources().getDisplayMetrics().density;
@@ -118,31 +119,19 @@ public class RecetasAdapter extends RecyclerView.Adapter<RecetasAdapter.RecetaVi
         holder.bind(recetas.get(position));
     }
 
-    // --- Helpers ---
-
     @Override
     public int getItemCount() {
         return recetas.size();
     }
 
-    /**
-     * Actualiza la lista (manteniendo DiffUtil) y guarda fechas.
-     */
     public void updateRecetas(List<Receta> newRecetas, Date fechaElegida, Date fechaIntervaloPrevio) {
         final List<Receta> oldList = new ArrayList<>(this.recetas);
         this.fechaElegida = fechaElegida;
         this.fechaIntervaloPrevio = fechaIntervaloPrevio;
 
         DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new DiffUtil.Callback() {
-            @Override
-            public int getOldListSize() {
-                return oldList.size();
-            }
-
-            @Override
-            public int getNewListSize() {
-                return newRecetas != null ? newRecetas.size() : 0;
-            }
+            @Override public int getOldListSize() { return oldList.size(); }
+            @Override public int getNewListSize() { return newRecetas != null ? newRecetas.size() : 0; }
 
             @Override
             public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
@@ -158,7 +147,13 @@ public class RecetasAdapter extends RecyclerView.Adapter<RecetasAdapter.RecetaVi
                 Receta oldReceta = oldList.get(oldItemPosition);
                 Receta newReceta = newRecetas.get(newItemPosition);
 
-                return oldReceta.getNombre().equals(newReceta.getNombre()) && oldReceta.isPostre() == newReceta.isPostre();
+                // Añadimos puntuación y fecha a la comparación para forzar rebind cuando cambien.
+                boolean mismoNombre = Objects.equals(oldReceta.getNombre(), newReceta.getNombre());
+                boolean mismoPostre = oldReceta.isPostre() == newReceta.isPostre();
+                boolean mismaPuntuacion = Double.compare(oldReceta.getPuntuacionDada(), newReceta.getPuntuacionDada()) == 0;
+                boolean mismaFecha = Objects.equals(oldReceta.getFechaCalendario(), newReceta.getFechaCalendario());
+
+                return mismoNombre && mismoPostre && mismaPuntuacion && mismaFecha;
             }
         });
 
@@ -175,11 +170,19 @@ public class RecetasAdapter extends RecyclerView.Adapter<RecetasAdapter.RecetaVi
 
         RecetaViewHolder(View itemView) {
             super(itemView);
-            button = (Button) itemView;
+            // BUSCAR el Button dentro del layout (más seguro que castear itemView)
+            Button b = itemView.findViewById(R.id.buttonReceta);
+            if (b == null && itemView instanceof Button) {
+                b = (Button) itemView; // fallback si el root es un Button
+            }
+            button = b;
+            if (button == null) {
+                throw new IllegalStateException("item_receta_button debe contener un Button con id @+id/buttonReceta o ser un Button como root.");
+            }
+
             button.setClickable(true);
             button.setFocusable(true);
 
-            // Mejorar layout en runtime: texto a la izquierda, badge a la derecha
             button.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
             button.setCompoundDrawablePadding(dpToPx(button.getContext(), 8));
         }
@@ -188,12 +191,13 @@ public class RecetasAdapter extends RecyclerView.Adapter<RecetasAdapter.RecetaVi
             Context ctx = button.getContext();
             button.setText(receta.getNombre());
 
-            // Background logic existente (postre / fecha previa / default)
+            // Background logic (postre / fecha previa / default)
             if (receta.isPostre()) {
                 button.setBackground(ContextCompat.getDrawable(ctx, R.drawable.postre_background));
             } else {
                 Date f = receta.getFechaCalendario();
-                if (f != null && fechaIntervaloPrevio != null && fechaElegida != null && f.after(fechaIntervaloPrevio) && f.before(fechaElegida)) {
+                if (f != null && fechaIntervaloPrevio != null && fechaElegida != null
+                        && f.after(fechaIntervaloPrevio) && f.before(fechaElegida)) {
                     button.setBackground(ContextCompat.getDrawable(ctx, R.drawable.previous_selected_background));
                 } else {
                     button.setBackground(ContextCompat.getDrawable(ctx, R.drawable.edittext_background));
@@ -201,15 +205,15 @@ public class RecetasAdapter extends RecyclerView.Adapter<RecetasAdapter.RecetaVi
             }
 
             double score = receta.getPuntuacionDada();
-
-
             String scoreText = String.format(Locale.getDefault(), "%.1f", score);
             Drawable badge = createScoreBadgeDrawable(ctx, scoreText, score);
-            // Colocar a la derecha
-            button.setCompoundDrawablesWithIntrinsicBounds(null, null, badge, null);
-            // Accesibilidad
-            button.setContentDescription(receta.getNombre() + ", puntuación " + scoreText);
 
+            // poner a la derecha y forzar re-paint
+            button.setCompoundDrawables(null, null, badge, null);
+            button.invalidate();
+            button.requestLayout();
+
+            button.setContentDescription(receta.getNombre() + ", puntuación " + scoreText);
 
             button.setOnClickListener(v -> {
                 if (listener != null) listener.onRecetaClick(receta);

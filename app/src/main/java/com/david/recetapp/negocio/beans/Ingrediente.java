@@ -23,6 +23,11 @@ public class Ingrediente implements Parcelable {
         puntuacion = in.readDouble();
     }
 
+    public Ingrediente() {
+        // Constructor vacío requerido por Firestore
+    }
+
+
     public static final Creator<Ingrediente> CREATOR = new Creator<>() {
         @Override
         public Ingrediente createFromParcel(Parcel in) {

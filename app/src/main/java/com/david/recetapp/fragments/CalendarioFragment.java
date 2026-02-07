@@ -2,11 +2,15 @@ package com.david.recetapp.fragments;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,14 +28,13 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class CalendarioFragment extends Fragment {
 
     private TextView monthYearTextView;
-    private ExecutorService executor;
     private CalendarioRecyclerAdapter adapter;
+    private ProgressBar progressBar;
+    private Handler mainHandler;
 
     private static final int SPAN_COUNT = 7;
 
@@ -44,8 +47,9 @@ public class CalendarioFragment extends Fragment {
         RecyclerView calendarRecyclerView = rootView.findViewById(R.id.calendarRecyclerView);
         monthYearTextView = rootView.findViewById(R.id.monthYearTextView);
         ImageButton btnActualizar = rootView.findViewById(R.id.btnActualizar);
+        progressBar = rootView.findViewById(R.id.progressBar); // Asegúrate de tener este ProgressBar en tu layout
 
-        executor = Executors.newSingleThreadExecutor();
+        mainHandler = new Handler(Looper.getMainLooper());
 
         GridLayoutManager glm = new GridLayoutManager(requireContext(), SPAN_COUNT);
         calendarRecyclerView.setLayoutManager(glm);
@@ -64,10 +68,7 @@ public class CalendarioFragment extends Fragment {
                         .setTitle(getString(R.string.confirmacion))
                         .setMessage(getString(R.string.alerta_actualizar_calendario))
                         .setPositiveButton(getString(R.string.aceptar), (dialog, which) ->
-                                executor.execute(() -> {
-                                    CalendarioSrv.cargarRecetas(requireContext());
-                                    loadCalendarDays();
-                                }))
+                                actualizarCalendario())
                         .setNegativeButton(getString(R.string.cancelar), null)
                         .show();
             }
@@ -84,17 +85,86 @@ public class CalendarioFragment extends Fragment {
     }
 
     private void loadCalendarDays() {
-        executor.execute(() -> {
-            final List<Day> days = CalendarioSrv.obtenerCalendario(requireContext());
-            final int numeroEnBlanco = UtilsSrv.obtenerColumnaCalendario(1);
-            if (!isAdded()) return;
-            requireActivity().runOnUiThread(() -> adapter.submitDays(days, numeroEnBlanco));
+        if (progressBar != null) {
+            progressBar.setVisibility(View.VISIBLE);
+        }
+
+        CalendarioSrv.obtenerCalendario(requireContext(), new CalendarioSrv.CalendarioCallback() {
+            @Override
+            public void onSuccess(List<Day> days) {
+                if (!isAdded()) return;
+
+                final int numeroEnBlanco = UtilsSrv.obtenerColumnaCalendario(1);
+
+                mainHandler.post(() -> {
+                    if (!isAdded()) return;
+
+                    adapter.submitDays(days, numeroEnBlanco);
+
+                    if (progressBar != null) {
+                        progressBar.setVisibility(View.GONE);
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                if (!isAdded()) return;
+
+                mainHandler.post(() -> {
+                    if (!isAdded()) return;
+
+                    if (progressBar != null) {
+                        progressBar.setVisibility(View.GONE);
+                    }
+
+                    UtilsSrv.notificacion(requireContext(),
+                            getString(R.string.error_cargar_calendario),
+                            Toast.LENGTH_SHORT).show();
+                });
+            }
+        });
+    }
+
+    private void actualizarCalendario() {
+        if (progressBar != null) {
+            progressBar.setVisibility(View.VISIBLE);
+        }
+
+        CalendarioSrv.cargarRecetas(requireContext(), new CalendarioSrv.SimpleCallback() {
+            @Override
+            public void onSuccess() {
+                if (!isAdded()) return;
+
+                // Recargar el calendario después de actualizar las recetas
+                loadCalendarDays();
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                if (!isAdded()) return;
+
+                mainHandler.post(() -> {
+                    if (!isAdded()) return;
+
+                    if (progressBar != null) {
+                        progressBar.setVisibility(View.GONE);
+                    }
+
+                    UtilsSrv.notificacion(requireContext(),
+                            getString(R.string.error_actualizar_calendario),
+                            Toast.LENGTH_SHORT).show();
+                });
+            }
         });
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        if (executor != null && !executor.isShutdown()) executor.shutdownNow();
+        // Limpiar callbacks pendientes
+        if (mainHandler != null) {
+            mainHandler.removeCallbacksAndMessages(null);
+        }
     }
 }

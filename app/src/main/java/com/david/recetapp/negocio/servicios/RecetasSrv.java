@@ -2,177 +2,223 @@ package com.david.recetapp.negocio.servicios;
 
 import android.content.Context;
 import android.util.Log;
-import android.util.LruCache;
 
 import androidx.annotation.NonNull;
 
+import com.david.recetapp.R;
 import com.david.recetapp.negocio.beans.Day;
 import com.david.recetapp.negocio.beans.Ingrediente;
 import com.david.recetapp.negocio.beans.Receta;
 import com.david.recetapp.negocio.beans.RecetaDia;
 import com.david.recetapp.negocio.beans.Temporada;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-/** @noinspection DataFlowIssue*/
+/**
+ * Servicio de recetas con cache en memoria persistente mientras la app está activa.
+ */
 public class RecetasSrv {
-    public static final String JSON = "lista_recetas.json";
     private static final String TAG = "RecetasSrv";
 
-    // Cache: key → lista de recetas
-    private static final LruCache<String, List<Receta>> recetasCache = new LruCache<>(4 * 1024 * 1024);
-    // Timestamps para validación
-    private static final Map<String, Long> cacheTimestamps = new ConcurrentHashMap<>();
-    private static final long CACHE_VALIDITY_MS = 5 * 60 * 1000; // 5 minutos
+    private static final FirebaseManager firebaseManager = new FirebaseManager();
 
-    /** Carga todas las recetas, usa cache si está válida */
-    public static List<Receta> cargarListaRecetas(Context context) {
-        final String cacheKey = "todas_las_recetas";
-        List<Receta> recetas = recetasCache.get(cacheKey);
-        long lastUpdate = cacheTimestamps.getOrDefault(cacheKey, 0L);
+    // Cache en memoria
+    private static final List<Receta> recetasCache = new ArrayList<>();
 
-        if (recetas != null && System.currentTimeMillis() - lastUpdate < CACHE_VALIDITY_MS) {
-            return new ArrayList<>(recetas);
+    private static final Pattern patternIngredient = Pattern.compile("^(.+)\\s(-?\\d+)$");
+
+    // ——— Interfaces de callbacks ———
+    public interface RecetasCallback {
+        void onSuccess(List<Receta> recetas);
+        void onFailure(Exception e);
+    }
+
+    public interface SimpleCallback {
+        void onSuccess();
+        void onFailure(Exception e);
+    }
+
+    // ——— GETTER DE RECETAS ———
+    public static List<Receta> getRecetas() {
+        return new ArrayList<>(recetasCache);
+    }
+
+    // ——— CARGA DESDE FIREBASE ———
+    public static void cargarListaRecetas(Context context, RecetasCallback callback) {
+        if (!recetasCache.isEmpty()) {
+            callback.onSuccess(new ArrayList<>(recetasCache));
+            return;
         }
 
-        try (FileInputStream fis = context.openFileInput(JSON);
-             BufferedReader br = new BufferedReader(new InputStreamReader(fis))) {
-
-            StringBuilder sb = new StringBuilder();
-            String line;
-            while ((line = br.readLine()) != null) {
-                sb.append(line);
+        firebaseManager.cargarRecetas(context, new FirebaseManager.RecetasCallback() {
+            @Override
+            public void onSuccess(List<Receta> recetas) {
+                recetasCache.clear();
+                recetasCache.addAll(recetas);
+                callback.onSuccess(new ArrayList<>(recetasCache));
             }
 
-            Type listType = new TypeToken<List<Receta>>(){}.getType();
-            recetas = new Gson().fromJson(sb.toString(), listType);
-            recetas.forEach(r -> r.setPuntuacionDada(context));
-
-            recetasCache.put(cacheKey, new ArrayList<>(recetas));
-            cacheTimestamps.put(cacheKey, System.currentTimeMillis());
-
-            return new ArrayList<>(recetas);
-
-        } catch (FileNotFoundException e) {
-            // archivo no existe → lista vacía
-        } catch (IOException e) {
-            Log.e(TAG, "Error en 'cargarListaRecetas': " + e.getMessage());
-        }
-
-        return new ArrayList<>();
+            @Override
+            public void onFailure(Exception e) {
+                Log.e(TAG, "Error cargando recetas desde Firebase", e);
+                callback.onFailure(e);
+            }
+        });
     }
 
-    /** Añade una receta y limpia la cache */
-    public static void addReceta(Context context, Receta receta) {
-        List<Receta> lista = cargarListaRecetas(context);
-        boolean existe = lista.stream().anyMatch(r -> r.getId().equals(receta.getId()));
-        if (!existe) {
-            lista.add(0,receta);
-            persistirRecetas(context, lista);
-            invalidateCaches();
+    public static void cargarListaRecetas(Context context, boolean forceServer, RecetasCallback callback) {
+        if (!forceServer && !recetasCache.isEmpty()) {
+            callback.onSuccess(new ArrayList<>(recetasCache));
+            return;
         }
+
+        firebaseManager.cargarRecetas(context, true, new FirebaseManager.RecetasCallback() {
+            @Override
+            public void onSuccess(List<Receta> recetas) {
+                recetasCache.clear();
+                recetasCache.addAll(recetas);
+                callback.onSuccess(new ArrayList<>(recetasCache));
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Log.e(TAG, "Error cargando recetas desde Firebase (forceServer=true)", e);
+                callback.onFailure(e);
+            }
+        });
     }
 
-    /** Edita una receta existente y limpia la cache */
-    public static void editarReceta(Context context, Receta receta) {
-        List<Receta> lista = cargarListaRecetas(context);
-        Optional<Receta> opt = lista.stream()
-                .filter(r -> r.getId().equals(receta.getId()))
-                .findFirst();
+    // ——— OPERACIONES SOBRE RECETAS ———
+    public static void addReceta(Receta receta, SimpleCallback callback) {
+        firebaseManager.addReceta(receta, new FirebaseManager.SimpleCallback() {
+            @Override
+            public void onSuccess() {
+                recetasCache.add(receta);
+                if (callback != null) callback.onSuccess();
+            }
 
-        if (opt.isPresent()) {
-            lista.remove(opt.get());
-            lista.add(0,receta);
-            persistirRecetas(context, lista);
-            invalidateCaches();
-        }
+            @Override
+            public void onFailure(Exception e) {
+                Log.e(TAG, "Error añadiendo receta", e);
+                if (callback != null) callback.onFailure(e);
+            }
+        });
     }
 
-    /** Elimina una receta (por posición dentro de una lista parcial) y limpia la cache */
-    public static void eliminarReceta(Context context, int position, List<Receta> listaParcial) {
+    public static void editarReceta(Receta receta, SimpleCallback callback) {
+        firebaseManager.editarReceta(receta, new FirebaseManager.SimpleCallback() {
+            @Override
+            public void onSuccess() {
+                for (int i = 0; i < recetasCache.size(); i++) {
+                    if (recetasCache.get(i).getId().equals(receta.getId())) {
+                        recetasCache.set(i, receta);
+                        break;
+                    }
+                }
+                if (callback != null) callback.onSuccess();
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Log.e(TAG, "Error editando receta", e);
+                if (callback != null) callback.onFailure(e);
+            }
+        });
+    }
+
+    public static void eliminarReceta(int position, List<Receta> listaParcial, SimpleCallback callback) {
         Receta receta = listaParcial.remove(position);
 
-        List<Receta> lista = cargarListaRecetas(context);
-        lista.removeIf(r -> r.getId().equals(receta.getId()));
-        persistirRecetas(context, lista);
-        invalidateCaches();
-    }
-
-    /** Carga recetas para calendario, usa cache si válida */
-    public static List<Receta> cargarListaRecetasCalendario(Context context, List<RecetaDia> idRecetas) {
-        String cacheKey = "recetas_calendario_" + idRecetas.hashCode();
-        List<Receta> recetas = recetasCache.get(cacheKey);
-        long lastUpdate = cacheTimestamps.getOrDefault(cacheKey, 0L);
-
-        if (recetas != null && System.currentTimeMillis() - lastUpdate < CACHE_VALIDITY_MS) {
-            return recetas;
-        }
-
-        List<Receta> todas = cargarListaRecetas(context);
-        Temporada temporada = UtilsSrv.getTemporadaFecha(LocalDate.now());
-        Set<String> seleccionadas = idRecetas.stream()
-                .map(RecetaDia::idReceta)
-                .collect(Collectors.toSet());
-
-        recetas = todas.stream()
-                .filter(r -> !seleccionadas.contains(r.getId()) && r.getTemporadas().contains(temporada))
-                .sorted(Comparator.comparing(Receta::getPuntuacionDada, Comparator.reverseOrder())
-                        .thenComparing(Receta::getEstrellas, Comparator.reverseOrder()))
-                .collect(Collectors.toList());
-
-        recetasCache.put(cacheKey, recetas);
-        cacheTimestamps.put(cacheKey, System.currentTimeMillis());
-        return recetas;
-    }
-
-    /** Actualiza sólo la fecha de calendario de una receta */
-    public static void actualizarRecetaCalendario(Context context, String idReceta, int diaMes, boolean add) {
-        Optional<Receta> opt = cargarListaRecetas(context).stream()
-                .filter(r -> r.getId().equals(idReceta))
-                .findAny();
-
-        if (opt.isPresent()) {
-            Receta r = opt.get();
-            Date fecha = new Date(0);
-            if (diaMes > 0) {
-                Calendar cal = Calendar.getInstance();
-                cal.set(Calendar.DAY_OF_MONTH, diaMes);
-                fecha = cal.getTime();
-                if (add && r.getFechaCalendario().after(fecha)) {
-                    return;
-                }
+        firebaseManager.eliminarReceta(receta.getId(), new FirebaseManager.SimpleCallback() {
+            @Override
+            public void onSuccess() {
+                recetasCache.removeIf(r -> r.getId().equals(receta.getId()));
+                if (callback != null) callback.onSuccess();
             }
-            r.setFechaCalendario(fecha);
-            editarReceta(context, r);
-        }
+
+            @Override
+            public void onFailure(Exception e) {
+                listaParcial.add(position, receta);
+                if (callback != null) callback.onFailure(e);
+            }
+        });
+    }
+
+    // ——— RECETAS CALENDARIO ———
+    public static void cargarListaRecetasCalendario(Context context, List<RecetaDia> idRecetas, RecetasCallback callback) {
+        cargarListaRecetas(context, new RecetasCallback() {
+            @Override
+            public void onSuccess(List<Receta> todas) {
+                Temporada temporada = UtilsSrv.getTemporadaFecha(LocalDate.now());
+                Set<String> seleccionadas = idRecetas.stream()
+                        .map(RecetaDia::getIdReceta)
+                        .collect(Collectors.toSet());
+
+                List<Receta> filtradas = todas.stream()
+                        .filter(r -> !seleccionadas.contains(r.getId()) && r.getTemporadas().contains(temporada))
+                        .sorted(Comparator.comparing(Receta::getPuntuacionDada, Comparator.reverseOrder())
+                                .thenComparing(Receta::getEstrellas, Comparator.reverseOrder()))
+                        .toList();
+
+                callback.onSuccess(new ArrayList<>(filtradas));
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                callback.onFailure(e);
+            }
+        });
+    }
+
+    public static void actualizarRecetaCalendario(Context context, String idReceta, int diaMes, boolean add) {
+        cargarListaRecetas(context, new RecetasCallback() {
+            @Override
+            public void onSuccess(List<Receta> recetas) {
+                Optional<Receta> opt = recetas.stream()
+                        .filter(r -> r.getId().equals(idReceta))
+                        .findAny();
+
+                opt.ifPresent(r -> {
+                    long timestamp = 0;
+                    if (diaMes > 0) {
+                        Calendar cal = Calendar.getInstance();
+                        cal.set(Calendar.DAY_OF_MONTH, diaMes);
+                        Date fecha = cal.getTime();
+                        if (add && r.getFechaCalendario() != null && r.getFechaCalendario().after(fecha)) return;
+                        timestamp = fecha.getTime();
+                    }
+
+                    firebaseManager.actualizarFechaCalendario(idReceta, timestamp, new FirebaseManager.SimpleCallback() {
+                        @Override
+                        public void onSuccess() {
+                            Log.d(TAG, "Fecha calendario actualizada para: " + idReceta);
+                        }
+
+                        @Override
+                        public void onFailure(Exception e) {
+                            Log.e(TAG, "Error actualizando fecha calendario", e);
+                        }
+                    });
+                });
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Log.e(TAG, "Error cargando recetas para actualizar calendario", e);
+            }
+        });
     }
 
     @NonNull
     public static List<Receta> getRecetasAdaptadasCalendario(List<Receta> recetasTotales, Day selectedDay) {
         Set<String> ids = selectedDay.getRecetas().stream()
-                .map(RecetaDia::idReceta)
+                .map(RecetaDia::getIdReceta)
                 .collect(Collectors.toSet());
 
         List<Receta> lista = recetasTotales.stream()
@@ -180,7 +226,7 @@ public class RecetasSrv {
                 .collect(Collectors.toList());
 
         Map<String, Integer> personasMap = selectedDay.getRecetas().stream()
-                .collect(Collectors.toMap(RecetaDia::idReceta, RecetaDia::numeroPersonas));
+                .collect(Collectors.toMap(RecetaDia::getIdReceta, RecetaDia::getNumeroPersonas));
 
         for (Receta r : lista) {
             double orig = r.getNumPersonas();
@@ -191,8 +237,7 @@ public class RecetasSrv {
             for (Ingrediente ing : r.getIngredientes()) {
                 double base = UtilsSrv.convertirNumero(ing.getCantidad());
                 double escalada = base * factor;
-                BigDecimal bd = BigDecimal.valueOf(escalada)
-                        .setScale(2, RoundingMode.HALF_UP);
+                BigDecimal bd = BigDecimal.valueOf(escalada).setScale(2, RoundingMode.HALF_UP);
                 ing.setCantidad(bd.stripTrailingZeros().toPlainString());
             }
         }
@@ -200,32 +245,41 @@ public class RecetasSrv {
         return lista;
     }
 
-    // —————— Métodos auxiliares ——————
-
-    /** Escribe la lista completa de recetas en el archivo JSON */
-    private static void persistirRecetas(Context context, List<Receta> lista) {
-        Gson gson = new Gson();
-        String json = gson.toJson(lista);
-        try (FileOutputStream fos = context.openFileOutput(JSON, Context.MODE_PRIVATE);
-             OutputStreamWriter osw = new OutputStreamWriter(fos)) {
-            osw.write(json);
-        } catch (IOException e) {
-            Log.e(TAG, "Error al persistir recetas: " + e.getMessage());
-        }
+    // ——— MÉTODOS AUXILIARES ———
+    public static void setUserId(String userId) {
+        firebaseManager.setUserId(userId);
     }
 
-    /** Limpia la cache principal y de calendario */
-    private static void invalidateCaches() {
-        String mainKey = "todas_las_recetas";
-        recetasCache.remove(mainKey);
-        cacheTimestamps.remove(mainKey);
-
-        // Limpia también todas las entradas de calendario
-        for (String key : cacheTimestamps.keySet()) {
-            if (key.startsWith("recetas_calendario_")) {
-                recetasCache.remove(key);
-                cacheTimestamps.remove(key);
-            }
+    public static void setPuntuacionDada(Receta receta, Context context) {
+        Map<String, Integer> ingredientMap = new HashMap<>();
+        String[] ingredientList = context.getResources().getStringArray(R.array.ingredient_list);
+        for (String s : ingredientList) {
+            Matcher m = patternIngredient.matcher(s.trim());
+            if (m.matches()) ingredientMap.put(Objects.requireNonNull(m.group(1)).toLowerCase(Locale.getDefault()), Integer.parseInt(m.group(2)));
         }
+
+        for (Ingrediente ing : receta.getIngredientes()) {
+            ing.setPuntuacion(ingredientMap.getOrDefault(ing.getNombre().toLowerCase(Locale.getDefault()), -2));
+        }
+
+        String[] units = context.getResources().getStringArray(R.array.quantity_units);
+        int[] importanceValues = context.getResources().getIntArray(R.array.importance_values);
+        Map<String, Integer> unitImportanceMap = new HashMap<>();
+        for (int i = 0; i < units.length; i++) unitImportanceMap.put(units[i], importanceValues[i]);
+
+        double cantidadTotal = receta.getIngredientes().stream()
+                .filter(i -> i.getPuntuacion() >= 0)
+                .mapToDouble(i -> UtilsSrv.convertirNumero(i.getCantidad()) * unitImportanceMap.getOrDefault(i.getTipoCantidad(), 1))
+                .sum();
+
+        if (cantidadTotal == 0) {
+            receta.setPuntuacionDada(0);
+            return;
+        }
+
+        receta.setPuntuacionDada(receta.getIngredientes().stream()
+                .filter(i -> i.getPuntuacion() >= 0)
+                .mapToDouble(i -> i.getPuntuacion() * (UtilsSrv.convertirNumero(i.getCantidad()) * unitImportanceMap.getOrDefault(i.getTipoCantidad(), 1) / cantidadTotal))
+                .sum());
     }
 }

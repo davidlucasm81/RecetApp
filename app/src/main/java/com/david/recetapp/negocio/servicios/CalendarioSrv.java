@@ -2,17 +2,14 @@ package com.david.recetapp.negocio.servicios;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.SharedPreferences;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.david.recetapp.R;
 import com.david.recetapp.negocio.beans.Day;
 import com.david.recetapp.negocio.beans.Receta;
 import com.david.recetapp.negocio.beans.RecetaDia;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
-import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -28,41 +25,70 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-
 public class CalendarioSrv {
+    private static final String TAG = "CalendarioSrv";
     private static final int LIMITE_DIAS = 3;
+    private static final FirebaseManager firebaseManager = new FirebaseManager();
 
-    public static List<Day> obtenerCalendario(Context context) {
-        List<Day> days;
-        try {
-            // Cargamos el calendario
-            SharedPreferences preferences = context.getSharedPreferences("shared_calendar_prefs", Context.MODE_PRIVATE);
-            String savedCalendarJson = preferences.getString("calendario", null);
-            if (savedCalendarJson != null) {
-                // Si el calendario existe, lo cargamos
-                Type listType = new TypeToken<List<Day>>() {
-                }.getType();
-                days = new Gson().fromJson(savedCalendarJson, listType);
-
-                // Comprobamos si el calendario es del mes actual
-                if (!isCurrentMonthSaved(preferences)) {
-                    // Si es del mes actual entonces creamos uno nuevo
-                    days = generateDays(context);
-                    saveCalendarToSharedPreferences(context, days);
-                }
-            } else {
-                // Si no existe, creamos uno nuevo
-                days = generateDays(context);
-                saveCalendarToSharedPreferences(context, days);
-            }
-        } catch (Exception e) {
-            days = generateDays(context);
-            saveCalendarToSharedPreferences(context, days);
-        }
-        return days;
+    /**
+     * Callback para operaciones de calendario
+     */
+    public interface CalendarioCallback {
+        void onSuccess(List<Day> days);
+        void onFailure(Exception e);
     }
 
-    private static List<Day> generateDays(Context context) {
+    /**
+     * Callback simple
+     */
+    public interface SimpleCallback {
+        void onSuccess();
+        void onFailure(Exception e);
+    }
+
+    /**
+     * Callback para lista de compra
+     */
+    public interface ListaCompraCallback {
+        void onSuccess(String listaCompra);
+        void onFailure(Exception e);
+    }
+
+    public static void obtenerCalendario(Context context, CalendarioCallback callback) {
+        firebaseManager.obtenerCalendario(new FirebaseManager.CalendarioCallback() {
+            @Override
+            public void onSuccess(List<Day> days) {
+                if (days.isEmpty()) {
+                    // No existe calendario, generar uno nuevo
+                    List<Day> newDays = generateDays();
+                    guardarCalendario(context, newDays, new SimpleCallback() {
+                        @Override
+                        public void onSuccess() {
+                            callback.onSuccess(newDays);
+                        }
+
+                        @Override
+                        public void onFailure(Exception e) {
+                            Log.e(TAG, "Error guardando calendario nuevo", e);
+                            callback.onFailure(e);
+                        }
+                    });
+                } else {
+                    callback.onSuccess(days);
+                }
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Log.e(TAG, "Error obteniendo calendario", e);
+                // En caso de error, generar calendario local
+                List<Day> days = generateDays();
+                callback.onSuccess(days);
+            }
+        });
+    }
+
+    private static List<Day> generateDays() {
         List<Day> days = new ArrayList<>();
 
         // Obtenemos el mes y el año
@@ -81,100 +107,171 @@ public class CalendarioSrv {
             days.add(new Day(i, new ArrayList<>()));
         }
 
-        // Guardamos el calendario
-        saveCalendarToSharedPreferences(context, days);
-
         return days;
     }
 
-    private static boolean isCurrentMonthSaved(SharedPreferences preferences) {
-        // Obtenemos el mes y el año almacenado
-        int savedMonth = preferences.getInt("savedMonth", -1);
-        int savedYear = preferences.getInt("savedYear", -1);
+    private static void guardarCalendario(Context context, List<Day> days, SimpleCallback callback) {
+        firebaseManager.guardarCalendario(days, new FirebaseManager.SimpleCallback() {
+            @Override
+            public void onSuccess() {
+                UtilsSrv.notificacion(context, context.getString(R.string.calendario_actualizado), Toast.LENGTH_SHORT).show();
+                if (callback != null) callback.onSuccess();
+            }
 
-        // Obtenemos el mes y el año actual
-        Calendar calendar = Calendar.getInstance();
-        int currentMonth = calendar.get(Calendar.MONTH);
-        int currentYear = calendar.get(Calendar.YEAR);
-
-        // Comparamos si som iguales
-        return savedMonth == currentMonth && savedYear == currentYear;
+            @Override
+            public void onFailure(Exception e) {
+                Log.e(TAG, "Error guardando calendario", e);
+                UtilsSrv.notificacion(context, context.getString(R.string.calendario_no_actualizado), Toast.LENGTH_SHORT).show();
+                if (callback != null) callback.onFailure(e);
+            }
+        });
     }
 
-    private static void saveCalendarToSharedPreferences(Context context, List<Day> days) {
-        // Almacenamos el calendario como un JSON
-        SharedPreferences preferences = context.getSharedPreferences("shared_calendar_prefs", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-        String calendarJson = new Gson().toJson(days);
-        editor.putString("calendario", calendarJson);
+    public static void actualizarDia(Activity activity, Day selectedDay, SimpleCallback callback) {
+        obtenerCalendario(activity, new CalendarioCallback() {
+            @Override
+            public void onSuccess(List<Day> dias) {
+                // Mapeamos los días por día del mes para búsqueda más eficiente
+                Map<Integer, Day> diasMap = dias.stream().collect(Collectors.toMap(Day::getDayOfMonth, day -> day));
 
-        // Almacenamos el mes y el año en el json
-        Calendar calendar = Calendar.getInstance();
-        int currentMonth = calendar.get(Calendar.MONTH);
-        int currentYear = calendar.get(Calendar.YEAR);
-        editor.putInt("savedMonth", currentMonth);
-        editor.putInt("savedYear", currentYear);
+                Day dia = diasMap.get(selectedDay.getDayOfMonth());
 
-        editor.apply();
-        UtilsSrv.notificacion(context, context.getString(R.string.calendario_actualizado), Toast.LENGTH_SHORT).show();
+                if (dia != null) {
+                    dia.setRecetas(selectedDay.getRecetas());
+
+                    // Actualizar en Firebase
+                    firebaseManager.actualizarDia(dia, new FirebaseManager.SimpleCallback() {
+                        @Override
+                        public void onSuccess() {
+                            // Actualizar fechas de calendario de las recetas
+                            RecetasSrv.cargarListaRecetas(activity, new RecetasSrv.RecetasCallback() {
+                                @Override
+                                public void onSuccess(List<Receta> listaRecetas) {
+                                    listaRecetas.stream()
+                                            .filter(r -> dia.getRecetas().stream()
+                                                    .map(RecetaDia::getIdReceta)
+                                                    .anyMatch(dr -> dr.equals(r.getId())))
+                                            .forEach(r -> RecetasSrv.actualizarRecetaCalendario(
+                                                    activity, r.getId(), dia.getDayOfMonth(), true));
+
+                                    if (callback != null) callback.onSuccess();
+                                }
+
+                                @Override
+                                public void onFailure(Exception e) {
+                                    Log.e(TAG, "Error cargando recetas para actualizar", e);
+                                    if (callback != null) callback.onFailure(e);
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void onFailure(Exception e) {
+                            Log.e(TAG, "Error actualizando día", e);
+                            UtilsSrv.notificacion(activity, activity.getString(R.string.calendario_no_actualizado), Toast.LENGTH_SHORT).show();
+                            if (callback != null) callback.onFailure(e);
+                        }
+                    });
+                } else {
+                    UtilsSrv.notificacion(activity, activity.getString(R.string.calendario_no_actualizado), Toast.LENGTH_SHORT).show();
+                    if (callback != null) callback.onFailure(new Exception("Día no encontrado"));
+                }
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                UtilsSrv.notificacion(activity, activity.getString(R.string.calendario_no_actualizado), Toast.LENGTH_SHORT).show();
+                if (callback != null) callback.onFailure(e);
+            }
+        });
     }
-
-    public static void actualizarDia(Activity activity, Day selectedDay) {
-        List<Day> dias = obtenerCalendario(activity);
-        List<Receta> listaRecetas = RecetasSrv.cargarListaRecetas(activity);
-
-        // Mapeamos los días por día del mes para búsqueda más eficiente
-        Map<Integer, Day> diasMap = dias.stream().collect(Collectors.toMap(Day::getDayOfMonth, day -> day));
-
-        Day dia = diasMap.get(selectedDay.getDayOfMonth());
-
-        if (dia != null) {
-            dia.setRecetas(selectedDay.getRecetas());
-            saveCalendarToSharedPreferences(activity, dias);
-
-            listaRecetas.stream().filter(r -> dia.getRecetas().stream().map(RecetaDia::idReceta).anyMatch(dr -> dr.equals(r.getId()))).forEach(r -> RecetasSrv.actualizarRecetaCalendario(activity, r.getId(), dia.getDayOfMonth(), true));
-        } else {
-            UtilsSrv.notificacion(activity, activity.getString(R.string.calendario_no_actualizado), Toast.LENGTH_SHORT).show();
-        }
-    }
-
 
     public static void actualizarFechaCalendario(Activity activity, String idReceta) {
-        List<Day> dias = obtenerCalendario(activity);
+        obtenerCalendario(activity, new CalendarioCallback() {
+            @Override
+            public void onSuccess(List<Day> dias) {
+                Optional<Day> dia = dias.stream()
+                        .sorted((d1, d2) -> d2.getDayOfMonth() - d1.getDayOfMonth())
+                        .filter(d -> d.getRecetas().stream()
+                                .map(RecetaDia::getIdReceta)
+                                .anyMatch(dr -> dr.equals(idReceta)))
+                        .findFirst();
 
-        Optional<Day> dia = dias.stream().sorted((d1, d2) -> d2.getDayOfMonth() - d1.getDayOfMonth()).filter(d -> d.getRecetas().stream().map(RecetaDia::idReceta).anyMatch(dr -> dr.equals(idReceta))).findFirst();
-        if (dia.isPresent()) {
-            RecetasSrv.actualizarRecetaCalendario(activity, idReceta, dia.get().getDayOfMonth(), false);
-        } else {
-            RecetasSrv.actualizarRecetaCalendario(activity, idReceta, -1, false);
-        }
+                if (dia.isPresent()) {
+                    RecetasSrv.actualizarRecetaCalendario(activity, idReceta, dia.get().getDayOfMonth(), false);
+                } else {
+                    RecetasSrv.actualizarRecetaCalendario(activity, idReceta, -1, false);
+                }
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Log.e(TAG, "Error actualizando fecha calendario", e);
+            }
+        });
     }
 
-    public static void cargarRecetas(Context context) {
-        List<Day> calendar = CalendarioSrv.obtenerCalendario(context);
-        List<Receta> recetas = RecetasSrv.cargarListaRecetasCalendario(context, new ArrayList<>());
-        List<Receta> listaRecetas = RecetasSrv.cargarListaRecetas(context);
-        // Convertir la lista a una cola (Queue)
-        Queue<Receta> cola = new LinkedList<>(recetas);
+    public static void cargarRecetas(Context context, SimpleCallback callback) {
+        obtenerCalendario(context, new CalendarioCallback() {
+            @Override
+            public void onSuccess(List<Day> calendar) {
+                RecetasSrv.cargarListaRecetasCalendario(context, new ArrayList<>(), new RecetasSrv.RecetasCallback() {
+                    @Override
+                    public void onSuccess(List<Receta> recetas) {
+                        // Convertir la lista a una cola (Queue)
+                        Queue<Receta> cola = new LinkedList<>(recetas);
 
-        // Conjunto para realizar un seguimiento de las recetas utilizadas recientemente
-        Set<Receta> recetasUtilizadasRecientemente = new HashSet<>();
+                        // Conjunto para realizar un seguimiento de las recetas utilizadas recientemente
+                        Set<Receta> recetasUtilizadasRecientemente = new HashSet<>();
 
-        for (Day dia : calendar) {
-            dia.setRecetas(new ArrayList<>());
-            if (!esDiaAnteriorAlActual(dia)) {
-                // Seleccionar una receta que no se haya utilizado recientemente y no se repita en los próximos 3 días
-                addReceta(cola, recetasUtilizadasRecientemente, dia);
-                addReceta(cola, recetasUtilizadasRecientemente, dia);
-                // Actualizar las recetas del calendario
-                listaRecetas.stream().filter(r -> dia.getRecetas().stream().map(RecetaDia::idReceta).anyMatch(dr -> dr.equals(r.getId()))).forEach(r -> RecetasSrv.actualizarRecetaCalendario(context, r.getId(), dia.getDayOfMonth(), true));
-                // Limpiar las recetas utilizadas recientemente después de 3 días
-                limpiarRecetasUtilizadasRecientemente(recetasUtilizadasRecientemente, dia);
+                        for (Day dia : calendar) {
+                            dia.setRecetas(new ArrayList<>());
+                            if (!esDiaAnteriorAlActual(dia)) {
+                                // Seleccionar recetas
+                                addReceta(cola, recetasUtilizadasRecientemente, dia);
+                                addReceta(cola, recetasUtilizadasRecientemente, dia);
+
+                                // Actualizar las recetas del calendario
+                                RecetasSrv.cargarListaRecetas(context, new RecetasSrv.RecetasCallback() {
+                                    @Override
+                                    public void onSuccess(List<Receta> listaRecetas) {
+                                        listaRecetas.stream()
+                                                .filter(r -> dia.getRecetas().stream()
+                                                        .map(RecetaDia::getIdReceta)
+                                                        .anyMatch(dr -> dr.equals(r.getId())))
+                                                .forEach(r -> RecetasSrv.actualizarRecetaCalendario(
+                                                        context, r.getId(), dia.getDayOfMonth(), true));
+                                    }
+
+                                    @Override
+                                    public void onFailure(Exception e) {
+                                        Log.e(TAG, "Error cargando recetas", e);
+                                    }
+                                });
+
+                                // Limpiar las recetas utilizadas recientemente después de 3 días
+                                limpiarRecetasUtilizadasRecientemente(recetasUtilizadasRecientemente, dia);
+                            }
+                        }
+
+                        // Guardar el calendario
+                        guardarCalendario(context, calendar, callback);
+                    }
+
+                    @Override
+                    public void onFailure(Exception e) {
+                        Log.e(TAG, "Error cargando recetas para calendario", e);
+                        if (callback != null) callback.onFailure(e);
+                    }
+                });
             }
-        }
 
-        // Guardar el calendario en las preferencias compartidas
-        saveCalendarToSharedPreferences(context, calendar);
+            @Override
+            public void onFailure(Exception e) {
+                Log.e(TAG, "Error obteniendo calendario para cargar recetas", e);
+                if (callback != null) callback.onFailure(e);
+            }
+        });
     }
 
     private static void addReceta(Queue<Receta> cola, Set<Receta> recetasUtilizadasRecientemente, Day dia) {
@@ -195,7 +292,7 @@ public class CalendarioSrv {
         // Copiar la cola original para mantener el estado original
         Queue<Receta> colaOriginal = new LinkedList<>(cola);
 
-        // Obtener y eliminar recetas de la cola hasta encontrar una que no se haya utilizado recientemente y no se repita en los próximos "limiteDias" días
+        // Obtener y eliminar recetas de la cola hasta encontrar una que no se haya utilizado recientemente
         while (!cola.isEmpty()) {
             Receta receta = cola.poll();
             if (!recetasUtilizadasRecientemente.contains(receta)) {
@@ -203,7 +300,6 @@ public class CalendarioSrv {
                 if (!recetaRepetidaEnProximosDias(receta, dia)) {
                     // Poner la receta al final de la cola original
                     colaOriginal.offer(receta);
-
                     return receta;
                 }
             }
@@ -240,7 +336,9 @@ public class CalendarioSrv {
                 int dayOfMonthFuturo = calReceta.get(Calendar.DAY_OF_MONTH);
                 if (dia.getDayOfMonth() + i == dayOfMonthFuturo) {
                     // Verificar si la receta está programada en el día futuro
-                    return dia.getRecetas().stream().map(RecetaDia::idReceta).anyMatch(dr -> dr.equals(receta.getId()));
+                    return dia.getRecetas().stream()
+                            .map(RecetaDia::getIdReceta)
+                            .anyMatch(dr -> dr.equals(receta.getId()));
                 }
             }
         }
@@ -274,26 +372,58 @@ public class CalendarioSrv {
         return day.getDayOfMonth() < dayOfMonthHoy;
     }
 
-    public static String getListaCompra(Context context, int diaInicio, int diaFin) {
-        List<Day> calendario = obtenerCalendario(context);
+    public static void getListaCompra(Context context, int diaInicio, int diaFin, ListaCompraCallback callback) {
+        obtenerCalendario(context, new CalendarioCallback() {
+            @Override
+            public void onSuccess(List<Day> calendario) {
+                RecetasSrv.cargarListaRecetas(context, new RecetasSrv.RecetasCallback() {
+                    @Override
+                    public void onSuccess(List<Receta> listaRecetas) {
+                        // Usar ConcurrentHashMap para operaciones paralelas
+                        Map<String, Map<String, BigDecimal>> resultado = new ConcurrentHashMap<>();
 
-        // Usar TreeMap para orden alfabético de ingredientes, si es necesario
-        Map<String, Map<String, BigDecimal>> resultado = new ConcurrentHashMap<>();
+                        calendario.parallelStream()
+                                .filter(dia -> dia.getDayOfMonth() >= diaInicio && dia.getDayOfMonth() <= diaFin)
+                                .flatMap(d -> RecetasSrv.getRecetasAdaptadasCalendario(listaRecetas, d).stream())
+                                .flatMap(receta -> receta.getIngredientes().stream())
+                                .forEach(ingrediente -> {
+                                    String nombreIngrediente = ingrediente.getNombre();
+                                    String tipoCantidad = ingrediente.getTipoCantidad();
+                                    BigDecimal cantidad = BigDecimal.valueOf(UtilsSrv.convertirNumero(ingrediente.getCantidad()));
+                                    resultado.computeIfAbsent(nombreIngrediente, k -> new HashMap<>())
+                                            .merge(tipoCantidad, cantidad, BigDecimal::add);
+                                });
 
-        List<Receta> listaRecetas = RecetasSrv.cargarListaRecetas(context);
-        calendario.parallelStream().filter(dia -> dia.getDayOfMonth() >= diaInicio && dia.getDayOfMonth() <= diaFin).flatMap(d -> RecetasSrv.getRecetasAdaptadasCalendario(listaRecetas, d).stream()).flatMap(receta -> receta.getIngredientes().stream()).forEach(ingrediente -> {
-            String nombreIngrediente = ingrediente.getNombre();
-            String tipoCantidad = ingrediente.getTipoCantidad();
-            BigDecimal cantidad = BigDecimal.valueOf(UtilsSrv.convertirNumero(ingrediente.getCantidad()));
-            resultado.computeIfAbsent(nombreIngrediente, k -> new HashMap<>()).merge(tipoCantidad, cantidad, BigDecimal::add);
+                        // Construcción de la lista de compra como texto
+                        StringBuilder listaCompra = new StringBuilder();
+                        resultado.forEach((nombreIngrediente, ingredientesMap) ->
+                                ingredientesMap.forEach((tipoCantidad, cantidad) ->
+                                        listaCompra.append(cantidad.stripTrailingZeros().toPlainString())
+                                                .append(" ")
+                                                .append(tipoCantidad)
+                                                .append(" ")
+                                                .append(nombreIngrediente)
+                                                .append("\n")));
+
+                        callback.onSuccess(listaCompra.toString());
+                    }
+
+                    @Override
+                    public void onFailure(Exception e) {
+                        callback.onFailure(e);
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                callback.onFailure(e);
+            }
         });
-
-        // Construcción de la lista de compra como texto usando StringBuilder
-        StringBuilder listaCompra = new StringBuilder();
-        resultado.forEach((nombreIngrediente, ingredientesMap) -> ingredientesMap.forEach((tipoCantidad, cantidad) -> listaCompra.append(cantidad.stripTrailingZeros().toPlainString()).append(" ").append(tipoCantidad).append(" ").append(nombreIngrediente).append("\n")));
-
-        return listaCompra.toString();
     }
 
-
+    /** Establece el ID de usuario para Firebase */
+    public static void setUserId(String userId) {
+        firebaseManager.setUserId(userId);
+    }
 }

@@ -3,9 +3,12 @@ package com.david.recetapp.actividades;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.InputType;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,18 +31,19 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 
 public class AddRecetaDiaActivity extends AppCompatActivity {
     private Day selectedDay;
     private RecyclerView recyclerView;
     private RecetasAdapter adapter;
     private TextView emptyView;
+    private ProgressBar progressBar;
     private final Calendar calendarComparar = Calendar.getInstance();
     private final Calendar calendarioIntervaloPrevio = Calendar.getInstance();
     private Date fechaElegida;
     private Date fechaIntervaloPrevio;
     private WeakReference<AlertDialog> currentDialog;
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +60,7 @@ public class AddRecetaDiaActivity extends AppCompatActivity {
         selectedDay = getIntent().getSerializableExtra("selectedDay", Day.class);
         recyclerView = findViewById(R.id.recyclerViewRecetas);
         emptyView = findViewById(R.id.textViewEmpty);
+        progressBar = findViewById(R.id.progressBar);
     }
 
     private void setupRecyclerView() {
@@ -79,11 +84,37 @@ public class AddRecetaDiaActivity extends AppCompatActivity {
     }
 
     private void loadRecetas() {
-        List<Receta> listaRecetas = RecetasSrv.cargarListaRecetasCalendario(this, selectedDay.getRecetas());
-        updateUI(listaRecetas);
+        if (progressBar != null) {
+            progressBar.setVisibility(View.VISIBLE);
+        }
+
+        RecetasSrv.cargarListaRecetasCalendario(this, selectedDay.getRecetas(), new RecetasSrv.RecetasCallback() {
+            @Override
+            public void onSuccess(java.util.List<Receta> listaRecetas) {
+                mainHandler.post(() -> {
+                    if (progressBar != null) {
+                        progressBar.setVisibility(View.GONE);
+                    }
+                    updateUI(listaRecetas);
+                });
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                mainHandler.post(() -> {
+                    if (progressBar != null) {
+                        progressBar.setVisibility(View.GONE);
+                    }
+                    UtilsSrv.notificacion(AddRecetaDiaActivity.this,
+                            getString(R.string.error_cargar_recetas),
+                            Toast.LENGTH_SHORT).show();
+                    updateUI(new ArrayList<>());
+                });
+            }
+        });
     }
 
-    private void updateUI(List<Receta> listaRecetas) {
+    private void updateUI(java.util.List<Receta> listaRecetas) {
         recyclerView.setVisibility(listaRecetas == null || listaRecetas.isEmpty() ? View.GONE : View.VISIBLE);
         emptyView.setVisibility(listaRecetas == null || listaRecetas.isEmpty() ? View.VISIBLE : View.GONE);
 
@@ -133,8 +164,20 @@ public class AddRecetaDiaActivity extends AppCompatActivity {
                 int numPersonas = Integer.parseInt(input);
                 if (numPersonas >= 1) {
                     selectedDay.getRecetas().add(new RecetaDia(receta.getId(), numPersonas));
-                    CalendarioSrv.actualizarDia(this, selectedDay);
-                    volverADetalleDiaActivity();
+
+                    CalendarioSrv.actualizarDia(this, selectedDay, new CalendarioSrv.SimpleCallback() {
+                        @Override
+                        public void onSuccess() {
+                            mainHandler.post(() -> volverADetalleDiaActivity());
+                        }
+
+                        @Override
+                        public void onFailure(Exception e) {
+                            mainHandler.post(() -> UtilsSrv.notificacion(AddRecetaDiaActivity.this,
+                                    getString(R.string.error_actualizar_calendario),
+                                    Toast.LENGTH_SHORT).show());
+                        }
+                    });
                 } else {
                     mostrarError(R.string.numero_personas_incorrecto);
                 }
@@ -162,6 +205,7 @@ public class AddRecetaDiaActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         dismissCurrentDialog();
+        mainHandler.removeCallbacksAndMessages(null);
     }
 
     @SuppressWarnings("deprecation")
@@ -178,4 +222,3 @@ public class AddRecetaDiaActivity extends AppCompatActivity {
         finish();
     }
 }
-
