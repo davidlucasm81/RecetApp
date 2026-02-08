@@ -3,12 +3,16 @@ package com.david.recetapp.negocio.beans;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.firebase.firestore.IgnoreExtraProperties;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+// TODO: Pendiente añadir user id
+@IgnoreExtraProperties
 public class Receta implements Parcelable {
 
 

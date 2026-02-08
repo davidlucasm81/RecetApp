@@ -1,3 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 🚀 Layout Optimizado - Mantiene estructura original + SwipeRefreshLayout -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -5,6 +7,7 @@
     tools:context=".fragments.CalendarioFragment"
     android:padding="16dp">
 
+    <!-- Header con título y botón actualizar (sin cambios) -->
     <LinearLayout
         android:id="@+id/titleLL"
         android:layout_width="match_parent"
@@ -34,9 +37,9 @@
                 android:src="@drawable/update_calendar"
                 android:contentDescription="@string/actualizar_recetas" />
         </LinearLayout>
-
     </LinearLayout>
 
+    <!-- Mes y año (sin cambios) -->
     <TextView
         android:id="@+id/monthYearTextView"
         android:layout_width="wrap_content"
@@ -48,17 +51,42 @@
         android:paddingTop="8dp"
         android:paddingBottom="8dp" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/calendarRecyclerView"
+    <!-- 🚀 SwipeRefreshLayout añadido (envuelve el RecyclerView) -->
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefreshLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/monthYearTextView"
-        android:clipToPadding="false"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
-        tools:listitem="@layout/grid_item_day" />
+        android:layout_below="@id/monthYearTextView">
 
-    <!-- 🔹 Barra de carga centrada -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <!-- RecyclerView del calendario (sin cambios, solo movido dentro) -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/calendarRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                tools:listitem="@layout/grid_item_day" />
+
+            <!-- 🚀 Empty view añadido (opcional, puedes quitarlo si no lo necesitas) -->
+            <TextView
+                android:id="@+id/emptyView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/calendario_vacio"
+                android:textSize="16sp"
+                android:textColor="@color/colorGrisTextoFondo"
+                android:visibility="gone"
+                tools:visibility="visible" />
+        </FrameLayout>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    <!-- ProgressBar para carga inicial (sin cambios) -->
     <ProgressBar
         android:id="@+id/progressBar"
         style="?android:attr/progressBarStyleLarge"

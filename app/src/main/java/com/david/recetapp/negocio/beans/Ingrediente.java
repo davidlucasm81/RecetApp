@@ -3,6 +3,9 @@ package com.david.recetapp.negocio.beans;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.firebase.firestore.IgnoreExtraProperties;
+
+@IgnoreExtraProperties
 public class Ingrediente implements Parcelable {
     private String nombre;
     private String cantidad;

@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.david.recetapp.R;
 import com.david.recetapp.actividades.DetalleDiaActivity;
 import com.david.recetapp.negocio.beans.Day;
+import com.david.recetapp.negocio.beans.RecetaDia;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -51,13 +52,13 @@ public class CalendarioRecyclerAdapter extends ListAdapter<Day, CalendarioRecycl
     }
 
     /**
-     * Envia la lista de días y los huecos en blanco
+     * Envía la lista de días y los huecos en blanco (uso de placeholders no-null)
      */
     public void submitDays(List<Day> days, int numeroEnBlanco) {
-        // huecos al inicio del mes
         List<Day> fullList = new ArrayList<>();
         for (int i = 0; i < numeroEnBlanco; i++) {
-            fullList.add(null); // placeholder para huecos
+            // placeholder con dayOfMonth negativo para evitar nulls
+            fullList.add(new Day(-(i + 1), new ArrayList<>()));
         }
         fullList.addAll(days);
         submitList(fullList);
@@ -66,7 +67,9 @@ public class CalendarioRecyclerAdapter extends ListAdapter<Day, CalendarioRecycl
     @Override
     public long getItemId(int position) {
         Day day = getItem(position);
-        return day == null ? RecyclerView.NO_ID : (long) (day.getDayOfMonth());
+        if (day == null) return RecyclerView.NO_ID;
+        // devolver un id estable; placeholders tienen dayOfMonth negativo
+        return (long) day.getDayOfMonth();
     }
 
     @NonNull
@@ -80,7 +83,7 @@ public class CalendarioRecyclerAdapter extends ListAdapter<Day, CalendarioRecycl
     public void onBindViewHolder(@NonNull VH holder, int position) {
         Day day = getItem(position);
 
-        if (day == null) { // hueco en blanco
+        if (day == null || day.getDayOfMonth() <= 0) { // placeholder
             holder.dayButton.setText("");
             holder.dayButton.setEnabled(false);
             holder.dayButton.setBackgroundResource(bgDefaultResId);
@@ -147,6 +150,9 @@ public class CalendarioRecyclerAdapter extends ListAdapter<Day, CalendarioRecycl
             dayButton.setOnClickListener(v -> {
                 Object tag = v.getTag();
                 if (!(tag instanceof Day clicked)) return;
+                // evitar lanzar actividad para placeholders
+                if (clicked.getDayOfMonth() <= 0) return;
+
                 Intent intent = new Intent(context, DetalleDiaActivity.class);
                 intent.putExtra("selectedDay", clicked);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

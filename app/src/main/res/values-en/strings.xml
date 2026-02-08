@@ -98,4 +98,8 @@
     <string name="no">No</string>
     <string name="error_crear_receta">Error creating recipe</string>
     <string name="error_editar_receta">Error editing recipe. Please try again.</string>
+    <string name="calendario_vacio">Empty Calendar</string>
+    <string name="sin_pasos">Without steps</string>
+    <string name="sin_ingredientes">Without ingredients</string>
+    <string name="sin_nombre">Without name</string>
 </resources>

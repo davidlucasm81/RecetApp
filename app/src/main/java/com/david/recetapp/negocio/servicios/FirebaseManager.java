@@ -41,19 +41,22 @@ public class FirebaseManager {
     // Caché en memoria
     private static final Map<String, CacheEntry<List<Receta>>> recetasCache = new HashMap<>();
     private static final Map<String, CacheEntry<List<Day>>> calendarioCache = new HashMap<>();
-    private static final long CACHE_DURATION_MS = TimeUnit.MINUTES.toMillis(10); // 10 minutos
+    private static final long CACHE_DURATION_MS = TimeUnit.MINUTES.toMillis(10);
 
     private final FirebaseFirestore db;
     private String userId;
     private ListenerRegistration recetasListener;
     private ListenerRegistration calendarioListener;
 
+    // 🚀 Flag para saber si ya hicimos la primera carga desde servidor
+    private boolean recetasCargadasDesdeServidor = false;
+
     public FirebaseManager() {
         this.db = FirebaseFirestore.getInstance();
         this.userId = "default_user";
         configurarFirestore();
     }
-// TODO: Usar cuando haya login por correo electronico
+
     public FirebaseManager(String userId) {
         this.db = FirebaseFirestore.getInstance();
         this.userId = userId;
@@ -73,16 +76,14 @@ public class FirebaseManager {
                         )
                         .build();
 
-        FirebaseFirestore.getInstance().setFirestoreSettings(settings);
-
         db.setFirestoreSettings(settings);
     }
 
     public void setUserId(String userId) {
         this.userId = userId;
-        // Limpiar caché al cambiar de usuario
         invalidateAllCaches();
         detachListeners();
+        recetasCargadasDesdeServidor = false;
     }
 
     // ==================== GESTIÓN DE CACHÉ ====================
@@ -137,54 +138,163 @@ public class FirebaseManager {
         void onFailure(Exception e);
     }
 
-    // ==================== OPERACIONES DE RECETAS ====================
+    // ==================== OPERACIONES DE RECETAS OPTIMIZADAS ====================
 
     /**
-     * Carga recetas usando caché y listener en tiempo real (reducido a 1 llamada inicial)
+     * 🚀 VERSIÓN ULTRA-RÁPIDA: Prioriza CACHE de Firestore, luego memoria, luego servidor
      */
     public void cargarRecetas(Context context, RecetasCallback callback) {
-        // Verificar caché primero
+        // 1️⃣ Verificar caché en memoria primero (instantáneo)
         CacheEntry<List<Receta>> cached = recetasCache.get(userId);
         if (cached != null && cached.isValid()) {
-            Log.d(TAG, "Usando recetas desde caché");
+            Log.d(TAG, "✅ Recetas desde caché memoria (0ms)");
             callback.onSuccess(new ArrayList<>(cached.data));
             return;
         }
 
-        // Si ya hay un listener activo, no crear otro
-        if (recetasListener != null) {
-            Log.d(TAG, "Listener de recetas ya activo");
-        }
+        // 2️⃣ Intentar desde CACHE LOCAL de Firestore (muy rápido, ~50-100ms)
+        cargarDesdeCache(context, callback);
+    }
 
-        // Usar Source.CACHE primero, luego servidor si es necesario
+    /**
+     * 🚀 Carga desde caché local de Firestore (OFFLINE FIRST)
+     */
+    private void cargarDesdeCache(Context context, RecetasCallback callback) {
         db.collection(COLLECTION_RECETAS)
                 .whereEqualTo("userId", userId)
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .limit(MAX_RECETAS_POR_USUARIO)
-                .get()
+                .get(Source.CACHE) // 🔥 CACHE PRIMERO
                 .addOnSuccessListener(queryDocumentSnapshots -> {
-                    List<Receta> recetas = new ArrayList<>();
-                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                        Receta receta = document.toObject(Receta.class);
-                        RecetasSrv.setPuntuacionDada(receta, context);
-                        recetas.add(receta);
-                    }
+                    if (!queryDocumentSnapshots.isEmpty()) {
+                        Log.d(TAG, "✅ Recetas desde caché Firestore (~50ms)");
+                        List<Receta> recetas = procesarRecetas(queryDocumentSnapshots, context);
+                        recetasCache.put(userId, new CacheEntry<>(recetas));
+                        callback.onSuccess(recetas);
 
-                    // Guardar en caché
+                        // 3️⃣ En background, sincronizar con servidor si nunca se ha hecho
+                        if (!recetasCargadasDesdeServidor) {
+                            sincronizarConServidorEnBackground(context);
+                        }
+                    } else {
+                        // Caché vacía, ir directo a servidor
+                        Log.d(TAG, "⚠️ Caché vacía, cargando desde servidor...");
+                        cargarDesdeServidor(context, callback);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    // Si falla caché (primera vez), ir a servidor
+                    Log.d(TAG, "⚠️ Error en caché, cargando desde servidor...");
+                    cargarDesdeServidor(context, callback);
+                });
+    }
+
+    /**
+     * 🚀 Carga desde servidor (solo cuando es necesario)
+     */
+    private void cargarDesdeServidor(Context context, RecetasCallback callback) {
+        db.collection(COLLECTION_RECETAS)
+                .whereEqualTo("userId", userId)
+                .orderBy("timestamp", Query.Direction.DESCENDING)
+                .limit(MAX_RECETAS_POR_USUARIO)
+                .get(Source.SERVER) // Forzar servidor
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    Log.d(TAG, "✅ Recetas desde servidor");
+                    List<Receta> recetas = procesarRecetas(queryDocumentSnapshots, context);
                     recetasCache.put(userId, new CacheEntry<>(recetas));
+                    recetasCargadasDesdeServidor = true;
                     callback.onSuccess(recetas);
                 })
                 .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error cargando recetas", e);
+                    Log.e(TAG, "❌ Error cargando desde servidor", e);
                     callback.onFailure(e);
                 });
     }
 
     /**
-     * Añade receta con validación y una sola escritura
+     * 🚀 Sincroniza con servidor en background (no bloquea UI)
      */
+    private void sincronizarConServidorEnBackground(Context context) {
+        db.collection(COLLECTION_RECETAS)
+                .whereEqualTo("userId", userId)
+                .orderBy("timestamp", Query.Direction.DESCENDING)
+                .limit(MAX_RECETAS_POR_USUARIO)
+                .get(Source.SERVER)
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    Log.d(TAG, "🔄 Sincronización background completada");
+                    List<Receta> recetas = procesarRecetas(queryDocumentSnapshots, context);
+                    recetasCache.put(userId, new CacheEntry<>(recetas));
+                    recetasCargadasDesdeServidor = true;
+                })
+                .addOnFailureListener(e ->
+                        Log.w(TAG, "⚠️ Sincronización background falló (no crítico)", e));
+    }
+
+    /**
+     * 🚀 Procesa QuerySnapshot y devuelve lista de recetas SIN calcular puntuaciones
+     * (se calculan lazy en RecetasSrv)
+     */
+    private List<Receta> procesarRecetas(Iterable<QueryDocumentSnapshot> snapshots, Context context) {
+        List<Receta> recetas = new ArrayList<>();
+        for (QueryDocumentSnapshot document : snapshots) {
+            try {
+                Receta receta = document.toObject(Receta.class);
+                // ❌ NO calcular puntuaciones aquí - demasiado lento
+                // RecetasSrv.setPuntuacionDada(receta, context);
+                recetas.add(receta);
+            } catch (Exception e) {
+                Log.e(TAG, "Error parseando receta: " + document.getId(), e);
+            }
+        }
+        return recetas;
+    }
+
+    /**
+     * Carga recetas forzando servidor (para pull-to-refresh)
+     */
+    public void cargarRecetas(Context context, boolean forceServer, RecetasCallback callback) {
+        if (!forceServer) {
+            cargarRecetas(context, callback);
+            return;
+        }
+
+        // Forzar servidor: invalidar caché primero
+        invalidateRecetasCache();
+        recetasCargadasDesdeServidor = false;
+        cargarDesdeServidor(context, callback);
+    }
+
+    /**
+     * 🚀 LISTENER EN TIEMPO REAL (opcional, para actualizaciones automáticas)
+     */
+    public void activarListenerRecetas(Context context, RecetasCallback callback) {
+        if (recetasListener != null) {
+            Log.d(TAG, "Listener ya activo");
+            return;
+        }
+
+        recetasListener = db.collection(COLLECTION_RECETAS)
+                .whereEqualTo("userId", userId)
+                .orderBy("timestamp", Query.Direction.DESCENDING)
+                .limit(MAX_RECETAS_POR_USUARIO)
+                .addSnapshotListener((snapshots, error) -> {
+                    if (error != null) {
+                        Log.e(TAG, "Error en listener", error);
+                        return;
+                    }
+
+                    if (snapshots != null) {
+                        Log.d(TAG, "🔄 Listener actualizó recetas");
+                        List<Receta> recetas = procesarRecetas(snapshots, context);
+                        recetasCache.put(userId, new CacheEntry<>(recetas));
+                        callback.onSuccess(recetas);
+                    }
+                });
+    }
+
+    // ==================== RESTO DE MÉTODOS (sin cambios) ====================
+
     public void addReceta(Receta receta, SimpleCallback callback) {
-        // Validaciones locales antes de escribir
         if (!validarReceta(receta)) {
             callback.onFailure(new Exception("Receta inválida"));
             return;
@@ -192,7 +302,6 @@ public class FirebaseManager {
 
         Map<String, Object> recetaMap = recetaToMap(receta);
 
-        // Usar set con merge para evitar sobrescritura accidental
         db.collection(COLLECTION_RECETAS)
                 .document(receta.getId())
                 .set(recetaMap, SetOptions.merge())
@@ -207,9 +316,6 @@ public class FirebaseManager {
                 });
     }
 
-    /**
-     * Edita receta optimizado - solo actualiza campos modificados
-     */
     public void editarReceta(Receta receta, SimpleCallback callback) {
         if (!validarReceta(receta)) {
             callback.onFailure(new Exception("Receta inválida"));
@@ -232,9 +338,6 @@ public class FirebaseManager {
                 });
     }
 
-    /**
-     * Elimina receta
-     */
     public void eliminarReceta(String recetaId, SimpleCallback callback) {
         db.collection(COLLECTION_RECETAS)
                 .document(recetaId)
@@ -250,9 +353,6 @@ public class FirebaseManager {
                 });
     }
 
-    /**
-     * Actualiza solo la fecha de calendario (operación atómica)
-     */
     public void actualizarFechaCalendario(String recetaId, long timestamp, SimpleCallback callback) {
         Map<String, Object> updates = new HashMap<>();
         updates.put("fechaCalendario", new Date(timestamp));
@@ -268,24 +368,17 @@ public class FirebaseManager {
                 .addOnFailureListener(callback::onFailure);
     }
 
-
     // ==================== OPERACIONES DE CALENDARIO ====================
 
-    /**
-     * Obtiene calendario con caché
-     */
     public void obtenerCalendario(CalendarioCallback callback) {
         String cacheKey = getCalendarioCacheKey();
         CacheEntry<List<Day>> cached = calendarioCache.get(cacheKey);
 
-        // 🧠 Si hay caché válida → NO tocar Firebase
         if (cached != null && cached.isValid()) {
-            Log.d(TAG, "Calendario servido desde memoria (NO Firebase)");
+            Log.d(TAG, "Calendario servido desde memoria");
             callback.onSuccess(new ArrayList<>(cached.data));
             return;
         }
-
-        Log.d(TAG, "Calendario no en caché → Firebase");
 
         String calendarioId = getCalendarioId();
         db.collection(COLLECTION_CALENDARIO)
@@ -307,10 +400,6 @@ public class FirebaseManager {
                 .addOnFailureListener(callback::onFailure);
     }
 
-
-    /**
-     * Guarda calendario completo
-     */
     public void guardarCalendario(List<Day> days, SimpleCallback callback) {
         String calendarioId = getCalendarioId();
 
@@ -335,9 +424,6 @@ public class FirebaseManager {
                 });
     }
 
-    /**
-     * Actualiza día específico usando array update (más eficiente)
-     */
     public void actualizarDia(Day day, SimpleCallback callback) {
         String cacheKey = getCalendarioCacheKey();
         CacheEntry<List<Day>> cached = calendarioCache.get(cacheKey);
@@ -345,22 +431,18 @@ public class FirebaseManager {
         List<Day> updatedDays;
 
         if (cached != null && cached.isValid()) {
-            // 1️⃣ Actualizar caché inmediatamente
             updatedDays = mergeDayIntoList(cached.data, day);
         } else {
             updatedDays = new ArrayList<>();
             updatedDays.add(day);
         }
 
-        // Guardar en caché YA (UX instantánea)
         calendarioCache.put(cacheKey, new CacheEntry<>(updatedDays));
-
-        // Devolver éxito inmediato
         callback.onSuccess();
 
-        // 2️⃣ Sincronizar con Firebase en segundo plano
         syncCalendarioInBackground(updatedDays);
     }
+
     private List<Day> mergeDayIntoList(List<Day> existing, Day newDay) {
         List<Day> result = new ArrayList<>(existing);
         boolean found = false;
@@ -393,25 +475,18 @@ public class FirebaseManager {
                 .addOnSuccessListener(aVoid ->
                         Log.d(TAG, "Calendario sincronizado en background"))
                 .addOnFailureListener(e ->
-                        Log.e(TAG, "Error sincronizando calendario en background", e));
+                        Log.e(TAG, "Error sincronizando calendario", e));
     }
-
 
     // ==================== IMPORTACIÓN BATCH ====================
 
-    /**
-     * Importa recetas en lotes de 500 (límite de Firestore)
-     */
     public void importarRecetas(List<Receta> recetas, SimpleCallback callback) {
         if (recetas.isEmpty()) {
             callback.onSuccess();
             return;
         }
 
-        // Dividir en lotes de 500 (límite de WriteBatch)
-        int batchSize = 500;
-
-        importarRecetasBatch(recetas, 0, batchSize, callback);
+        importarRecetasBatch(recetas, 0, 500, callback);
     }
 
     private void importarRecetasBatch(List<Receta> recetas, int startIndex, int batchSize,
@@ -435,11 +510,9 @@ public class FirebaseManager {
                 .addOnSuccessListener(aVoid -> {
                     Log.d(TAG, "Batch importado: " + batch.size() + " recetas");
 
-                    // Si hay más lotes, continuar
                     if (endIndex < recetas.size()) {
                         importarRecetasBatch(recetas, endIndex, batchSize, callback);
                     } else {
-                        // Terminado
                         invalidateRecetasCache();
                         callback.onSuccess();
                     }
@@ -502,9 +575,6 @@ public class FirebaseManager {
 
     // ==================== LIMPIEZA ====================
 
-    /**
-     * Detach listeners para evitar fugas de memoria
-     */
     public void detachListeners() {
         if (recetasListener != null) {
             recetasListener.remove();
@@ -516,7 +586,6 @@ public class FirebaseManager {
         }
     }
 
-    // Helper: convierte un objeto numérico a int de forma segura
     private int toInt(Object o, int defaultValue) {
         if (o == null) return defaultValue;
         if (o instanceof Number) return ((Number) o).intValue();
@@ -527,20 +596,17 @@ public class FirebaseManager {
         }
     }
 
-    // Convierte un Map (o cualquier objeto) a RecetaDia de forma robusta
     private RecetaDia mapToRecetaDia(Object obj) {
         if (obj == null) return null;
-        if (obj instanceof RecetaDia) return (RecetaDia) obj; // ya es instancia
+        if (obj instanceof RecetaDia) return (RecetaDia) obj;
         if (!(obj instanceof Map<?, ?> map)) return null;
 
-        // Priorizar varias keys que podrían aparecer (compatibilidad)
         Object idObj = map.get("idReceta");
         if (idObj == null) idObj = map.get("id");
         if (idObj == null) idObj = map.get("recetaId");
 
         String idReceta = idObj != null ? idObj.toString() : null;
 
-        // numeroPersonas puede guardarse con distintos nombres
         Object numObj = map.get("numeroPersonas");
         if (numObj == null) numObj = map.get("numPersonas");
         if (numObj == null) numObj = map.get("numero_personas");
@@ -548,14 +614,12 @@ public class FirebaseManager {
         int numeroPersonas = toInt(numObj, 1);
 
         if (idReceta == null) {
-            // Si no hay id, devolvemos null para ignorarlo (o puedes crear con id vacío)
             return null;
         }
 
         return new RecetaDia(idReceta, numeroPersonas);
     }
 
-    // Convierte lista de RecetaDia (modelo) a lista de Map para guardar en Firestore
     private List<Map<String, Object>> daysToList(List<Day> days) {
         List<Map<String, Object>> list = new ArrayList<>();
         if (days == null) return list;
@@ -586,7 +650,6 @@ public class FirebaseManager {
         return recetasAsMaps;
     }
 
-    // Parse days (desde Firestore -> List<Day>) convirtiendo cada receta Map -> RecetaDia
     private List<Day> parseDays(List<Map<String, Object>> daysList) {
         List<Day> days = new ArrayList<>();
         if (daysList == null) return days;
@@ -613,53 +676,13 @@ public class FirebaseManager {
                 Day day = new Day(dayOfMonth, recetas);
                 days.add(day);
             } catch (Exception e) {
-                Log.e(TAG, "Error parseando día (ignorado) ", e);
+                Log.e(TAG, "Error parseando día", e);
             }
         }
         return days;
     }
 
-    // en FirebaseManager (p. ej. al final de la clase)
     public static void clearAllRecetasCache() {
         recetasCache.clear();
     }
-
-    /**
-     * Carga recetas y permite forzar la lectura desde servidor (ignora caché)
-     */
-    public void cargarRecetas(Context context, boolean forceServer, RecetasCallback callback) {
-        if (!forceServer) {
-            // Usar la versión normal con caché
-            cargarRecetas(context, callback);
-            return;
-        }
-
-        // Forzar servidor: invalidar caché primero
-        invalidateRecetasCache();
-
-        db.collection(COLLECTION_RECETAS)
-                .whereEqualTo("userId", userId)
-                .orderBy("timestamp", Query.Direction.DESCENDING)
-                .limit(MAX_RECETAS_POR_USUARIO)
-                .get(Source.SERVER) // 🔹 lectura directa desde servidor
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    List<Receta> recetas = new ArrayList<>();
-                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                        Receta receta = document.toObject(Receta.class);
-                        RecetasSrv.setPuntuacionDada(receta, context);
-                        recetas.add(receta);
-                    }
-
-                    // Guardar en caché para próximas llamadas
-                    recetasCache.put(userId, new CacheEntry<>(recetas));
-                    callback.onSuccess(recetas);
-                })
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error cargando recetas desde servidor", e);
-                    callback.onFailure(e);
-                });
-    }
-
-
-
 }

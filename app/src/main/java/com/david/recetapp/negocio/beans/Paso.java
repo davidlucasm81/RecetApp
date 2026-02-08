@@ -4,7 +4,9 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.david.recetapp.negocio.servicios.UtilsSrv;
+import com.google.firebase.firestore.IgnoreExtraProperties;
 
+@IgnoreExtraProperties
 public class Paso implements Parcelable {
     public static final Creator<Paso> CREATOR = new Creator<>() {
         @Override

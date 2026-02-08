@@ -17,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.david.recetapp.R;
 import com.david.recetapp.adaptadores.RecetasAdapter;
@@ -32,18 +33,31 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
+/**
+ * 🚀 AddRecetaDiaActivity OPTIMIZADA Y COMPATIBLE
+ * - Funciona con layout original Y optimizado
+ * - Detecta automáticamente si tiene SwipeRefreshLayout
+ * - Mejor manejo de estados
+ */
 public class AddRecetaDiaActivity extends AppCompatActivity {
+
     private Day selectedDay;
     private RecyclerView recyclerView;
     private RecetasAdapter adapter;
     private TextView emptyView;
     private ProgressBar progressBar;
+    private SwipeRefreshLayout swipeRefreshLayout; // Puede ser null
+
     private final Calendar calendarComparar = Calendar.getInstance();
     private final Calendar calendarioIntervaloPrevio = Calendar.getInstance();
     private Date fechaElegida;
     private Date fechaIntervaloPrevio;
+
     private WeakReference<AlertDialog> currentDialog;
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
+
+    private boolean isLoading = false;
+    private boolean isAddingRecipe = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,8 +66,9 @@ public class AddRecetaDiaActivity extends AppCompatActivity {
 
         initializeViews();
         setupRecyclerView();
+        setupSwipeRefresh(); // Funciona aunque no exista el SwipeRefresh
         initializeDates();
-        loadRecetas();
+        loadRecetas(false);
     }
 
     private void initializeViews() {
@@ -61,6 +76,9 @@ public class AddRecetaDiaActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerViewRecetas);
         emptyView = findViewById(R.id.textViewEmpty);
         progressBar = findViewById(R.id.progressBar);
+
+        // 🚀 Intentar encontrar SwipeRefreshLayout (puede no existir en layout original)
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
     }
 
     private void setupRecyclerView() {
@@ -68,8 +86,31 @@ public class AddRecetaDiaActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setHasFixedSize(true);
+
         adapter = new RecetasAdapter(new ArrayList<>(), this::showConfirmationDialog);
         recyclerView.setAdapter(adapter);
+    }
+
+    /**
+     * 🚀 Configuración de SwipeRefresh (solo si existe en el layout)
+     */
+    private void setupSwipeRefresh() {
+        if (swipeRefreshLayout != null) {
+            swipeRefreshLayout.setColorSchemeResources(
+                    android.R.color.holo_blue_bright,
+                    android.R.color.holo_green_light,
+                    android.R.color.holo_orange_light,
+                    android.R.color.holo_red_light
+            );
+
+            swipeRefreshLayout.setOnRefreshListener(() -> {
+                if (!isLoading && !isAddingRecipe) {
+                    loadRecetas(true);
+                } else {
+                    swipeRefreshLayout.setRefreshing(false);
+                }
+            });
+        }
     }
 
     private void initializeDates() {
@@ -83,47 +124,73 @@ public class AddRecetaDiaActivity extends AppCompatActivity {
         fechaIntervaloPrevio = calendarioIntervaloPrevio.getTime();
     }
 
-    private void loadRecetas() {
-        if (progressBar != null) {
+    /**
+     * 🚀 Carga optimizada con soporte para pull-to-refresh
+     */
+    private void loadRecetas(boolean fromSwipeRefresh) {
+        if (isLoading) return;
+
+        isLoading = true;
+
+        if (fromSwipeRefresh && swipeRefreshLayout != null) {
+            swipeRefreshLayout.setRefreshing(true);
+        } else if (progressBar != null) {
             progressBar.setVisibility(View.VISIBLE);
         }
 
-        RecetasSrv.cargarListaRecetasCalendario(this, selectedDay.getRecetas(), new RecetasSrv.RecetasCallback() {
-            @Override
-            public void onSuccess(java.util.List<Receta> listaRecetas) {
-                mainHandler.post(() -> {
-                    if (progressBar != null) {
-                        progressBar.setVisibility(View.GONE);
+        RecetasSrv.cargarListaRecetasCalendario(this, selectedDay.getRecetas(),
+                new RecetasSrv.RecetasCallback() {
+                    @Override
+                    public void onSuccess(java.util.List<Receta> listaRecetas) {
+                        mainHandler.post(() -> {
+                            hideLoading();
+                            updateUI(listaRecetas);
+                            isLoading = false;
+                        });
                     }
-                    updateUI(listaRecetas);
-                });
-            }
 
-            @Override
-            public void onFailure(Exception e) {
-                mainHandler.post(() -> {
-                    if (progressBar != null) {
-                        progressBar.setVisibility(View.GONE);
+                    @Override
+                    public void onFailure(Exception e) {
+                        mainHandler.post(() -> {
+                            hideLoading();
+                            isLoading = false;
+
+                            UtilsSrv.notificacion(AddRecetaDiaActivity.this,
+                                    getString(R.string.error_cargar_recetas),
+                                    Toast.LENGTH_SHORT).show();
+
+                            updateUI(new ArrayList<>());
+                        });
                     }
-                    UtilsSrv.notificacion(AddRecetaDiaActivity.this,
-                            getString(R.string.error_cargar_recetas),
-                            Toast.LENGTH_SHORT).show();
-                    updateUI(new ArrayList<>());
                 });
-            }
-        });
+    }
+
+    /**
+     * 🚀 Oculta todos los indicadores de carga
+     */
+    private void hideLoading() {
+        if (progressBar != null) {
+            progressBar.setVisibility(View.GONE);
+        }
+        if (swipeRefreshLayout != null) {
+            swipeRefreshLayout.setRefreshing(false);
+        }
     }
 
     private void updateUI(java.util.List<Receta> listaRecetas) {
-        recyclerView.setVisibility(listaRecetas == null || listaRecetas.isEmpty() ? View.GONE : View.VISIBLE);
-        emptyView.setVisibility(listaRecetas == null || listaRecetas.isEmpty() ? View.VISIBLE : View.GONE);
+        boolean isEmpty = listaRecetas == null || listaRecetas.isEmpty();
 
-        if (listaRecetas != null && !listaRecetas.isEmpty()) {
+        recyclerView.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
+        emptyView.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
+
+        if (!isEmpty) {
             adapter.updateRecetas(listaRecetas, fechaElegida, fechaIntervaloPrevio);
         }
     }
 
     private void showConfirmationDialog(Receta receta) {
+        if (isAddingRecipe) return;
+
         dismissCurrentDialog();
 
         AlertDialog dialog = new AlertDialog.Builder(this)
@@ -138,6 +205,8 @@ public class AddRecetaDiaActivity extends AppCompatActivity {
     }
 
     private void showNumberTextDialog(Receta receta) {
+        if (isAddingRecipe) return;
+
         dismissCurrentDialog();
 
         EditText editText = new EditText(this);
@@ -157,25 +226,51 @@ public class AddRecetaDiaActivity extends AppCompatActivity {
         dialog.show();
     }
 
+    /**
+     * 🚀 Procesa la adición de receta con indicador de carga
+     */
     private void procesarNumeroPersonas(EditText editText, Receta receta) {
         String input = editText.getText().toString();
+
         if (!input.isEmpty()) {
             try {
                 int numPersonas = Integer.parseInt(input);
+
                 if (numPersonas >= 1) {
+                    if (isAddingRecipe) return;
+
+                    isAddingRecipe = true;
+
+                    if (progressBar != null) {
+                        progressBar.setVisibility(View.VISIBLE);
+                    }
+
                     selectedDay.getRecetas().add(new RecetaDia(receta.getId(), numPersonas));
 
                     CalendarioSrv.actualizarDia(this, selectedDay, new CalendarioSrv.SimpleCallback() {
                         @Override
                         public void onSuccess() {
-                            mainHandler.post(() -> volverADetalleDiaActivity());
+                            mainHandler.post(() -> {
+                                isAddingRecipe = false;
+                                hideLoading();
+                                volverADetalleDiaActivity();
+                            });
                         }
 
                         @Override
                         public void onFailure(Exception e) {
-                            mainHandler.post(() -> UtilsSrv.notificacion(AddRecetaDiaActivity.this,
-                                    getString(R.string.error_actualizar_calendario),
-                                    Toast.LENGTH_SHORT).show());
+                            mainHandler.post(() -> {
+                                isAddingRecipe = false;
+                                hideLoading();
+
+                                // 🚀 Revertir cambio si falló
+                                selectedDay.getRecetas().removeIf(rd ->
+                                        rd.getIdReceta().equals(receta.getId()));
+
+                                UtilsSrv.notificacion(AddRecetaDiaActivity.this,
+                                        getString(R.string.error_actualizar_calendario),
+                                        Toast.LENGTH_SHORT).show();
+                            });
                         }
                     });
                 } else {
@@ -204,15 +299,22 @@ public class AddRecetaDiaActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
         dismissCurrentDialog();
         mainHandler.removeCallbacksAndMessages(null);
+
+        adapter = null;
+        isLoading = false;
+        isAddingRecipe = false;
     }
 
     @SuppressWarnings("deprecation")
     @SuppressLint("MissingSuperCall")
     @Override
     public void onBackPressed() {
-        volverADetalleDiaActivity();
+        if (!isAddingRecipe) {
+            volverADetalleDiaActivity();
+        }
     }
 
     private void volverADetalleDiaActivity() {
