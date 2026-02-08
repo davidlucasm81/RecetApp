@@ -2,6 +2,7 @@ package com.david.recetapp.negocio.servicios;
 
 import android.content.Context;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -207,8 +208,16 @@ public class FirebaseManager {
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "❌ Error cargando desde servidor", e);
+
+                    // 🔥 Toast informativo al usuario
+                    Toast.makeText(context,
+                            "No se pudieron cargar las recetas. Revisa tu conexión.",
+                            Toast.LENGTH_LONG
+                    ).show();
+
                     callback.onFailure(e);
                 });
+
     }
 
     /**

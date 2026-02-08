@@ -12,6 +12,10 @@ public class RecetaDia implements Serializable {
         this.numeroPersonas = numeroPersonas;
     }
 
+    public RecetaDia(){
+
+    }
+
     public String getIdReceta() {
         return idReceta;
     }

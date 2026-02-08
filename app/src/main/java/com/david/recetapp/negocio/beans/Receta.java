@@ -11,12 +11,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-// TODO: Pendiente añadir user id
 @IgnoreExtraProperties
 public class Receta implements Parcelable {
 
-
-    private final String id;
+    private String id;
     private String nombre;
     private List<Temporada> temporadas;
     private List<Ingrediente> ingredientes;
@@ -28,27 +26,30 @@ public class Receta implements Parcelable {
     private boolean shared;
     private boolean postre;
     private double puntuacionDada;
+    private String userId; // si lo usas
 
+    // Constructor vacío requerido por Firestore
     public Receta() {
-        this.id = UUID.randomUUID().toString();
-        this.nombre = "";
-        this.temporadas = new ArrayList<>();
-        this.ingredientes = new ArrayList<>();
-        this.pasos = new ArrayList<>();
-        this.alergenos = new ArrayList<>();
-        this.estrellas = 0;
-        this.numPersonas = -1;
-        this.fechaCalendario = null;
-        this.shared = false;
-        this.postre = false;
-        this.puntuacionDada = -1;
+        if (id == null) id = UUID.randomUUID().toString();
+        nombre = "";
+        temporadas = new ArrayList<>();
+        ingredientes = new ArrayList<>();
+        pasos = new ArrayList<>();
+        alergenos = new ArrayList<>();
+        estrellas = 0f;
+        numPersonas = -1;
+        fechaCalendario = null;
+        shared = false;
+        postre = false;
+        puntuacionDada = -1;
+        userId = "";
     }
 
+    // Parcelable
     protected Receta(Parcel in) {
         id = in.readString();
         nombre = in.readString();
 
-        // Temporadas
         int seasonCount = in.readInt();
         temporadas = new ArrayList<>();
         for (int i = 0; i < seasonCount; i++) {
@@ -56,22 +57,18 @@ public class Receta implements Parcelable {
             temporadas.add(Temporada.values()[ord]);
         }
 
-        // Ingredientes & Pasos
         ingredientes = in.createTypedArrayList(Ingrediente.CREATOR);
-        pasos        = in.createTypedArrayList(Paso.CREATOR);
+        pasos = in.createTypedArrayList(Paso.CREATOR);
+        alergenos = in.createTypedArrayList(Alergeno.CREATOR);
 
-        // Alergenos
-        List<Alergeno> algList = in.createTypedArrayList(Alergeno.CREATOR);
-        assert algList != null;
-        alergenos = new ArrayList<>(algList);
-
-        estrellas       = in.readFloat();
-        numPersonas     = in.readInt();
-        long ts         = in.readLong();
+        estrellas = in.readFloat();
+        numPersonas = in.readInt();
+        long ts = in.readLong();
         fechaCalendario = (ts != -1L) ? new Date(ts) : null;
-        shared          = in.readByte() != 0;
-        postre          = in.readByte() != 0;
-        puntuacionDada  = in.readDouble();
+        shared = in.readByte() != 0;
+        postre = in.readByte() != 0;
+        puntuacionDada = in.readDouble();
+        userId = in.readString();
     }
 
     public static final Creator<Receta> CREATOR = new Creator<>() {
@@ -91,18 +88,14 @@ public class Receta implements Parcelable {
         dest.writeString(id);
         dest.writeString(nombre);
 
-        // Temporadas
         dest.writeInt(temporadas.size());
         for (Temporada t : temporadas) {
             dest.writeInt(t.ordinal());
         }
 
-        // Ingredientes & Pasos
         dest.writeTypedList(ingredientes);
         dest.writeTypedList(pasos);
-
-        // Alergenos
-        dest.writeTypedList(new ArrayList<>(alergenos));
+        dest.writeTypedList(alergenos);
 
         dest.writeFloat(estrellas);
         dest.writeInt(numPersonas);
@@ -110,6 +103,7 @@ public class Receta implements Parcelable {
         dest.writeByte((byte) (shared ? 1 : 0));
         dest.writeByte((byte) (postre ? 1 : 0));
         dest.writeDouble(puntuacionDada);
+        dest.writeString(userId);
     }
 
     @Override
@@ -117,112 +111,56 @@ public class Receta implements Parcelable {
         return 0;
     }
 
-    // Getters, setters y lógica de puntuación idéntica a la versión Serializable
+    // Getters y Setters
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
-    public String getNombre() {
-        return nombre;
-    }
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
+    public List<Temporada> getTemporadas() { return temporadas; }
+    public void setTemporadas(List<Temporada> temporadas) { this.temporadas = temporadas; }
 
-    public List<Temporada> getTemporadas() {
-        return temporadas;
-    }
+    public List<Ingrediente> getIngredientes() { return ingredientes; }
+    public void setIngredientes(List<Ingrediente> ingredientes) { this.ingredientes = ingredientes; }
 
-    public void setTemporadas(List<Temporada> temporadas) {
-        this.temporadas = temporadas;
-    }
+    public List<Paso> getPasos() { return pasos; }
+    public void setPasos(List<Paso> pasos) { this.pasos = pasos; }
 
-    public List<Ingrediente> getIngredientes() {
-        return ingredientes;
-    }
+    public List<Alergeno> getAlergenos() { return alergenos; }
+    public void setAlergenos(List<Alergeno> alergenos) { this.alergenos = alergenos; }
 
-    public void setIngredientes(List<Ingrediente> ingredientes) {
-        this.ingredientes = ingredientes;
-    }
+    public float getEstrellas() { return estrellas; }
+    public void setEstrellas(float estrellas) { this.estrellas = estrellas; }
 
+    public int getNumPersonas() { return numPersonas; }
+    public void setNumPersonas(int numPersonas) { this.numPersonas = numPersonas; }
 
-    public List<Paso> getPasos() {
-        return pasos;
-    }
+    public Date getFechaCalendario() { return fechaCalendario; }
+    public void setFechaCalendario(Date fechaCalendario) { this.fechaCalendario = fechaCalendario; }
 
-    public void setPasos(List<Paso> pasos) {
-        this.pasos = pasos;
-    }
+    public boolean isShared() { return shared; }
+    public void setShared(boolean shared) { this.shared = shared; }
 
-    public float getEstrellas() {
-        return estrellas;
-    }
+    public boolean isPostre() { return postre; }
+    public void setPostre(boolean postre) { this.postre = postre; }
 
-    public void setEstrellas(float estrellas) {
-        this.estrellas = estrellas;
-    }
+    public double getPuntuacionDada() { return puntuacionDada; }
+    public void setPuntuacionDada(double puntuacionDada) { this.puntuacionDada = puntuacionDada; }
 
-    public int getNumPersonas() {
-        return numPersonas;
-    }
-
-    public void setNumPersonas(int numPersonas) {
-        this.numPersonas = numPersonas;
-    }
-
-    public Date getFechaCalendario() {
-        return fechaCalendario;
-    }
-
-    public void setFechaCalendario(Date fechaCalendario) {
-        this.fechaCalendario = fechaCalendario;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public List<Alergeno> getAlergenos() {
-        return alergenos;
-    }
-
-    public void setAlergenos(List<Alergeno> alergenos) {
-        this.alergenos = alergenos;
-    }
-
-    public boolean isShared() {
-        return shared;
-    }
-
-    public void setShared(boolean shared) {
-        this.shared = shared;
-    }
-
-    public boolean isPostre() {
-        return postre;
-    }
-
-    public void setPostre(boolean postre) {
-        this.postre = postre;
-    }
+    public String getUserId() { return userId; }
+    public void setUserId(String userId) { this.userId = userId; }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Receta receta = (Receta) o;
-        return id.equals(receta.id) && Objects.equals(nombre, receta.nombre);
+        if (!(o instanceof Receta receta)) return false;
+        return Objects.equals(id, receta.id) &&
+                Objects.equals(nombre, receta.nombre);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(id);
     }
-
-    public double getPuntuacionDada() {
-        return puntuacionDada;
-    }
-
-    public void setPuntuacionDada(double puntuacionDada){
-        this.puntuacionDada = puntuacionDada;
-    }
-
 }

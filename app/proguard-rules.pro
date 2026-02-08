@@ -1,21 +1,47 @@
-# Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
+# =============================================
+# Reglas para Firestore
+# =============================================
 
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
+# Mantener todas las clases de beans (modelos) y sus campos
+-keep class com.david.recetapp.negocio.beans.** {
+    public <fields>;
+    public <methods>;
+    public <init>();
+}
 
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
+# Mantener enums y sus métodos para Firestore
+-keepclassmembers enum com.david.recetapp.negocio.beans.** {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}
 
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
+# Mantener Parcelables
+-keepclassmembers class * implements android.os.Parcelable {
+    public static final android.os.Parcelable$Creator *;
+}
+
+# Mantener constructores públicos para Firestore
+-keepclassmembers class com.david.recetapp.negocio.beans.** {
+    public <init>();
+}
+
+# =============================================
+# Reglas generales opcionales de Android
+# =============================================
+
+# Evita renombrar clases y métodos utilizados por librerías de Android
+-keep class androidx.** { *; }
+-keep class android.** { *; }
+
+# Evita optimizaciones que rompan reflexiones (por ejemplo, Firestore)
+-keepattributes Signature
+-keepattributes *Annotation*
+
+# =============================================
+# Si tienes utilidades o métodos estáticos que usan reflexión
+# =============================================
+-keepclassmembers class * {
+    @com.google.firebase.firestore.Exclude <fields>;
+    @com.google.firebase.firestore.Exclude <methods>;
+}
+

@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Day implements Serializable {
-    private final int dayOfMonth;
+    private int dayOfMonth;
     private List<RecetaDia> recetas;
 
     public Day(int dayOfMonth, List<RecetaDia> recetas) {
@@ -15,9 +15,19 @@ public class Day implements Serializable {
             this.recetas = new ArrayList<>();
     }
 
+    public Day(){
+
+    }
+
     public int getDayOfMonth() {
         return dayOfMonth;
     }
+
+    public void setDayOfMonth(int dayOfMonth) {
+        this.dayOfMonth = dayOfMonth;
+    }
+
+    // Getter y setter)
 
     public List<RecetaDia> getRecetas() {
         return recetas;
