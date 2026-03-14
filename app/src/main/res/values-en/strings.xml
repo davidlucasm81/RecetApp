@@ -102,4 +102,9 @@
     <string name="sin_pasos">Without steps</string>
     <string name="sin_ingredientes">Without ingredients</string>
     <string name="sin_nombre">Without name</string>
+
+    <string name="login_con_google">Sign in with Google</string>
+    <string name="cerrar_sesion">Sign out</string>
+    <string name="confirmar_cerrar_sesion">Are you sure you want to sign out?</string>
+    <string name="error_login">Login failed. Please try again.</string>
 </resources>

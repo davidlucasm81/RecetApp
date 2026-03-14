@@ -106,4 +106,9 @@
     <string name="sin_pasos">Sin pasos</string>
     <string name="sin_ingredientes">Sin ingredientes</string>
     <string name="sin_nombre">Sin nombre</string>
+
+    <string name="login_con_google">Entrar con Google</string>
+    <string name="cerrar_sesion">Cerrar sesión</string>
+    <string name="confirmar_cerrar_sesion">¿Seguro que quieres cerrar sesión?</string>
+    <string name="error_login">Error al iniciar sesión. Inténtalo de nuevo.</string>
 </resources>
