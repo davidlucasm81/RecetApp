@@ -28,6 +28,7 @@ import com.david.recetapp.actividades.recetas.EditarRecetaActivity;
 import com.david.recetapp.negocio.beans.Alergeno;
 import com.david.recetapp.negocio.beans.Ingrediente;
 import com.david.recetapp.negocio.beans.Receta;
+import com.david.recetapp.negocio.beans.Temporada;
 import com.david.recetapp.negocio.servicios.AlergenosSrv;
 import com.david.recetapp.negocio.servicios.RecetasSrv;
 import com.david.recetapp.negocio.servicios.UtilsSrv;
@@ -216,7 +217,7 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
                 txtInformacion.setVisibility(View.VISIBLE);
                 txtTitulo.setText(R.string.temporadas);
                 List<String> temporadas = (receta.getTemporadas() != null)
-                        ? receta.getTemporadas().stream().map(Enum::name).collect(Collectors.toList())
+                        ? receta.getTemporadas().stream().map(Temporada::getStringRes).map(context::getString).collect(Collectors.toList())
                         : new ArrayList<>();
                 txtInformacion.setText(TextUtils.join(", ", temporadas));
                 break;
