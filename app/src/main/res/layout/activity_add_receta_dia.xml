@@ -1,52 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 🚀 Layout Optimizado - Mantiene estructura original + SwipeRefreshLayout -->
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/rootFrame"
+    android:id="@+id/swipeRefreshLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
+    android:fitsSystemWindows="true"
     tools:context=".actividades.AddRecetaDiaActivity">
 
-    <!-- 🚀 SwipeRefreshLayout añadido (envuelve el RecyclerView) -->
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/swipeRefreshLayout"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:padding="16dp">
 
-        <FrameLayout
+        <TextView
+            android:id="@+id/textViewEmpty"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="@string/no_hay_recetas"
+            android:textColor="@color/colorGrisTextoFondo"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
 
-            <!-- TextView Empty (sin cambios, solo movido dentro) -->
-            <TextView
-                android:id="@+id/textViewEmpty"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:text="@string/no_hay_recetas"
-                android:textColor="@color/colorGrisTextoFondo"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                android:visibility="gone" />
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewRecetas"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingBottom="16dp"
+            tools:listitem="@layout/item_receta_button" />
 
-            <!-- RecyclerView de recetas (sin cambios, solo movido dentro) -->
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerViewRecetas"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:clipToPadding="false"
-                android:paddingBottom="16dp"
-                tools:listitem="@layout/item_receta_button" />
-        </FrameLayout>
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center"
+            android:visibility="gone" />
 
-    <!-- ProgressBar para carga (sin cambios) -->
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_gravity="center"
-        android:visibility="gone"/>
+    </FrameLayout>
 
-</FrameLayout>
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

@@ -694,4 +694,31 @@ public class FirebaseManager {
     public static void clearAllRecetasCache() {
         recetasCache.clear();
     }
+
+    // Al lado de getCalendarioId()
+    private String getCalendarioIdMesAnterior() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.MONTH, -1);
+        int mes = calendar.get(Calendar.MONTH);
+        int anio = calendar.get(Calendar.YEAR);
+        return userId + "_" + anio + "_" + mes;
+    }
+
+    public void eliminarCalendarioMesAnterior(SimpleCallback callback) {
+        String idAnterior = getCalendarioIdMesAnterior();
+        db.collection(COLLECTION_CALENDARIO)
+                .document(idAnterior)
+                .delete()
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "🗑️ Calendario mes anterior eliminado: " + idAnterior);
+                    // Limpiar también su caché si existiera
+                    calendarioCache.entrySet().removeIf(e -> e.getKey().contains(idAnterior));
+                    if (callback != null) callback.onSuccess();
+                })
+                .addOnFailureListener(e -> {
+                    // No es crítico — puede que simplemente no existiera
+                    Log.w(TAG, "⚠️ No se encontró calendario anterior (normal si es primer uso)", e);
+                    if (callback != null) callback.onSuccess();
+                });
+    }
 }

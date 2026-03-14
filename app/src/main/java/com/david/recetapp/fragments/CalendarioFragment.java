@@ -91,9 +91,6 @@ public class CalendarioFragment extends Fragment {
                 SPAN_COUNT, spacingPx, true));
     }
 
-    /**
-     * 🚀 Configuración de SwipeRefresh (solo si existe en el layout)
-     */
     private void setupSwipeRefresh() {
         if (swipeRefreshLayout != null) {
             swipeRefreshLayout.setColorSchemeResources(
@@ -105,7 +102,7 @@ public class CalendarioFragment extends Fragment {
 
             swipeRefreshLayout.setOnRefreshListener(() -> {
                 if (!isLoading) {
-                    actualizarCalendario();
+                    loadCalendarDays(true); // <- Solo recarga datos, sin tocar recetas
                 } else {
                     swipeRefreshLayout.setRefreshing(false);
                 }
@@ -169,9 +166,7 @@ public class CalendarioFragment extends Fragment {
 
                     // Mostrar/ocultar empty view (solo si existe)
                     if (emptyView != null) {
-                        boolean isEmpty = days.isEmpty() || days.stream()
-                                .allMatch(d -> d.getRecetas() == null || d.getRecetas().isEmpty());
-                        emptyView.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
+                        emptyView.setVisibility(days.isEmpty() ? View.VISIBLE : View.GONE);
                     }
 
                     isLoading = false;

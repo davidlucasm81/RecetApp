@@ -1,10 +1,17 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Permiso mínimo necesario para escribir en almacenamiento específico (Scoped Storage) -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
+    <queries>
+        <!-- Necesario para visibilidad de Google Play Services en Android 11+ -->
+        <package android:name="com.google.android.gms" />
+        <intent>
+            <action android:name="com.google.android.gms.settings.ads.IDENTIFIER_SERVICE" />
+        </intent>
+    </queries>
 
     <application
         android:icon="@mipmap/icono_app_round"

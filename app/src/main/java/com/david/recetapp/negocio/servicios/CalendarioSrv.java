@@ -51,31 +51,50 @@ public class CalendarioSrv {
         void onFailure(Exception e);
     }
 
-    // ==================== OBTENER CALENDARIO ====================
-
     public static void obtenerCalendario(Context context, CalendarioCallback callback) {
         firebaseManager.obtenerCalendario(new FirebaseManager.CalendarioCallback() {
             @Override
             public void onSuccess(List<Day> days) {
                 if (days.isEmpty()) {
-                    List<Day> newDays = generateDays();
-                    guardarCalendario(context, newDays, new SimpleCallback() {
+                    // 🗑️ Mes nuevo: borrar el calendario anterior antes de generar el nuevo
+                    firebaseManager.eliminarCalendarioMesAnterior(new FirebaseManager.SimpleCallback() {
                         @Override
                         public void onSuccess() {
-                            callback.onSuccess(newDays);
+                            Log.d(TAG, "✅ Mes anterior limpiado, generando nuevo calendario");
+                            List<Day> newDays = generateDays();
+                            guardarCalendario(context, newDays, new SimpleCallback() {
+                                @Override
+                                public void onSuccess() {
+                                    callback.onSuccess(newDays);
+                                }
+                                @Override
+                                public void onFailure(Exception e) {
+                                    Log.e(TAG, "Error guardando calendario nuevo", e);
+                                    callback.onFailure(e);
+                                }
+                            });
                         }
-
                         @Override
                         public void onFailure(Exception e) {
-                            Log.e(TAG, "Error guardando calendario nuevo", e);
-                            callback.onFailure(e);
+                            // No bloqueamos el flujo aunque falle el borrado
+                            Log.w(TAG, "No se pudo borrar mes anterior, continuando igualmente", e);
+                            List<Day> newDays = generateDays();
+                            guardarCalendario(context, newDays, new SimpleCallback() {
+                                @Override
+                                public void onSuccess() {
+                                    callback.onSuccess(newDays);
+                                }
+                                @Override
+                                public void onFailure(Exception ex) {
+                                    callback.onFailure(ex);
+                                }
+                            });
                         }
                     });
                 } else {
                     callback.onSuccess(days);
                 }
             }
-
             @Override
             public void onFailure(Exception e) {
                 Log.e(TAG, "Error obteniendo calendario", e);
@@ -216,14 +235,6 @@ public class CalendarioSrv {
         });
     }
 
-    // ==================== CARGAR RECETAS (PROBLEMA CRÍTICO RESUELTO) ====================
-
-    /**
-     * 🚀 VERSIÓN OPTIMIZADA - Eliminado problema N+1
-     *
-     * ANTES: Cargaba recetas 30+ veces (una por cada día del mes)
-     * AHORA: Carga recetas UNA SOLA VEZ y reutiliza
-     */
     public static void cargarRecetas(Context context, SimpleCallback callback) {
         obtenerCalendario(context, new CalendarioCallback() {
             @Override
