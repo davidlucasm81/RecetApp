@@ -558,9 +558,8 @@ public class EditarRecetaActivity extends RecetaBaseActivity {
             ImageButton btnEliminarPaso = convertView.findViewById(R.id.btnEliminarPaso);
 
             final Paso paso = pasos.get(position);
-            final int posicion = position;
 
-            setupPasoTouchListener(convertView, editTextPaso, posicion);
+            setupPasoTouchListener(convertView, editTextPaso, position);
             setupPasoData(paso, position, textViewNumero, editTextPaso, editTextTiempo);
             setupPasoListeners(paso, convertView, editTextPaso, editTextTiempo);
 

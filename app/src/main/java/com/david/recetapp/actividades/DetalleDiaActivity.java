@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ExpandableListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,6 +28,8 @@ public class DetalleDiaActivity extends AppCompatActivity
     private TextView textViewEmpty;
     private ExpandableListView expandableListView;
     private Button addReceta;
+    private ProgressBar progressBar;
+    private Day selectedDay;
 
     @SuppressWarnings("deprecation")
     @SuppressLint("MissingSuperCall")
@@ -39,6 +42,14 @@ public class DetalleDiaActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        selectedDay = intent.getSerializableExtra("selectedDay", Day.class);
+        refreshUI();
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detalle_dia);
@@ -46,32 +57,36 @@ public class DetalleDiaActivity extends AppCompatActivity
         expandableListView = findViewById(R.id.expandableListView);
         textViewEmpty = findViewById(R.id.textViewEmpty);
         addReceta = findViewById(R.id.addReceta);
-        View progressBar = findViewById(R.id.progressBarDetalle);
+        progressBar = findViewById(R.id.progressBarDetalle);
 
-        // 👉 Mostrar loading mientras se monta el adapter
+        selectedDay = getIntent().getSerializableExtra("selectedDay", Day.class);
+
+        refreshUI();
+
+        addReceta.setOnClickListener(v -> {
+            Intent intent = new Intent(this, AddRecetaDiaActivity.class);
+            intent.putExtra("selectedDay", selectedDay);
+            startActivity(intent);
+        });
+    }
+
+    private void refreshUI() {
         progressBar.setVisibility(View.VISIBLE);
 
-        Day selectedDay = getIntent().getSerializableExtra("selectedDay", Day.class);
-
         TextView titleTextView = findViewById(R.id.titleTextView);
-        SimpleDateFormat monthYearFormat =
-                new SimpleDateFormat("MMMM yyyy", Locale.getDefault());
+        SimpleDateFormat monthYearFormat = new SimpleDateFormat("MMMM yyyy", Locale.getDefault());
 
         assert selectedDay != null;
         String nuevoTexto = getString(R.string.detalle_dia) + " "
                 + selectedDay.getDayOfMonth() + " "
                 + monthYearFormat.format(Calendar.getInstance().getTime());
-
         titleTextView.setText(nuevoTexto);
 
         List<RecetaDia> listaRecetas = selectedDay.getRecetas();
-        if (listaRecetas == null || listaRecetas.isEmpty()) {
-            textViewEmpty.setVisibility(View.VISIBLE);
-        } else {
-            textViewEmpty.setVisibility(View.GONE);
-        }
+        textViewEmpty.setVisibility(
+                (listaRecetas == null || listaRecetas.isEmpty()) ? View.VISIBLE : View.GONE
+        );
 
-        // ⚠️ IMPORTANTE: NO se pide nada a Firebase aquí
         RecetaExpandableListCalendarAdapter adapter =
                 new RecetaExpandableListCalendarAdapter(
                         this,
@@ -79,7 +94,6 @@ public class DetalleDiaActivity extends AppCompatActivity
                         expandableListView,
                         this
                 );
-
         expandableListView.setAdapter(adapter);
 
         expandableListView.setOnGroupClickListener((parent, v, groupPosition, id) -> {
@@ -91,14 +105,7 @@ public class DetalleDiaActivity extends AppCompatActivity
             return true;
         });
 
-        // Ya está listo → ocultamos loading
         progressBar.setVisibility(View.GONE);
-
-        addReceta.setOnClickListener(v -> {
-            Intent intent = new Intent(this, AddRecetaDiaActivity.class);
-            intent.putExtra("selectedDay", selectedDay);
-            startActivity(intent);
-        });
     }
 
     @Override

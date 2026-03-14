@@ -133,7 +133,7 @@ public class CalendarioFragment extends Fragment {
         if (monthYearTextView != null) {
             monthYearTextView.setText(monthYearFormat.format(Calendar.getInstance().getTime()));
         }
-        loadCalendarDays(false);
+        // ← Ya no llama a loadCalendarDays aquí
     }
 
     /**
@@ -144,7 +144,6 @@ public class CalendarioFragment extends Fragment {
 
         isLoading = true;
 
-        // Mostrar indicador apropiado
         if (showRefreshing && swipeRefreshLayout != null) {
             swipeRefreshLayout.setRefreshing(true);
         } else if (progressBar != null) {
@@ -154,34 +153,30 @@ public class CalendarioFragment extends Fragment {
         CalendarioSrv.obtenerCalendario(requireContext(), new CalendarioSrv.CalendarioCallback() {
             @Override
             public void onSuccess(List<Day> days) {
-                if (!isAdded()) return;
-
-                final int numeroEnBlanco = UtilsSrv.obtenerColumnaCalendario(1);
-
                 mainHandler.post(() -> {
+                    // ✅ Siempre limpiar estado ANTES de comprobar isAdded
+                    hideLoading();
+                    isLoading = false;
+
                     if (!isAdded()) return;
 
+                    final int numeroEnBlanco = UtilsSrv.obtenerColumnaCalendario(1);
                     adapter.submitDays(days, numeroEnBlanco);
-                    hideLoading();
 
-                    // Mostrar/ocultar empty view (solo si existe)
                     if (emptyView != null) {
                         emptyView.setVisibility(days.isEmpty() ? View.VISIBLE : View.GONE);
                     }
-
-                    isLoading = false;
                 });
             }
 
             @Override
             public void onFailure(Exception e) {
-                if (!isAdded()) return;
-
                 mainHandler.post(() -> {
-                    if (!isAdded()) return;
-
+                    // ✅ Siempre limpiar estado ANTES de comprobar isAdded
                     hideLoading();
                     isLoading = false;
+
+                    if (!isAdded()) return;
 
                     UtilsSrv.notificacion(requireContext(),
                             getString(R.string.error_cargar_calendario),
@@ -193,7 +188,6 @@ public class CalendarioFragment extends Fragment {
 
     private void actualizarCalendario() {
         if (isLoading) return;
-
         isLoading = true;
 
         if (swipeRefreshLayout != null) {
@@ -205,20 +199,19 @@ public class CalendarioFragment extends Fragment {
         CalendarioSrv.cargarRecetas(requireContext(), new CalendarioSrv.SimpleCallback() {
             @Override
             public void onSuccess() {
-                if (!isAdded()) return;
-                loadCalendarDays(true);
+                mainHandler.post(() -> {
+                    if (!isAdded()) return;
+                    isLoading = false; // ← reset ANTES de loadCalendarDays
+                    loadCalendarDays(true);
+                });
             }
 
             @Override
             public void onFailure(Exception e) {
-                if (!isAdded()) return;
-
                 mainHandler.post(() -> {
                     if (!isAdded()) return;
-
                     hideLoading();
                     isLoading = false;
-
                     UtilsSrv.notificacion(requireContext(),
                             getString(R.string.error_actualizar_calendario),
                             Toast.LENGTH_SHORT).show();
@@ -249,5 +242,13 @@ public class CalendarioFragment extends Fragment {
 
         adapter = null;
         isLoading = false;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (adapter != null && !isLoading) {
+            loadCalendarDays(false);
+        }
     }
 }

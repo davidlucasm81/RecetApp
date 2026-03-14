@@ -320,6 +320,7 @@ public class AddRecetaDiaActivity extends AppCompatActivity {
     private void volverADetalleDiaActivity() {
         Intent intent = new Intent(this, DetalleDiaActivity.class);
         intent.putExtra("selectedDay", selectedDay);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(intent);
         finish();
     }

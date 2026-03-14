@@ -141,64 +141,35 @@ public class CalendarioSrv {
     // ==================== ACTUALIZAR DÍA ====================
 
     public static void actualizarDia(Activity activity, Day selectedDay, SimpleCallback callback) {
-        obtenerCalendario(activity, new CalendarioCallback() {
+        firebaseManager.actualizarDia(selectedDay, new FirebaseManager.SimpleCallback() {
             @Override
-            public void onSuccess(List<Day> dias) {
-                Map<Integer, Day> diasMap = dias.stream()
-                        .collect(Collectors.toMap(Day::getDayOfMonth, day -> day));
+            public void onSuccess() {
+                RecetasSrv.cargarListaRecetas(activity, new RecetasSrv.RecetasCallback() {
+                    @Override
+                    public void onSuccess(List<Receta> listaRecetas) {
+                        Set<String> idsRecetasDia = selectedDay.getRecetas().stream()
+                                .map(RecetaDia::getIdReceta)
+                                .collect(Collectors.toSet());
 
-                Day dia = diasMap.get(selectedDay.getDayOfMonth());
+                        listaRecetas.stream()
+                                .filter(r -> idsRecetasDia.contains(r.getId()))
+                                .forEach(r -> RecetasSrv.actualizarRecetaCalendario(
+                                        activity, r.getId(), selectedDay.getDayOfMonth(), true));
 
-                if (dia != null) {
-                    dia.setRecetas(selectedDay.getRecetas());
+                        if (callback != null) callback.onSuccess();
+                    }
 
-                    firebaseManager.actualizarDia(dia, new FirebaseManager.SimpleCallback() {
-                        @Override
-                        public void onSuccess() {
-                            // 🚀 OPTIMIZACIÓN: Cargar recetas UNA SOLA VEZ
-                            RecetasSrv.cargarListaRecetas(activity, new RecetasSrv.RecetasCallback() {
-                                @Override
-                                public void onSuccess(List<Receta> listaRecetas) {
-                                    // Actualizar fechas solo de las recetas del día
-                                    Set<String> idsRecetasDia = dia.getRecetas().stream()
-                                            .map(RecetaDia::getIdReceta)
-                                            .collect(Collectors.toSet());
-
-                                    listaRecetas.stream()
-                                            .filter(r -> idsRecetasDia.contains(r.getId()))
-                                            .forEach(r -> RecetasSrv.actualizarRecetaCalendario(
-                                                    activity, r.getId(), dia.getDayOfMonth(), true));
-
-                                    if (callback != null) callback.onSuccess();
-                                }
-
-                                @Override
-                                public void onFailure(Exception e) {
-                                    Log.e(TAG, "Error cargando recetas para actualizar", e);
-                                    if (callback != null) callback.onFailure(e);
-                                }
-                            });
-                        }
-
-                        @Override
-                        public void onFailure(Exception e) {
-                            Log.e(TAG, "Error actualizando día", e);
-                            UtilsSrv.notificacion(activity,
-                                    activity.getString(R.string.calendario_no_actualizado),
-                                    Toast.LENGTH_SHORT).show();
-                            if (callback != null) callback.onFailure(e);
-                        }
-                    });
-                } else {
-                    UtilsSrv.notificacion(activity,
-                            activity.getString(R.string.calendario_no_actualizado),
-                            Toast.LENGTH_SHORT).show();
-                    if (callback != null) callback.onFailure(new Exception("Día no encontrado"));
-                }
+                    @Override
+                    public void onFailure(Exception e) {
+                        Log.e(TAG, "Error cargando recetas para actualizar", e);
+                        if (callback != null) callback.onFailure(e);
+                    }
+                });
             }
 
             @Override
             public void onFailure(Exception e) {
+                Log.e(TAG, "Error actualizando día", e);
                 UtilsSrv.notificacion(activity,
                         activity.getString(R.string.calendario_no_actualizado),
                         Toast.LENGTH_SHORT).show();

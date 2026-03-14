@@ -194,7 +194,7 @@ public class RecetasSrv {
                 Matcher m = patternIngredient.matcher(s.trim());
                 if (m.matches()) {
                     String nombre = Objects.requireNonNull(m.group(1)).toLowerCase(Locale.getDefault());
-                    int puntuacion = Integer.parseInt(m.group(2));
+                    int puntuacion = Integer.parseInt(Objects.requireNonNull(m.group(2)));
                     ingredientMapCache.put(nombre, puntuacion);
                 }
             }

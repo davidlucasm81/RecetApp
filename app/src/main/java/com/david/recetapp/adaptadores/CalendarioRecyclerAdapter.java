@@ -17,7 +17,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.david.recetapp.R;
 import com.david.recetapp.actividades.DetalleDiaActivity;
 import com.david.recetapp.negocio.beans.Day;
-import com.david.recetapp.negocio.beans.RecetaDia;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -69,7 +68,7 @@ public class CalendarioRecyclerAdapter extends ListAdapter<Day, CalendarioRecycl
         Day day = getItem(position);
         if (day == null) return RecyclerView.NO_ID;
         // devolver un id estable; placeholders tienen dayOfMonth negativo
-        return (long) day.getDayOfMonth();
+        return day.getDayOfMonth();
     }
 
     @NonNull

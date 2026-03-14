@@ -88,14 +88,7 @@
     <string name="error_cargar_calendario">Error loading calendar</string>
     <string name="error_generar_lista_compra">Error generating shopping list</string>
 
-    <!-- Progress messages -->
-    <string name="cargando_recetas">Loading recipes…</string>
-    <string name="cargando_calendario">Loading calendar…</string>
-    <string name="actualizando_calendario">Updating calendar…</string>
-    <string name="generando_lista_compra">Generating shopping list…</string>
-
     <!-- Existing messages that might be missing -->
-    <string name="no">No</string>
     <string name="error_crear_receta">Error creating recipe</string>
     <string name="error_editar_receta">Error editing recipe. Please try again.</string>
     <string name="calendario_vacio">Empty Calendar</string>

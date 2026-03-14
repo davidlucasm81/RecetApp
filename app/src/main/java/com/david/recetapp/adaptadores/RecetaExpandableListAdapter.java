@@ -261,7 +261,7 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
                         }
                     }
                     // proteger caso raro de longitud 0
-                    String texto = sbIngredientes.length() > 0 ? sbIngredientes.toString().trim() : context.getString(R.string.sin_ingredientes);
+                    String texto = !sbIngredientes.isEmpty() ? sbIngredientes.toString().trim() : context.getString(R.string.sin_ingredientes);
                     txtInformacion.setText(texto);
                 }
                 break;

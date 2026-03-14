@@ -437,19 +437,52 @@ public class FirebaseManager {
         String cacheKey = getCalendarioCacheKey();
         CacheEntry<List<Day>> cached = calendarioCache.get(cacheKey);
 
-        List<Day> updatedDays;
-
         if (cached != null && cached.isValid()) {
-            updatedDays = mergeDayIntoList(cached.data, day);
+            List<Day> updatedDays = mergeDayIntoList(cached.data, day);
+            guardarDiaYNotificar(updatedDays, cacheKey, callback);
         } else {
-            updatedDays = new ArrayList<>();
-            updatedDays.add(day);
+            // Sin caché: traer el calendario completo antes de actualizar
+            String calendarioId = getCalendarioId();
+            db.collection(COLLECTION_CALENDARIO)
+                    .document(calendarioId)
+                    .get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        List<Day> existingDays = new ArrayList<>();
+                        if (documentSnapshot.exists()) {
+                            List<Map<String, Object>> daysList =
+                                    (List<Map<String, Object>>) documentSnapshot.get("days");
+                            existingDays = parseDays(daysList);
+                        }
+                        List<Day> updatedDays = mergeDayIntoList(existingDays, day);
+                        guardarDiaYNotificar(updatedDays, cacheKey, callback);
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.e(TAG, "Error obteniendo calendario para actualizar día", e);
+                        callback.onFailure(e);
+                    });
         }
+    }
 
-        calendarioCache.put(cacheKey, new CacheEntry<>(updatedDays));
-        callback.onSuccess();
+    // Nuevo método auxiliar
+    private void guardarDiaYNotificar(List<Day> days, String cacheKey, SimpleCallback callback) {
+        String calendarioId = getCalendarioId();
+        Map<String, Object> updateData = new HashMap<>();
+        updateData.put("days", daysToList(days));
+        updateData.put("timestamp", FieldValue.serverTimestamp());
 
-        syncCalendarioInBackground(updatedDays);
+        db.collection(COLLECTION_CALENDARIO)
+                .document(calendarioId)
+                .set(updateData, SetOptions.merge())
+                .addOnSuccessListener(aVoid -> {
+                    // Caché actualizada DESPUÉS de confirmar Firebase
+                    calendarioCache.put(cacheKey, new CacheEntry<>(days));
+                    Log.d(TAG, "✅ Día guardado en Firebase y caché actualizada");
+                    callback.onSuccess();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "❌ Error guardando día", e);
+                    callback.onFailure(e);
+                });
     }
 
     private List<Day> mergeDayIntoList(List<Day> existing, Day newDay) {

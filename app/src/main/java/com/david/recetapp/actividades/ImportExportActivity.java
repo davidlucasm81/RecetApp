@@ -202,7 +202,7 @@ public class ImportExportActivity extends AppCompatActivity {
         try {
             return gson.fromJson(jsonData, listType);
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e("ImportExportActivity", "Error al convertir JSON a lista de recetas",e);
             return new ArrayList<>();
         }
     }
