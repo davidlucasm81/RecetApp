@@ -2,6 +2,7 @@ package com.david.recetapp.actividades;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -20,6 +21,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.security.ProviderInstaller;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
@@ -31,6 +33,7 @@ public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private GoogleSignInClient googleSignInClient;
     private ProgressBar progressBar;
+    private static final String TAG = "LoginActivity";
 
     private final ActivityResultLauncher<Intent> signInLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
@@ -39,6 +42,8 @@ public class LoginActivity extends AppCompatActivity {
                     GoogleSignInAccount account = task.getResult(ApiException.class);
                     firebaseAuthWithGoogle(account.getIdToken());
                 } catch (ApiException e) {
+                    // Log detailed info to help diagnose ApiException 10 (DEVELOPER_ERROR)
+                    Log.w(TAG, "Google sign-in failed, statusCode=" + e.getStatusCode(), e);
                     showLoading(false);
                     Toast.makeText(this, getString(R.string.error_login), Toast.LENGTH_SHORT).show();
                 }
@@ -48,6 +53,9 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        // Intentar actualizar el proveedor de seguridad para evitar errores de conexión con GMS
+        upgradeSecurityProvider();
 
         mAuth = FirebaseAuth.getInstance();
         progressBar = findViewById(R.id.progressBar);
@@ -62,6 +70,20 @@ public class LoginActivity extends AppCompatActivity {
 
         Button btnGoogle = findViewById(R.id.btnGoogleSignIn);
         btnGoogle.setOnClickListener(v -> iniciarLoginGoogle());
+    }
+
+    private void upgradeSecurityProvider() {
+        ProviderInstaller.installIfNeededAsync(this, new ProviderInstaller.ProviderInstallListener() {
+            @Override
+            public void onProviderInstalled() {
+                Log.i(TAG, "Security provider installed successfully");
+            }
+
+            @Override
+            public void onProviderInstallFailed(int errorCode, Intent recoveryIntent) {
+                Log.e(TAG, "Security provider installation failed, errorCode: " + errorCode);
+            }
+        });
     }
 
     @Override
@@ -93,6 +115,8 @@ public class LoginActivity extends AppCompatActivity {
                     }
                 })
                 .addOnFailureListener(e -> {
+                    // Log Firebase auth failures for easier debugging
+                    Log.e(TAG, "Firebase signInWithCredential failed", e);
                     showLoading(false);
                     Toast.makeText(this, getString(R.string.error_login), Toast.LENGTH_SHORT).show();
                 });

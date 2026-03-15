@@ -4,11 +4,18 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
+    <!-- Required for Google Play Services visibility and features on newer Android versions -->
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
+
     <queries>
-        <!-- Necesario para visibilidad de Google Play Services en Android 11+ -->
+        <!-- Google Play Services visibility -->
         <package android:name="com.google.android.gms" />
+        <package android:name="com.android.vending" />
         <intent>
             <action android:name="com.google.android.gms.settings.ads.IDENTIFIER_SERVICE" />
+        </intent>
+        <intent>
+            <action android:name="com.google.android.gms.auth.api.signin.SERVICE" />
         </intent>
     </queries>
 
@@ -17,6 +24,11 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.RecetApp">
+
+        <!-- Explicitly define GMS version -->
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
 
         <!-- FileProvider para compartir archivos de la app de manera segura -->
         <provider
@@ -28,6 +40,7 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
+
         <!-- Actividades principales -->
         <activity
             android:name=".actividades.LoginActivity"
@@ -37,6 +50,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".MainActivity"
             android:exported="false" />
