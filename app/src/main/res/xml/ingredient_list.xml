@@ -1,0 +1,458 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ingredient_list>
+    <item><nombre>Azafrán</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Pimentón</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Comino</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Orégano</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Tomillo</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Perejil</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Laurel</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Clavo</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Canela</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Albahaca</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Eneldo</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Guindilla</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Nuez moscada</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Cúrcuma</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Cardamomo</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Mostaza</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Hinojo</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Pimienta negra</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Salvia</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Romero</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Manzanilla</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Anís</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Hierbabuena</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Tomate</nombre><puntuacion>8</puntuacion><gramos>150</gramos></item>
+    <item><nombre>Pimiento</nombre><puntuacion>8</puntuacion><gramos>150</gramos></item>
+    <item><nombre>Cebolla</nombre><puntuacion>8</puntuacion><gramos>120</gramos></item>
+    <item><nombre>Ajo</nombre><puntuacion>9</puntuacion><gramos>5</gramos></item>
+    <item><nombre>Patata</nombre><puntuacion>5</puntuacion><gramos>150</gramos></item>
+    <item><nombre>Calabacín</nombre><puntuacion>8</puntuacion><gramos>200</gramos></item>
+    <item><nombre>Berenjena</nombre><puntuacion>8</puntuacion><gramos>250</gramos></item>
+    <item><nombre>Espinaca</nombre><puntuacion>9</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Acelga</nombre><puntuacion>9</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Lechuga</nombre><puntuacion>9</puntuacion><gramos>300</gramos></item>
+    <item><nombre>Alcachofa</nombre><puntuacion>9</puntuacion><gramos>200</gramos></item>
+    <item><nombre>Pepino</nombre><puntuacion>8</puntuacion><gramos>200</gramos></item>
+    <item><nombre>Zanahoria</nombre><puntuacion>8</puntuacion><gramos>80</gramos></item>
+    <item><nombre>Remolacha</nombre><puntuacion>7</puntuacion><gramos>150</gramos></item>
+    <item><nombre>Judía verde</nombre><puntuacion>8</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Guisante</nombre><puntuacion>8</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Alubia</nombre><puntuacion>7</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Guisante lágrima</nombre><puntuacion>8</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Garbanzo</nombre><puntuacion>6</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Champiñón</nombre><puntuacion>8</puntuacion><gramos>15</gramos></item>
+    <item><nombre>Seta</nombre><puntuacion>8</puntuacion><gramos>20</gramos></item>
+    <item><nombre>Calabaza</nombre><puntuacion>7</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Espárrago</nombre><puntuacion>8</puntuacion><gramos>20</gramos></item>
+    <item><nombre>Almendra</nombre><puntuacion>9</puntuacion><gramos>2</gramos></item>
+    <item><nombre>Avellana</nombre><puntuacion>8</puntuacion><gramos>2</gramos></item>
+    <item><nombre>Castaña</nombre><puntuacion>7</puntuacion><gramos>15</gramos></item>
+    <item><nombre>Uva</nombre><puntuacion>9</puntuacion><gramos>5</gramos></item>
+    <item><nombre>Limón</nombre><puntuacion>9</puntuacion><gramos>100</gramos></item>
+    <item><nombre>Naranja</nombre><puntuacion>9</puntuacion><gramos>180</gramos></item>
+    <item><nombre>Mandarina</nombre><puntuacion>9</puntuacion><gramos>80</gramos></item>
+    <item><nombre>Plátano</nombre><puntuacion>8</puntuacion><gramos>120</gramos></item>
+    <item><nombre>Manzana</nombre><puntuacion>8</puntuacion><gramos>180</gramos></item>
+    <item><nombre>Pera</nombre><puntuacion>8</puntuacion><gramos>170</gramos></item>
+    <item><nombre>Melocotón</nombre><puntuacion>8</puntuacion><gramos>150</gramos></item>
+    <item><nombre>Ciruela</nombre><puntuacion>8</puntuacion><gramos>60</gramos></item>
+    <item><nombre>Albaricoque</nombre><puntuacion>8</puntuacion><gramos>50</gramos></item>
+    <item><nombre>Sandía</nombre><puntuacion>9</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Melón</nombre><puntuacion>9</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Fresa</nombre><puntuacion>9</puntuacion><gramos>15</gramos></item>
+    <item><nombre>Frambuesa</nombre><puntuacion>9</puntuacion><gramos>5</gramos></item>
+    <item><nombre>Arándano</nombre><puntuacion>9</puntuacion><gramos>3</gramos></item>
+    <item><nombre>Mora</nombre><puntuacion>9</puntuacion><gramos>5</gramos></item>
+    <item><nombre>Granada</nombre><puntuacion>9</puntuacion><gramos>300</gramos></item>
+    <item><nombre>Higo</nombre><puntuacion>8</puntuacion><gramos>50</gramos></item>
+    <item><nombre>Chirimoya</nombre><puntuacion>8</puntuacion><gramos>300</gramos></item>
+    <item><nombre>Kiwi</nombre><puntuacion>9</puntuacion><gramos>80</gramos></item>
+    <item><nombre>Piña</nombre><puntuacion>9</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Maracuyá (Fruta de la pasión)</nombre><puntuacion>9</puntuacion><gramos>80</gramos></item>
+    <item><nombre>Papaya</nombre><puntuacion>8</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Coco</nombre><puntuacion>7</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Membrillo</nombre><puntuacion>8</puntuacion><gramos>150</gramos></item>
+    <item><nombre>Cereza</nombre><puntuacion>9</puntuacion><gramos>8</gramos></item>
+    <item><nombre>Caqui</nombre><puntuacion>8</puntuacion><gramos>200</gramos></item>
+    <item><nombre>Habas</nombre><puntuacion>8</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Pollo</nombre><puntuacion>8</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Pollo en trozos</nombre><puntuacion>8</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Cerdo</nombre><puntuacion>5</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Ternera</nombre><puntuacion>5</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Cordero</nombre><puntuacion>6</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Conejo</nombre><puntuacion>8</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Jabalí</nombre><puntuacion>6</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Venado</nombre><puntuacion>8</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Perdiz</nombre><puntuacion>7</puntuacion><gramos>300</gramos></item>
+    <item><nombre>Pato</nombre><puntuacion>7</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Gallina</nombre><puntuacion>7</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Pavo</nombre><puntuacion>8</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Chorizo</nombre><puntuacion>2</puntuacion><gramos>80</gramos></item>
+    <item><nombre>Salchichón</nombre><puntuacion>3</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Jamón</nombre><puntuacion>3</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Lomo</nombre><puntuacion>3</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Longaniza</nombre><puntuacion>3</puntuacion><gramos>100</gramos></item>
+    <item><nombre>Morcilla</nombre><puntuacion>2</puntuacion><gramos>150</gramos></item>
+    <item><nombre>Butifarra</nombre><puntuacion>2</puntuacion><gramos>120</gramos></item>
+    <item><nombre>Chuleta</nombre><puntuacion>5</puntuacion><gramos>180</gramos></item>
+    <item><nombre>Entrecot</nombre><puntuacion>3</puntuacion><gramos>200</gramos></item>
+    <item><nombre>Chuletón</nombre><puntuacion>3</puntuacion><gramos>400</gramos></item>
+    <item><nombre>Secreto ibérico</nombre><puntuacion>6</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Costillas</nombre><puntuacion>3</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Chuletas de cordero</nombre><puntuacion>7</puntuacion><gramos>100</gramos></item>
+    <item><nombre>Mollejas</nombre><puntuacion>6</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Riñones</nombre><puntuacion>6</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Callos</nombre><puntuacion>6</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Hígado</nombre><puntuacion>6</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Albóndigas</nombre><puntuacion>3</puntuacion><gramos>30</gramos></item>
+    <item><nombre>Embutidos</nombre><puntuacion>2</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Cocido</nombre><puntuacion>3</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Bacalao</nombre><puntuacion>9</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Merluza</nombre><puntuacion>8</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Atún</nombre><puntuacion>8</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Salmón</nombre><puntuacion>9</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Dorada</nombre><puntuacion>8</puntuacion><gramos>300</gramos></item>
+    <item><nombre>Lubina</nombre><puntuacion>8</puntuacion><gramos>300</gramos></item>
+    <item><nombre>Sardinas</nombre><puntuacion>9</puntuacion><gramos>80</gramos></item>
+    <item><nombre>Boquerones</nombre><puntuacion>9</puntuacion><gramos>10</gramos></item>
+    <item><nombre>Anguila</nombre><puntuacion>7</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Rape</nombre><puntuacion>8</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Trucha</nombre><puntuacion>8</puntuacion><gramos>250</gramos></item>
+    <item><nombre>Besugo</nombre><puntuacion>9</puntuacion><gramos>400</gramos></item>
+    <item><nombre>Salmonete</nombre><puntuacion>9</puntuacion><gramos>150</gramos></item>
+    <item><nombre>Rodaballo</nombre><puntuacion>8</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Sepia</nombre><puntuacion>9</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Calamar</nombre><puntuacion>9</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Pulpo</nombre><puntuacion>9</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Langosta</nombre><puntuacion>9</puntuacion><gramos>500</gramos></item>
+    <item><nombre>Gambas</nombre><puntuacion>9</puntuacion><gramos>15</gramos></item>
+    <item><nombre>Cigalas</nombre><puntuacion>9</puntuacion><gramos>80</gramos></item>
+    <item><nombre>Carabineros</nombre><puntuacion>9</puntuacion><gramos>50</gramos></item>
+    <item><nombre>Bogavante</nombre><puntuacion>9</puntuacion><gramos>600</gramos></item>
+    <item><nombre>Mejillones</nombre><puntuacion>9</puntuacion><gramos>15</gramos></item>
+    <item><nombre>Almejas</nombre><puntuacion>9</puntuacion><gramos>10</gramos></item>
+    <item><nombre>Navajas</nombre><puntuacion>9</puntuacion><gramos>20</gramos></item>
+    <item><nombre>Ostras</nombre><puntuacion>9</puntuacion><gramos>70</gramos></item>
+    <item><nombre>Percebes</nombre><puntuacion>8</puntuacion><gramos>10</gramos></item>
+    <item><nombre>Caballa</nombre><puntuacion>8</puntuacion><gramos>200</gramos></item>
+    <item><nombre>Bacaladilla</nombre><puntuacion>7</puntuacion><gramos>150</gramos></item>
+    <item><nombre>Chirlas</nombre><puntuacion>7</puntuacion><gramos>10</gramos></item>
+    <item><nombre>Chopa</nombre><puntuacion>8</puntuacion><gramos>250</gramos></item>
+    <item><nombre>Pescadilla</nombre><puntuacion>9</puntuacion><gramos>200</gramos></item>
+    <item><nombre>Tilapia</nombre><puntuacion>8</puntuacion><gramos>200</gramos></item>
+    <item><nombre>Verdel</nombre><puntuacion>8</puntuacion><gramos>200</gramos></item>
+    <item><nombre>Anchoas</nombre><puntuacion>9</puntuacion><gramos>5</gramos></item>
+    <item><nombre>Jurel</nombre><puntuacion>8</puntuacion><gramos>200</gramos></item>
+    <item><nombre>Chicharro</nombre><puntuacion>8</puntuacion><gramos>200</gramos></item>
+    <item><nombre>Boga</nombre><puntuacion>7</puntuacion><gramos>200</gramos></item>
+    <item><nombre>Angula</nombre><puntuacion>9</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Sal</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Pimienta blanca</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Aceite de oliva</nombre><puntuacion>8</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Vinagre de Jerez</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Vinagre de vino</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Vinagre balsámico</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Cilantro</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Menta</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Chile</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Pimiento choricero</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Clavo de olor</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Regaliz</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Huevo</nombre><puntuacion>8</puntuacion><gramos>55</gramos></item>
+    <item><nombre>Aceite de Oliva Virgen Extra</nombre><puntuacion>9</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Azúcar</nombre><puntuacion>2</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Salsa de soja</nombre><puntuacion>3</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Miel</nombre><puntuacion>5</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Jengibre rallado</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Maicena</nombre><puntuacion>4</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Aceite de Girasol</nombre><puntuacion>5</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Alitas de pollo</nombre><puntuacion>2</puntuacion><gramos>60</gramos></item>
+    <item><nombre>Salsa agridulce</nombre><puntuacion>3</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Pimentón dulce</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Pimentón picante</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Ajo en polvo</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Cebolla en polvo</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Salsa de tomate</nombre><puntuacion>4</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Cubitos de bacon</nombre><puntuacion>1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Carne picada</nombre><puntuacion>3</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Queso rallado</nombre><puntuacion>4</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Brócoli</nombre><puntuacion>10</puntuacion><gramos>300</gramos></item>
+    <item><nombre>Arroz</nombre><puntuacion>6</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Tomate picado</nombre><puntuacion>9</puntuacion><gramos>150</gramos></item>
+    <item><nombre>Patata grande</nombre><puntuacion>5</puntuacion><gramos>250</gramos></item>
+    <item><nombre>Nata líquida de cocina ligera</nombre><puntuacion>3</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Pan rallado</nombre><puntuacion>3</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Mantequilla</nombre><puntuacion>2</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Harina de trigo</nombre><puntuacion>4</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Leche entera</nombre><puntuacion>4</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Muslo de gallina</nombre><puntuacion>6</puntuacion><gramos>200</gramos></item>
+    <item><nombre>Morcillo de ternera</nombre><puntuacion>3</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Hueso de jamón</nombre><puntuacion>2</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Tocino fresco</nombre><puntuacion>1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Col</nombre><puntuacion>9</puntuacion><gramos>800</gramos></item>
+    <item><nombre>Fideos finos</nombre><puntuacion>5</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Tomate pera</nombre><puntuacion>9</puntuacion><gramos>120</gramos></item>
+    <item><nombre>Bacon</nombre><puntuacion>1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Azúcar blanco</nombre><puntuacion>1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Caldo de pollo</nombre><puntuacion>7</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Cogollo</nombre><puntuacion>9</puntuacion><gramos>150</gramos></item>
+    <item><nombre>Levadura seca de panadería</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Extracto de Vainilla</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Azúcar glas</nombre><puntuacion>0</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Colorante alimentario rosa</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Mermelada de fresa</nombre><puntuacion>4</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Cuscús</nombre><puntuacion>7</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Vinagre de Modena</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Mostaza de Dijon</nombre><puntuacion>6</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Agua</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Vinagre</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Perrins</nombre><puntuacion>5</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Ketchup</nombre><puntuacion>2</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Zumo de naranja</nombre><puntuacion>3</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Mayonesa</nombre><puntuacion>2</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Pasta</nombre><puntuacion>4</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Solomillo de pollo</nombre><puntuacion>8</puntuacion><gramos>100</gramos></item>
+    <item><nombre>Espárragos blancos</nombre><puntuacion>9</puntuacion><gramos>25</gramos></item>
+    <item><nombre>Espaguetis</nombre><puntuacion>4</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Panceta en cubos pequeños</nombre><puntuacion>2</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Pecorino Romano rallado</nombre><puntuacion>5</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Nata de cocinar</nombre><puntuacion>3</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Azúcar moreno</nombre><puntuacion>1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Bicarbonato sódico</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Chips de chocolate</nombre><puntuacion>0</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Coco rallado</nombre><puntuacion>5</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Colorante</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Garbanzos cocidos</nombre><puntuacion>6</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Cebolleta</nombre><puntuacion>8</puntuacion><gramos>50</gramos></item>
+    <item><nombre>Yogur griego</nombre><puntuacion>7</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Chiles triturados</nombre><puntuacion>7</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Judías blancas de bote</nombre><puntuacion>8</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Curry</nombre><puntuacion>7</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Lacon</nombre><puntuacion>1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Pimentón ahumado</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Queso rallado para gratinar</nombre><puntuacion>4</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Patata pequeña</nombre><puntuacion>5</puntuacion><gramos>80</gramos></item>
+    <item><nombre>Hueso de ternera de rodilla</nombre><puntuacion>2</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Jamón serrano en una pieza</nombre><puntuacion>2</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Maíz</nombre><puntuacion>7</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Láminas de lasaña</nombre><puntuacion>2</puntuacion><gramos>20</gramos></item>
+    <item><nombre>Vino blanco</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Tomate natural</nombre><puntuacion>9</puntuacion><gramos>150</gramos></item>
+    <item><nombre>Pimiento rojo</nombre><puntuacion>9</puntuacion><gramos>150</gramos></item>
+    <item><nombre>Carne picada mixta</nombre><puntuacion>3</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Queso en polvo</nombre><puntuacion>3</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Tomate triturado</nombre><puntuacion>8</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Macarrones</nombre><puntuacion>5</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Canela molida</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Levadura</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Pan</nombre><puntuacion>3</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Pan redondito</nombre><puntuacion>3</puntuacion><gramos>60</gramos></item>
+    <item><nombre>Queso de untar</nombre><puntuacion>6</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Zumo de limón</nombre><puntuacion>8</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Alcaparras</nombre><puntuacion>8</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Contramuslo de pollo</nombre><puntuacion>7</puntuacion><gramos>150</gramos></item>
+    <item><nombre>Chile rojo</nombre><puntuacion>8</puntuacion><gramos>15</gramos></item>
+    <item><nombre>Pechuga de pavo</nombre><puntuacion>9</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Vino tinto</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Harina de fuerza</nombre><puntuacion>4</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Levadura en polvo</nombre><puntuacion>8</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Pepperoni</nombre><puntuacion>2</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Mozzarella rallada</nombre><puntuacion>3</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Pechuga de pollo, sin piel y deshuesada</nombre><puntuacion>9</puntuacion><gramos>200</gramos></item>
+    <item><nombre>Pechuga de pollo</nombre><puntuacion>8</puntuacion><gramos>200</gramos></item>
+    <item><nombre>Pasta Harissa</nombre><puntuacion>3</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Muslo de pollo con hueso y piel</nombre><puntuacion>6</puntuacion><gramos>180</gramos></item>
+    <item><nombre>Sal gruesa</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Jerez seco</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Clara de huevo</nombre><puntuacion>9</puntuacion><gramos>30</gramos></item>
+    <item><nombre>Aceite de sésamo</nombre><puntuacion>7</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Vinagre de arroz</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Semillas de sésamo</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Jengibre en polvo</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Salsa Perrins</nombre><puntuacion>6</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Queso en cubitos</nombre><puntuacion>5</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Cebolla molida</nombre><puntuacion>8</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Pasas</nombre><puntuacion>5</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Repollo</nombre><puntuacion>9</puntuacion><gramos>800</gramos></item>
+    <item><nombre>Sobras de cocido</nombre><puntuacion>2</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Jamón cocido</nombre><puntuacion>3</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Aceitunas verdes sin hueso</nombre><puntuacion>7</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Tomate en rodajas</nombre><puntuacion>8</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Filete de ternera fina</nombre><puntuacion>4</puntuacion><gramos>120</gramos></item>
+    <item><nombre>Pan chapata</nombre><puntuacion>3</puntuacion><gramos>200</gramos></item>
+    <item><nombre>Pan de molde integral</nombre><puntuacion>5</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Atún natural en conserva</nombre><puntuacion>9</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Raspas de pescado</nombre><puntuacion>7</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Hueso de rape</nombre><puntuacion>8</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Puerro</nombre><puntuacion>8</puntuacion><gramos>150</gramos></item>
+    <item><nombre>Apio</nombre><puntuacion>9</puntuacion><gramos>100</gramos></item>
+    <item><nombre>Gambas/Langostinos (crudos)</nombre><puntuacion>8</puntuacion><gramos>15</gramos></item>
+    <item><nombre>Calamar, pota o sepia</nombre><puntuacion>8</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Fideos</nombre><puntuacion>4</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Azafrán (colorante amarillo)</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Huevos grandes</nombre><puntuacion>7</puntuacion><gramos>65</gramos></item>
+    <item><nombre>Patatas medianas</nombre><puntuacion>5</puntuacion><gramos>150</gramos></item>
+    <item><nombre>Cebolla mediana</nombre><puntuacion>8</puntuacion><gramos>120</gramos></item>
+    <item><nombre>Lomo de bacalao desalado</nombre><puntuacion>8</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Oblea de empanadilla</nombre><puntuacion>4</puntuacion><gramos>15</gramos></item>
+    <item><nombre>Queso</nombre><puntuacion>5</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Jamón York</nombre><puntuacion>3</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Pepinillo en vinagre</nombre><puntuacion>7</puntuacion><gramos>15</gramos></item>
+    <item><nombre>Kéfir</nombre><puntuacion>9</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Coliflor pequeña</nombre><puntuacion>9</puntuacion><gramos>400</gramos></item>
+    <item><nombre>Yema de huevo</nombre><puntuacion>6</puntuacion><gramos>20</gramos></item>
+    <item><nombre>Parmesano</nombre><puntuacion>6</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Piñón</nombre><puntuacion>8</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Caldo de pescado</nombre><puntuacion>8</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Pimiento del piquillo</nombre><puntuacion>9</puntuacion><gramos>30</gramos></item>
+    <item><nombre>Cubitos de jamón serrano</nombre><puntuacion>2</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Cubitos de jamón</nombre><puntuacion>2</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Queso crema</nombre><puntuacion>6</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Concentrado de tomate</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Nata para montar</nombre><puntuacion>2</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Picatostes</nombre><puntuacion>3</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Filete de bacalao</nombre><puntuacion>9</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Lentejas</nombre><puntuacion>10</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Costillas carnosas en tacos</nombre><puntuacion>2</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Licor de anís</nombre><puntuacion>1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Manteca</nombre><puntuacion>0</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Salchichas</nombre><puntuacion>2</puntuacion><gramos>80</gramos></item>
+    <item><nombre>Salchichas frescas</nombre><puntuacion>2</puntuacion><gramos>80</gramos></item>
+    <item><nombre>Queso cheddar rallado</nombre><puntuacion>4</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Queso gruyer rallado</nombre><puntuacion>5</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Nuez</nombre><puntuacion>8</puntuacion><gramos>5</gramos></item>
+    <item><nombre>Cebolletas chinas</nombre><puntuacion>9</puntuacion><gramos>50</gramos></item>
+    <item><nombre>Salsa teriyaki</nombre><puntuacion>2</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Atún en aceite</nombre><puntuacion>7</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Tomate frito</nombre><puntuacion>4</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Cebolla pequeña</nombre><puntuacion>9</puntuacion><gramos>80</gramos></item>
+    <item><nombre>Pimiento verde</nombre><puntuacion>9</puntuacion><gramos>120</gramos></item>
+    <item><nombre>Café</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Cacao en polvo</nombre><puntuacion>2</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Tableta chocolate negro</nombre><puntuacion>2</puntuacion><gramos>100</gramos></item>
+    <item><nombre>Leche de cabra</nombre><puntuacion>6</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Vinagre de sidra de manzana</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Pan rallado panko</nombre><puntuacion>5</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Queso parmesano</nombre><puntuacion>3</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Solomillo de cerdo</nombre><puntuacion>4</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Seta Shiitake</nombre><puntuacion>9</puntuacion><gramos>20</gramos></item>
+    <item><nombre>Panceta</nombre><puntuacion>1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Pimiento amarillo</nombre><puntuacion>8</puntuacion><gramos>150</gramos></item>
+    <item><nombre>Piña en almíbar</nombre><puntuacion>3</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Noodles</nombre><puntuacion>4</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Jamón serrano</nombre><puntuacion>3</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Queso Asturiano</nombre><puntuacion>4</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Cebolla grande</nombre><puntuacion>9</puntuacion><gramos>200</gramos></item>
+    <item><nombre>Tomate grande</nombre><puntuacion>10</puntuacion><gramos>220</gramos></item>
+    <item><nombre>Yogur natural</nombre><puntuacion>8</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Comino molido</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Cilantro molido</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Garam masala</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Caldo de carne</nombre><puntuacion>4</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Lámina de hojaldre</nombre><puntuacion>2</puntuacion><gramos>230</gramos></item>
+    <item><nombre>Harina de maíz</nombre><puntuacion>5</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Cebollino</nombre><puntuacion>9</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Pepinillo encurtido</nombre><puntuacion>6</puntuacion><gramos>15</gramos></item>
+    <item><nombre>Langostino</nombre><puntuacion>7</puntuacion><gramos>20</gramos></item>
+    <item><nombre>Aceitunas</nombre><puntuacion>6</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Pepinillo</nombre><puntuacion>6</puntuacion><gramos>15</gramos></item>
+    <item><nombre>Rábano</nombre><puntuacion>9</puntuacion><gramos>15</gramos></item>
+    <item><nombre>Mantequilla sin sal</nombre><puntuacion>2</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Salsa de ostras</nombre><puntuacion>4</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Leche</nombre><puntuacion>5</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Muslo de pollo</nombre><puntuacion>6</puntuacion><gramos>180</gramos></item>
+    <item><nombre>Picadillo de jamón</nombre><puntuacion>4</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Sidra natural</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Lomo de cerdo</nombre><puntuacion>5</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Caldo</nombre><puntuacion>4</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Bonito</nombre><puntuacion>8</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Pimiento rojo en lata</nombre><puntuacion>7</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Filete de pollo</nombre><puntuacion>7</puntuacion><gramos>150</gramos></item>
+    <item><nombre>Langostino crudo</nombre><puntuacion>8</puntuacion><gramos>20</gramos></item>
+    <item><nombre>Levadura química</nombre><puntuacion>5</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Cayena</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Canela en rama</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Cerveza</nombre><puntuacion>3</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Piripiri</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Espárragos verdes</nombre><puntuacion>9</puntuacion><gramos>20</gramos></item>
+    <item><nombre>Tomate troceado</nombre><puntuacion>9</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Chili rojo</nombre><puntuacion>8</puntuacion><gramos>15</gramos></item>
+    <item><nombre>Pollo entero alimentado con cereal</nombre><puntuacion>6</puntuacion><gramos>1500</gramos></item>
+    <item><nombre>Parmesano rallado</nombre><puntuacion>5</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Lubina limpia sin espinas</nombre><puntuacion>9</puntuacion><gramos>300</gramos></item>
+    <item><nombre>Perejil fresco</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Pimientos del padrón</nombre><puntuacion>8</puntuacion><gramos>15</gramos></item>
+    <item><nombre>Oreja de cerdo</nombre><puntuacion>3</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Chorizo fresco</nombre><puntuacion>3</puntuacion><gramos>80</gramos></item>
+    <item><nombre>Tomate natural triturado</nombre><puntuacion>9</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Mozarella fresca</nombre><puntuacion>6</puntuacion><gramos>125</gramos></item>
+    <item><nombre>Requesón</nombre><puntuacion>7</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Albahaca fresca</nombre><puntuacion>10</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Carne picada de pollo</nombre><puntuacion>7</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Ñoquis</nombre><puntuacion>5</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Cuartos traseros de pollo</nombre><puntuacion>6</puntuacion><gramos>300</gramos></item>
+    <item><nombre>Semillas de cilantro</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Semillas de comino</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Jengibre fresco</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Colorante alimentario rojo</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Lima</nombre><puntuacion>10</puntuacion><gramos>80</gramos></item>
+    <item><nombre>Arroz basmati</nombre><puntuacion>7</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Cardamomo negro</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Cardamomo verde</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Anís estrellado</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Cilantro fresco</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Hojas de hierbabuena</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Comino en grano</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Chile verde</nombre><puntuacion>8</puntuacion><gramos>15</gramos></item>
+    <item><nombre>Carcasa de pollo</nombre><puntuacion>5</puntuacion><gramos>500</gramos></item>
+    <item><nombre>Costilla de ternera</nombre><puntuacion>6</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Fabes</nombre><puntuacion>8</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Tocino</nombre><puntuacion>3</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Jengibre fresco rallado</nombre><puntuacion>10</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Jengibre</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Merengue</nombre><puntuacion>2</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Alcachofas en trozos congeladas</nombre><puntuacion>9</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Fideos de estrellitas</nombre><puntuacion>4</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Gambas pequeñas</nombre><puntuacion>8</puntuacion><gramos>8</gramos></item>
+    <item><nombre>Coliflor</nombre><puntuacion>10</puntuacion><gramos>600</gramos></item>
+    <item><nombre>Queso manchego</nombre><puntuacion>6</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Levadura instantánea de panadero</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Harina de trigo de fuerza</nombre><puntuacion>5</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Creme Fresh</nombre><puntuacion>2</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Chalota</nombre><puntuacion>8</puntuacion><gramos>40</gramos></item>
+    <item><nombre>Queso feta</nombre><puntuacion>3</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Tomate cherry</nombre><puntuacion>10</puntuacion><gramos>15</gramos></item>
+    <item><nombre>Chile seco</nombre><puntuacion>9</puntuacion><gramos>5</gramos></item>
+    <item><nombre>Arroz de sushi</nombre><puntuacion>3</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Cebolla morada</nombre><puntuacion>8</puntuacion><gramos>120</gramos></item>
+    <item><nombre>Boniato</nombre><puntuacion>9</puntuacion><gramos>200</gramos></item>
+    <item><nombre>Setas ostra</nombre><puntuacion>9</puntuacion><gramos>20</gramos></item>
+    <item><nombre>Kale</nombre><puntuacion>10</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Salsa pesto</nombre><puntuacion>4</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Sake</nombre><puntuacion>2</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Almendra cruda sin piel</nombre><puntuacion>9</puntuacion><gramos>2</gramos></item>
+    <item><nombre>Rebanada de pan</nombre><puntuacion>5</puntuacion><gramos>30</gramos></item>
+    <item><nombre>Vinagre de manzana</nombre><puntuacion>8</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Caldo de verduras</nombre><puntuacion>8</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Espinacas frescas</nombre><puntuacion>10</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Chocolate negro</nombre><puntuacion>4</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Harina de repostería</nombre><puntuacion>3</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Helado de vainilla</nombre><puntuacion>1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Aceitunas negras</nombre><puntuacion>6</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Langostinos</nombre><puntuacion>7</puntuacion><gramos>20</gramos></item>
+    <item><nombre>Almendra laminada</nombre><puntuacion>8</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Pasta de ajo</nombre><puntuacion>6</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Almendra molida</nombre><puntuacion>8</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Salsa de curry</nombre><puntuacion>4</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Leche de coco</nombre><puntuacion>4</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Mostaza en grano</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Jerez dulce</nombre><puntuacion>1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Pan de payés</nombre><puntuacion>3</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Filete de ternera</nombre><puntuacion>5</puntuacion><gramos>150</gramos></item>
+    <item><nombre>Masa quebrada</nombre><puntuacion>2</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Aceite de Oliva</nombre><puntuacion>8</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Aceite de oliva virgen extra</nombre><puntuacion>9</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Salsa Pesto</nombre><puntuacion>4</puntuacion><gramos>-1</gramos></item>
+</ingredient_list>

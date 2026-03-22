@@ -89,7 +89,7 @@ public class AddRecetaActivity extends RecetaBaseActivity {
 
     private void setupIngredientesSection() {
         Spinner spinner = findViewById(R.id.spinner_quantity_unit);
-        setupIngredientes(getResources().getStringArray(R.array.ingredient_list), spinner);
+        setupIngredientes(getResources().getStringArray(R.xml.ingredient_list), spinner);
 
         Button btnAgregarIngrediente = findViewById(R.id.btnAgregarIngrediente);
         btnAgregarIngrediente.setOnClickListener(v -> {

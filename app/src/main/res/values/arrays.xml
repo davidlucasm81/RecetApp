@@ -20,21 +20,21 @@
     </string-array>
     <integer-array name="importance_values">
         <item>1</item>
-        <item>30</item>
+        <item>1000</item>
         <item>1</item>
         <item>1000</item>
         <item>10</item>
         <item>5</item>
         <item>240</item>
         <item>250</item>
+        <item>2</item>
+        <item>150</item>
+        <item>1</item>
         <item>5</item>
-        <item>1</item>
-        <item>1</item>
         <item>5</item>
-        <item>1</item>
-        <item>1</item>
+        <item>80</item>
         <item>10</item>
-        <item>100</item>
+        <item>400</item>
         <item>30</item>
     </integer-array>
 </resources>

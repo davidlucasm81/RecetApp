@@ -239,17 +239,12 @@ public class FirebaseManager {
                         Log.w(TAG, "⚠️ Sincronización background falló (no crítico)", e));
     }
 
-    /**
-     * 🚀 Procesa QuerySnapshot y devuelve lista de recetas SIN calcular puntuaciones
-     * (se calculan lazy en RecetasSrv)
-     */
     private List<Receta> procesarRecetas(Iterable<QueryDocumentSnapshot> snapshots, Context context) {
         List<Receta> recetas = new ArrayList<>();
         for (QueryDocumentSnapshot document : snapshots) {
             try {
                 Receta receta = document.toObject(Receta.class);
-                // ❌ NO calcular puntuaciones aquí - demasiado lento
-                // RecetasSrv.setPuntuacionDada(receta, context);
+                receta.setPuntuacionDada(0); // ← fuerza recálculo siempre
                 recetas.add(receta);
             } catch (Exception e) {
                 Log.e(TAG, "Error parseando receta: " + document.getId(), e);
@@ -586,7 +581,6 @@ public class FirebaseManager {
     }
 
     // ==================== CONVERSIONES ====================
-
     private Map<String, Object> recetaToMap(Receta receta) {
         Map<String, Object> map = new HashMap<>();
 
@@ -601,7 +595,7 @@ public class FirebaseManager {
         map.put("numPersonas", receta.getNumPersonas());
         map.put("shared", receta.isShared());
         map.put("postre", receta.isPostre());
-        map.put("puntuacionDada", receta.getPuntuacionDada());
+        // ← puntuacionDada eliminada: siempre se calcula localmente
         map.put("fechaCalendario", receta.getFechaCalendario());
         map.put("timestamp", FieldValue.serverTimestamp());
 

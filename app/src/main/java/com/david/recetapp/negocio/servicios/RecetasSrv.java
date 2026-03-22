@@ -1,6 +1,7 @@
 package com.david.recetapp.negocio.servicios;
 
 import android.content.Context;
+import android.content.res.XmlResourceParser;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -14,14 +15,14 @@ import com.david.recetapp.negocio.beans.Receta;
 import com.david.recetapp.negocio.beans.RecetaDia;
 import com.david.recetapp.negocio.beans.Temporada;
 
+import org.xmlpull.v1.XmlPullParser;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -38,9 +39,8 @@ public class RecetasSrv {
     // 🚀 Caché de mapas de ingredientes (se crean UNA SOLA VEZ)
     private static Map<String, Integer> ingredientMapCache = null;
     private static Map<String, Integer> unitImportanceMapCache = null;
+    private static Map<String, Integer> gramosMapCache = null; // ← NUEVO
     private static final Object cacheLock = new Object();
-
-    private static final Pattern patternIngredient = Pattern.compile("^(.+)\\s(-?\\d+)$");
 
     // 🚀 ExecutorService para procesamiento en background
     private static final ExecutorService backgroundExecutor = Executors.newSingleThreadExecutor();
@@ -63,16 +63,12 @@ public class RecetasSrv {
 
     // ——— CARGA DESDE FIREBASE OPTIMIZADA ———
 
-    /**
-     * 🚀 VERSIÓN RÁPIDA: No calcula puntuaciones hasta que sea necesario
-     */
     public static void cargarListaRecetas(Context context, RecetasCallback callback) {
         if (!recetasCache.isEmpty()) {
             callback.onSuccess(new ArrayList<>(recetasCache));
             return;
         }
 
-        // Inicializar mapas de caché en background mientras se cargan recetas
         inicializarCachesEnBackground(context);
 
         firebaseManager.cargarRecetas(context, new FirebaseManager.RecetasCallback() {
@@ -80,13 +76,8 @@ public class RecetasSrv {
             public void onSuccess(List<Receta> recetas) {
                 recetasCache.clear();
                 recetasCache.addAll(recetas);
-
                 Log.d(TAG, "✅ Recetas cargadas: " + recetas.size());
-
-                // ✅ Devolver INMEDIATAMENTE sin calcular puntuaciones
                 callback.onSuccess(new ArrayList<>(recetasCache));
-
-                // 🚀 Calcular puntuaciones en BACKGROUND (no bloquea UI)
                 calcularPuntuacionesEnBackground(context);
             }
 
@@ -98,9 +89,6 @@ public class RecetasSrv {
         });
     }
 
-    /**
-     * 🚀 Versión con opción de forzar servidor
-     */
     public static void cargarListaRecetas(Context context, boolean forceServer, RecetasCallback callback) {
         if (!forceServer && !recetasCache.isEmpty()) {
             callback.onSuccess(new ArrayList<>(recetasCache));
@@ -114,11 +102,8 @@ public class RecetasSrv {
             public void onSuccess(List<Receta> recetas) {
                 recetasCache.clear();
                 recetasCache.addAll(recetas);
-
                 Log.d(TAG, "✅ Recetas cargadas (forceServer=" + forceServer + "): " + recetas.size());
-
                 callback.onSuccess(new ArrayList<>(recetasCache));
-
                 calcularPuntuacionesEnBackground(context);
             }
 
@@ -132,13 +117,10 @@ public class RecetasSrv {
 
     // ——— CÁLCULO LAZY DE PUNTUACIONES ———
 
-    /**
-     * 🚀 Inicializa caché de mapas en background (se hace UNA SOLA VEZ)
-     */
     private static void inicializarCachesEnBackground(Context context) {
         synchronized (cacheLock) {
-            if (ingredientMapCache != null && unitImportanceMapCache != null) {
-                return; // Ya están inicializados
+            if (ingredientMapCache != null && unitImportanceMapCache != null && gramosMapCache != null) {
+                return;
             }
         }
 
@@ -152,13 +134,9 @@ public class RecetasSrv {
         });
     }
 
-    /**
-     * 🚀 Calcula puntuaciones de TODAS las recetas en background
-     */
     private static void calcularPuntuacionesEnBackground(Context context) {
         backgroundExecutor.execute(() -> {
             try {
-                // Esperar a que los mapas estén listos
                 inicializarMapas(context);
 
                 long inicio = System.currentTimeMillis();
@@ -179,57 +157,104 @@ public class RecetasSrv {
     }
 
     /**
-     * 🚀 Inicializa mapas de ingredientes y unidades (SOLO UNA VEZ)
+     * 🚀 Inicializa mapas de ingredientes, unidades y gramos (SOLO UNA VEZ)
+     * Parsea el XML directamente para leer <nombre>, <puntuacion> y <gramos>
      */
     private static void inicializarMapas(Context context) {
         synchronized (cacheLock) {
-            if (ingredientMapCache != null && unitImportanceMapCache != null) {
-                return; // Ya inicializados
+            if (ingredientMapCache != null && unitImportanceMapCache != null && gramosMapCache != null) {
+                return;
             }
 
-            // Crear mapa de ingredientes
+            // ——— Mapa de ingredientes y gramos via XmlResourceParser ———
             ingredientMapCache = new HashMap<>();
-            String[] ingredientList = context.getResources().getStringArray(R.array.ingredient_list);
-            for (String s : ingredientList) {
-                Matcher m = patternIngredient.matcher(s.trim());
-                if (m.matches()) {
-                    String nombre = Objects.requireNonNull(m.group(1)).toLowerCase(Locale.getDefault());
-                    int puntuacion = Integer.parseInt(Objects.requireNonNull(m.group(2)));
-                    ingredientMapCache.put(nombre, puntuacion);
+            gramosMapCache = new HashMap<>();
+
+            try {
+                XmlResourceParser parser = context.getResources().getXml(R.xml.ingredient_list);
+                int event = parser.getEventType();
+
+                String nombre = null;
+                int puntuacion = -2;
+                int gramos = -1;
+                String currentTag = null;
+
+                while (event != XmlPullParser.END_DOCUMENT) {
+                    switch (event) {
+                        case XmlPullParser.START_TAG:
+                            currentTag = parser.getName();
+                            if ("item".equals(currentTag)) {
+                                nombre = null;
+                                puntuacion = -2;
+                                gramos = -1;
+                            }
+                            break;
+
+                        case XmlPullParser.TEXT:
+                            if (currentTag == null) break;
+                            String text = parser.getText().trim();
+                            switch (currentTag) {
+                                case "nombre":
+                                    nombre = text;
+                                    break;
+                                case "puntuacion":
+                                    try { puntuacion = Integer.parseInt(text); } catch (NumberFormatException ignored) {}
+                                    break;
+                                case "gramos":
+                                    try { gramos = Integer.parseInt(text); } catch (NumberFormatException ignored) {}
+                                    break;
+                            }
+                            break;
+
+                        case XmlPullParser.END_TAG:
+                            if ("item".equals(parser.getName()) && nombre != null) {
+                                String key = nombre.toLowerCase(Locale.getDefault());
+                                ingredientMapCache.put(key, puntuacion);
+                                gramosMapCache.put(key, gramos);
+                            }
+                            currentTag = null;
+                            break;
+                    }
+                    event = parser.next();
                 }
+                parser.close();
+
+            } catch (Exception e) {
+                Log.e(TAG, "Error parseando ingredient_list XML", e);
             }
 
-            // Crear mapa de unidades
+            // ——— Mapa de unidades ———
             unitImportanceMapCache = new HashMap<>();
             String[] units = context.getResources().getStringArray(R.array.quantity_units);
             int[] importanceValues = context.getResources().getIntArray(R.array.importance_values);
             for (int i = 0; i < units.length; i++) {
-                unitImportanceMapCache.put(units[i], importanceValues[i]);
+                unitImportanceMapCache.put(units[i].trim(), importanceValues[i]);
+            }
+            // Debug temporal
+            for (Map.Entry<String, Integer> e : unitImportanceMapCache.entrySet()) {
+                Log.d(TAG, "UNIT: '" + e.getKey() + "' = " + e.getValue());
             }
         }
     }
 
-    /**
-     * 🚀 Calcula puntuación de UNA receta (versión optimizada)
-     */
     private static void calcularPuntuacion(Receta receta) {
-        if (ingredientMapCache == null || unitImportanceMapCache == null) {
-            return; // Mapas no inicializados todavía
+        if (ingredientMapCache == null || unitImportanceMapCache == null || gramosMapCache == null) {
+            Log.e(TAG, "❌ Mapas null, no se calcula");
+            return;
         }
 
-        // Asignar puntuaciones a ingredientes
+        Log.d(TAG, "🔢 Calculando: " + receta.getNombre());
+
         for (Ingrediente ing : receta.getIngredientes()) {
             String nombre = ing.getNombre().toLowerCase(Locale.getDefault());
             ing.setPuntuacion(ingredientMapCache.getOrDefault(nombre, -2));
         }
 
-        // Calcular cantidad total
         double cantidadTotal = 0;
         for (Ingrediente ing : receta.getIngredientes()) {
             if (ing.getPuntuacion() >= 0) {
                 double cantidad = UtilsSrv.convertirNumero(ing.getCantidad());
-                int importancia = unitImportanceMapCache.getOrDefault(ing.getTipoCantidad(), 1);
-                cantidadTotal += cantidad * importancia;
+                cantidadTotal += cantidad * getImportancia(ing);
             }
         }
 
@@ -238,56 +263,53 @@ public class RecetasSrv {
             return;
         }
 
-        // Calcular puntuación ponderada
         double puntuacionTotal = 0;
         for (Ingrediente ing : receta.getIngredientes()) {
             if (ing.getPuntuacion() >= 0) {
                 double cantidad = UtilsSrv.convertirNumero(ing.getCantidad());
-                int importancia = unitImportanceMapCache.getOrDefault(ing.getTipoCantidad(), 1);
-                double peso = (cantidad * importancia) / cantidadTotal;
+                double peso = (cantidad * getImportancia(ing)) / cantidadTotal;
                 puntuacionTotal += ing.getPuntuacion() * peso;
             }
         }
-
         receta.setPuntuacionDada(puntuacionTotal);
     }
 
-    /**
-     * 🚀 Método público para calcular puntuación ON-DEMAND cuando se necesite
-     */
+    private static int getImportancia(Ingrediente ing) {
+        String tipoCantidad = ing.getTipoCantidad();
+        if ("unidad".equals(tipoCantidad) && gramosMapCache != null) {
+            Integer gramos = gramosMapCache.get(ing.getNombre().toLowerCase(Locale.getDefault()));
+            if (gramos != null && gramos > 0) return gramos;
+        }
+        Integer val = unitImportanceMapCache.get(tipoCantidad);
+        if (val == null) {
+            Log.w(TAG, "Unidad no encontrada en mapa: '" + tipoCantidad + "'");
+        }
+        return val != null ? val : 1;
+    }
+
     public static void setPuntuacionDada(Receta receta, Context context) {
-        // Si mapas no listos, inicializar pero sin bloquear el UI: lanzamos en background y retornamos (o bloquear poco)
-        if (ingredientMapCache == null || unitImportanceMapCache == null) {
+        if (ingredientMapCache == null || unitImportanceMapCache == null || gramosMapCache == null) {
             inicializarCachesEnBackground(context);
-            // opcionalmente: wait por un corto periodo o dejar que la puntuación se calcule cuando los mapas estén listos
             return;
         }
-
         calcularPuntuacion(receta);
     }
 
-
-    /**
-     * 🚀 Asegura que las puntuaciones estén calculadas (para listas que las necesiten)
-     */
     public static void asegurarPuntuacionesCalculadas(Context context, RecetasCallback callback) {
-        if (ingredientMapCache == null || unitImportanceMapCache == null) {
+        if (ingredientMapCache == null || unitImportanceMapCache == null || gramosMapCache == null) {
             inicializarMapas(context);
         }
 
         backgroundExecutor.execute(() -> {
             synchronized (recetasCache) {
                 for (Receta receta : recetasCache) {
-                    if (receta.getPuntuacionDada() == 0) { // No calculada
+                    if (receta.getPuntuacionDada() == 0) {
                         calcularPuntuacion(receta);
                     }
                 }
             }
-
-            // Devolver en hilo principal
             new Handler(Looper.getMainLooper()).post(() -> callback.onSuccess(new ArrayList<>(recetasCache)));
         });
-
     }
 
     // ——— OPERACIONES SOBRE RECETAS ———
@@ -449,9 +471,6 @@ public class RecetasSrv {
         firebaseManager.setUserId(userId);
     }
 
-    /**
-     * 🚀 Limpia cachés (útil para logout/login)
-     */
     public static void limpiarCaches() {
         synchronized (recetasCache) {
             recetasCache.clear();
@@ -459,12 +478,10 @@ public class RecetasSrv {
         synchronized (cacheLock) {
             ingredientMapCache = null;
             unitImportanceMapCache = null;
+            gramosMapCache = null; // ← NUEVO
         }
     }
 
-    /**
-     * 🚀 Apaga el executor al cerrar la app
-     */
     public static void shutdown() {
         backgroundExecutor.shutdown();
     }
