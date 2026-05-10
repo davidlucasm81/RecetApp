@@ -174,7 +174,7 @@ public class EditarRecetaActivity extends RecetaBaseActivity {
     }
 
     private void setupIngredientesSection() {
-        String[] ingredientList = getResources().getStringArray(R.xml.ingredient_list);
+        String[] ingredientList = RecetasSrv.getIngredientListStrings(this);
 
         // Procesar lista de ingredientes para el mapa de puntuaciones
         for (String s : ingredientList) {

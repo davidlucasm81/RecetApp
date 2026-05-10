@@ -482,6 +482,38 @@ public class RecetasSrv {
         }
     }
 
+    /**
+     * Devuelve la lista de ingredientes en formato "Nombre Puntuacion" para las actividades.
+     */
+    public static String[] getIngredientListStrings(Context context) {
+        List<String> list = new ArrayList<>();
+        try {
+            XmlResourceParser parser = context.getResources().getXml(R.xml.ingredient_list);
+            int event = parser.getEventType();
+            String nombre = null;
+            String puntuacion = "-2";
+            String currentTag = null;
+
+            while (event != XmlPullParser.END_DOCUMENT) {
+                if (event == XmlPullParser.START_TAG) {
+                    currentTag = parser.getName();
+                } else if (event == XmlPullParser.TEXT) {
+                    if ("nombre".equals(currentTag)) nombre = parser.getText().trim();
+                    else if ("puntuacion".equals(currentTag)) puntuacion = parser.getText().trim();
+                } else if (event == XmlPullParser.END_TAG && "item".equals(parser.getName())) {
+                    if (nombre != null) list.add(nombre + " " + puntuacion);
+                    nombre = null;
+                    puntuacion = "-2";
+                }
+                event = parser.next();
+            }
+            parser.close();
+        } catch (Exception e) {
+            Log.e(TAG, "Error parseando ingredient_list para actividades", e);
+        }
+        return list.toArray(new String[0]);
+    }
+
     public static void shutdown() {
         backgroundExecutor.shutdown();
     }
