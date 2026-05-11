@@ -239,6 +239,8 @@
     <item><nombre>Maíz</nombre><puntuacion>7</puntuacion><gramos>-1</gramos></item>
     <item><nombre>Láminas de lasaña</nombre><puntuacion>2</puntuacion><gramos>20</gramos></item>
     <item><nombre>Vino blanco</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Vino Blanco Fino</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Vino Tinto Pedro Ximenez</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
     <item><nombre>Tomate natural</nombre><puntuacion>9</puntuacion><gramos>150</gramos></item>
     <item><nombre>Pimiento rojo</nombre><puntuacion>9</puntuacion><gramos>150</gramos></item>
     <item><nombre>Carne picada mixta</nombre><puntuacion>3</puntuacion><gramos>-1</gramos></item>
@@ -337,6 +339,7 @@
     <item><nombre>Pan rallado panko</nombre><puntuacion>5</puntuacion><gramos>-1</gramos></item>
     <item><nombre>Queso parmesano</nombre><puntuacion>3</puntuacion><gramos>-1</gramos></item>
     <item><nombre>Solomillo de cerdo</nombre><puntuacion>4</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Carrilleras de cerdo</nombre><puntuacion>4</puntuacion><gramos>-1</gramos></item>
     <item><nombre>Seta Shiitake</nombre><puntuacion>9</puntuacion><gramos>20</gramos></item>
     <item><nombre>Panceta</nombre><puntuacion>1</puntuacion><gramos>-1</gramos></item>
     <item><nombre>Pimiento amarillo</nombre><puntuacion>8</puntuacion><gramos>150</gramos></item>
@@ -455,4 +458,5 @@
     <item><nombre>Aceite de Oliva</nombre><puntuacion>8</puntuacion><gramos>-1</gramos></item>
     <item><nombre>Aceite de oliva virgen extra</nombre><puntuacion>9</puntuacion><gramos>-1</gramos></item>
     <item><nombre>Salsa Pesto</nombre><puntuacion>4</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Azafrán en polvo</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
 </ingredient_list>

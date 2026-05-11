@@ -250,9 +250,8 @@ public class CalendarioSrv {
         List<ActualizacionFecha> actualizacionesPendientes = new ArrayList<>();
 
         for (Day dia : calendar) {
-            dia.setRecetas(new ArrayList<>());
-
             if (!esDiaAnteriorAlActual(dia)) {
+                dia.setRecetas(new ArrayList<>());
                 // Añadir 2 recetas al día
                 addReceta(cola, recetasUtilizadasRecientemente, dia, actualizacionesPendientes);
                 addReceta(cola, recetasUtilizadasRecientemente, dia, actualizacionesPendientes);
@@ -311,6 +310,7 @@ public class CalendarioSrv {
         Receta receta = obtenerRecetaNoRepetida(cola, recetasUtilizadasRecientemente, dia);
 
         if (receta != null) {
+            receta.setFechaCalendario(new Date(0));
             recetasUtilizadasRecientemente.add(receta);
             cola.offer(receta);
             dia.getRecetas().add(new RecetaDia(receta.getId(), receta.getNumPersonas()));
@@ -323,21 +323,14 @@ public class CalendarioSrv {
     private static Receta obtenerRecetaNoRepetida(Queue<Receta> cola,
                                                   Set<Receta> recetasUtilizadasRecientemente,
                                                   Day dia) {
-        Queue<Receta> colaOriginal = new LinkedList<>(cola);
-
-        while (!cola.isEmpty()) {
-            Receta receta = cola.poll();
-            if (!recetasUtilizadasRecientemente.contains(receta)) {
-                assert receta != null;
-                if (!recetaRepetidaEnProximosDias(receta, dia)) {
-                    colaOriginal.offer(receta);
-                    return receta;
-                }
+        for (Receta receta : cola) { // iteración no destructiva
+            if (!recetasUtilizadasRecientemente.contains(receta) &&
+                    !recetaRepetidaEnProximosDias(receta, dia)) {
+                cola.remove(receta); // elimina solo la seleccionada
+                return receta;       // addReceta la re-añadirá al final
             }
         }
-
-        cola.addAll(colaOriginal);
-        return null;
+        return null; // no hay ninguna válida, cola intacta
     }
 
     private static void limpiarRecetasUtilizadasRecientemente(Set<Receta> recetasUtilizadasRecientemente,
@@ -354,15 +347,10 @@ public class CalendarioSrv {
         recetasUtilizadasRecientemente.removeAll(recetasAEliminar);
     }
 
-    /**
-     * Comprueba si una receta ya está programada en los próximos LIMITE_DIAS días
-     */
     private static boolean recetaRepetidaEnProximosDias(Receta receta, Day dia) {
         Date fechaReceta = receta.getFechaCalendario();
-
         if (fechaReceta == null) return false;
 
-        // Fecha objetivo: día actual del calendario
         Calendar calDia = Calendar.getInstance();
         calDia.set(Calendar.HOUR_OF_DAY, 0);
         calDia.set(Calendar.MINUTE, 0);
@@ -377,10 +365,10 @@ public class CalendarioSrv {
         calReceta.set(Calendar.SECOND, 0);
         calReceta.set(Calendar.MILLISECOND, 0);
 
-        long diffMillis = calReceta.getTimeInMillis() - calDia.getTimeInMillis();
+        long diffMillis = calDia.getTimeInMillis() - calReceta.getTimeInMillis(); // ← invertido
         long diffDays = diffMillis / (24L * 60L * 60L * 1000L);
 
-        return diffDays >= 1 && diffDays <= LIMITE_DIAS;
+        return diffDays >= 0 && diffDays <= LIMITE_DIAS;
     }
 
     private static int obtenerDiasDesdeUltimaUtilizacion(Receta receta, Day day) {
