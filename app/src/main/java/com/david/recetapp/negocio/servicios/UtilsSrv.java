@@ -41,9 +41,19 @@ public class UtilsSrv {
 
     @SuppressLint("RestrictedApi")
     public static Snackbar notificacion(Context context, String mensaje, int duracion) {
+        // Map Toast constants to Snackbar constants or milliseconds
+        int snackbarDuration;
+        if (duracion == 1) { // Toast.LENGTH_LONG
+            snackbarDuration = 4000; // 4 seconds
+        } else if (duracion == 0) { // Toast.LENGTH_SHORT
+            snackbarDuration = 2000; // 2 seconds
+        } else {
+            snackbarDuration = duracion;
+        }
+
         // Crear un Snackbar con el mensaje
         View view = ((Activity) context).findViewById(android.R.id.content); // Vista raíz de la actividad
-        Snackbar snackbar = Snackbar.make(view, "", duracion); // No mostramos el mensaje aquí porque lo personalizamos
+        Snackbar snackbar = Snackbar.make(view, mensaje, snackbarDuration); // Usar mensaje real para respetar duración
 
         // Obtener la vista del Snackbar
         View snackbarView = snackbar.getView();

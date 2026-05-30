@@ -69,6 +69,15 @@ public class CalendarioFragment extends Fragment {
         return rootView;
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        // Carga inicial forzada si no está cargando ya
+        if (!isLoading) {
+            loadCalendarDays(false);
+        }
+    }
+
     private void initializeViews(View rootView) {
         monthYearTextView = rootView.findViewById(R.id.monthYearTextView);
         progressBar = rootView.findViewById(R.id.progressBar);
@@ -124,19 +133,32 @@ public class CalendarioFragment extends Fragment {
                             .setMessage(getString(R.string.confirmar_borrar_calendario))
                             .setPositiveButton(getString(R.string.aceptar), (dialog, which) -> {
                                 isLoading = true;
+                                final int requestId = ++currentRequestId;
                                 if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(true);
                                 else if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
+
+                                // Timeout de seguridad: 8 segundos (borrado puede ser lento)
+                                mainHandler.postDelayed(() -> {
+                                    if (requestId == currentRequestId && isLoading) {
+                                        isLoading = false;
+                                        hideLoading();
+                                        if (isAdded()) {
+                                            UtilsSrv.notificacion(requireContext(), getString(R.string.error_conexion_lenta), Toast.LENGTH_LONG).show();
+                                        }
+                                    }
+                                }, 8000);
 
                                 CalendarioSrv.borrarYRecrearCalendario(requireContext(), new CalendarioSrv.CalendarioCallback() {
                                     @Override
                                     public void onSuccess(List<Day> days) {
                                         mainHandler.post(() -> {
-                                            hideLoading();
+                                            if (requestId != currentRequestId) return;
                                             isLoading = false;
+                                            hideLoading();
                                             if (isAdded()) {
                                                 final int numeroEnBlanco = UtilsSrv.obtenerColumnaCalendario(1);
                                                 adapter.submitDays(days, numeroEnBlanco);
-                                                UtilsSrv.notificacion(requireContext(), getString(R.string.calendario_recreado), Toast.LENGTH_SHORT).show();
+                                                UtilsSrv.notificacion(requireContext(), getString(R.string.calendario_recreado), Toast.LENGTH_LONG).show();
                                             }
                                         });
                                     }
@@ -144,10 +166,11 @@ public class CalendarioFragment extends Fragment {
                                     @Override
                                     public void onFailure(Exception e) {
                                         mainHandler.post(() -> {
-                                            hideLoading();
+                                            if (requestId != currentRequestId) return;
                                             isLoading = false;
+                                            hideLoading();
                                             if (isAdded()) {
-                                                UtilsSrv.notificacion(requireContext(), getString(R.string.error_actualizar_calendario), Toast.LENGTH_SHORT).show();
+                                                UtilsSrv.notificacion(requireContext(), getString(R.string.error_actualizar_calendario), Toast.LENGTH_LONG).show();
                                             }
                                         });
                                     }
@@ -227,18 +250,13 @@ public class CalendarioFragment extends Fragment {
         if (monthYearTextView != null) {
             monthYearTextView.setText(monthYearFormat.format(Calendar.getInstance().getTime()));
         }
-        // ← Ya no llama a loadCalendarDays aquí
     }
 
     /**
      * 🚀 Carga optimizada del calendario
      */
     private void loadCalendarDays(boolean showRefreshing) {
-        loadCalendarDays(showRefreshing, 0);
-    }
-
-    private void loadCalendarDays(boolean showRefreshing, final int attempt) {
-        if (attempt == 0 && isLoading) return;
+        if (isLoading) return;
 
         isLoading = true;
         final int requestId = ++currentRequestId;
@@ -252,47 +270,35 @@ public class CalendarioFragment extends Fragment {
         // Obtener días locales actuales para posible merge
         List<Day> localDays = (adapter != null) ? adapter.getCurrentList() : null;
 
-        // Intento rápido: obtener calendario desde caché en memoria para evitar I/O (solo en el primer intento)
-        if (attempt == 0) {
-            java.util.List<Day> cached = CalendarioSrv.obtenerCalendarioCache(requireContext());
-            if (cached != null && !cached.isEmpty()) {
-                // UI inmediata desde caché (solo si no está vacío para evitar el trap de creación)
-                hideLoading();
-                isLoading = false;
-                if (isAdded()) {
-                    final int numeroEnBlanco = UtilsSrv.obtenerColumnaCalendario(1);
-                    adapter.submitDays(cached, numeroEnBlanco);
-                    if (emptyView != null) emptyView.setVisibility(cached.isEmpty() ? View.VISIBLE : View.GONE);
-                }
-                return;
+        // Intento rápido: obtener calendario desde caché en memoria para evitar I/O
+        java.util.List<Day> cached = CalendarioSrv.obtenerCalendarioCache(requireContext());
+        if (cached != null && !cached.isEmpty()) {
+            isLoading = false;
+            hideLoading();
+            if (isAdded()) {
+                final int numeroEnBlanco = UtilsSrv.obtenerColumnaCalendario(1);
+                adapter.submitDays(cached, numeroEnBlanco);
+                if (emptyView != null) emptyView.setVisibility(cached.isEmpty() ? View.VISIBLE : View.GONE);
             }
+            return;
         }
 
-        // Lógica de Timeout: 3 segundos
+        // Lógica de Notificación por Conexión Lenta: 6 segundos
         mainHandler.postDelayed(() -> {
-            if (requestId == currentRequestId && isLoading && isAdded()) {
-                if (attempt == 0) {
-                    // Primer timeout: Reintentar una vez
-                    UtilsSrv.notificacion(requireContext(), getString(R.string.reintentando_carga), Toast.LENGTH_SHORT).show();
-                    loadCalendarDays(showRefreshing, 1);
-                } else {
-                    // Segundo timeout: Notificar error final (duración larga)
-                    hideLoading();
-                    isLoading = false;
+            if (requestId == currentRequestId && isLoading) {
+                if (isAdded()) {
                     UtilsSrv.notificacion(requireContext(), getString(R.string.error_conexion_lenta), Toast.LENGTH_LONG).show();
                 }
             }
-        }, 3000);
+        }, 6000);
 
         CalendarioSrv.obtenerCalendario(requireContext(), localDays, new CalendarioSrv.CalendarioCallback() {
             @Override
             public void onSuccess(List<Day> days) {
-                if (requestId != currentRequestId) return;
-
                 mainHandler.post(() -> {
-                    // ✅ Siempre limpiar estado ANTES de comprobar isAdded
-                    hideLoading();
+                    if (requestId != currentRequestId) return;
                     isLoading = false;
+                    hideLoading();
 
                     if (!isAdded()) return;
 
@@ -307,12 +313,10 @@ public class CalendarioFragment extends Fragment {
 
             @Override
             public void onFailure(Exception e) {
-                if (requestId != currentRequestId) return;
-
                 mainHandler.post(() -> {
-                    // ✅ Siempre limpiar estado ANTES de comprobar isAdded
-                    hideLoading();
+                    if (requestId != currentRequestId) return;
                     isLoading = false;
+                    hideLoading();
 
                     if (!isAdded()) return;
 
@@ -348,10 +352,10 @@ public class CalendarioFragment extends Fragment {
                             if (numPersonas >= 1) {
                                 rellenarDias(diaInicio, diaFin, numPersonas);
                             } else {
-                                UtilsSrv.notificacion(requireContext(), getString(R.string.numero_personas_incorrecto), Toast.LENGTH_SHORT).show();
+                                UtilsSrv.notificacion(requireContext(), getString(R.string.numero_personas_incorrecto), Toast.LENGTH_LONG).show();
                             }
                         } catch (NumberFormatException e) {
-                            UtilsSrv.notificacion(requireContext(), getString(R.string.numero_personas_incorrecto), Toast.LENGTH_SHORT).show();
+                            UtilsSrv.notificacion(requireContext(), getString(R.string.numero_personas_incorrecto), Toast.LENGTH_LONG).show();
                         }
                     }
                 })
@@ -376,6 +380,7 @@ public class CalendarioFragment extends Fragment {
     private void rellenarDias(int diaInicio, int diaFin, int numPersonas) {
         if (isLoading) return;
         isLoading = true;
+        final int requestId = ++currentRequestId;
 
         if (swipeRefreshLayout != null) {
             swipeRefreshLayout.setRefreshing(true);
@@ -383,29 +388,44 @@ public class CalendarioFragment extends Fragment {
             progressBar.setVisibility(View.VISIBLE);
         }
 
+        // Timeout de seguridad: 8 segundos
+        mainHandler.postDelayed(() -> {
+            if (requestId == currentRequestId && isLoading) {
+                isLoading = false;
+                hideLoading();
+                if (isAdded()) {
+                    UtilsSrv.notificacion(requireContext(), getString(R.string.error_conexion_lenta), Toast.LENGTH_LONG).show();
+                }
+            }
+        }, 8000);
+
         CalendarioSrv.rellenarRangoDias(requireContext(), diaInicio, diaFin, true, numPersonas, new CalendarioSrv.RellenarCallback() {
             @Override
             public void onSuccess(List<Day> updatedCalendar) {
                 mainHandler.post(() -> {
-                    if (!isAdded()) return;
-                    // Actualizar UI inmediatamente con el calendario modificado
-                    hideLoading();
+                    if (requestId != currentRequestId) return;
                     isLoading = false;
+                    hideLoading();
+
+                    if (!isAdded()) return;
 
                     final int numeroEnBlanco = UtilsSrv.obtenerColumnaCalendario(1);
                     if (adapter != null) adapter.submitDays(updatedCalendar, numeroEnBlanco);
 
-                    UtilsSrv.notificacion(requireContext(), getString(R.string.calendario_actualizado), Toast.LENGTH_SHORT).show();
+                    UtilsSrv.notificacion(requireContext(), getString(R.string.calendario_actualizado), Toast.LENGTH_LONG).show();
                 });
             }
 
             @Override
             public void onFailure(Exception e) {
                 mainHandler.post(() -> {
-                    if (!isAdded()) return;
-                    hideLoading();
+                    if (requestId != currentRequestId) return;
                     isLoading = false;
-                    UtilsSrv.notificacion(requireContext(), getString(R.string.error_actualizar_calendario), Toast.LENGTH_SHORT).show();
+                    hideLoading();
+
+                    if (!isAdded()) return;
+
+                    UtilsSrv.notificacion(requireContext(), getString(R.string.error_actualizar_calendario), Toast.LENGTH_LONG).show();
                     loadCalendarDays(true);
                 });
             }
