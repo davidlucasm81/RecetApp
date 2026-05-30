@@ -657,35 +657,118 @@ public class CalendarioSrv {
                 RecetasSrv.cargarListaRecetas(context, new RecetasSrv.RecetasCallback() {
                     @Override
                     public void onSuccess(List<Receta> listaRecetas) {
-                        Map<String, Map<String, BigDecimal>> resultado = new ConcurrentHashMap<>();
+                        Log.d(TAG, "🚀 Generando lista de compra para " + (diaFin - diaInicio + 1) + " días");
+                        try {
+                            RecetasSrv.inicializarMapas(context);
+                            // Usamos ConcurrentHashMap en ambos niveles para seguridad en parallelStream
+                            // La clave del primer mapa será el nombre normalizado (lowercase)
+                            Map<String, ConcurrentHashMap<String, BigDecimal>> resultado = new ConcurrentHashMap<>();
+                            // Mapa para mantener el nombre original a mostrar
+                            Map<String, String> nombresDisplay = new ConcurrentHashMap<>();
 
-                        calendario.parallelStream()
-                                .filter(dia -> dia.getDayOfMonth() >= diaInicio &&
-                                        dia.getDayOfMonth() <= diaFin)
-                                .flatMap(d -> RecetasSrv.getRecetasAdaptadasCalendario(listaRecetas, d).stream())
-                                .flatMap(receta -> receta.getIngredientes().stream())
-                                .forEach(ingrediente -> {
-                                    String nombreIngrediente = ingrediente.getNombre();
-                                    String tipoCantidad = ingrediente.getTipoCantidad();
-                                    BigDecimal cantidad = BigDecimal.valueOf(
-                                            UtilsSrv.convertirNumero(ingrediente.getCantidad()));
+                            calendario.parallelStream()
+                                    .filter(dia -> dia.getDayOfMonth() >= diaInicio &&
+                                            dia.getDayOfMonth() <= diaFin)
+                                    .flatMap(d -> {
+                                        List<Receta> adaptadas = RecetasSrv.getRecetasAdaptadasCalendario(listaRecetas, d);
+                                        Log.d(TAG, "📅 Día " + d.getDayOfMonth() + ": " + adaptadas.size() + " recetas");
+                                        return adaptadas.stream();
+                                    })
+                                    .flatMap(receta -> receta.getIngredientes().stream())
+                                    .forEach(ingrediente -> {
+                                        String nombreOriginal = ingrediente.getNombre();
+                                        if (nombreOriginal == null || nombreOriginal.trim().isEmpty()) return;
 
-                                    resultado.computeIfAbsent(nombreIngrediente, k -> new HashMap<>())
-                                            .merge(tipoCantidad, cantidad, BigDecimal::add);
-                                });
+                                        String nombreNormalizado = nombreOriginal.trim().toLowerCase(java.util.Locale.getDefault());
+                                        nombresDisplay.putIfAbsent(nombreNormalizado, nombreOriginal.trim());
 
-                        // Construcción de la lista de compra
-                        StringBuilder listaCompra = new StringBuilder();
-                        resultado.forEach((nombreIngrediente, ingredientesMap) ->
-                                ingredientesMap.forEach((tipoCantidad, cantidad) ->
-                                        listaCompra.append(cantidad.stripTrailingZeros().toPlainString())
-                                                .append(" ")
-                                                .append(tipoCantidad)
-                                                .append(" ")
-                                                .append(nombreIngrediente)
-                                                .append("\n")));
+                                        String tipoCantidad = ingrediente.getTipoCantidad() != null ? ingrediente.getTipoCantidad() : "";
+                                        BigDecimal cantidad = BigDecimal.valueOf(
+                                                UtilsSrv.convertirNumero(ingrediente.getCantidad()));
 
-                        callback.onSuccess(listaCompra.toString());
+                                        resultado.computeIfAbsent(nombreNormalizado, k -> new ConcurrentHashMap<>())
+                                                .merge(tipoCantidad, cantidad, BigDecimal::add);
+                                    });
+
+                            Log.d(TAG, "📦 Consolidando unidades para " + resultado.size() + " ingredientes únicos");
+
+                            // Consolidación de unidades a gramos si hay mezcla
+                            resultado.forEach((nombreNorm, mapUnidades) -> {
+                                if (mapUnidades.size() > 1) {
+                                    BigDecimal totalGramos = BigDecimal.ZERO;
+                                    boolean convertidaAlguna = false;
+
+                                    for (Map.Entry<String, BigDecimal> entry : mapUnidades.entrySet()) {
+                                        String unidad = entry.getKey();
+                                        BigDecimal cant = entry.getValue();
+
+                                        BigDecimal gramos = convertirAGramos(nombreNorm, unidad, cant);
+                                        if (gramos != null) {
+                                            totalGramos = totalGramos.add(gramos);
+                                            convertidaAlguna = true;
+                                        }
+                                    }
+
+                                    if (convertidaAlguna) {
+                                        mapUnidades.clear();
+                                        mapUnidades.put("g", totalGramos);
+                                    }
+                                }
+                            });
+
+                            // Construcción de la lista de compra
+                            StringBuilder listaCompra = new StringBuilder();
+                            resultado.keySet().stream()
+                                    .sorted()
+                                    .forEach(nombreNorm -> {
+                                        String display = nombresDisplay.get(nombreNorm);
+                                        if (display != null && !display.isEmpty()) {
+                                            display = Character.toUpperCase(display.charAt(0)) + display.substring(1);
+                                        }
+
+                                        ConcurrentHashMap<String, BigDecimal> unidades = resultado.get(nombreNorm);
+                                        if (unidades != null) {
+                                            String finalDisplay = display;
+                                            unidades.forEach((tipoCantidad, cantidad) -> {
+                                                String cantStr = cantidad.stripTrailingZeros().toPlainString();
+                                                listaCompra.append(cantStr)
+                                                        .append(" ")
+                                                        .append(tipoCantidad)
+                                                        .append(" ")
+                                                        .append(finalDisplay)
+                                                        .append("\n");
+                                            });
+                                        }
+                                    });
+
+                            Log.d(TAG, "✅ Lista de compra generada exitosamente");
+                            callback.onSuccess(listaCompra.toString());
+
+                        } catch (Exception e) {
+                            Log.e(TAG, "❌ Error fatal generando lista de compra", e);
+                            callback.onFailure(e);
+                        }
+                    }
+
+                    private BigDecimal convertirAGramos(String nombre, String unidad, BigDecimal cantidad) {
+                        if ("g".equalsIgnoreCase(unidad)) return cantidad;
+                        if ("kg".equalsIgnoreCase(unidad)) return cantidad.multiply(new BigDecimal("1000"));
+                        if ("ml".equalsIgnoreCase(unidad)) return cantidad;
+                        if ("l".equalsIgnoreCase(unidad)) return cantidad.multiply(new BigDecimal("1000"));
+
+                        if ("unidad".equalsIgnoreCase(unidad)) {
+                            Integer gPorUnidad = RecetasSrv.gramosMapCache.get(nombre.toLowerCase(java.util.Locale.getDefault()));
+                            if (gPorUnidad != null && gPorUnidad > 0) {
+                                return cantidad.multiply(new BigDecimal(gPorUnidad));
+                            }
+                        }
+
+                        Integer importancia = RecetasSrv.unitImportanceMapCache.get(unidad);
+                        if (importancia != null && importancia > 0) {
+                            return cantidad.multiply(new BigDecimal(importancia));
+                        }
+
+                        return null;
                     }
 
                     @Override

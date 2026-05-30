@@ -38,8 +38,8 @@ public class RecetasSrv {
 
     // 🚀 Caché de mapas de ingredientes (se crean UNA SOLA VEZ)
     private static Map<String, Integer> ingredientMapCache = null;
-    private static Map<String, Integer> unitImportanceMapCache = null;
-    private static Map<String, Integer> gramosMapCache = null; // ← NUEVO
+    public static Map<String, Integer> unitImportanceMapCache = null;
+    public static Map<String, Integer> gramosMapCache = null; // ← NUEVO
     private static final Object cacheLock = new Object();
 
     // 🚀 ExecutorService para procesamiento en background
@@ -160,7 +160,7 @@ public class RecetasSrv {
      * 🚀 Inicializa mapas de ingredientes, unidades y gramos (SOLO UNA VEZ)
      * Parsea el XML directamente para leer <nombre>, <puntuacion> y <gramos>
      */
-    private static void inicializarMapas(Context context) {
+    public static void inicializarMapas(Context context) {
         synchronized (cacheLock) {
             if (ingredientMapCache != null && unitImportanceMapCache != null && gramosMapCache != null) {
                 return;
