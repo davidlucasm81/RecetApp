@@ -5,6 +5,8 @@ import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
 import com.david.recetapp.R;
 import com.david.recetapp.negocio.beans.Day;
 import com.david.recetapp.negocio.beans.Receta;
@@ -13,12 +15,14 @@ import com.david.recetapp.negocio.beans.RecetaDia;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
@@ -37,6 +41,9 @@ public class CalendarioSrv {
     private static final java.util.Random RANDOM = new java.util.Random();
     private static final FirebaseManager firebaseManager = new FirebaseManager();
 
+    // ← ID del usuario activo; toda operación con datos requiere que esté configurado
+    private static volatile String currentUserId = null;
+
     public interface CalendarioCallback {
         void onSuccess(List<Day> days);
         void onFailure(Exception e);
@@ -52,17 +59,66 @@ public class CalendarioSrv {
         void onFailure(Exception e);
     }
 
-    // Nuevo callback que devuelve el calendario modificado para UI optimista
     public interface RellenarCallback {
         void onSuccess(List<Day> updatedCalendar);
         void onFailure(Exception e);
     }
 
+    // ——— Helpers de validación de userId ———
+
+    /**
+     * Comprueba que no hay un userId activo antes de cualquier operación con datos.
+     * Llama a {@code cb.onFailure} y devuelve {@code true} si no está configurado.
+     */
+    private static boolean checkNotUserId(CalendarioCallback cb) {
+        if (currentUserId == null || currentUserId.isEmpty()) {
+            Log.e(TAG, "❌ Operación rechazada: userId no configurado");
+            if (cb != null) cb.onFailure(new IllegalStateException("UserId no configurado"));
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean checkUserId(SimpleCallback cb) {
+        if (currentUserId == null || currentUserId.isEmpty()) {
+            Log.e(TAG, "❌ Operación rechazada: userId no configurado");
+            if (cb != null) cb.onFailure(new IllegalStateException("UserId no configurado"));
+            return false;
+        }
+        return true;
+    }
+
+    private static boolean checkUserId(ListaCompraCallback cb) {
+        if (currentUserId == null || currentUserId.isEmpty()) {
+            Log.e(TAG, "❌ Operación rechazada: userId no configurado");
+            if (cb != null) cb.onFailure(new IllegalStateException("UserId no configurado"));
+            return false;
+        }
+        return true;
+    }
+
+    private static boolean checkUserId(RellenarCallback cb) {
+        if (currentUserId == null || currentUserId.isEmpty()) {
+            Log.e(TAG, "❌ Operación rechazada: userId no configurado");
+            if (cb != null) cb.onFailure(new IllegalStateException("UserId no configurado"));
+            return false;
+        }
+        return true;
+    }
+
+    /** Versión sin callback para métodos fire-and-forget. */
+    private static boolean notHasUserId() {
+        return currentUserId == null || currentUserId.isEmpty();
+    }
+
+    // ——— CALENDARIO ———
+
     public static void borrarYRecrearCalendario(Context context, CalendarioCallback callback) {
+        if (checkNotUserId(callback)) return;
+
         firebaseManager.eliminarCalendarioActual(new FirebaseManager.SimpleCallback() {
             @Override
             public void onSuccess() {
-                // Trigger recreation by calling obtenerCalendario
                 obtenerCalendario(context, callback);
             }
             @Override
@@ -73,16 +129,17 @@ public class CalendarioSrv {
     }
 
     public static void obtenerCalendario(Context context, CalendarioCallback callback) {
+        if (checkNotUserId(callback)) return;
         obtenerCalendario(context, null, callback);
     }
 
     public static void obtenerCalendario(Context context, List<Day> localDays, CalendarioCallback callback) {
-        // Usar estrategia cache-first: pedir caché local de Firestore y, en background, sincronizar con servidor
+        if (checkNotUserId(callback)) return;
+
         firebaseManager.obtenerCalendario(null, new FirebaseManager.CalendarioCallback() {
             @Override
             public void onSuccess(List<Day> days) {
                 if (days.isEmpty()) {
-                    // 🗑️ Mes nuevo o inexistente: borrar el calendario anterior antes de generar el nuevo
                     firebaseManager.eliminarCalendarioMesAnterior(new FirebaseManager.SimpleCallback() {
                         @Override
                         public void onSuccess() {
@@ -91,7 +148,6 @@ public class CalendarioSrv {
                             if (localDays != null && !localDays.isEmpty()) {
                                 newDays = mergeCalendarios(localDays, newDays);
                             }
-                            // 🚀 Guardar el calendario VACÍO al crear
                             final List<Day> finalNewDays = newDays;
                             guardarCalendario(context, newDays, new SimpleCallback() {
                                 @Override
@@ -120,7 +176,6 @@ public class CalendarioSrv {
                     List<Day> finalDays = days;
                     if (localDays != null && !localDays.isEmpty()) {
                         finalDays = mergeCalendarios(localDays, days);
-                        // Si hubo cambios, sincronizar de vuelta a Firebase en background
                         if (!finalDays.equals(days)) {
                             Log.d(TAG, "Sincronizando calendario mergeado a Firebase");
                             guardarCalendario(context, finalDays, null);
@@ -133,7 +188,6 @@ public class CalendarioSrv {
             @Override
             public void onFailure(Exception e) {
                 Log.e(TAG, "Error obteniendo calendario del servidor, intentando caché local", e);
-                // Si falla servidor (ej: offline), intentar usar el de caché persistente de Firestore
                 firebaseManager.obtenerCalendario(com.google.firebase.firestore.Source.CACHE, new FirebaseManager.CalendarioCallback() {
                     @Override
                     public void onSuccess(List<Day> cachedDays) {
@@ -169,18 +223,15 @@ public class CalendarioSrv {
         if (server == null || server.isEmpty()) return local;
 
         Map<Integer, Day> mergedMap = new HashMap<>();
-        // Primero cargamos todo lo del servidor
         for (Day d : server) {
             mergedMap.put(d.getDayOfMonth(), new Day(d.getDayOfMonth(), new ArrayList<>(d.getRecetas())));
         }
 
-        // Luego mergeamos lo local
         for (Day localDay : local) {
             Day existing = mergedMap.get(localDay.getDayOfMonth());
             if (existing == null) {
                 mergedMap.put(localDay.getDayOfMonth(), localDay);
             } else {
-                // Mezclar recetas evitando duplicados por ID
                 Set<String> recipeIds = existing.getRecetas().stream()
                         .map(RecetaDia::getIdReceta)
                         .collect(Collectors.toSet());
@@ -195,12 +246,19 @@ public class CalendarioSrv {
         }
 
         return mergedMap.values().stream()
-                .sorted((d1, d2) -> d1.getDayOfMonth() - d2.getDayOfMonth())
+                .sorted(Comparator.comparingInt(Day::getDayOfMonth))
                 .collect(Collectors.toList());
     }
 
-    // Devuelve el calendario cacheado si está válido (sin I/O) — útil para UI rápida
-    public static List<Day> obtenerCalendarioCache(Context context) {
+    /**
+     * Devuelve el calendario cacheado si está válido (sin I/O).
+     * Requiere userId activo; si no está configurado devuelve null.
+     */
+    public static List<Day> obtenerCalendarioCache() {
+        if (notHasUserId()) {
+            Log.w(TAG, "⚠️ obtenerCalendarioCache llamado sin userId — devuelve null");
+            return null;
+        }
         return firebaseManager.getCachedCalendarioIfValid();
     }
 
@@ -241,6 +299,8 @@ public class CalendarioSrv {
     // ==================== ACTUALIZAR DÍA ====================
 
     public static void actualizarDia(Activity activity, Day selectedDay, SimpleCallback callback) {
+        if (!checkUserId(callback)) return;
+
         firebaseManager.actualizarDia(selectedDay, new FirebaseManager.SimpleCallback() {
             @Override
             public void onSuccess() {
@@ -279,30 +339,21 @@ public class CalendarioSrv {
 
     // ==================== ACTUALIZAR FECHA CALENDARIO ====================
 
-    // Aplicar actualización localmente en caché (sin I/O) para UI instantánea
+    /** Aplica actualización localmente en caché (sin I/O) para UI instantánea. */
     public static void aplicarActualizacionLocalDia(Day day) {
+        if (notHasUserId()) {
+            Log.w(TAG, "⚠️ aplicarActualizacionLocalDia sin userId — operación ignorada");
+            return;
+        }
         firebaseManager.applyLocalDayUpdate(day);
     }
 
-    // Actualizar día en Firebase en background sin bloquear la UI ni cargar recetas
-    public static void actualizarDiaAsync(Day day) {
-        firebaseManager.actualizarDia(day, new FirebaseManager.SimpleCallback() {
-            @Override
-            public void onSuccess() {
-                Log.d(TAG, "Actualización de día enviada a Firebase (async): " + day.getDayOfMonth());
-            }
-
-            @Override
-            public void onFailure(Exception e) {
-                Log.e(TAG, "Error sincronizando día en background", e);
-                // Error en background: registrar para diagnóstico (no bloquear UI)
-                Log.w(TAG, "Error sincronizando día en background: " + e.getMessage());
-            }
-        });
-    }
-
-
     public static void actualizarFechaCalendario(Activity activity, String idReceta) {
+        if (notHasUserId()) {
+            Log.e(TAG, "❌ actualizarFechaCalendario sin userId — operación ignorada");
+            return;
+        }
+
         obtenerCalendario(activity, new CalendarioCallback() {
             @Override
             public void onSuccess(List<Day> dias) {
@@ -342,14 +393,13 @@ public class CalendarioSrv {
     }
 
     private static void addReceta(Queue<Receta> cola,
-                                   Set<Receta> recetasUtilizadasRecientemente,
-                                   Day dia,
-                                   List<ActualizacionFecha> actualizacionesPendientes,
-                                   int numPersonas) {
-        // Intentar hasta N veces encontrar una receta válida que no esté ya en el día
+                                  Set<Receta> recetasUtilizadasRecientemente,
+                                  Day dia,
+                                  List<ActualizacionFecha> actualizacionesPendientes,
+                                  int numPersonas) {
         final int MAX_TRIES = 12;
         int tries = 0;
-        Receta receta = null;
+        Receta receta;
 
         while (tries < MAX_TRIES && !cola.isEmpty()) {
             receta = obtenerRecetaNoRepetida(cola, recetasUtilizadasRecientemente, dia);
@@ -360,13 +410,10 @@ public class CalendarioSrv {
             boolean yaEnDia = dia.getRecetas().stream()
                     .anyMatch(rd -> rd.getIdReceta().equals(recetaId));
             if (yaEnDia) {
-                // Ya existe en este día, intentar siguiente
-                cola.offer(receta); // devolver al final
-                receta = null;
+                cola.offer(receta);
                 continue;
             }
 
-            // Si pasa las comprobaciones, lo usamos
             Calendar cal = Calendar.getInstance();
             cal.set(Calendar.DAY_OF_MONTH, dia.getDayOfMonth());
             cal.set(Calendar.HOUR_OF_DAY, 0);
@@ -375,10 +422,8 @@ public class CalendarioSrv {
             cal.set(Calendar.MILLISECOND, 0);
             Date proposedDate = cal.getTime();
 
-            // Solo actualizar la fecha si la nueva es posterior a la existente
             if (receta.getFechaCalendario() == null || proposedDate.after(receta.getFechaCalendario())) {
                 receta.setFechaCalendario(proposedDate);
-                // Añadir a actualizaciones pendientes para el batch de Firebase
                 actualizacionesPendientes.add(new ActualizacionFecha(recetaId, dia.getDayOfMonth()));
             }
 
@@ -386,7 +431,7 @@ public class CalendarioSrv {
             cola.offer(receta);
 
             int personasToSet = (numPersonas > 0) ? numPersonas : receta.getNumPersonas();
-            if (personasToSet <= 0) personasToSet = 2; // Fallback
+            if (personasToSet <= 0) personasToSet = 2;
 
             dia.getRecetas().add(new RecetaDia(recetaId, personasToSet));
             break;
@@ -396,7 +441,6 @@ public class CalendarioSrv {
     private static Receta obtenerRecetaNoRepetida(Queue<Receta> cola,
                                                   Set<Receta> recetasUtilizadasRecientemente,
                                                   Day dia) {
-        // Construir lista de candidatos válidos aplicando filtros pero sin perder el orden original
         List<Receta> candidatos = new ArrayList<>();
         for (Receta receta : cola) {
             if (recetasUtilizadasRecientemente.contains(receta)) continue;
@@ -421,25 +465,21 @@ public class CalendarioSrv {
 
         if (candidatos.isEmpty()) return null;
 
-        // Si solo hay uno, devolverlo rápidamente
         if (candidatos.size() == 1) {
             Receta r = candidatos.get(0);
             cola.remove(r);
             return r;
         }
 
-        // Selección ponderada: priorizar puntuacionDada pero añadir aleatoriedad
         double totalWeight = 0.0;
         double[] weights = new double[candidatos.size()];
         for (int i = 0; i < candidatos.size(); i++) {
             Receta r = candidatos.get(i);
             double score = 0.0;
             try { score = r.getPuntuacionDada(); } catch (Exception ignored) {}
-            // Normalizar/fallback: garantizar valor positivo para ponderación
             if (Double.isNaN(score) || score <= 0.0) score = 1.0;
-            else score = score + 1.0; // desplazar para evitar pesos pequeños
+            else score = score + 1.0;
 
-            // Small randomness factor to avoid determinismo absoluto
             double noise = 0.1 * RANDOM.nextDouble();
             double w = score + noise;
             weights[i] = w;
@@ -455,16 +495,12 @@ public class CalendarioSrv {
         }
 
         Receta selected = candidatos.get(selectedIdx);
-        // Eliminar la primera aparición en la cola
         cola.remove(selected);
         return selected;
     }
 
     /**
-     * Determina si dos recetas son muy parecidas basándose en la intersección de nombres de ingredientes.
-     * Ingredientes con puntuación < 0 (no sanos o irrelevantes) se ignoran en la comparación.
-     * Regla: si comparten >=2 ingredientes válidos o la proporción de coincidencia sobre el
-     * menor número de ingredientes válidos es >=50%, se consideran similares.
+     * Determina si dos recetas son muy parecidas basándose en la intersección de ingredientes.
      */
     private static boolean recetasSimilares(Receta a, Receta b) {
         if (a == null || b == null) return false;
@@ -474,10 +510,7 @@ public class CalendarioSrv {
         if (a.getIngredientes() != null) {
             for (com.david.recetapp.negocio.beans.Ingrediente ing : a.getIngredientes()) {
                 if (ing == null) continue;
-                // Ignorar ingredientes con puntuación negativa
-                try {
-                    if (ing.getPuntuacion() < 0) continue;
-                } catch (Exception ignored) {}
+                try { if (ing.getPuntuacion() < 0) continue; } catch (Exception ignored) {}
                 if (ing.getNombre() != null && !ing.getNombre().trim().isEmpty())
                     listaA.add(ing.getNombre().toLowerCase(java.util.Locale.getDefault()).trim());
             }
@@ -485,9 +518,7 @@ public class CalendarioSrv {
         if (b.getIngredientes() != null) {
             for (com.david.recetapp.negocio.beans.Ingrediente ing : b.getIngredientes()) {
                 if (ing == null) continue;
-                try {
-                    if (ing.getPuntuacion() < 0) continue;
-                } catch (Exception ignored) {}
+                try { if (ing.getPuntuacion() < 0) continue; } catch (Exception ignored) {}
                 if (ing.getNombre() != null && !ing.getNombre().trim().isEmpty())
                     listaB.add(ing.getNombre().toLowerCase(java.util.Locale.getDefault()).trim());
             }
@@ -540,7 +571,7 @@ public class CalendarioSrv {
         calReceta.set(Calendar.SECOND, 0);
         calReceta.set(Calendar.MILLISECOND, 0);
 
-        long diffMillis = calDia.getTimeInMillis() - calReceta.getTimeInMillis(); // ← invertido
+        long diffMillis = calDia.getTimeInMillis() - calReceta.getTimeInMillis();
         long diffDays = diffMillis / (24L * 60L * 60L * 1000L);
 
         return diffDays >= 0 && diffDays <= LIMITE_DIAS;
@@ -549,7 +580,7 @@ public class CalendarioSrv {
     private static int obtenerDiasDesdeUltimaUtilizacion(Receta receta, Day day) {
         Date fechaUltimaUtilizacion = receta.getFechaCalendario();
 
-        if (fechaUltimaUtilizacion == null) return Integer.MAX_VALUE; // no usada antes
+        if (fechaUltimaUtilizacion == null) return Integer.MAX_VALUE;
 
         Calendar calReceta = Calendar.getInstance();
         calReceta.setTime(fechaUltimaUtilizacion);
@@ -582,20 +613,18 @@ public class CalendarioSrv {
      */
     public static void getListaCompra(Context context, int diaInicio, int diaFin,
                                       ListaCompraCallback callback) {
+        if (!checkUserId(callback)) return;
+
         obtenerCalendario(context, new CalendarioCallback() {
             @Override
             public void onSuccess(List<Day> calendario) {
-                // 🚀 Usar caché de recetas (no forzar servidor)
                 RecetasSrv.cargarListaRecetas(context, new RecetasSrv.RecetasCallback() {
                     @Override
                     public void onSuccess(List<Receta> listaRecetas) {
                         Log.d(TAG, "🚀 Generando lista de compra para " + (diaFin - diaInicio + 1) + " días");
                         try {
                             RecetasSrv.inicializarMapas(context);
-                            // Usamos ConcurrentHashMap en ambos niveles para seguridad en parallelStream
-                            // La clave del primer mapa será el nombre normalizado (lowercase)
                             Map<String, ConcurrentHashMap<String, BigDecimal>> resultado = new ConcurrentHashMap<>();
-                            // Mapa para mantener el nombre original a mostrar
                             Map<String, String> nombresDisplay = new ConcurrentHashMap<>();
 
                             calendario.parallelStream()
@@ -624,7 +653,6 @@ public class CalendarioSrv {
 
                             Log.d(TAG, "📦 Consolidando unidades para " + resultado.size() + " ingredientes únicos");
 
-                            // Consolidación de unidades a gramos si hay mezcla
                             resultado.forEach((nombreNorm, mapUnidades) -> {
                                 if (mapUnidades.size() > 1) {
                                     BigDecimal totalGramos = BigDecimal.ZERO;
@@ -648,7 +676,6 @@ public class CalendarioSrv {
                                 }
                             });
 
-                            // Construcción de la lista de compra
                             StringBuilder listaCompra = new StringBuilder();
                             resultado.keySet().stream()
                                     .sorted()
@@ -717,28 +744,27 @@ public class CalendarioSrv {
         });
     }
 
-    /** Rellena un rango de días añadiendo recetas (no borra recetas existentes).
-     *  Si forzarPasados==true, también rellenará días anteriores al día actual.
+    /**
+     * Rellena un rango de días añadiendo recetas (no borra recetas existentes).
      */
     public static void rellenarRangoDias(final Context context, final int diaInicio, final int diaFin,
-                                        final boolean forzarPasados, final int numPersonas, final RellenarCallback callback) {
+                                         final boolean forzarPasados, final int numPersonas, final RellenarCallback callback) {
+        if (!checkUserId(callback)) return;
+
         obtenerCalendario(context, new CalendarioCallback() {
             @Override
             public void onSuccess(List<Day> calendario) {
-                // Cargar recetas disponibles desde caché/servicio
                 RecetasSrv.cargarListaRecetas(context, new RecetasSrv.RecetasCallback() {
                     @Override
                     public void onSuccess(List<Receta> recetasDisponibles) {
-                        // Filtrar por temporada primero (prioridad) y excluir postres
                         com.david.recetapp.negocio.beans.Temporada temporadaActual = UtilsSrv.getTemporadaFecha(java.time.LocalDate.now());
                         List<Receta> filtradas = recetasDisponibles.stream()
                                 .filter(r -> !r.isPostre() && r.getTemporadas().contains(temporadaActual))
-                                .collect(java.util.stream.Collectors.toList());
+                                .toList();
 
-                        // Si no hay de la temporada, usar todas las recetas que no sean postres
                         List<Receta> sinPostre = recetasDisponibles.stream()
                                 .filter(r -> !r.isPostre())
-                                .collect(java.util.stream.Collectors.toList());
+                                .toList();
 
                         Queue<Receta> cola = new LinkedList<>(!filtradas.isEmpty() ? filtradas : sinPostre);
                         Set<Receta> recetasUtilizadasRecientemente = new HashSet<>();
@@ -750,38 +776,23 @@ public class CalendarioSrv {
 
                                 if (dia.getRecetas() == null) dia.setRecetas(new ArrayList<>());
 
-                                // Añadir hasta 2 recetas al día (sin eliminar las existentes)
                                 addReceta(cola, recetasUtilizadasRecientemente, dia, actualizacionesPendientes, numPersonas);
                                 addReceta(cola, recetasUtilizadasRecientemente, dia, actualizacionesPendientes, numPersonas);
 
-                                // Limpiar set de recientes según la lógica existente
                                 limpiarRecetasUtilizadasRecientemente(recetasUtilizadasRecientemente, dia);
                             }
                         }
 
-                        // Construir mapa recetaId -> timestamp para el batch
-                        Map<String, Long> fechaMap = new HashMap<>();
-                        for (ActualizacionFecha af : actualizacionesPendientes) {
-                            Calendar cal = Calendar.getInstance();
-                            cal.set(Calendar.DAY_OF_MONTH, af.diaMes);
-                            cal.set(Calendar.HOUR_OF_DAY, 0);
-                            cal.set(Calendar.MINUTE, 0);
-                            cal.set(Calendar.SECOND, 0);
-                            cal.set(Calendar.MILLISECOND, 0);
-                            fechaMap.put(af.idReceta, cal.getTimeInMillis());
-                        }
+                        Map<String, Long> fechaMap = getStringLongMap(actualizacionesPendientes);
 
-                        // Guardar calendario + fechas en un único batch (background)
                         firebaseManager.guardarCalendarioConFechas(calendario, fechaMap, new FirebaseManager.SimpleCallback() {
                             @Override
                             public void onSuccess() {
-                                // Sincronizar caché local de recetas
                                 for (Map.Entry<String, Long> entry : fechaMap.entrySet()) {
                                     Date d = (entry.getValue() == 0L) ? null : new Date(entry.getValue());
                                     RecetasSrv.actualizarFechaRecetaEnCache(entry.getKey(), d);
                                 }
 
-                                // Notificar al usuario en el hilo principal que el guardado finalizó
                                 new android.os.Handler(android.os.Looper.getMainLooper()).post(() ->
                                         UtilsSrv.notificacion(context, context.getString(R.string.calendario_actualizado), android.widget.Toast.LENGTH_LONG).show()
                                 );
@@ -789,7 +800,6 @@ public class CalendarioSrv {
 
                             @Override
                             public void onFailure(Exception e) {
-                                // Loguear y notificar si hace falta
                                 android.util.Log.e(TAG, "Error guardando calendario+fechas en background", e);
                                 new android.os.Handler(android.os.Looper.getMainLooper()).post(() ->
                                         UtilsSrv.notificacion(context, context.getString(R.string.calendario_no_actualizado), android.widget.Toast.LENGTH_LONG).show()
@@ -797,7 +807,6 @@ public class CalendarioSrv {
                             }
                         });
 
-                        // Devolver el calendario modificado de forma inmediata para UI optimista
                         if (callback != null) {
                             new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> callback.onSuccess(calendario));
                         }
@@ -817,12 +826,35 @@ public class CalendarioSrv {
         });
     }
 
-    /** Establece el ID de usuario para Firebase */
+    @NonNull
+    private static Map<String, Long> getStringLongMap(List<ActualizacionFecha> actualizacionesPendientes) {
+        Map<String, Long> fechaMap = new HashMap<>();
+        for (ActualizacionFecha af : actualizacionesPendientes) {
+            Calendar cal = Calendar.getInstance();
+            cal.set(Calendar.DAY_OF_MONTH, af.diaMes);
+            cal.set(Calendar.HOUR_OF_DAY, 0);
+            cal.set(Calendar.MINUTE, 0);
+            cal.set(Calendar.SECOND, 0);
+            cal.set(Calendar.MILLISECOND, 0);
+            fechaMap.put(af.idReceta, cal.getTimeInMillis());
+        }
+        return fechaMap;
+    }
+
+    /**
+     * Establece el userId activo. Si cambia de usuario, Firebase usará el nuevo filtro
+     * automáticamente en todas las consultas siguientes.
+     */
     public static void setUserId(String userId) {
+        if (!Objects.equals(currentUserId, userId)) {
+            Log.d(TAG, "🔑 Cambio de userId en CalendarioSrv detectado");
+            currentUserId = userId;
+        }
         firebaseManager.setUserId(userId);
     }
 
-    // Merge helper local a este servicio para construir calendarios modificados rápidamente
+    // ——— HELPERS INTERNOS ———
+
     private static List<Day> mergeDayIntoList(List<Day> existing, Day newDay) {
         if (existing == null) existing = new ArrayList<>();
         List<Day> result = new ArrayList<>(existing);
@@ -840,12 +872,14 @@ public class CalendarioSrv {
 
     /**
      * Guarda un único día y la fecha de una receta en un solo batch.
-     * Si existe calendario en caché hace merge y ejecuta un WriteBatch que
-     * actualiza el documento de calendario y la receta en un solo commit.
      */
-    public static void guardarDiaYRecetaBatch(final Context context, final Day day, final String recetaId) {
-        // Intentar usar caché para construir el calendario completo
-        List<Day> cached = obtenerCalendarioCache(context);
+    public static void guardarDiaYRecetaBatch(final Day day, final String recetaId) {
+        if (notHasUserId()) {
+            Log.e(TAG, "❌ guardarDiaYRecetaBatch sin userId — operación ignorada");
+            return;
+        }
+
+        List<Day> cached = obtenerCalendarioCache();
         if (cached != null) {
             List<Day> updated = mergeDayIntoList(cached, day);
 
@@ -859,7 +893,6 @@ public class CalendarioSrv {
             Date proposedDate = cal.getTime();
             Log.d(TAG, "guardarDiaYRecetaBatch: receta=" + recetaId + ", dia=" + day.getDayOfMonth() + ", proposedDate=" + proposedDate);
 
-            // Buscar la receta en el servicio para comprobar su fecha actual
             Optional<Receta> opt = RecetasSrv.getRecetas().stream()
                     .filter(r -> r.getId().equals(recetaId))
                     .findAny();
@@ -874,7 +907,6 @@ public class CalendarioSrv {
                     Log.d(TAG, "guardarDiaYRecetaBatch: NO actualiza fecha. Existente=" + existingDate);
                 }
             } else {
-                // Si no se encuentra en caché local, actualizar igualmente (comportamiento legacy)
                 Log.d(TAG, "guardarDiaYRecetaBatch: receta no en cache, forzando fecha");
                 fechaMap.put(recetaId, proposedDate.getTime());
             }
@@ -883,7 +915,6 @@ public class CalendarioSrv {
                 @Override
                 public void onSuccess() {
                     Log.d(TAG, "guardarDiaYRecetaBatch: éxito para receta " + recetaId);
-                    // Sincronizar caché local de recetas
                     for (Map.Entry<String, Long> entry : fechaMap.entrySet()) {
                         Date d = (entry.getValue() == 0L) ? null : new Date(entry.getValue());
                         RecetasSrv.actualizarFechaRecetaEnCache(entry.getKey(), d);
@@ -898,11 +929,10 @@ public class CalendarioSrv {
             return;
         }
 
-        // Fallback: si no hay caché válida, usar la API existente para actualizar día y receta por separado
+        // Fallback: si no hay caché válida, actualizar día y receta por separado
         firebaseManager.actualizarDia(day, new FirebaseManager.SimpleCallback() {
             @Override
             public void onSuccess() {
-                // Actualizar fecha de receta por separado
                 Calendar cal = Calendar.getInstance();
                 cal.set(Calendar.DAY_OF_MONTH, day.getDayOfMonth());
                 cal.set(Calendar.HOUR_OF_DAY, 0);

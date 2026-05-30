@@ -251,7 +251,7 @@ public class AddRecetaDiaActivity extends AppCompatActivity {
 
                     // Lanzar sincronización en background sin bloquear la UI.
                     // Usar un batch para actualizar calendario + fecha de receta de una vez.
-                    CalendarioSrv.guardarDiaYRecetaBatch(AddRecetaDiaActivity.this, selectedDay, receta.getId());
+                    CalendarioSrv.guardarDiaYRecetaBatch(selectedDay, receta.getId());
 
                     // Volver de forma inmediata (UX optimista)
                     mainHandler.post(() -> {

@@ -288,7 +288,7 @@ public class CalendarioFragment extends Fragment {
         List<Day> localDays = (adapter != null) ? adapter.getCurrentList() : null;
 
         // Intento rápido: obtener calendario desde caché en memoria para evitar I/O
-        java.util.List<Day> cached = CalendarioSrv.obtenerCalendarioCache(requireContext());
+        java.util.List<Day> cached = CalendarioSrv.obtenerCalendarioCache();
         if (cached != null && !cached.isEmpty()) {
             isLoading = false;
             hideLoading();
@@ -478,7 +478,8 @@ public class CalendarioFragment extends Fragment {
         // Intent: si venimos de DetalleDiaActivity o AddRecetaDiaActivity, recibimos el Day actualizado
         Day updatedDay = null;
         try {
-            updatedDay = (Day) requireActivity().getIntent().getSerializableExtra("selectedDay");
+            android.content.Intent intent = requireActivity().getIntent();
+            updatedDay = intent.getSerializableExtra("selectedDay", Day.class);
         } catch (Exception ignored) {}
 
         if (updatedDay != null) {

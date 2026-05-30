@@ -2,8 +2,6 @@ package com.david.recetapp.negocio.servicios;
 
 import android.content.Context;
 import android.content.res.XmlResourceParser;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -33,13 +31,16 @@ public class RecetasSrv {
 
     private static final FirebaseManager firebaseManager = new FirebaseManager();
 
+    // ← ID del usuario activo; toda operación con datos requiere que esté configurado
+    private static volatile String currentUserId = null;
+
     // Cache en memoria
     private static final List<Receta> recetasCache = new ArrayList<>();
 
-    // 🚀 Caché de mapas de ingredientes (se crean UNA SOLA VEZ)
+    // 🚀 Caché de mapas de ingredientes (se crean UNA SOLA VEZ por sesión)
     private static Map<String, Integer> ingredientMapCache = null;
     public static Map<String, Integer> unitImportanceMapCache = null;
-    public static Map<String, Integer> gramosMapCache = null; // ← NUEVO
+    public static Map<String, Integer> gramosMapCache = null;
     private static final Object cacheLock = new Object();
 
     // 🚀 ExecutorService para procesamiento en background
@@ -56,6 +57,35 @@ public class RecetasSrv {
         void onFailure(Exception e);
     }
 
+    // ——— Helpers de validación de userId ———
+
+    /**
+     * Comprueba que no hay un userId activo antes de cualquier operación con datos.
+     * Llama a {@code cb.onFailure} y devuelve {@code true} si no está configurado.
+     */
+    private static boolean checkNotUserId(RecetasCallback cb) {
+        if (currentUserId == null || currentUserId.isEmpty()) {
+            Log.e(TAG, "❌ Operación rechazada: userId no configurado");
+            if (cb != null) cb.onFailure(new IllegalStateException("UserId no configurado"));
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean checkNotUserId(SimpleCallback cb) {
+        if (currentUserId == null || currentUserId.isEmpty()) {
+            Log.e(TAG, "❌ Operación rechazada: userId no configurado");
+            if (cb != null) cb.onFailure(new IllegalStateException("UserId no configurado"));
+            return true;
+        }
+        return false;
+    }
+
+    /** Versión sin callback para métodos fire-and-forget. */
+    private static boolean notHasUserId() {
+        return currentUserId == null || currentUserId.isEmpty();
+    }
+
     // ——— GETTER DE RECETAS ———
     public static List<Receta> getRecetas() {
         return new ArrayList<>(recetasCache);
@@ -64,6 +94,8 @@ public class RecetasSrv {
     // ——— CARGA DESDE FIREBASE OPTIMIZADA ———
 
     public static void cargarListaRecetas(Context context, RecetasCallback callback) {
+        if (checkNotUserId(callback)) return;
+
         if (!recetasCache.isEmpty()) {
             callback.onSuccess(new ArrayList<>(recetasCache));
             return;
@@ -90,6 +122,8 @@ public class RecetasSrv {
     }
 
     public static void cargarListaRecetas(Context context, boolean forceServer, RecetasCallback callback) {
+        if (checkNotUserId(callback)) return;
+
         if (!forceServer && !recetasCache.isEmpty()) {
             callback.onSuccess(new ArrayList<>(recetasCache));
             return;
@@ -157,8 +191,8 @@ public class RecetasSrv {
     }
 
     /**
-     * 🚀 Inicializa mapas de ingredientes, unidades y gramos (SOLO UNA VEZ)
-     * Parsea el XML directamente para leer <nombre>, <puntuacion> y <gramos>
+     * 🚀 Inicializa mapas de ingredientes, unidades y gramos (SOLO UNA VEZ por sesión).
+     * Parsea el XML directamente para leer nombre, puntuacion y gramos.
      */
     public static void inicializarMapas(Context context) {
         synchronized (cacheLock) {
@@ -230,7 +264,6 @@ public class RecetasSrv {
             for (int i = 0; i < units.length; i++) {
                 unitImportanceMapCache.put(units[i].trim(), importanceValues[i]);
             }
-            // Debug temporal
             for (Map.Entry<String, Integer> e : unitImportanceMapCache.entrySet()) {
                 Log.d(TAG, "UNIT: '" + e.getKey() + "' = " + e.getValue());
             }
@@ -247,7 +280,8 @@ public class RecetasSrv {
 
         for (Ingrediente ing : receta.getIngredientes()) {
             String nombre = ing.getNombre().toLowerCase(Locale.getDefault());
-            ing.setPuntuacion(ingredientMapCache.getOrDefault(nombre, -2));
+            Integer puntu = ingredientMapCache.get(nombre);
+            ing.setPuntuacion(puntu != null ? puntu : -2);
         }
 
         double cantidadTotal = 0;
@@ -295,26 +329,11 @@ public class RecetasSrv {
         calcularPuntuacion(receta);
     }
 
-    public static void asegurarPuntuacionesCalculadas(Context context, RecetasCallback callback) {
-        if (ingredientMapCache == null || unitImportanceMapCache == null || gramosMapCache == null) {
-            inicializarMapas(context);
-        }
-
-        backgroundExecutor.execute(() -> {
-            synchronized (recetasCache) {
-                for (Receta receta : recetasCache) {
-                    if (receta.getPuntuacionDada() == 0) {
-                        calcularPuntuacion(receta);
-                    }
-                }
-            }
-            new Handler(Looper.getMainLooper()).post(() -> callback.onSuccess(new ArrayList<>(recetasCache)));
-        });
-    }
-
     // ——— OPERACIONES SOBRE RECETAS ———
 
     public static void addReceta(Receta receta, SimpleCallback callback) {
+        if (checkNotUserId(callback)) return;
+
         firebaseManager.addReceta(receta, new FirebaseManager.SimpleCallback() {
             @Override
             public void onSuccess() {
@@ -331,6 +350,8 @@ public class RecetasSrv {
     }
 
     public static void editarReceta(Receta receta, SimpleCallback callback) {
+        if (checkNotUserId(callback)) return;
+
         firebaseManager.editarReceta(receta, new FirebaseManager.SimpleCallback() {
             @Override
             public void onSuccess() {
@@ -352,6 +373,8 @@ public class RecetasSrv {
     }
 
     public static void eliminarReceta(int position, List<Receta> listaParcial, SimpleCallback callback) {
+        if (checkNotUserId(callback)) return;
+
         Receta receta = listaParcial.remove(position);
 
         firebaseManager.eliminarReceta(receta.getId(), new FirebaseManager.SimpleCallback() {
@@ -372,6 +395,8 @@ public class RecetasSrv {
     // ——— RECETAS CALENDARIO ———
 
     public static void cargarListaRecetasCalendario(Context context, List<RecetaDia> idRecetas, RecetasCallback callback) {
+        if (checkNotUserId(callback)) return;
+
         cargarListaRecetas(context, new RecetasCallback() {
             @Override
             public void onSuccess(List<Receta> todas) {
@@ -397,7 +422,11 @@ public class RecetasSrv {
     }
 
     public static void actualizarRecetaCalendario(Context context, String idReceta, int diaMes, boolean add) {
-        // Mantener compatibilidad: buscar en caché rápido y evitar cargas pesadas repetidas
+        if (notHasUserId()) {
+            Log.e(TAG, "❌ actualizarRecetaCalendario sin userId");
+            return;
+        }
+
         if (!recetasCache.isEmpty()) {
             Optional<Receta> opt = recetasCache.stream()
                     .filter(r -> r.getId().equals(idReceta))
@@ -408,7 +437,6 @@ public class RecetasSrv {
             }
         }
 
-        // Fallback: cargar recetas (solo si no están en caché)
         cargarListaRecetas(context, new RecetasCallback() {
             @Override
             public void onSuccess(List<Receta> recetas) {
@@ -426,9 +454,13 @@ public class RecetasSrv {
         });
     }
 
-    // Actualiza la fecha de la receta en Firebase usando el objeto Receta ya disponible (no recarga lista)
     public static void actualizarRecetaCalendarioDirect(Receta receta, int diaMes, boolean add) {
+        if (notHasUserId()) {
+            Log.e(TAG, "❌ actualizarRecetaCalendarioDirect sin userId");
+            return;
+        }
         if (receta == null) return;
+
         long tsTemp = 0;
         if (diaMes > 0) {
             Calendar cal = Calendar.getInstance();
@@ -438,7 +470,6 @@ public class RecetasSrv {
             cal.set(Calendar.SECOND, 0);
             cal.set(Calendar.MILLISECOND, 0);
             Date fecha = cal.getTime();
-            // Solo actualizar si la nueva fecha es posterior a la existente (si add=true)
             if (add && receta.getFechaCalendario() != null && !fecha.after(receta.getFechaCalendario())) return;
             tsTemp = fecha.getTime();
         }
@@ -448,7 +479,6 @@ public class RecetasSrv {
             @Override
             public void onSuccess() {
                 Log.d(TAG, "Fecha calendario actualizada para: " + receta.getId());
-                // Actualizar en memoria también
                 receta.setFechaCalendario(finalTimestamp == 0 ? null : new Date(finalTimestamp));
             }
 
@@ -474,9 +504,13 @@ public class RecetasSrv {
 
         for (Receta r : lista) {
             double orig = r.getNumPersonas();
-            double obj = personasMap.getOrDefault(r.getId(), (int) orig);
-            r.setNumPersonas((int) obj);
-            double factor = obj / orig;
+            // Evitar NullPointerException por unboxing: el mapa puede contener valores nulos
+            Integer personasMapVal = personasMap.get(r.getId());
+            int objInt = (personasMapVal != null) ? personasMapVal : (int) orig;
+            r.setNumPersonas(objInt);
+
+            // Evitar división por cero si orig == 0
+            double factor = (orig == 0) ? 1.0 : ((double) objInt / orig);
 
             for (Ingrediente ing : r.getIngredientes()) {
                 double base = UtilsSrv.convertirNumero(ing.getCantidad());
@@ -491,7 +525,16 @@ public class RecetasSrv {
 
     // ——— MÉTODOS AUXILIARES ———
 
+    /**
+     * Establece el userId activo. Si cambia de usuario, limpia automáticamente toda la caché
+     * para evitar que datos de una sesión anterior sean visibles en la nueva.
+     */
     public static void setUserId(String userId) {
+        if (!Objects.equals(currentUserId, userId)) {
+            Log.d(TAG, "🔑 Cambio de userId detectado → limpiando caché de recetas");
+            limpiarCaches();
+            currentUserId = userId;
+        }
         firebaseManager.setUserId(userId);
     }
 
@@ -502,7 +545,7 @@ public class RecetasSrv {
         synchronized (cacheLock) {
             ingredientMapCache = null;
             unitImportanceMapCache = null;
-            gramosMapCache = null; // ← NUEVO
+            gramosMapCache = null;
         }
     }
 
@@ -552,7 +595,4 @@ public class RecetasSrv {
         return list.toArray(new String[0]);
     }
 
-    public static void shutdown() {
-        backgroundExecutor.shutdown();
-    }
 }

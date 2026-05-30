@@ -11,7 +11,6 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.david.recetapp.MainActivity;
 import com.david.recetapp.R;
 import com.david.recetapp.adaptadores.RecetaExpandableListCalendarAdapter;
 import com.david.recetapp.negocio.beans.Day;
@@ -61,7 +60,7 @@ public class DetalleDiaActivity extends AppCompatActivity
         int dayOfMonth = intent.getIntExtra("selectedDayDayOfMonth", -1);
         if (dayOfMonth > 0) {
             // Intent: obtener el Day desde la caché para evitar I/O en el hilo principal
-            java.util.List<Day> cached = CalendarioSrv.obtenerCalendarioCache(this);
+            java.util.List<Day> cached = CalendarioSrv.obtenerCalendarioCache();
             if (cached != null && !cached.isEmpty()) {
                 for (Day d : cached) {
                     if (d.getDayOfMonth() == dayOfMonth) {
@@ -111,7 +110,7 @@ public class DetalleDiaActivity extends AppCompatActivity
         } else {
             int dayOfMonth = intent.getIntExtra("selectedDayDayOfMonth", -1);
             if (dayOfMonth > 0) {
-                java.util.List<Day> cached = CalendarioSrv.obtenerCalendarioCache(this);
+                java.util.List<Day> cached = CalendarioSrv.obtenerCalendarioCache();
                 if (cached != null && !cached.isEmpty()) {
                     for (Day d : cached) {
                         if (d.getDayOfMonth() == dayOfMonth) {
@@ -160,7 +159,7 @@ public class DetalleDiaActivity extends AppCompatActivity
         if (requestCode == 1001 && resultCode == RESULT_OK && data != null) {
             int dayOfMonth = data.getIntExtra("selectedDayDayOfMonth", -1);
             if (dayOfMonth > 0) {
-                java.util.List<Day> cached = CalendarioSrv.obtenerCalendarioCache(this);
+                java.util.List<Day> cached = CalendarioSrv.obtenerCalendarioCache();
                 if (cached != null && !cached.isEmpty()) {
                     for (Day d : cached) {
                         if (d.getDayOfMonth() == dayOfMonth) {

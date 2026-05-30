@@ -459,4 +459,8 @@
     <item><nombre>Aceite de oliva virgen extra</nombre><puntuacion>9</puntuacion><gramos>-1</gramos></item>
     <item><nombre>Salsa Pesto</nombre><puntuacion>4</puntuacion><gramos>-1</gramos></item>
     <item><nombre>Azafrán en polvo</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Levadura química en polvo</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Tomillo fresco</nombre><puntuacion>-1</puntuacion><gramos>-1</gramos></item>
+    <item><nombre>Vermú</nombre><puntuacion>1</puntuacion><gramos>100</gramos></item>
+    <item><nombre>Tinta de calamar</nombre><puntuacion>9</puntuacion><gramos>10</gramos></item>
 </ingredient_list>
