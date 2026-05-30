@@ -365,7 +365,21 @@ public class CalendarioSrv {
             }
 
             // Si pasa las comprobaciones, lo usamos
-            receta.setFechaCalendario(new Date(0));
+            Calendar cal = Calendar.getInstance();
+            cal.set(Calendar.DAY_OF_MONTH, dia.getDayOfMonth());
+            cal.set(Calendar.HOUR_OF_DAY, 0);
+            cal.set(Calendar.MINUTE, 0);
+            cal.set(Calendar.SECOND, 0);
+            cal.set(Calendar.MILLISECOND, 0);
+            Date proposedDate = cal.getTime();
+
+            // Solo actualizar la fecha si la nueva es posterior a la existente
+            if (receta.getFechaCalendario() == null || proposedDate.after(receta.getFechaCalendario())) {
+                receta.setFechaCalendario(proposedDate);
+                // Añadir a actualizaciones pendientes para el batch de Firebase
+                actualizacionesPendientes.add(new ActualizacionFecha(recetaId, dia.getDayOfMonth()));
+            }
+
             recetasUtilizadasRecientemente.add(receta);
             cola.offer(receta);
 
@@ -373,9 +387,6 @@ public class CalendarioSrv {
             if (personasToSet <= 0) personasToSet = 2; // Fallback
 
             dia.getRecetas().add(new RecetaDia(recetaId, personasToSet));
-
-            // Añadir a actualizaciones pendientes
-            actualizacionesPendientes.add(new ActualizacionFecha(recetaId, dia.getDayOfMonth()));
             break;
         }
     }
@@ -656,6 +667,12 @@ public class CalendarioSrv {
                         firebaseManager.guardarCalendarioConFechas(calendario, fechaMap, new FirebaseManager.SimpleCallback() {
                             @Override
                             public void onSuccess() {
+                                // Sincronizar caché local de recetas
+                                for (Map.Entry<String, Long> entry : fechaMap.entrySet()) {
+                                    Date d = (entry.getValue() == 0L) ? null : new Date(entry.getValue());
+                                    RecetasSrv.actualizarFechaRecetaEnCache(entry.getKey(), d);
+                                }
+
                                 // Notificar al usuario en el hilo principal que el guardado finalizó
                                 new android.os.Handler(android.os.Looper.getMainLooper()).post(() ->
                                         UtilsSrv.notificacion(context, context.getString(R.string.calendario_actualizado), android.widget.Toast.LENGTH_LONG).show()
@@ -731,12 +748,38 @@ public class CalendarioSrv {
             cal.set(Calendar.MINUTE, 0);
             cal.set(Calendar.SECOND, 0);
             cal.set(Calendar.MILLISECOND, 0);
-            fechaMap.put(recetaId, cal.getTimeInMillis());
+            Date proposedDate = cal.getTime();
+            Log.d(TAG, "guardarDiaYRecetaBatch: receta=" + recetaId + ", dia=" + day.getDayOfMonth() + ", proposedDate=" + proposedDate);
+
+            // Buscar la receta en el servicio para comprobar su fecha actual
+            Optional<Receta> opt = RecetasSrv.getRecetas().stream()
+                    .filter(r -> r.getId().equals(recetaId))
+                    .findAny();
+
+            if (opt.isPresent()) {
+                Receta r = opt.get();
+                Date existingDate = r.getFechaCalendario();
+                if (existingDate == null || proposedDate.after(existingDate)) {
+                    Log.d(TAG, "guardarDiaYRecetaBatch: actualizando fecha. Existente=" + existingDate);
+                    fechaMap.put(recetaId, proposedDate.getTime());
+                } else {
+                    Log.d(TAG, "guardarDiaYRecetaBatch: NO actualiza fecha. Existente=" + existingDate);
+                }
+            } else {
+                // Si no se encuentra en caché local, actualizar igualmente (comportamiento legacy)
+                Log.d(TAG, "guardarDiaYRecetaBatch: receta no en cache, forzando fecha");
+                fechaMap.put(recetaId, proposedDate.getTime());
+            }
 
             firebaseManager.guardarCalendarioConFechas(updated, fechaMap, new FirebaseManager.SimpleCallback() {
                 @Override
                 public void onSuccess() {
                     Log.d(TAG, "guardarDiaYRecetaBatch: éxito para receta " + recetaId);
+                    // Sincronizar caché local de recetas
+                    for (Map.Entry<String, Long> entry : fechaMap.entrySet()) {
+                        Date d = (entry.getValue() == 0L) ? null : new Date(entry.getValue());
+                        RecetasSrv.actualizarFechaRecetaEnCache(entry.getKey(), d);
+                    }
                 }
 
                 @Override

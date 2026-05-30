@@ -377,7 +377,11 @@ public class FirebaseManager {
 
     public void actualizarFechaCalendario(String recetaId, long timestamp, SimpleCallback callback) {
         Map<String, Object> updates = new HashMap<>();
-        updates.put("fechaCalendario", new Date(timestamp));
+        if (timestamp == 0) {
+            updates.put("fechaCalendario", null);
+        } else {
+            updates.put("fechaCalendario", new Date(timestamp));
+        }
         updates.put("timestamp", FieldValue.serverTimestamp());
 
         db.collection(COLLECTION_RECETAS)

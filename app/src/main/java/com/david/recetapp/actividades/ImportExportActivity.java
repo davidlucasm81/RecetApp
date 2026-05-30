@@ -254,7 +254,6 @@ public class ImportExportActivity extends AppCompatActivity {
                     if (!idsExistentes.contains(recetaImportada.getId())) {
                         // Establecer atributos para recetas importadas
                         recetaImportada.setShared(true);
-                        recetaImportada.setFechaCalendario(new Date(0));
                         recetasNuevas.add(recetaImportada);
                     }
                 }
@@ -303,7 +302,6 @@ public class ImportExportActivity extends AppCompatActivity {
 
                 for (Receta receta : listaRecetasImportadas) {
                     receta.setShared(true);
-                    receta.setFechaCalendario(new Date(0));
                 }
 
                 firebaseManager.importarRecetas(listaRecetasImportadas, new FirebaseManager.SimpleCallback() {

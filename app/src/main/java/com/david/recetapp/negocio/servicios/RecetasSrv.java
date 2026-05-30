@@ -429,19 +429,27 @@ public class RecetasSrv {
     // Actualiza la fecha de la receta en Firebase usando el objeto Receta ya disponible (no recarga lista)
     public static void actualizarRecetaCalendarioDirect(Receta receta, int diaMes, boolean add) {
         if (receta == null) return;
-        long timestamp = 0;
+        long tsTemp = 0;
         if (diaMes > 0) {
             Calendar cal = Calendar.getInstance();
             cal.set(Calendar.DAY_OF_MONTH, diaMes);
+            cal.set(Calendar.HOUR_OF_DAY, 0);
+            cal.set(Calendar.MINUTE, 0);
+            cal.set(Calendar.SECOND, 0);
+            cal.set(Calendar.MILLISECOND, 0);
             Date fecha = cal.getTime();
-            if (add && receta.getFechaCalendario() != null && receta.getFechaCalendario().after(fecha)) return;
-            timestamp = fecha.getTime();
+            // Solo actualizar si la nueva fecha es posterior a la existente (si add=true)
+            if (add && receta.getFechaCalendario() != null && !fecha.after(receta.getFechaCalendario())) return;
+            tsTemp = fecha.getTime();
         }
 
-        firebaseManager.actualizarFechaCalendario(receta.getId(), timestamp, new FirebaseManager.SimpleCallback() {
+        final long finalTimestamp = tsTemp;
+        firebaseManager.actualizarFechaCalendario(receta.getId(), finalTimestamp, new FirebaseManager.SimpleCallback() {
             @Override
             public void onSuccess() {
                 Log.d(TAG, "Fecha calendario actualizada para: " + receta.getId());
+                // Actualizar en memoria también
+                receta.setFechaCalendario(finalTimestamp == 0 ? null : new Date(finalTimestamp));
             }
 
             @Override
@@ -495,6 +503,20 @@ public class RecetasSrv {
             ingredientMapCache = null;
             unitImportanceMapCache = null;
             gramosMapCache = null; // ← NUEVO
+        }
+    }
+
+    /**
+     * Actualiza la fecha de una receta en la caché local de RecetasSrv.
+     */
+    public static void actualizarFechaRecetaEnCache(String recetaId, Date fecha) {
+        synchronized (recetasCache) {
+            for (Receta r : recetasCache) {
+                if (r.getId().equals(recetaId)) {
+                    r.setFechaCalendario(fecha);
+                    break;
+                }
+            }
         }
     }
 

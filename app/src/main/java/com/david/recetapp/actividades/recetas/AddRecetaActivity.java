@@ -220,7 +220,6 @@ public class AddRecetaActivity extends RecetaBaseActivity {
         receta.setTemporadas(temporadas);
         receta.setNumPersonas(Integer.parseInt(numberPickerNumeroPersonas.getText().toString()));
         receta.setEstrellas(estrellas.getRating());
-        receta.setFechaCalendario(new java.util.Date(0));
         receta.setAlergenos(alergenosSeleccionados);
         receta.setShared(false);
         receta.setPostre(postre.isChecked());
