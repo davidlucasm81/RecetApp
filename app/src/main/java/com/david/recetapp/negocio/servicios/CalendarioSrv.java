@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 public class CalendarioSrv {
     private static final String TAG = "CalendarioSrv";
     private static final int LIMITE_DIAS = 3;
+    private static final java.util.Random RANDOM = new java.util.Random();
     private static final FirebaseManager firebaseManager = new FirebaseManager();
 
     public interface CalendarioCallback {
@@ -76,7 +77,8 @@ public class CalendarioSrv {
     }
 
     public static void obtenerCalendario(Context context, List<Day> localDays, CalendarioCallback callback) {
-        firebaseManager.obtenerCalendario(com.google.firebase.firestore.Source.SERVER, new FirebaseManager.CalendarioCallback() {
+        // Usar estrategia cache-first: pedir caché local de Firestore y, en background, sincronizar con servidor
+        firebaseManager.obtenerCalendario(null, new FirebaseManager.CalendarioCallback() {
             @Override
             public void onSuccess(List<Day> days) {
                 if (days.isEmpty()) {
@@ -394,14 +396,116 @@ public class CalendarioSrv {
     private static Receta obtenerRecetaNoRepetida(Queue<Receta> cola,
                                                   Set<Receta> recetasUtilizadasRecientemente,
                                                   Day dia) {
-        for (Receta receta : cola) { // iteración no destructiva
-            if (!recetasUtilizadasRecientemente.contains(receta) &&
-                    !recetaRepetidaEnProximosDias(receta, dia)) {
-                cola.remove(receta); // elimina solo la seleccionada
-                return receta;       // addReceta la re-añadirá al final
+        // Construir lista de candidatos válidos aplicando filtros pero sin perder el orden original
+        List<Receta> candidatos = new ArrayList<>();
+        for (Receta receta : cola) {
+            if (recetasUtilizadasRecientemente.contains(receta)) continue;
+            if (recetaRepetidaEnProximosDias(receta, dia)) continue;
+
+            boolean similar = false;
+            if (dia.getRecetas() != null && !dia.getRecetas().isEmpty()) {
+                for (RecetaDia rd : dia.getRecetas()) {
+                    Receta existente = RecetasSrv.getRecetas().stream()
+                            .filter(r -> r.getId().equals(rd.getIdReceta()))
+                            .findAny().orElse(null);
+                    if (existente != null && recetasSimilares(receta, existente)) {
+                        similar = true;
+                        break;
+                    }
+                }
+            }
+            if (similar) continue;
+
+            candidatos.add(receta);
+        }
+
+        if (candidatos.isEmpty()) return null;
+
+        // Si solo hay uno, devolverlo rápidamente
+        if (candidatos.size() == 1) {
+            Receta r = candidatos.get(0);
+            cola.remove(r);
+            return r;
+        }
+
+        // Selección ponderada: priorizar puntuacionDada pero añadir aleatoriedad
+        double totalWeight = 0.0;
+        double[] weights = new double[candidatos.size()];
+        for (int i = 0; i < candidatos.size(); i++) {
+            Receta r = candidatos.get(i);
+            double score = 0.0;
+            try { score = r.getPuntuacionDada(); } catch (Exception ignored) {}
+            // Normalizar/fallback: garantizar valor positivo para ponderación
+            if (Double.isNaN(score) || score <= 0.0) score = 1.0;
+            else score = score + 1.0; // desplazar para evitar pesos pequeños
+
+            // Small randomness factor to avoid determinismo absoluto
+            double noise = 0.1 * RANDOM.nextDouble();
+            double w = score + noise;
+            weights[i] = w;
+            totalWeight += w;
+        }
+
+        double r = RANDOM.nextDouble() * totalWeight;
+        double acc = 0.0;
+        int selectedIdx = 0;
+        for (int i = 0; i < weights.length; i++) {
+            acc += weights[i];
+            if (r <= acc) { selectedIdx = i; break; }
+        }
+
+        Receta selected = candidatos.get(selectedIdx);
+        // Eliminar la primera aparición en la cola
+        cola.remove(selected);
+        return selected;
+    }
+
+    /**
+     * Determina si dos recetas son muy parecidas basándose en la intersección de nombres de ingredientes.
+     * Ingredientes con puntuación < 0 (no sanos o irrelevantes) se ignoran en la comparación.
+     * Regla: si comparten >=2 ingredientes válidos o la proporción de coincidencia sobre el
+     * menor número de ingredientes válidos es >=50%, se consideran similares.
+     */
+    private static boolean recetasSimilares(Receta a, Receta b) {
+        if (a == null || b == null) return false;
+        List<String> listaA = new ArrayList<>();
+        List<String> listaB = new ArrayList<>();
+
+        if (a.getIngredientes() != null) {
+            for (com.david.recetapp.negocio.beans.Ingrediente ing : a.getIngredientes()) {
+                if (ing == null) continue;
+                // Ignorar ingredientes con puntuación negativa
+                try {
+                    if (ing.getPuntuacion() < 0) continue;
+                } catch (Exception ignored) {}
+                if (ing.getNombre() != null && !ing.getNombre().trim().isEmpty())
+                    listaA.add(ing.getNombre().toLowerCase(java.util.Locale.getDefault()).trim());
             }
         }
-        return null; // no hay ninguna válida, cola intacta
+        if (b.getIngredientes() != null) {
+            for (com.david.recetapp.negocio.beans.Ingrediente ing : b.getIngredientes()) {
+                if (ing == null) continue;
+                try {
+                    if (ing.getPuntuacion() < 0) continue;
+                } catch (Exception ignored) {}
+                if (ing.getNombre() != null && !ing.getNombre().trim().isEmpty())
+                    listaB.add(ing.getNombre().toLowerCase(java.util.Locale.getDefault()).trim());
+            }
+        }
+
+        if (listaA.isEmpty() || listaB.isEmpty()) return false;
+
+        java.util.Set<String> setA = new java.util.HashSet<>(listaA);
+        java.util.Set<String> setB = new java.util.HashSet<>(listaB);
+
+        int intersection = 0;
+        for (String s : setA) if (setB.contains(s)) intersection++;
+
+        if (intersection >= 2) return true;
+
+        int minSize = Math.min(Math.max(1, setA.size()), Math.max(1, setB.size()));
+        double ratio = (double) intersection / (double) minSize;
+        return ratio >= 0.5;
     }
 
     private static void limpiarRecetasUtilizadasRecientemente(Set<Receta> recetasUtilizadasRecientemente,
@@ -625,14 +729,18 @@ public class CalendarioSrv {
                 RecetasSrv.cargarListaRecetas(context, new RecetasSrv.RecetasCallback() {
                     @Override
                     public void onSuccess(List<Receta> recetasDisponibles) {
-                        // Filtrar por temporada primero (prioridad)
+                        // Filtrar por temporada primero (prioridad) y excluir postres
                         com.david.recetapp.negocio.beans.Temporada temporadaActual = UtilsSrv.getTemporadaFecha(java.time.LocalDate.now());
                         List<Receta> filtradas = recetasDisponibles.stream()
-                                .filter(r -> r.getTemporadas().contains(temporadaActual))
+                                .filter(r -> !r.isPostre() && r.getTemporadas().contains(temporadaActual))
                                 .collect(java.util.stream.Collectors.toList());
 
-                        // Fallback a todas si no hay de la temporada
-                        Queue<Receta> cola = new LinkedList<>(filtradas.isEmpty() ? recetasDisponibles : filtradas);
+                        // Si no hay de la temporada, usar todas las recetas que no sean postres
+                        List<Receta> sinPostre = recetasDisponibles.stream()
+                                .filter(r -> !r.isPostre())
+                                .collect(java.util.stream.Collectors.toList());
+
+                        Queue<Receta> cola = new LinkedList<>(!filtradas.isEmpty() ? filtradas : sinPostre);
                         Set<Receta> recetasUtilizadasRecientemente = new HashSet<>();
                         List<ActualizacionFecha> actualizacionesPendientes = new ArrayList<>();
 

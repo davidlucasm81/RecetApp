@@ -27,6 +27,8 @@ import com.david.recetapp.adaptadores.CalendarioRecyclerAdapter;
 import com.david.recetapp.negocio.beans.Day;
 import com.david.recetapp.negocio.servicios.CalendarioSrv;
 import com.david.recetapp.negocio.servicios.UtilsSrv;
+import com.david.recetapp.negocio.servicios.RecetasSrv;
+import com.david.recetapp.negocio.beans.Receta;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -147,6 +149,21 @@ public class CalendarioFragment extends Fragment {
                                         }
                                     }
                                 }, 8000);
+
+                                // Resetear fechaCalendario de todas las recetas a null (Date(0) tratado como null)
+                                RecetasSrv.cargarListaRecetas(requireContext(), new RecetasSrv.RecetasCallback() {
+                                    @Override
+                                    public void onSuccess(List<Receta> recetas) {
+                                        for (Receta r : recetas) {
+                                            RecetasSrv.actualizarRecetaCalendarioDirect(r, 0, false);
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onFailure(Exception e) {
+                                        // No bloquear el flujo si falla; se sigue con el borrado del calendario
+                                    }
+                                });
 
                                 CalendarioSrv.borrarYRecrearCalendario(requireContext(), new CalendarioSrv.CalendarioCallback() {
                                     @Override

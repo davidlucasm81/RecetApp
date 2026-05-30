@@ -132,8 +132,7 @@ public class FirebaseManager {
 
     private String getCalendarioCacheKey() {
         Calendar calendar = Calendar.getInstance();
-        String key = getEffectiveUserId() + "_" + calendar.get(Calendar.YEAR) + "_" + calendar.get(Calendar.MONTH);
-        return key;
+        return getEffectiveUserId() + "_" + calendar.get(Calendar.YEAR) + "_" + calendar.get(Calendar.MONTH);
     }
 
     // ==================== INTERFACES DE CALLBACKS ====================
@@ -406,44 +405,96 @@ public class FirebaseManager {
         return null;
     }
 
-    public void obtenerCalendario(CalendarioCallback callback) {
-        obtenerCalendario(null, callback);
-    }
-
     public void obtenerCalendario(Source source, CalendarioCallback callback) {
         String cacheKey = getCalendarioCacheKey();
-        
-        // Si no se especifica source y tenemos caché en memoria válida, usarla
+
         if (source == null) {
+            // 1. Memoria
             CacheEntry<List<Day>> cached = calendarioCache.get(cacheKey);
             if (cached != null && cached.isValid()) {
-                Log.d(TAG, "Calendario servido desde memoria");
                 callback.onSuccess(new ArrayList<>(cached.data));
+                refrescarCalendarioEnBackground(cacheKey, cached.data, callback);
                 return;
             }
+
+            // 2. Caché persistente de Firestore
+            String calendarioId = getCalendarioId();
+            DocumentReference docRef = db.collection(COLLECTION_CALENDARIO).document(calendarioId);
+
+            docRef.get(Source.CACHE)
+                    .addOnSuccessListener(snapshot -> {
+                        if (snapshot.exists()) {
+                            // Cache HIT: devolver inmediatamente y refrescar en background
+                            List<Map<String, Object>> list = (List<Map<String, Object>>) snapshot.get("days");
+                            List<Day> daysFromCache = parseDays(list);
+                            calendarioCache.put(cacheKey, new CacheEntry<>(daysFromCache));
+                            callback.onSuccess(new ArrayList<>(daysFromCache));
+                            refrescarCalendarioEnBackground(cacheKey, daysFromCache, callback);
+                        } else {
+                            // Cache MISS: ir al servidor, siempre llamar callback
+                            cargarCalendarioDesdeServidor(docRef, cacheKey, callback);
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        // Error de caché: ir al servidor
+                        String id = getCalendarioId();
+                        cargarCalendarioDesdeServidor(
+                                db.collection(COLLECTION_CALENDARIO).document(id), cacheKey, callback);
+                    });
+            return;
         }
 
+        // Source explícito (CACHE o SERVER)
         String calendarioId = getCalendarioId();
-        var docRef = db.collection(COLLECTION_CALENDARIO).document(calendarioId);
-        
-        var task = (source != null) ? docRef.get(source) : docRef.get();
-        
-        task.addOnSuccessListener(documentSnapshot -> {
-                    List<Day> days;
-                    if (documentSnapshot.exists()) {
-                        List<Map<String, Object>> daysList =
-                                (List<Map<String, Object>>) documentSnapshot.get("days");
-                        days = parseDays(daysList);
-                        // Solo cachear si hay datos reales
+        db.collection(COLLECTION_CALENDARIO).document(calendarioId)
+                .get(source)
+                .addOnSuccessListener(snapshot -> {
+                    List<Day> days = new ArrayList<>();
+                    if (snapshot.exists()) {
+                        List<Map<String, Object>> list = (List<Map<String, Object>>) snapshot.get("days");
+                        days = parseDays(list);
                         calendarioCache.put(cacheKey, new CacheEntry<>(days));
-                    } else {
-                        days = new ArrayList<>();
-                        // NO CACHEAR si no existe, para permitir que CalendarioSrv lo cree
                     }
-
                     callback.onSuccess(days);
                 })
                 .addOnFailureListener(callback::onFailure);
+    }
+
+    /** Siempre llama callback.onSuccess (o onFailure), sin condiciones. */
+    private void cargarCalendarioDesdeServidor(DocumentReference docRef,
+                                               String cacheKey,
+                                               CalendarioCallback callback) {
+        docRef.get(Source.SERVER)
+                .addOnSuccessListener(snapshot -> {
+                    List<Day> days = new ArrayList<>();
+                    if (snapshot.exists()) {
+                        List<Map<String, Object>> list = (List<Map<String, Object>>) snapshot.get("days");
+                        days = parseDays(list);
+                        calendarioCache.put(cacheKey, new CacheEntry<>(days));
+                    }
+                    callback.onSuccess(days); // ← siempre, aunque esté vacío
+                })
+                .addOnFailureListener(callback::onFailure);
+    }
+
+    /** Refresco silencioso desde servidor; solo notifica si los datos cambiaron. */
+    private void refrescarCalendarioEnBackground(String cacheKey,
+                                                 List<Day> daysActuales,
+                                                 CalendarioCallback callback) {
+        String calendarioId = getCalendarioId();
+        db.collection(COLLECTION_CALENDARIO).document(calendarioId)
+                .get(Source.SERVER)
+                .addOnSuccessListener(snapshot -> {
+                    if (snapshot.exists()) {
+                        List<Map<String, Object>> list = (List<Map<String, Object>>) snapshot.get("days");
+                        List<Day> serverDays = parseDays(list);
+                        calendarioCache.put(cacheKey, new CacheEntry<>(serverDays));
+                        if (!serverDays.equals(daysActuales)) {
+                            callback.onSuccess(serverDays); // actualización real
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> Log.w(TAG, "Error refrescando calendario en background", e));
     }
 
     public void guardarCalendario(List<Day> days, SimpleCallback callback) {
@@ -570,8 +621,6 @@ public class FirebaseManager {
                     });
         }
     }
-
-    // Nuevo método auxiliar
     private void guardarDiaYNotificar(List<Day> days, String cacheKey, SimpleCallback callback) {
         String calendarioId = getCalendarioId();
         Map<String, Object> updateData = new HashMap<>();
