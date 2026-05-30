@@ -9,6 +9,8 @@ import androidx.annotation.NonNull;
 import com.david.recetapp.negocio.beans.Day;
 import com.david.recetapp.negocio.beans.Receta;
 import com.david.recetapp.negocio.beans.RecetaDia;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
@@ -88,6 +90,16 @@ public class FirebaseManager {
         recetasCargadasDesdeServidor = false;
     }
 
+    private String getEffectiveUserId() {
+        if (userId == null || userId.equals("default_user")) {
+            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+            if (currentUser != null) {
+                userId = currentUser.getUid();
+            }
+        }
+        return userId;
+    }
+
     // ==================== GESTIÓN DE CACHÉ ====================
 
     private static class CacheEntry<T> {
@@ -105,7 +117,7 @@ public class FirebaseManager {
     }
 
     private void invalidateRecetasCache() {
-        recetasCache.remove(userId);
+        recetasCache.remove(getEffectiveUserId());
     }
 
     private void invalidateCalendarioCache() {
@@ -120,7 +132,8 @@ public class FirebaseManager {
 
     private String getCalendarioCacheKey() {
         Calendar calendar = Calendar.getInstance();
-        return userId + "_" + calendar.get(Calendar.YEAR) + "_" + calendar.get(Calendar.MONTH);
+        String key = getEffectiveUserId() + "_" + calendar.get(Calendar.YEAR) + "_" + calendar.get(Calendar.MONTH);
+        return key;
     }
 
     // ==================== INTERFACES DE CALLBACKS ====================
@@ -147,7 +160,7 @@ public class FirebaseManager {
      */
     public void cargarRecetas(Context context, RecetasCallback callback) {
         // 1️⃣ Verificar caché en memoria primero (instantáneo)
-        CacheEntry<List<Receta>> cached = recetasCache.get(userId);
+        CacheEntry<List<Receta>> cached = recetasCache.get(getEffectiveUserId());
         if (cached != null && cached.isValid()) {
             Log.d(TAG, "✅ Recetas desde caché memoria (0ms)");
             callback.onSuccess(new ArrayList<>(cached.data));
@@ -163,7 +176,7 @@ public class FirebaseManager {
      */
     private void cargarDesdeCache(Context context, RecetasCallback callback) {
         db.collection(COLLECTION_RECETAS)
-                .whereEqualTo("userId", userId)
+                .whereEqualTo("userId", getEffectiveUserId())
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .limit(MAX_RECETAS_POR_USUARIO)
                 .get(Source.CACHE) // 🔥 CACHE PRIMERO
@@ -171,7 +184,7 @@ public class FirebaseManager {
                     if (!queryDocumentSnapshots.isEmpty()) {
                         Log.d(TAG, "✅ Recetas desde caché Firestore (~50ms)");
                         List<Receta> recetas = procesarRecetas(queryDocumentSnapshots, context);
-                        recetasCache.put(userId, new CacheEntry<>(recetas));
+                        recetasCache.put(getEffectiveUserId(), new CacheEntry<>(recetas));
                         callback.onSuccess(recetas);
 
                         // 3️⃣ En background, sincronizar con servidor si nunca se ha hecho
@@ -196,14 +209,14 @@ public class FirebaseManager {
      */
     private void cargarDesdeServidor(Context context, RecetasCallback callback) {
         db.collection(COLLECTION_RECETAS)
-                .whereEqualTo("userId", userId)
+                .whereEqualTo("userId", getEffectiveUserId())
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .limit(MAX_RECETAS_POR_USUARIO)
                 .get(Source.SERVER) // Forzar servidor
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     Log.d(TAG, "✅ Recetas desde servidor");
                     List<Receta> recetas = procesarRecetas(queryDocumentSnapshots, context);
-                    recetasCache.put(userId, new CacheEntry<>(recetas));
+                    recetasCache.put(getEffectiveUserId(), new CacheEntry<>(recetas));
                     recetasCargadasDesdeServidor = true;
                     callback.onSuccess(recetas);
                 })
@@ -226,14 +239,14 @@ public class FirebaseManager {
      */
     private void sincronizarConServidorEnBackground(Context context) {
         db.collection(COLLECTION_RECETAS)
-                .whereEqualTo("userId", userId)
+                .whereEqualTo("userId", getEffectiveUserId())
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .limit(MAX_RECETAS_POR_USUARIO)
                 .get(Source.SERVER)
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     Log.d(TAG, "🔄 Sincronización background completada");
                     List<Receta> recetas = procesarRecetas(queryDocumentSnapshots, context);
-                    recetasCache.put(userId, new CacheEntry<>(recetas));
+                    recetasCache.put(getEffectiveUserId(), new CacheEntry<>(recetas));
                     recetasCargadasDesdeServidor = true;
                 })
                 .addOnFailureListener(e ->
@@ -279,7 +292,7 @@ public class FirebaseManager {
         }
 
         recetasListener = db.collection(COLLECTION_RECETAS)
-                .whereEqualTo("userId", userId)
+                .whereEqualTo("userId", getEffectiveUserId())
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .limit(MAX_RECETAS_POR_USUARIO)
                 .addSnapshotListener((snapshots, error) -> {
@@ -291,7 +304,7 @@ public class FirebaseManager {
                     if (snapshots != null) {
                         Log.d(TAG, "🔄 Listener actualizó recetas");
                         List<Receta> recetas = procesarRecetas(snapshots, context);
-                        recetasCache.put(userId, new CacheEntry<>(recetas));
+                        recetasCache.put(getEffectiveUserId(), new CacheEntry<>(recetas));
                         callback.onSuccess(recetas);
                     }
                 });
@@ -305,6 +318,8 @@ public class FirebaseManager {
             return;
         }
 
+        String effectiveUserId = getEffectiveUserId();
+        receta.setUserId(effectiveUserId);
         Map<String, Object> recetaMap = recetaToMap(receta);
 
         db.collection(COLLECTION_RECETAS)
@@ -327,18 +342,20 @@ public class FirebaseManager {
             return;
         }
 
+        String effectiveUserId = getEffectiveUserId();
+        receta.setUserId(effectiveUserId);
         Map<String, Object> recetaMap = recetaToMap(receta);
 
         db.collection(COLLECTION_RECETAS)
                 .document(receta.getId())
-                .update(recetaMap)
+                .set(recetaMap, SetOptions.merge())
                 .addOnSuccessListener(aVoid -> {
-                    Log.d(TAG, "Receta actualizada: " + receta.getId());
+                    Log.d(TAG, "Receta editada: " + receta.getId());
                     invalidateRecetasCache();
                     callback.onSuccess();
                 })
                 .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error actualizando receta", e);
+                    Log.e(TAG, "Error editando receta", e);
                     callback.onFailure(e);
                 });
     }
@@ -430,7 +447,7 @@ public class FirebaseManager {
         String cacheKey = getCalendarioCacheKey();
 
         Map<String, Object> calendarioData = new HashMap<>();
-        calendarioData.put("userId", userId);
+        calendarioData.put("userId", getEffectiveUserId());
         calendarioData.put("mes", Calendar.getInstance().get(Calendar.MONTH));
         calendarioData.put("anio", Calendar.getInstance().get(Calendar.YEAR));
         calendarioData.put("days", daysToList(days));
@@ -464,7 +481,7 @@ public class FirebaseManager {
 
         DocumentReference calRef = db.collection(COLLECTION_CALENDARIO).document(calendarioId);
         Map<String, Object> calendarioData = new HashMap<>();
-        calendarioData.put("userId", userId);
+        calendarioData.put("userId", getEffectiveUserId());
         calendarioData.put("mes", Calendar.getInstance().get(Calendar.MONTH));
         calendarioData.put("anio", Calendar.getInstance().get(Calendar.YEAR));
         calendarioData.put("days", daysToList(days));
@@ -494,7 +511,7 @@ public class FirebaseManager {
                     calendarioCache.put(cacheKey, new CacheEntry<>(days));
 
                     // Actualizar caché de recetas si está disponible
-                    CacheEntry<List<Receta>> recetasCached = recetasCache.get(userId);
+                    CacheEntry<List<Receta>> recetasCached = recetasCache.get(getEffectiveUserId());
                     if (recetasCached != null && recetasCached.isValid()) {
                         List<Receta> list = recetasCached.data;
                         if (recetaFechas != null) {
@@ -505,7 +522,7 @@ public class FirebaseManager {
                                 }
                             }
                             // Re-put cache entry to refresh timestamp
-                            recetasCache.put(userId, new CacheEntry<>(list));
+                            recetasCache.put(getEffectiveUserId(), new CacheEntry<>(list));
                         }
                     } else if (recetaFechas != null) {
                         // Si no hay caché válida, simplemente invalidar para forzar recarga
@@ -688,7 +705,7 @@ public class FirebaseManager {
         Map<String, Object> map = new HashMap<>();
 
         map.put("id", receta.getId());
-        map.put("userId", userId);
+        map.put("userId", getEffectiveUserId());
         map.put("nombre", receta.getNombre());
         map.put("temporadas", new ArrayList<>(receta.getTemporadas()));
         map.put("alergenos", new ArrayList<>(receta.getAlergenos()));
@@ -721,7 +738,7 @@ public class FirebaseManager {
         Calendar calendar = Calendar.getInstance();
         int mes = calendar.get(Calendar.MONTH);
         int anio = calendar.get(Calendar.YEAR);
-        return userId + "_" + anio + "_" + mes;
+        return getEffectiveUserId() + "_" + anio + "_" + mes;
     }
 
     // ==================== LIMPIEZA ====================
@@ -843,7 +860,7 @@ public class FirebaseManager {
         calendar.add(Calendar.MONTH, -1);
         int mes = calendar.get(Calendar.MONTH);
         int anio = calendar.get(Calendar.YEAR);
-        return userId + "_" + anio + "_" + mes;
+        return getEffectiveUserId() + "_" + anio + "_" + mes;
     }
 
     public void eliminarCalendarioMesAnterior(SimpleCallback callback) {
