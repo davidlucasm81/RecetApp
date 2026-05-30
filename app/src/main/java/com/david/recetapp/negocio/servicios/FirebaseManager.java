@@ -19,6 +19,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.Source;
 import com.google.firebase.firestore.WriteBatch;
+import com.google.firebase.firestore.DocumentReference;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -374,31 +375,51 @@ public class FirebaseManager {
 
     // ==================== OPERACIONES DE CALENDARIO ====================
 
-    public void obtenerCalendario(CalendarioCallback callback) {
+    // Devuelve el calendario cacheado si está válido; null en caso contrario
+    public List<Day> getCachedCalendarioIfValid() {
         String cacheKey = getCalendarioCacheKey();
         CacheEntry<List<Day>> cached = calendarioCache.get(cacheKey);
-
         if (cached != null && cached.isValid()) {
-            Log.d(TAG, "Calendario servido desde memoria");
-            callback.onSuccess(new ArrayList<>(cached.data));
-            return;
+            return new ArrayList<>(cached.data);
+        }
+        return null;
+    }
+
+    public void obtenerCalendario(CalendarioCallback callback) {
+        obtenerCalendario(null, callback);
+    }
+
+    public void obtenerCalendario(Source source, CalendarioCallback callback) {
+        String cacheKey = getCalendarioCacheKey();
+        
+        // Si no se especifica source y tenemos caché en memoria válida, usarla
+        if (source == null) {
+            CacheEntry<List<Day>> cached = calendarioCache.get(cacheKey);
+            if (cached != null && cached.isValid()) {
+                Log.d(TAG, "Calendario servido desde memoria");
+                callback.onSuccess(new ArrayList<>(cached.data));
+                return;
+            }
         }
 
         String calendarioId = getCalendarioId();
-        db.collection(COLLECTION_CALENDARIO)
-                .document(calendarioId)
-                .get()
-                .addOnSuccessListener(documentSnapshot -> {
+        var docRef = db.collection(COLLECTION_CALENDARIO).document(calendarioId);
+        
+        var task = (source != null) ? docRef.get(source) : docRef.get();
+        
+        task.addOnSuccessListener(documentSnapshot -> {
                     List<Day> days;
                     if (documentSnapshot.exists()) {
                         List<Map<String, Object>> daysList =
                                 (List<Map<String, Object>>) documentSnapshot.get("days");
                         days = parseDays(daysList);
+                        // Solo cachear si hay datos reales
+                        calendarioCache.put(cacheKey, new CacheEntry<>(days));
                     } else {
                         days = new ArrayList<>();
+                        // NO CACHEAR si no existe, para permitir que CalendarioSrv lo cree
                     }
 
-                    calendarioCache.put(cacheKey, new CacheEntry<>(days));
                     callback.onSuccess(days);
                 })
                 .addOnFailureListener(callback::onFailure);
@@ -406,6 +427,7 @@ public class FirebaseManager {
 
     public void guardarCalendario(List<Day> days, SimpleCallback callback) {
         String calendarioId = getCalendarioId();
+        String cacheKey = getCalendarioCacheKey();
 
         Map<String, Object> calendarioData = new HashMap<>();
         calendarioData.put("userId", userId);
@@ -419,12 +441,82 @@ public class FirebaseManager {
                 .set(calendarioData, SetOptions.merge())
                 .addOnSuccessListener(aVoid -> {
                     Log.d(TAG, "Calendario guardado: " + calendarioId);
-                    invalidateCalendarioCache();
+                    // Actualizar caché en memoria con el calendario guardado para evitar recargas innecesarias
+                    calendarioCache.put(cacheKey, new CacheEntry<>(days));
                     callback.onSuccess();
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Error guardando calendario", e);
                     callback.onFailure(e);
+                });
+    }
+
+    /**
+     * Guardar el documento de calendario y, en la misma operación de WriteBatch,
+     * actualizar la fechaCalendario de múltiples recetas. Esto reduce round-trips
+     * y asegura mayor coherencia entre documentos.
+     */
+    public void guardarCalendarioConFechas(List<Day> days, Map<String, Long> recetaFechas, SimpleCallback callback) {
+        String calendarioId = getCalendarioId();
+        String cacheKey = getCalendarioCacheKey();
+
+        WriteBatch batch = db.batch();
+
+        DocumentReference calRef = db.collection(COLLECTION_CALENDARIO).document(calendarioId);
+        Map<String, Object> calendarioData = new HashMap<>();
+        calendarioData.put("userId", userId);
+        calendarioData.put("mes", Calendar.getInstance().get(Calendar.MONTH));
+        calendarioData.put("anio", Calendar.getInstance().get(Calendar.YEAR));
+        calendarioData.put("days", daysToList(days));
+        calendarioData.put("timestamp", FieldValue.serverTimestamp());
+        batch.set(calRef, calendarioData, SetOptions.merge());
+
+        if (recetaFechas != null) {
+            for (Map.Entry<String, Long> entry : recetaFechas.entrySet()) {
+                String recetaId = entry.getKey();
+                Long ts = entry.getValue();
+                DocumentReference recetaRef = db.collection(COLLECTION_RECETAS).document(recetaId);
+                Map<String, Object> updates = new HashMap<>();
+                if (ts == null || ts == 0L) {
+                    updates.put("fechaCalendario", null);
+                } else {
+                    updates.put("fechaCalendario", new Date(ts));
+                }
+                updates.put("timestamp", FieldValue.serverTimestamp());
+                batch.update(recetaRef, updates);
+            }
+        }
+
+        batch.commit()
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "Batch: calendario y fechas de recetas guardadas");
+                    // Actualizar caché del calendario
+                    calendarioCache.put(cacheKey, new CacheEntry<>(days));
+
+                    // Actualizar caché de recetas si está disponible
+                    CacheEntry<List<Receta>> recetasCached = recetasCache.get(userId);
+                    if (recetasCached != null && recetasCached.isValid()) {
+                        List<Receta> list = recetasCached.data;
+                        if (recetaFechas != null) {
+                            for (Receta r : list) {
+                                if (recetaFechas.containsKey(r.getId())) {
+                                    Long t = recetaFechas.get(r.getId());
+                                    r.setFechaCalendario((t == null || t == 0L) ? null : new Date(t));
+                                }
+                            }
+                            // Re-put cache entry to refresh timestamp
+                            recetasCache.put(userId, new CacheEntry<>(list));
+                        }
+                    } else if (recetaFechas != null) {
+                        // Si no hay caché válida, simplemente invalidar para forzar recarga
+                        invalidateRecetasCache();
+                    }
+
+                    if (callback != null) callback.onSuccess();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error en batch calendario+fechas", e);
+                    if (callback != null) callback.onFailure(e);
                 });
     }
 
@@ -500,6 +592,8 @@ public class FirebaseManager {
     }
 
     private void syncCalendarioInBackground(List<Day> days) {
+        if (days == null || days.isEmpty()) return;
+
         String calendarioId = getCalendarioId();
 
         Map<String, Object> updateData = new HashMap<>();
@@ -509,10 +603,19 @@ public class FirebaseManager {
         db.collection(COLLECTION_CALENDARIO)
                 .document(calendarioId)
                 .set(updateData, SetOptions.merge())
-                .addOnSuccessListener(aVoid ->
-                        Log.d(TAG, "Calendario sincronizado en background"))
-                .addOnFailureListener(e ->
-                        Log.e(TAG, "Error sincronizando calendario", e));
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "Calendario sincronizado en background"))
+                .addOnFailureListener(e -> Log.e(TAG, "Error sincronizando calendario", e));
+    }
+
+    // Apply a Day update only in the in-memory cache so the UI can read the change immediately
+    public void applyLocalDayUpdate(Day day) {
+        String cacheKey = getCalendarioCacheKey();
+        CacheEntry<List<Day>> cached = calendarioCache.get(cacheKey);
+        if (cached != null && cached.isValid()) {
+            List<Day> updated = mergeDayIntoList(cached.data, day);
+            calendarioCache.put(cacheKey, new CacheEntry<>(updated));
+            Log.d(TAG, "Aplicación local del día en caché: " + day.getDayOfMonth());
+        }
     }
 
     // ==================== IMPORTACIÓN BATCH ====================
@@ -600,6 +703,18 @@ public class FirebaseManager {
         map.put("timestamp", FieldValue.serverTimestamp());
 
         return map;
+    }
+
+    public void eliminarCalendarioActual(SimpleCallback callback) {
+        String idActual = getCalendarioId();
+        db.collection(COLLECTION_CALENDARIO).document(idActual)
+                .delete()
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "✅ Calendario actual eliminado: " + idActual);
+                    invalidateCalendarioCache();
+                    callback.onSuccess();
+                })
+                .addOnFailureListener(callback::onFailure);
     }
 
     private String getCalendarioId() {

@@ -87,6 +87,11 @@
     <string name="error_actualizar_calendario">Error updating calendar</string>
     <string name="error_cargar_calendario">Error loading calendar</string>
     <string name="error_generar_lista_compra">Error generating shopping list</string>
+    <string name="borrar_calendario">Clear calendar</string>
+    <string name="confirmar_borrar_calendario">Are you sure you want to clear and recreate the calendar?</string>
+    <string name="calendario_recreado">Calendar recreated successfully</string>
+    <string name="error_conexion_lenta">Slow connection. Could not load calendar.</string>
+    <string name="reintentando_carga">Slow connection, retrying load&#8230;</string>
 
     <!-- Existing messages that might be missing -->
     <string name="error_crear_receta">Error creating recipe</string>

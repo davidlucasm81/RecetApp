@@ -397,6 +397,18 @@ public class RecetasSrv {
     }
 
     public static void actualizarRecetaCalendario(Context context, String idReceta, int diaMes, boolean add) {
+        // Mantener compatibilidad: buscar en caché rápido y evitar cargas pesadas repetidas
+        if (!recetasCache.isEmpty()) {
+            Optional<Receta> opt = recetasCache.stream()
+                    .filter(r -> r.getId().equals(idReceta))
+                    .findAny();
+            if (opt.isPresent()) {
+                actualizarRecetaCalendarioDirect(opt.get(), diaMes, add);
+                return;
+            }
+        }
+
+        // Fallback: cargar recetas (solo si no están en caché)
         cargarListaRecetas(context, new RecetasCallback() {
             @Override
             public void onSuccess(List<Receta> recetas) {
@@ -404,33 +416,37 @@ public class RecetasSrv {
                         .filter(r -> r.getId().equals(idReceta))
                         .findAny();
 
-                opt.ifPresent(r -> {
-                    long timestamp = 0;
-                    if (diaMes > 0) {
-                        Calendar cal = Calendar.getInstance();
-                        cal.set(Calendar.DAY_OF_MONTH, diaMes);
-                        Date fecha = cal.getTime();
-                        if (add && r.getFechaCalendario() != null && r.getFechaCalendario().after(fecha)) return;
-                        timestamp = fecha.getTime();
-                    }
-
-                    firebaseManager.actualizarFechaCalendario(idReceta, timestamp, new FirebaseManager.SimpleCallback() {
-                        @Override
-                        public void onSuccess() {
-                            Log.d(TAG, "Fecha calendario actualizada para: " + idReceta);
-                        }
-
-                        @Override
-                        public void onFailure(Exception e) {
-                            Log.e(TAG, "Error actualizando fecha calendario", e);
-                        }
-                    });
-                });
+                opt.ifPresent(r -> actualizarRecetaCalendarioDirect(r, diaMes, add));
             }
 
             @Override
             public void onFailure(Exception e) {
                 Log.e(TAG, "Error cargando recetas para actualizar calendario", e);
+            }
+        });
+    }
+
+    // Actualiza la fecha de la receta en Firebase usando el objeto Receta ya disponible (no recarga lista)
+    public static void actualizarRecetaCalendarioDirect(Receta receta, int diaMes, boolean add) {
+        if (receta == null) return;
+        long timestamp = 0;
+        if (diaMes > 0) {
+            Calendar cal = Calendar.getInstance();
+            cal.set(Calendar.DAY_OF_MONTH, diaMes);
+            Date fecha = cal.getTime();
+            if (add && receta.getFechaCalendario() != null && receta.getFechaCalendario().after(fecha)) return;
+            timestamp = fecha.getTime();
+        }
+
+        firebaseManager.actualizarFechaCalendario(receta.getId(), timestamp, new FirebaseManager.SimpleCallback() {
+            @Override
+            public void onSuccess() {
+                Log.d(TAG, "Fecha calendario actualizada para: " + receta.getId());
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Log.e(TAG, "Error actualizando fecha calendario", e);
             }
         });
     }

@@ -43,7 +43,8 @@ public class CalendarioRecyclerAdapter extends ListAdapter<Day, CalendarioRecycl
 
     public CalendarioRecyclerAdapter(Context context) {
         super(DIFF_CALLBACK);
-        this.context = context.getApplicationContext();
+        // Use the provided context (Activity/Fragment context) so startActivity preserves the back stack
+        this.context = context;
         this.colorIcono = ContextCompat.getColor(context, R.color.colorIcono);
         Calendar cal = Calendar.getInstance();
         this.todayDay = cal.get(Calendar.DAY_OF_MONTH);
@@ -154,7 +155,7 @@ public class CalendarioRecyclerAdapter extends ListAdapter<Day, CalendarioRecycl
 
                 Intent intent = new Intent(context, DetalleDiaActivity.class);
                 intent.putExtra("selectedDay", clicked);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                // Start activity using the Activity context to preserve normal back stack behavior
                 context.startActivity(intent);
             });
         }

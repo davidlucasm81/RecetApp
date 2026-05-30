@@ -91,6 +91,11 @@
     <string name="error_actualizar_calendario">Error al actualizar el calendario</string>
     <string name="error_cargar_calendario">Error al cargar el calendario</string>
     <string name="error_generar_lista_compra">Error al generar la lista de compra</string>
+    <string name="borrar_calendario">Borrar calendario</string>
+    <string name="confirmar_borrar_calendario">¿Está seguro de que desea borrar y recrear el calendario?</string>
+    <string name="calendario_recreado">Calendario recreado correctamente</string>
+    <string name="error_conexion_lenta">La conexión es lenta. No se ha podido cargar el calendario.</string>
+    <string name="reintentando_carga">Conexión lenta, reintentando carga&#8230;</string>
 
     <!-- Mensajes existentes que podrían faltar -->
     <string name="error_crear_receta">Error al crear la receta</string>

@@ -245,33 +245,19 @@ public class AddRecetaDiaActivity extends AppCompatActivity {
                         progressBar.setVisibility(View.VISIBLE);
                     }
 
+                    // Añadir localmente y actualizar caché para que la UI vea el cambio inmediatamente
                     selectedDay.getRecetas().add(new RecetaDia(receta.getId(), numPersonas));
+                    CalendarioSrv.aplicarActualizacionLocalDia(selectedDay);
 
-                    CalendarioSrv.actualizarDia(this, selectedDay, new CalendarioSrv.SimpleCallback() {
-                        @Override
-                        public void onSuccess() {
-                            mainHandler.post(() -> {
-                                isAddingRecipe = false;
-                                hideLoading();
-                                volverADetalleDiaActivity();
-                            });
-                        }
+                    // Lanzar sincronización en background sin bloquear la UI.
+                    // Usar un batch para actualizar calendario + fecha de receta de una vez.
+                    CalendarioSrv.guardarDiaYRecetaBatch(AddRecetaDiaActivity.this, selectedDay, receta.getId());
 
-                        @Override
-                        public void onFailure(Exception e) {
-                            mainHandler.post(() -> {
-                                isAddingRecipe = false;
-                                hideLoading();
-
-                                // 🚀 Revertir cambio si falló
-                                selectedDay.getRecetas().removeIf(rd ->
-                                        rd.getIdReceta().equals(receta.getId()));
-
-                                UtilsSrv.notificacion(AddRecetaDiaActivity.this,
-                                        getString(R.string.error_actualizar_calendario),
-                                        Toast.LENGTH_SHORT).show();
-                            });
-                        }
+                    // Volver de forma inmediata (UX optimista)
+                    mainHandler.post(() -> {
+                        isAddingRecipe = false;
+                        hideLoading();
+                        volverADetalleDiaActivity();
                     });
                 } else {
                     mostrarError(R.string.numero_personas_incorrecto);
@@ -318,10 +304,11 @@ public class AddRecetaDiaActivity extends AppCompatActivity {
     }
 
     private void volverADetalleDiaActivity() {
-        Intent intent = new Intent(this, DetalleDiaActivity.class);
-        intent.putExtra("selectedDay", selectedDay);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        startActivity(intent);
+        // Devolver resultado a la actividad que lanzó este Activity (DetalleDiaActivity)
+        Intent result = new Intent();
+        result.putExtra("selectedDayDayOfMonth", selectedDay.getDayOfMonth());
+        setResult(RESULT_OK, result);
+        // No lanzar nuevas actividades: finish para volver al anterior en la pila
         finish();
     }
 }

@@ -16,6 +16,7 @@ import com.david.recetapp.R;
 import com.david.recetapp.adaptadores.RecetaExpandableListCalendarAdapter;
 import com.david.recetapp.negocio.beans.Day;
 import com.david.recetapp.negocio.beans.RecetaDia;
+import com.david.recetapp.negocio.servicios.CalendarioSrv;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -35,9 +36,12 @@ public class DetalleDiaActivity extends AppCompatActivity
     @SuppressLint("MissingSuperCall")
     @Override
     public void onBackPressed() {
-        Intent intent = new Intent(DetalleDiaActivity.this, MainActivity.class);
-        intent.putExtra("FRAGMENT_TO_LOAD", "CalendarioFragment");
-        startActivity(intent);
+        // Volver al MainActivity simplemente finalizando esta actividad para preservar la pila
+        // y evitar recreaciones costosas.
+        // Pasar resultado opcional para que MainActivity/CalendarioFragment pueda actualizarse si es necesario.
+        Intent result = new Intent();
+        if (selectedDay != null) result.putExtra("selectedDayDayOfMonth", selectedDay.getDayOfMonth());
+        setResult(RESULT_OK, result);
         finish();
     }
 
@@ -45,8 +49,48 @@ public class DetalleDiaActivity extends AppCompatActivity
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent);
-        selectedDay = intent.getSerializableExtra("selectedDay", Day.class);
-        refreshUI();
+        // Compatibilidad: puede venir "selectedDay" serializable (viejo comportamiento) o
+        // solo el número de día "selectedDayDayOfMonth" (mejor performance).
+        Day sd = intent.getSerializableExtra("selectedDay", Day.class);
+        if (sd != null) {
+            selectedDay = sd;
+            refreshUI();
+            return;
+        }
+
+        int dayOfMonth = intent.getIntExtra("selectedDayDayOfMonth", -1);
+        if (dayOfMonth > 0) {
+            // Intent: obtener el Day desde la caché para evitar I/O en el hilo principal
+            java.util.List<Day> cached = CalendarioSrv.obtenerCalendarioCache(this);
+            if (cached != null && !cached.isEmpty()) {
+                for (Day d : cached) {
+                    if (d.getDayOfMonth() == dayOfMonth) {
+                        selectedDay = d;
+                        refreshUI();
+                        return;
+                    }
+                }
+            }
+
+            // Si no está en caché, solicitarlo desde servidor (async)
+            CalendarioSrv.obtenerCalendario(this, new CalendarioSrv.CalendarioCallback() {
+                @Override
+                public void onSuccess(java.util.List<Day> days) {
+                    for (Day d : days) {
+                        if (d.getDayOfMonth() == dayOfMonth) {
+                            selectedDay = d;
+                            runOnUiThread(() -> refreshUI());
+                            return;
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    // mostrar vacío o mantener estado
+                }
+            });
+        }
     }
 
     @Override
@@ -59,15 +103,91 @@ public class DetalleDiaActivity extends AppCompatActivity
         addReceta = findViewById(R.id.addReceta);
         progressBar = findViewById(R.id.progressBarDetalle);
 
-        selectedDay = getIntent().getSerializableExtra("selectedDay", Day.class);
+        // Igual que onNewIntent: soportar tanto Serializable como dayOfMonth
+        Intent intent = getIntent();
+        Day sd = intent.getSerializableExtra("selectedDay", Day.class);
+        if (sd != null) {
+            selectedDay = sd;
+        } else {
+            int dayOfMonth = intent.getIntExtra("selectedDayDayOfMonth", -1);
+            if (dayOfMonth > 0) {
+                java.util.List<Day> cached = CalendarioSrv.obtenerCalendarioCache(this);
+                if (cached != null && !cached.isEmpty()) {
+                    for (Day d : cached) {
+                        if (d.getDayOfMonth() == dayOfMonth) {
+                            selectedDay = d;
+                            break;
+                        }
+                    }
+                }
+
+                if (selectedDay == null) {
+                    // pedir al servidor (async)
+                    CalendarioSrv.obtenerCalendario(this, new CalendarioSrv.CalendarioCallback() {
+                        @Override
+                        public void onSuccess(java.util.List<Day> days) {
+                            for (Day d : days) {
+                                if (d.getDayOfMonth() == dayOfMonth) {
+                                    selectedDay = d;
+                                    runOnUiThread(() -> refreshUI());
+                                    return;
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Exception e) {
+                            // no action
+                        }
+                    });
+                }
+            }
+        }
 
         refreshUI();
 
         addReceta.setOnClickListener(v -> {
-            Intent intent = new Intent(this, AddRecetaDiaActivity.class);
-            intent.putExtra("selectedDay", selectedDay);
-            startActivity(intent);
+            Intent intent2 = new Intent(this, AddRecetaDiaActivity.class);
+            intent2.putExtra("selectedDay", selectedDay);
+            // Lanzar esperando resultado para que podamos refrescar cuando vuelva
+            startActivityForResult(intent2, 1001);
         });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1001 && resultCode == RESULT_OK && data != null) {
+            int dayOfMonth = data.getIntExtra("selectedDayDayOfMonth", -1);
+            if (dayOfMonth > 0) {
+                java.util.List<Day> cached = CalendarioSrv.obtenerCalendarioCache(this);
+                if (cached != null && !cached.isEmpty()) {
+                    for (Day d : cached) {
+                        if (d.getDayOfMonth() == dayOfMonth) {
+                            selectedDay = d;
+                            refreshUI();
+                            return;
+                        }
+                    }
+                }
+
+                CalendarioSrv.obtenerCalendario(this, new CalendarioSrv.CalendarioCallback() {
+                    @Override
+                    public void onSuccess(java.util.List<Day> days) {
+                        for (Day d : days) {
+                            if (d.getDayOfMonth() == dayOfMonth) {
+                                selectedDay = d;
+                                runOnUiThread(() -> refreshUI());
+                                return;
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Exception e) { }
+                });
+            }
+        }
     }
 
     private void refreshUI() {
