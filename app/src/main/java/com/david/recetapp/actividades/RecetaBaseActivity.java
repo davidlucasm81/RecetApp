@@ -182,7 +182,17 @@ public abstract class RecetaBaseActivity extends AppCompatActivity {
             imageViewIconoAlergeno.setImageResource(AlergenosSrv.obtenerImagen(alergeno.getNumero()));
             checkBoxAlergeno.setText(alergeno.getNombre());
             checkBoxAlergeno.setChecked(alergenosSeleccionados.stream().anyMatch(objeto -> alergeno.getNombre().equals(objeto.getNombre())));
-            checkBoxAlergeno.setOnCheckedChangeListener((buttonView, isChecked) -> alergenosSeleccionados.add(alergeno));
+            checkBoxAlergeno.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                if (isChecked) {
+                    // Añadir solo si no está ya en la lista
+                    if (alergenosSeleccionados.stream().noneMatch(a -> a.getNombre().equals(alergeno.getNombre()))) {
+                        alergenosSeleccionados.add(alergeno);
+                    }
+                } else {
+                    // Eliminar si se desmarca
+                    alergenosSeleccionados.removeIf(a -> a.getNombre().equals(alergeno.getNombre()));
+                }
+            });
             GridLayout.LayoutParams params = new GridLayout.LayoutParams();
             params.rowSpec = GridLayout.spec(filaActual);
             params.columnSpec = GridLayout.spec(i % columnas);
