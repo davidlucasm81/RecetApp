@@ -39,16 +39,25 @@ public class CalendarioRecyclerAdapter extends ListAdapter<Day, CalendarioRecycl
     private final int colorIcono;
     private final int bgDefaultResId = R.drawable.button_background;
     private final int bgTodayResId = R.drawable.button_background_today;
-    private final int todayDay;
+
+    private int todayDay;
+    private int todayMonth;
+    private int todayYear;
 
     public CalendarioRecyclerAdapter(Context context) {
         super(DIFF_CALLBACK);
         // Use the provided context (Activity/Fragment context) so startActivity preserves the back stack
         this.context = context;
         this.colorIcono = ContextCompat.getColor(context, R.color.colorIcono);
+        updateToday();
+        setHasStableIds(true);
+    }
+
+    private void updateToday() {
         Calendar cal = Calendar.getInstance();
         this.todayDay = cal.get(Calendar.DAY_OF_MONTH);
-        setHasStableIds(true);
+        this.todayMonth = cal.get(Calendar.MONTH);
+        this.todayYear = cal.get(Calendar.YEAR);
     }
 
     /**
@@ -96,7 +105,7 @@ public class CalendarioRecyclerAdapter extends ListAdapter<Day, CalendarioRecycl
         holder.dayButton.setEnabled(true);
         holder.dayButton.setTag(day);
 
-        boolean isToday = day.getDayOfMonth() == todayDay;
+        boolean isToday = day.getDayOfMonth() == todayDay && day.getMonth() == todayMonth && day.getYear() == todayYear;
         if (isToday) {
             holder.dayButton.setBackgroundResource(bgTodayResId);
         } else {

@@ -152,9 +152,11 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
                         Receta eliminada = listaRecetas.remove(groupPosition);
                         selectedDay.removeReceta(eliminada.getId());
 
-                        CalendarioSrv.actualizarDia(activity, selectedDay, new CalendarioSrv.SimpleCallback() {
+                        CalendarioSrv.actualizarDia(activity, selectedDay.getMonth(), selectedDay.getYear(), selectedDay, new CalendarioSrv.SimpleCallback() {
                             @Override
                             public void onSuccess() {
+                                // Aquí no podemos actualizarFechaCalendario fácilmente sin el mes/año
+                                // Pero actualizarFechaCalendario ya busca el día más reciente
                                 CalendarioSrv.actualizarFechaCalendario(activity, eliminada.getId());
                                 mainHandler.post(() -> {
                                     if (listaRecetas.size() < 2) {

@@ -48,24 +48,49 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- Mes y año (sin cambios) -->
-    <TextView
-        android:id="@+id/monthYearTextView"
-        android:layout_width="wrap_content"
+    <!-- Mes y año con navegación -->
+    <LinearLayout
+        android:id="@+id/monthNavigationLL"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/titleLL"
-        android:layout_centerHorizontal="true"
-        android:textSize="20sp"
-        android:textStyle="bold"
+        android:gravity="center"
+        android:orientation="horizontal"
         android:paddingTop="8dp"
-        android:paddingBottom="8dp" />
+        android:paddingBottom="8dp">
+
+        <ImageButton
+            android:id="@+id/btnPreviousMonth"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/boton_redondo"
+            android:src="@drawable/ic_baseline_arrow_back_24"
+            android:contentDescription="@string/anterior" />
+
+        <TextView
+            android:id="@+id/monthYearTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <ImageButton
+            android:id="@+id/btnNextMonth"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginStart="16dp"
+            android:background="@drawable/boton_redondo"
+            android:src="@drawable/ic_baseline_arrow_forward_24"
+            android:contentDescription="@string/siguiente" />
+    </LinearLayout>
 
     <!-- 🚀 SwipeRefreshLayout añadido (envuelve el RecyclerView) -->
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefreshLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/monthYearTextView">
+        android:layout_below="@id/monthNavigationLL">
 
         <FrameLayout
             android:layout_width="match_parent"

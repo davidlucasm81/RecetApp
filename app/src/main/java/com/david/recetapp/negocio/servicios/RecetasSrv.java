@@ -454,32 +454,23 @@ public class RecetasSrv {
         });
     }
 
-    public static void actualizarRecetaCalendarioDirect(Receta receta, int diaMes, boolean add) {
+    public static void actualizarRecetaCalendarioDirect(Receta receta, long timestamp, boolean add) {
         if (notHasUserId()) {
             Log.e(TAG, "❌ actualizarRecetaCalendarioDirect sin userId");
             return;
         }
         if (receta == null) return;
 
-        long tsTemp = 0;
-        if (diaMes > 0) {
-            Calendar cal = Calendar.getInstance();
-            cal.set(Calendar.DAY_OF_MONTH, diaMes);
-            cal.set(Calendar.HOUR_OF_DAY, 0);
-            cal.set(Calendar.MINUTE, 0);
-            cal.set(Calendar.SECOND, 0);
-            cal.set(Calendar.MILLISECOND, 0);
-            Date fecha = cal.getTime();
+        if (timestamp > 0) {
+            Date fecha = new Date(timestamp);
             if (add && receta.getFechaCalendario() != null && !fecha.after(receta.getFechaCalendario())) return;
-            tsTemp = fecha.getTime();
         }
 
-        final long finalTimestamp = tsTemp;
-        firebaseManager.actualizarFechaCalendario(receta.getId(), finalTimestamp, new FirebaseManager.SimpleCallback() {
+        firebaseManager.actualizarFechaCalendario(receta.getId(), timestamp, new FirebaseManager.SimpleCallback() {
             @Override
             public void onSuccess() {
                 Log.d(TAG, "Fecha calendario actualizada para: " + receta.getId());
-                receta.setFechaCalendario(finalTimestamp == 0 ? null : new Date(finalTimestamp));
+                receta.setFechaCalendario(timestamp == 0 ? null : new Date(timestamp));
             }
 
             @Override

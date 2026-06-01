@@ -52,6 +52,14 @@ public class CalendarioFragment extends Fragment {
     private boolean isLoading = false;
     private int currentRequestId = 0;
 
+    private Calendar calendarViewing;
+    private Calendar calendarReal;
+
+    private ImageButton btnBorrar;
+    private ImageButton btnActualizar;
+    private ImageButton btnPreviousMonth;
+    private ImageButton btnNextMonth;
+
     private static final int SPAN_COUNT = 7;
 
     @Nullable
@@ -66,6 +74,9 @@ public class CalendarioFragment extends Fragment {
         setupButtons(rootView);
 
         mainHandler = new Handler(Looper.getMainLooper());
+
+        calendarReal = Calendar.getInstance();
+        calendarViewing = (Calendar) calendarReal.clone();
 
         setupCalendar();
         return rootView;
@@ -126,10 +137,14 @@ public class CalendarioFragment extends Fragment {
     }
 
     private void setupButtons(View rootView) {
-        ImageButton btnBorrar = rootView.findViewById(R.id.btnBorrar);
+        btnBorrar = rootView.findViewById(R.id.btnBorrar);
         if (btnBorrar != null) {
             btnBorrar.setOnClickListener(v -> {
                 if (isAdded() && !isLoading) {
+                    if (!isViewingCurrentMonth()) {
+                        UtilsSrv.notificacion(requireContext(), getString(R.string.solo_mes_actual), Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     AlertDialog alert = new AlertDialog.Builder(requireContext(), R.style.CustomAlertDialog)
                             .setTitle(getString(R.string.borrar_calendario))
                             .setMessage(getString(R.string.confirmar_borrar_calendario))
@@ -165,7 +180,7 @@ public class CalendarioFragment extends Fragment {
                                     }
                                 });
 
-                                CalendarioSrv.borrarYRecrearCalendario(requireContext(), new CalendarioSrv.CalendarioCallback() {
+                                CalendarioSrv.borrarYRecrearCalendario(requireContext(), calendarViewing.get(Calendar.MONTH), calendarViewing.get(Calendar.YEAR), new CalendarioSrv.CalendarioCallback() {
                                     @Override
                                     public void onSuccess(List<Day> days) {
                                         mainHandler.post(() -> {
@@ -210,11 +225,15 @@ public class CalendarioFragment extends Fragment {
             });
         }
 
-        ImageButton btnActualizar = rootView.findViewById(R.id.btnActualizar);
+        btnActualizar = rootView.findViewById(R.id.btnActualizar);
 
         if (btnActualizar != null) {
             btnActualizar.setOnClickListener(v -> {
                 if (isAdded() && !isLoading) {
+                    if (!isViewingCurrentMonth()) {
+                        UtilsSrv.notificacion(requireContext(), getString(R.string.solo_mes_actual), Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     LayoutInflater inflaterDialog = LayoutInflater.from(getContext());
                     View dialogView = inflaterDialog.inflate(R.layout.dialog_date_range_picker, null);
 
@@ -222,8 +241,7 @@ public class CalendarioFragment extends Fragment {
                     NumberPicker numberPickerFin = dialogView.findViewById(R.id.numberPickerFin);
 
                     // Configurar los NumberPickers (permitir seleccionar un único día)
-                    Calendar cal = Calendar.getInstance();
-                    int maxDay = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
+                    int maxDay = calendarViewing.getActualMaximum(Calendar.DAY_OF_MONTH);
                     numberPickerInicio.setMinValue(1);
                     numberPickerInicio.setMaxValue(maxDay);
                     numberPickerFin.setMinValue(1);
@@ -260,12 +278,67 @@ public class CalendarioFragment extends Fragment {
                 }
             });
         }
+
+        btnPreviousMonth = rootView.findViewById(R.id.btnPreviousMonth);
+        if (btnPreviousMonth != null) {
+            btnPreviousMonth.setOnClickListener(v -> {
+                if (!isLoading) {
+                    calendarViewing.add(Calendar.MONTH, -1);
+                    updateNavigationUI();
+                    loadCalendarDays(false);
+                }
+            });
+        }
+
+        btnNextMonth = rootView.findViewById(R.id.btnNextMonth);
+        if (btnNextMonth != null) {
+            btnNextMonth.setOnClickListener(v -> {
+                if (!isLoading) {
+                    calendarViewing.add(Calendar.MONTH, 1);
+                    updateNavigationUI();
+                    loadCalendarDays(false);
+                }
+            });
+        }
+    }
+
+    private void updateNavigationUI() {
+        setupCalendar();
+
+        Calendar prevLimit = (Calendar) calendarReal.clone();
+        prevLimit.add(Calendar.MONTH, -1);
+        Calendar nextLimit = (Calendar) calendarReal.clone();
+        nextLimit.add(Calendar.MONTH, 1);
+
+        if (btnPreviousMonth != null) {
+            btnPreviousMonth.setVisibility(isSameMonth(calendarViewing, prevLimit) ? View.INVISIBLE : View.VISIBLE);
+        }
+        if (btnNextMonth != null) {
+            btnNextMonth.setVisibility(isSameMonth(calendarViewing, nextLimit) ? View.INVISIBLE : View.VISIBLE);
+        }
+
+        updateManagementButtonsVisibility();
+    }
+
+    private void updateManagementButtonsVisibility() {
+        boolean isCurrent = isViewingCurrentMonth();
+        if (btnBorrar != null) btnBorrar.setVisibility(isCurrent ? View.VISIBLE : View.GONE);
+        if (btnActualizar != null) btnActualizar.setVisibility(isCurrent ? View.VISIBLE : View.GONE);
+    }
+
+    private boolean isViewingCurrentMonth() {
+        return isSameMonth(calendarViewing, calendarReal);
+    }
+
+    private boolean isSameMonth(Calendar c1, Calendar c2) {
+        return c1.get(Calendar.YEAR) == c2.get(Calendar.YEAR) &&
+                c1.get(Calendar.MONTH) == c2.get(Calendar.MONTH);
     }
 
     private void setupCalendar() {
         SimpleDateFormat monthYearFormat = new SimpleDateFormat("MMMM yyyy", Locale.getDefault());
         if (monthYearTextView != null) {
-            monthYearTextView.setText(monthYearFormat.format(Calendar.getInstance().getTime()));
+            monthYearTextView.setText(monthYearFormat.format(calendarViewing.getTime()));
         }
     }
 
@@ -278,6 +351,11 @@ public class CalendarioFragment extends Fragment {
         isLoading = true;
         final int requestId = ++currentRequestId;
 
+        // Limpiar el calendario actual para que no se vea mientras carga el nuevo
+        if (adapter != null) {
+            adapter.submitList(null);
+        }
+
         if (showRefreshing && swipeRefreshLayout != null) {
             swipeRefreshLayout.setRefreshing(true);
         } else if (progressBar != null) {
@@ -288,12 +366,14 @@ public class CalendarioFragment extends Fragment {
         List<Day> localDays = (adapter != null) ? adapter.getCurrentList() : null;
 
         // Intento rápido: obtener calendario desde caché en memoria para evitar I/O
-        java.util.List<Day> cached = CalendarioSrv.obtenerCalendarioCache();
+        int mes = calendarViewing.get(Calendar.MONTH);
+        int anio = calendarViewing.get(Calendar.YEAR);
+        java.util.List<Day> cached = CalendarioSrv.obtenerCalendarioCache(mes, anio);
         if (cached != null && !cached.isEmpty()) {
             isLoading = false;
             hideLoading();
             if (isAdded()) {
-                final int numeroEnBlanco = UtilsSrv.obtenerColumnaCalendario(1);
+                final int numeroEnBlanco = UtilsSrv.obtenerColumnaCalendario(1, mes, anio);
                 adapter.submitDays(cached, numeroEnBlanco);
                 if (emptyView != null) emptyView.setVisibility(cached.isEmpty() ? View.VISIBLE : View.GONE);
             }
@@ -309,7 +389,7 @@ public class CalendarioFragment extends Fragment {
             }
         }, 6000);
 
-        CalendarioSrv.obtenerCalendario(requireContext(), localDays, new CalendarioSrv.CalendarioCallback() {
+        CalendarioSrv.obtenerCalendario(requireContext(), mes, anio, localDays, new CalendarioSrv.CalendarioCallback() {
             @Override
             public void onSuccess(List<Day> days) {
                 mainHandler.post(() -> {
@@ -319,7 +399,7 @@ public class CalendarioFragment extends Fragment {
 
                     if (!isAdded()) return;
 
-                    final int numeroEnBlanco = UtilsSrv.obtenerColumnaCalendario(1);
+                    final int numeroEnBlanco = UtilsSrv.obtenerColumnaCalendario(1, mes, anio);
                     adapter.submitDays(days, numeroEnBlanco);
 
                     if (emptyView != null) {
@@ -416,7 +496,10 @@ public class CalendarioFragment extends Fragment {
             }
         }, 8000);
 
-        CalendarioSrv.rellenarRangoDias(requireContext(), diaInicio, diaFin, true, numPersonas, new CalendarioSrv.RellenarCallback() {
+        int mes = calendarViewing.get(Calendar.MONTH);
+        int anio = calendarViewing.get(Calendar.YEAR);
+
+        CalendarioSrv.rellenarRangoDias(requireContext(), mes, anio, diaInicio, diaFin, true, numPersonas, new CalendarioSrv.RellenarCallback() {
             @Override
             public void onSuccess(List<Day> updatedCalendar) {
                 mainHandler.post(() -> {
@@ -426,7 +509,7 @@ public class CalendarioFragment extends Fragment {
 
                     if (!isAdded()) return;
 
-                    final int numeroEnBlanco = UtilsSrv.obtenerColumnaCalendario(1);
+                    final int numeroEnBlanco = UtilsSrv.obtenerColumnaCalendario(1, mes, anio);
                     if (adapter != null) adapter.submitDays(updatedCalendar, numeroEnBlanco);
 
                     UtilsSrv.notificacion(requireContext(), getString(R.string.calendario_actualizado), Toast.LENGTH_LONG).show();
@@ -476,47 +559,38 @@ public class CalendarioFragment extends Fragment {
         if (adapter == null || isLoading) return;
 
         // Intent: si venimos de DetalleDiaActivity o AddRecetaDiaActivity, recibimos el Day actualizado
-        Day updatedDay = null;
+        int updatedDayOfMonth = -1;
         try {
             android.content.Intent intent = requireActivity().getIntent();
-            updatedDay = intent.getSerializableExtra("selectedDay", Day.class);
+            updatedDayOfMonth = intent.getIntExtra("selectedDayDayOfMonth", -1);
         } catch (Exception ignored) {}
 
-        if (updatedDay != null) {
-            // Actualizar solo el día modificado en la lista actual (optimista, evita recarga completa)
-            List<Day> current = new java.util.ArrayList<>(adapter.getCurrentList());
-            boolean replaced = false;
-            for (int i = 0; i < current.size(); i++) {
-                Day d = current.get(i);
-                if (d != null && d.getDayOfMonth() == updatedDay.getDayOfMonth()) {
-                    current.set(i, updatedDay);
-                    replaced = true;
-                    break;
-                }
-            }
-
-            if (replaced) {
-                // Evitar computar Diff completo: notificar solo el item cambiado para minimizar trabajo en UI
-                int adapterPos = -1;
-                List<Day> full = adapter.getCurrentList();
-                for (int j = 0; j < full.size(); j++) {
-                    Day d = full.get(j);
-                    if (d != null && d.getDayOfMonth() == updatedDay.getDayOfMonth()) {
-                        adapterPos = j;
-                        break;
-                    }
-                }
-                if (adapterPos >= 0) {
-                    adapter.notifyItemChanged(adapterPos);
-                } else {
-                    // Fallback: si no se encontró, enviar la lista completa como antes
-                    adapter.submitList(current);
+        if (updatedDayOfMonth != -1) {
+            // Recargar el día específico desde el servidor o caché para asegurarnos de tener los datos frescos
+            final int dayToUpdate = updatedDayOfMonth;
+            CalendarioSrv.obtenerCalendario(requireContext(), calendarViewing.get(Calendar.MONTH), calendarViewing.get(Calendar.YEAR), new CalendarioSrv.CalendarioCallback() {
+                @Override
+                public void onSuccess(List<Day> days) {
+                    mainHandler.post(() -> {
+                        if (!isAdded() || adapter == null) return;
+                        
+                        // Actualizar la lista completa del adapter (DiffUtil se encargará del resto)
+                        int mes = calendarViewing.get(Calendar.MONTH);
+                        int anio = calendarViewing.get(Calendar.YEAR);
+                        adapter.submitDays(days, UtilsSrv.obtenerColumnaCalendario(1, mes, anio));
+                        
+                        // Limpiar el extra
+                        requireActivity().setIntent(new android.content.Intent());
+                    });
                 }
 
-                // Limpiar el extra para evitar re-aplicarlo al siguiente onResume
-                requireActivity().setIntent(new android.content.Intent());
-                return;
-            }
+                @Override
+                public void onFailure(Exception e) {
+                    // Fallback: recarga completa
+                    loadCalendarDays(false);
+                }
+            });
+            return;
         }
 
         // Si no hay día específico, recargar normalmente

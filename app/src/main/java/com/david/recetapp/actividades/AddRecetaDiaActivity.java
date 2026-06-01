@@ -247,11 +247,11 @@ public class AddRecetaDiaActivity extends AppCompatActivity {
 
                     // Añadir localmente y actualizar caché para que la UI vea el cambio inmediatamente
                     selectedDay.getRecetas().add(new RecetaDia(receta.getId(), numPersonas));
-                    CalendarioSrv.aplicarActualizacionLocalDia(selectedDay);
+                    CalendarioSrv.aplicarActualizacionLocalDia(selectedDay.getMonth(), selectedDay.getYear(), selectedDay);
 
                     // Lanzar sincronización en background sin bloquear la UI.
                     // Usar un batch para actualizar calendario + fecha de receta de una vez.
-                    CalendarioSrv.guardarDiaYRecetaBatch(selectedDay, receta.getId());
+                    CalendarioSrv.guardarDiaYRecetaBatch(selectedDay.getMonth(), selectedDay.getYear(), selectedDay, receta.getId());
 
                     // Volver de forma inmediata (UX optimista)
                     mainHandler.post(() -> {

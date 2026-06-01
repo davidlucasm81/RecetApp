@@ -60,7 +60,8 @@ public class DetalleDiaActivity extends AppCompatActivity
         int dayOfMonth = intent.getIntExtra("selectedDayDayOfMonth", -1);
         if (dayOfMonth > 0) {
             // Intent: obtener el Day desde la caché para evitar I/O en el hilo principal
-            java.util.List<Day> cached = CalendarioSrv.obtenerCalendarioCache();
+            Calendar now = Calendar.getInstance();
+            java.util.List<Day> cached = CalendarioSrv.obtenerCalendarioCache(now.get(Calendar.MONTH), now.get(Calendar.YEAR));
             if (cached != null && !cached.isEmpty()) {
                 for (Day d : cached) {
                     if (d.getDayOfMonth() == dayOfMonth) {
@@ -72,7 +73,7 @@ public class DetalleDiaActivity extends AppCompatActivity
             }
 
             // Si no está en caché, solicitarlo desde servidor (async)
-            CalendarioSrv.obtenerCalendario(this, new CalendarioSrv.CalendarioCallback() {
+            CalendarioSrv.obtenerCalendario(this, now.get(Calendar.MONTH), now.get(Calendar.YEAR), new CalendarioSrv.CalendarioCallback() {
                 @Override
                 public void onSuccess(java.util.List<Day> days) {
                     for (Day d : days) {
@@ -110,7 +111,8 @@ public class DetalleDiaActivity extends AppCompatActivity
         } else {
             int dayOfMonth = intent.getIntExtra("selectedDayDayOfMonth", -1);
             if (dayOfMonth > 0) {
-                java.util.List<Day> cached = CalendarioSrv.obtenerCalendarioCache();
+                Calendar now = Calendar.getInstance();
+                java.util.List<Day> cached = CalendarioSrv.obtenerCalendarioCache(now.get(Calendar.MONTH), now.get(Calendar.YEAR));
                 if (cached != null && !cached.isEmpty()) {
                     for (Day d : cached) {
                         if (d.getDayOfMonth() == dayOfMonth) {
@@ -122,7 +124,7 @@ public class DetalleDiaActivity extends AppCompatActivity
 
                 if (selectedDay == null) {
                     // pedir al servidor (async)
-                    CalendarioSrv.obtenerCalendario(this, new CalendarioSrv.CalendarioCallback() {
+                    CalendarioSrv.obtenerCalendario(this, now.get(Calendar.MONTH), now.get(Calendar.YEAR), new CalendarioSrv.CalendarioCallback() {
                         @Override
                         public void onSuccess(java.util.List<Day> days) {
                             for (Day d : days) {
@@ -158,8 +160,12 @@ public class DetalleDiaActivity extends AppCompatActivity
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1001 && resultCode == RESULT_OK && data != null) {
             int dayOfMonth = data.getIntExtra("selectedDayDayOfMonth", -1);
-            if (dayOfMonth > 0) {
-                java.util.List<Day> cached = CalendarioSrv.obtenerCalendarioCache();
+            if (dayOfMonth > 0 && selectedDay != null) {
+                // Usar el mes y año del día seleccionado, no necesariamente el actual "real"
+                int mes = selectedDay.getMonth();
+                int anio = selectedDay.getYear();
+                
+                java.util.List<Day> cached = CalendarioSrv.obtenerCalendarioCache(mes, anio);
                 if (cached != null && !cached.isEmpty()) {
                     for (Day d : cached) {
                         if (d.getDayOfMonth() == dayOfMonth) {
@@ -170,7 +176,7 @@ public class DetalleDiaActivity extends AppCompatActivity
                     }
                 }
 
-                CalendarioSrv.obtenerCalendario(this, new CalendarioSrv.CalendarioCallback() {
+                CalendarioSrv.obtenerCalendario(this, mes, anio, new CalendarioSrv.CalendarioCallback() {
                     @Override
                     public void onSuccess(java.util.List<Day> days) {
                         for (Day d : days) {
@@ -190,15 +196,19 @@ public class DetalleDiaActivity extends AppCompatActivity
     }
 
     private void refreshUI() {
+        if (selectedDay == null) return;
+        
         progressBar.setVisibility(View.VISIBLE);
 
         TextView titleTextView = findViewById(R.id.titleTextView);
         SimpleDateFormat monthYearFormat = new SimpleDateFormat("MMMM yyyy", Locale.getDefault());
 
-        assert selectedDay != null;
+        Calendar cal = Calendar.getInstance();
+        cal.set(selectedDay.getYear(), selectedDay.getMonth(), selectedDay.getDayOfMonth());
+        
         String nuevoTexto = getString(R.string.detalle_dia) + " "
                 + selectedDay.getDayOfMonth() + " "
-                + monthYearFormat.format(Calendar.getInstance().getTime());
+                + monthYearFormat.format(cal.getTime());
         titleTextView.setText(nuevoTexto);
 
         List<RecetaDia> listaRecetas = selectedDay.getRecetas();

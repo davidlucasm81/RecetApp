@@ -162,12 +162,9 @@ public class UtilsSrv {
         }
     }
 
-    public static int obtenerColumnaCalendario(int diaDelMes) {
-        // Obtener la fecha actual
-        LocalDate fechaActual = LocalDate.now();
-
-        // Crear una fecha con el día proporcionado, mes actual y año actual
-        LocalDate fecha = fechaActual.withDayOfMonth(diaDelMes);
+    public static int obtenerColumnaCalendario(int diaDelMes, int mes, int anio) {
+        // LocalDate usa meses de 1-12, Calendar de 0-11
+        LocalDate fecha = LocalDate.of(anio, mes + 1, diaDelMes);
 
         // Obtener el día de la semana (1 = Lunes, 7 = Domingo)
         int diaDeLaSemana = fecha.getDayOfWeek().getValue();
@@ -175,6 +172,12 @@ public class UtilsSrv {
         // Convertir el día de la semana a la columna correspondiente
         // Lunes = 0, Domingo = 6
         return (diaDeLaSemana == 7) ? 6 : diaDeLaSemana - 1;
+    }
+
+    public static int obtenerColumnaCalendario(int diaDelMes) {
+        // Obtener la fecha actual
+        LocalDate fechaActual = LocalDate.now();
+        return obtenerColumnaCalendario(diaDelMes, fechaActual.getMonthValue() - 1, fechaActual.getYear());
     }
 
 }

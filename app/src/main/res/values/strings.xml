@@ -109,4 +109,7 @@
     <string name="cerrar_sesion">Cerrar sesión</string>
     <string name="confirmar_cerrar_sesion">¿Seguro que quieres cerrar sesión?</string>
     <string name="error_login">Error al iniciar sesión. Inténtalo de nuevo.</string>
+    <string name="solo_mes_actual">Esta operación solo está permitida en el mes actual</string>
+    <string name="anterior">Anterior</string>
+    <string name="siguiente">Siguiente</string>
 </resources>

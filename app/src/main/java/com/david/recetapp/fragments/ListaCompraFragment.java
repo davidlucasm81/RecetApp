@@ -16,6 +16,8 @@ import android.widget.ImageButton;
 import android.widget.NumberPicker;
 import android.widget.Toast;
 
+import java.util.Calendar;
+
 import androidx.fragment.app.Fragment;
 import androidx.core.content.ContextCompat;
 
@@ -116,7 +118,8 @@ public class ListaCompraFragment extends Fragment {
     private void generarListaCompra(int diaInicio, int diaFin) {
         handler.removeCallbacksAndMessages(null);
 
-        CalendarioSrv.getListaCompra(getContext(), diaInicio, diaFin, new CalendarioSrv.ListaCompraCallback() {
+        Calendar now = Calendar.getInstance();
+        CalendarioSrv.getListaCompra(getContext(), now.get(Calendar.MONTH), now.get(Calendar.YEAR), diaInicio, diaFin, new CalendarioSrv.ListaCompraCallback() {
             @Override
             public void onSuccess(String listaCompra) {
                 if (!isAdded()) return;
