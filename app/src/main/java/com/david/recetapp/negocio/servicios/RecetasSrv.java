@@ -94,31 +94,7 @@ public class RecetasSrv {
     // ——— CARGA DESDE FIREBASE OPTIMIZADA ———
 
     public static void cargarListaRecetas(Context context, RecetasCallback callback) {
-        if (checkNotUserId(callback)) return;
-
-        if (!recetasCache.isEmpty()) {
-            callback.onSuccess(new ArrayList<>(recetasCache));
-            return;
-        }
-
-        inicializarCachesEnBackground(context);
-
-        firebaseManager.cargarRecetas(context, new FirebaseManager.RecetasCallback() {
-            @Override
-            public void onSuccess(List<Receta> recetas) {
-                recetasCache.clear();
-                recetasCache.addAll(recetas);
-                Log.d(TAG, "✅ Recetas cargadas: " + recetas.size());
-                callback.onSuccess(new ArrayList<>(recetasCache));
-                calcularPuntuacionesEnBackground(context);
-            }
-
-            @Override
-            public void onFailure(Exception e) {
-                Log.e(TAG, "Error cargando recetas desde Firebase", e);
-                callback.onFailure(e);
-            }
-        });
+        cargarListaRecetas(context, false, callback);
     }
 
     public static void cargarListaRecetas(Context context, boolean forceServer, RecetasCallback callback) {
@@ -129,16 +105,37 @@ public class RecetasSrv {
             return;
         }
 
-        inicializarCachesEnBackground(context);
-
         firebaseManager.cargarRecetas(context, forceServer, new FirebaseManager.RecetasCallback() {
             @Override
             public void onSuccess(List<Receta> recetas) {
-                recetasCache.clear();
-                recetasCache.addAll(recetas);
-                Log.d(TAG, "✅ Recetas cargadas (forceServer=" + forceServer + "): " + recetas.size());
-                callback.onSuccess(new ArrayList<>(recetasCache));
-                calcularPuntuacionesEnBackground(context);
+                // Procesamiento en background ANTES de notificar éxito
+                backgroundExecutor.execute(() -> {
+                    try {
+                        inicializarMapas(context);
+
+                        long inicio = System.currentTimeMillis();
+                        for (Receta receta : recetas) {
+                            calcularPuntuacion(receta);
+                        }
+                        long duracion = System.currentTimeMillis() - inicio;
+                        Log.d(TAG, "✅ Puntuaciones calculadas: " + duracion + "ms");
+
+                        synchronized (recetasCache) {
+                            recetasCache.clear();
+                            recetasCache.addAll(recetas);
+                        }
+
+                        // Notificar en el main thread
+                        new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                            Log.d(TAG, "✅ Recetas listas (forceServer=" + forceServer + "): " + recetas.size());
+                            callback.onSuccess(new ArrayList<>(recetasCache));
+                        });
+
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error procesando recetas en background", e);
+                        new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> callback.onFailure(e));
+                    }
+                });
             }
 
             @Override
@@ -168,27 +165,6 @@ public class RecetasSrv {
         });
     }
 
-    private static void calcularPuntuacionesEnBackground(Context context) {
-        backgroundExecutor.execute(() -> {
-            try {
-                inicializarMapas(context);
-
-                long inicio = System.currentTimeMillis();
-
-                synchronized (recetasCache) {
-                    for (Receta receta : recetasCache) {
-                        calcularPuntuacion(receta);
-                    }
-                }
-
-                long duracion = System.currentTimeMillis() - inicio;
-                Log.d(TAG, "✅ Puntuaciones calculadas en background: " + duracion + "ms");
-
-            } catch (Exception e) {
-                Log.e(TAG, "Error calculando puntuaciones en background", e);
-            }
-        });
-    }
 
     /**
      * 🚀 Inicializa mapas de ingredientes, unidades y gramos (SOLO UNA VEZ por sesión).

@@ -258,10 +258,6 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
             }
 
             filtrarYActualizarLista("");
-
-            if (progressBar != null) {
-                progressBar.setVisibility(View.GONE);
-            }
         });
     }
 

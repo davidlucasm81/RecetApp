@@ -183,11 +183,14 @@ public class FirebaseManager {
                         Log.d(TAG, "✅ Recetas desde caché Firestore (~50ms)");
                         List<Receta> recetas = procesarRecetas(queryDocumentSnapshots, context);
                         recetasCache.put(getEffectiveUserId(), new CacheEntry<>(recetas));
-                        callback.onSuccess(recetas);
 
                         // 3️⃣ En background, sincronizar con servidor si nunca se ha hecho
                         if (!recetasCargadasDesdeServidor) {
-                            sincronizarConServidorEnBackground(context);
+                            Log.d(TAG, "🔄 Sincronizando con servidor para asegurar datos frescos...");
+                            sincronizarConServidorEnBackground(context, callback);
+                        } else {
+                            // Si ya sincronizamos en esta sesión, podemos devolver caché sin miedo
+                            callback.onSuccess(recetas);
                         }
                     } else {
                         // Caché vacía, ir directo a servidor
@@ -233,9 +236,9 @@ public class FirebaseManager {
     }
 
     /**
-     * 🚀 Sincroniza con servidor en background (no bloquea UI)
+     * 🚀 Sincroniza con servidor en background
      */
-    private void sincronizarConServidorEnBackground(Context context) {
+    private void sincronizarConServidorEnBackground(Context context, RecetasCallback callback) {
         db.collection(COLLECTION_RECETAS)
                 .whereEqualTo("userId", getEffectiveUserId())
                 .orderBy("timestamp", Query.Direction.DESCENDING)
@@ -246,9 +249,21 @@ public class FirebaseManager {
                     List<Receta> recetas = procesarRecetas(queryDocumentSnapshots, context);
                     recetasCache.put(getEffectiveUserId(), new CacheEntry<>(recetas));
                     recetasCargadasDesdeServidor = true;
+                    if (callback != null) callback.onSuccess(recetas);
                 })
-                .addOnFailureListener(e ->
-                        Log.w(TAG, "⚠️ Sincronización background falló (no crítico)", e));
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "⚠️ Sincronización background falló", e);
+                    if (callback != null) {
+                        // Fallback a caché si el servidor falla durante la sincronización inicial
+                        CacheEntry<List<Receta>> cached = recetasCache.get(getEffectiveUserId());
+                        if (cached != null) {
+                            Log.d(TAG, "⚠️ Sincronización falló, usando caché local como fallback");
+                            callback.onSuccess(new ArrayList<>(cached.data));
+                        } else {
+                            callback.onFailure(e);
+                        }
+                    }
+                });
     }
 
     private List<Receta> procesarRecetas(Iterable<QueryDocumentSnapshot> snapshots, Context context) {
