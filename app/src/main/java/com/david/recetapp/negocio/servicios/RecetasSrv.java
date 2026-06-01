@@ -370,14 +370,17 @@ public class RecetasSrv {
 
     // ——— RECETAS CALENDARIO ———
 
-    public static void cargarListaRecetasCalendario(Context context, List<RecetaDia> idRecetas, RecetasCallback callback) {
+    public static void cargarListaRecetasCalendario(Context context, Day targetDay, RecetasCallback callback) {
         if (checkNotUserId(callback)) return;
 
         cargarListaRecetas(context, new RecetasCallback() {
             @Override
             public void onSuccess(List<Receta> todas) {
-                Temporada temporada = UtilsSrv.getTemporadaFecha(LocalDate.now());
-                Set<String> seleccionadas = idRecetas.stream()
+                // Usar la temporada del día destino, no la de hoy
+                LocalDate date = LocalDate.of(targetDay.getYear(), targetDay.getMonth() + 1, targetDay.getDayOfMonth());
+                Temporada temporada = UtilsSrv.getTemporadaFecha(date);
+                
+                Set<String> seleccionadas = targetDay.getRecetas().stream()
                         .map(RecetaDia::getIdReceta)
                         .collect(Collectors.toSet());
 

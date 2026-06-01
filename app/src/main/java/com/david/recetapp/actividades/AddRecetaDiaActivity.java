@@ -138,7 +138,7 @@ public class AddRecetaDiaActivity extends AppCompatActivity {
             progressBar.setVisibility(View.VISIBLE);
         }
 
-        RecetasSrv.cargarListaRecetasCalendario(this, selectedDay.getRecetas(),
+        RecetasSrv.cargarListaRecetasCalendario(this, selectedDay,
                 new RecetasSrv.RecetasCallback() {
                     @Override
                     public void onSuccess(java.util.List<Receta> listaRecetas) {

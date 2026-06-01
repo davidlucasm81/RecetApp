@@ -27,12 +27,12 @@ public class UtilsSrv {
         // Obtener el mes de la fecha
         int month = date.getMonthValue(); // Enero = 1, Diciembre = 12
 
-        // Mapear el mes a la temporada
+        // Mapear el mes a la temporada (Ajustado para clima de España)
         if (month == 12 || month <= 2) {
             return Temporada.INVIERNO;
-        } else if (month <= 5) {
+        } else if (month <= 4) {
             return Temporada.PRIMAVERA;
-        } else if (month <= 8) {
+        } else if (month <= 9) {
             return Temporada.VERANO;
         } else {
             return Temporada.OTONIO;

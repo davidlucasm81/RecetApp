@@ -741,9 +741,10 @@ public class CalendarioSrv {
                 RecetasSrv.cargarListaRecetas(context, new RecetasSrv.RecetasCallback() {
                     @Override
                     public void onSuccess(List<Receta> recetasDisponibles) {
-                        com.david.recetapp.negocio.beans.Temporada temporadaActual = UtilsSrv.getTemporadaFecha(java.time.LocalDate.now());
+                        // Usar la temporada del mes que se está rellenando, no la actual de hoy
+                        com.david.recetapp.negocio.beans.Temporada temporadaObjetivo = UtilsSrv.getTemporadaFecha(java.time.LocalDate.of(anio, mes + 1, 1));
                         List<Receta> filtradas = recetasDisponibles.stream()
-                                .filter(r -> !r.isPostre() && r.getTemporadas().contains(temporadaActual))
+                                .filter(r -> !r.isPostre() && r.getTemporadas().contains(temporadaObjetivo))
                                 .toList();
 
                         List<Receta> sinPostre = recetasDisponibles.stream()

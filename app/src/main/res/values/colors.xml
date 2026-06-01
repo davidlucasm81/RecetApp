@@ -7,4 +7,10 @@
     <color name="estrellas">#27A727</color>
     <color name="colorPrimary">#FF5722</color>
     <color name="colorPostre" tools:ignore="UnusedResources">#FFD4E5</color>
+
+    <!-- Colores para Temporadas -->
+    <color name="colorVerano">#FFB300</color>    <!-- Ámbar/Sol -->
+    <color name="colorPrimavera">#4CAF50</color> <!-- Verde -->
+    <color name="colorOtonio">#795548</color>    <!-- Marrón -->
+    <color name="colorInvierno">#2196F3</color>   <!-- Azul -->
 </resources>

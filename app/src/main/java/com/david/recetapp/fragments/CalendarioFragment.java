@@ -44,6 +44,7 @@ import java.util.Locale;
 public class CalendarioFragment extends Fragment {
 
     private TextView monthYearTextView;
+    private TextView seasonTextView;
     private CalendarioRecyclerAdapter adapter;
     private ProgressBar progressBar;
     private SwipeRefreshLayout swipeRefreshLayout; // Puede ser null
@@ -93,6 +94,7 @@ public class CalendarioFragment extends Fragment {
 
     private void initializeViews(View rootView) {
         monthYearTextView = rootView.findViewById(R.id.monthYearTextView);
+        seasonTextView = rootView.findViewById(R.id.seasonTextView);
         progressBar = rootView.findViewById(R.id.progressBar);
 
         // 🚀 Intentar encontrar SwipeRefreshLayout (puede no existir en layout original)
@@ -339,6 +341,27 @@ public class CalendarioFragment extends Fragment {
         SimpleDateFormat monthYearFormat = new SimpleDateFormat("MMMM yyyy", Locale.getDefault());
         if (monthYearTextView != null) {
             monthYearTextView.setText(monthYearFormat.format(calendarViewing.getTime()));
+        }
+
+        if (seasonTextView != null) {
+            int mes = calendarViewing.get(Calendar.MONTH);
+            int anio = calendarViewing.get(Calendar.YEAR);
+            java.time.LocalDate date = java.time.LocalDate.of(anio, mes + 1, 1);
+            com.david.recetapp.negocio.beans.Temporada temporada = UtilsSrv.getTemporadaFecha(date);
+
+            seasonTextView.setText(getString(temporada.getStringRes()));
+
+            // Color basado en la temporada
+            int colorRes;
+            switch (temporada) {
+                case VERANO: colorRes = R.color.colorVerano; break;
+                case PRIMAVERA: colorRes = R.color.colorPrimavera; break;
+                case OTONIO: colorRes = R.color.colorOtonio; break;
+                case INVIERNO: colorRes = R.color.colorInvierno; break;
+                default: colorRes = R.color.colorPrimary; break;
+            }
+            seasonTextView.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
+                    ContextCompat.getColor(requireContext(), colorRes)));
         }
     }
 
