@@ -732,7 +732,7 @@ public class CalendarioSrv {
      * Rellena un rango de días añadiendo recetas (no borra recetas existentes).
      */
     public static void rellenarRangoDias(final Context context, final int mes, final int anio, final int diaInicio, final int diaFin,
-                                         final boolean forzarPasados, final int numPersonas, final RellenarCallback callback) {
+                                         final boolean forzarPasados, final int numRecetas, final int numPersonas, final RellenarCallback callback) {
         if (!checkUserId(callback)) return;
 
         obtenerCalendario(context, mes, anio, new CalendarioCallback() {
@@ -764,8 +764,9 @@ public class CalendarioSrv {
 
                                 if (dia.getRecetas() == null) dia.setRecetas(new ArrayList<>());
 
-                                addReceta(cola, recetasUtilizadasRecientemente, dia, actualizacionesPendientes, numPersonas, mes, anio);
-                                addReceta(cola, recetasUtilizadasRecientemente, dia, actualizacionesPendientes, numPersonas, mes, anio);
+                                for (int i = 0; i < numRecetas; i++) {
+                                    addReceta(cola, recetasUtilizadasRecientemente, dia, actualizacionesPendientes, numPersonas, mes, anio);
+                                }
 
                                 limpiarRecetasUtilizadasRecientemente(recetasUtilizadasRecientemente, dia, mes, anio);
                             }

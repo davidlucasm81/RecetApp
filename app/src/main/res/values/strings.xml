@@ -77,6 +77,7 @@
     <string name="dia_inicio">Día Inicial:</string>
     <string name="dia_fin">Díá Fin:</string>
     <string name="numero_personas">Número de personas para la receta</string>
+    <string name="numero_recetas">Número de recetas por día</string>
     <string name="numero_personas_incorrecto">Número de personas incorrecto</string>
     <string name="_0_recetas">0 recetas</string>
     <string name="exportando_recetas">Exportando recetas…</string>

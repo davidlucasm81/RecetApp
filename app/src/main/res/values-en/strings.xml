@@ -73,6 +73,7 @@
     <string name="selecciona_dias">Select days range:</string>
     <string name="dia_inicio">Start day:</string>
     <string name="numero_personas">Number of people</string>
+    <string name="numero_recetas">Number of recipes per day</string>
     <string name="numero_personas_incorrecto">Wrong number of people</string>
     <string name="_0_recetas">0 recipes</string>
     <string name="exportando_recetas">Exporting recipes…</string>

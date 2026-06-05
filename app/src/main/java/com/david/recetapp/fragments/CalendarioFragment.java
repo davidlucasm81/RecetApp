@@ -237,10 +237,11 @@ public class CalendarioFragment extends Fragment {
                         return;
                     }
                     LayoutInflater inflaterDialog = LayoutInflater.from(getContext());
-                    View dialogView = inflaterDialog.inflate(R.layout.dialog_date_range_picker, null);
+                    View dialogView = inflaterDialog.inflate(R.layout.dialog_calendar_refill, null);
 
                     NumberPicker numberPickerInicio = dialogView.findViewById(R.id.numberPickerInicio);
                     NumberPicker numberPickerFin = dialogView.findViewById(R.id.numberPickerFin);
+                    NumberPicker numberPickerRecetas = dialogView.findViewById(R.id.numberPickerRecetas);
 
                     // Configurar los NumberPickers (permitir seleccionar un único día)
                     int maxDay = calendarViewing.getActualMaximum(Calendar.DAY_OF_MONTH);
@@ -248,6 +249,11 @@ public class CalendarioFragment extends Fragment {
                     numberPickerInicio.setMaxValue(maxDay);
                     numberPickerFin.setMinValue(1);
                     numberPickerFin.setMaxValue(maxDay);
+
+                    // Configurar NumberPicker de recetas (ej: de 1 a 5 recetas por día)
+                    numberPickerRecetas.setMinValue(1);
+                    numberPickerRecetas.setMaxValue(5);
+                    numberPickerRecetas.setValue(2); // Valor por defecto anterior
 
                     // Ajustes dinámicos: permitir rango inclusive (inicio <= fin)
                     numberPickerInicio.setOnValueChangedListener((picker, oldVal, newVal) -> {
@@ -263,7 +269,7 @@ public class CalendarioFragment extends Fragment {
                             .setTitle(getString(R.string.seleccionar_dias))
                             .setView(dialogView)
                             .setPositiveButton(getString(R.string.aceptar), (dialog, which) ->
-                                    showPeopleDialog(numberPickerInicio.getValue(), numberPickerFin.getValue()))
+                                    showPeopleDialog(numberPickerInicio.getValue(), numberPickerFin.getValue(), numberPickerRecetas.getValue()))
                             .setNegativeButton(getString(R.string.cancelar), null)
                             .create();
 
@@ -352,14 +358,12 @@ public class CalendarioFragment extends Fragment {
             seasonTextView.setText(getString(temporada.getStringRes()));
 
             // Color basado en la temporada
-            int colorRes;
-            switch (temporada) {
-                case VERANO: colorRes = R.color.colorVerano; break;
-                case PRIMAVERA: colorRes = R.color.colorPrimavera; break;
-                case OTONIO: colorRes = R.color.colorOtonio; break;
-                case INVIERNO: colorRes = R.color.colorInvierno; break;
-                default: colorRes = R.color.colorPrimary; break;
-            }
+            int colorRes = switch (temporada) {
+                case VERANO -> R.color.colorVerano;
+                case PRIMAVERA -> R.color.colorPrimavera;
+                case OTONIO -> R.color.colorOtonio;
+                case INVIERNO -> R.color.colorInvierno;
+            };
             seasonTextView.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
                     ContextCompat.getColor(requireContext(), colorRes)));
         }
@@ -448,7 +452,7 @@ public class CalendarioFragment extends Fragment {
         });
     }
 
-    private void showPeopleDialog(int diaInicio, int diaFin) {
+    private void showPeopleDialog(int diaInicio, int diaFin, int numRecetas) {
         if (!isAdded()) return;
 
         android.widget.EditText editText = new android.widget.EditText(requireContext());
@@ -470,7 +474,7 @@ public class CalendarioFragment extends Fragment {
                         try {
                             int numPersonas = Integer.parseInt(input);
                             if (numPersonas >= 1) {
-                                rellenarDias(diaInicio, diaFin, numPersonas);
+                                rellenarDias(diaInicio, diaFin, numRecetas, numPersonas);
                             } else {
                                 UtilsSrv.notificacion(requireContext(), getString(R.string.numero_personas_incorrecto), Toast.LENGTH_LONG).show();
                             }
@@ -497,7 +501,7 @@ public class CalendarioFragment extends Fragment {
     /**
      * 🚀 Oculta todos los indicadores de carga
      */
-    private void rellenarDias(int diaInicio, int diaFin, int numPersonas) {
+    private void rellenarDias(int diaInicio, int diaFin, int numRecetas, int numPersonas) {
         if (isLoading) return;
         isLoading = true;
         final int requestId = ++currentRequestId;
@@ -522,7 +526,7 @@ public class CalendarioFragment extends Fragment {
         int mes = calendarViewing.get(Calendar.MONTH);
         int anio = calendarViewing.get(Calendar.YEAR);
 
-        CalendarioSrv.rellenarRangoDias(requireContext(), mes, anio, diaInicio, diaFin, true, numPersonas, new CalendarioSrv.RellenarCallback() {
+        CalendarioSrv.rellenarRangoDias(requireContext(), mes, anio, diaInicio, diaFin, true, numRecetas, numPersonas, new CalendarioSrv.RellenarCallback() {
             @Override
             public void onSuccess(List<Day> updatedCalendar) {
                 mainHandler.post(() -> {
@@ -590,7 +594,6 @@ public class CalendarioFragment extends Fragment {
 
         if (updatedDayOfMonth != -1) {
             // Recargar el día específico desde el servidor o caché para asegurarnos de tener los datos frescos
-            final int dayToUpdate = updatedDayOfMonth;
             CalendarioSrv.obtenerCalendario(requireContext(), calendarViewing.get(Calendar.MONTH), calendarViewing.get(Calendar.YEAR), new CalendarioSrv.CalendarioCallback() {
                 @Override
                 public void onSuccess(List<Day> days) {
