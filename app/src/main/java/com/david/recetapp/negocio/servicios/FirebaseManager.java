@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 
 import com.david.recetapp.negocio.beans.Day;
 import com.david.recetapp.negocio.beans.Receta;
+import com.david.recetapp.negocio.beans.TipoReceta;
 import com.david.recetapp.negocio.beans.RecetaDia;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -781,7 +782,7 @@ public class FirebaseManager {
         map.put("estrellas", receta.getEstrellas());
         map.put("numPersonas", receta.getNumPersonas());
         map.put("shared", receta.isShared());
-        map.put("postre", receta.isPostre());
+        map.put("tipoReceta", receta.getTipoReceta() != null ? receta.getTipoReceta().name() : TipoReceta.PRINCIPAL.name());
         // ← puntuacionDada eliminada: siempre se calcula localmente
         map.put("fechaCalendario", receta.getFechaCalendario());
         map.put("timestamp", FieldValue.serverTimestamp());

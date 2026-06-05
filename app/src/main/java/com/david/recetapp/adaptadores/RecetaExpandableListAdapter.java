@@ -28,6 +28,7 @@ import com.david.recetapp.actividades.recetas.EditarRecetaActivity;
 import com.david.recetapp.negocio.beans.Alergeno;
 import com.david.recetapp.negocio.beans.Ingrediente;
 import com.david.recetapp.negocio.beans.Receta;
+import com.david.recetapp.negocio.beans.TipoReceta;
 import com.david.recetapp.negocio.beans.Temporada;
 import com.david.recetapp.negocio.servicios.AlergenosSrv;
 import com.david.recetapp.negocio.servicios.RecetasSrv;
@@ -127,10 +128,21 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
         txtTituloReceta.setText(receta.getNombre() != null ? receta.getNombre() : context.getString(R.string.sin_nombre));
 
         ImageView warning = convertView.findViewById(R.id.warning);
-        ImageView postre = convertView.findViewById(R.id.imageViewPostreIcono);
+        ImageView iconoTipo = convertView.findViewById(R.id.imageViewTipoIcono);
         ImageView shared = convertView.findViewById(R.id.imageViewSharedIcono);
 
-        postre.setVisibility(receta.isPostre() ? View.VISIBLE : View.GONE);
+        iconoTipo.setVisibility(receta.getTipoReceta() == TipoReceta.POSTRE ? View.VISIBLE : View.GONE);
+
+        if (receta.getTipoReceta() == TipoReceta.COCTEL) {
+            iconoTipo.setImageResource(R.drawable.ic_baseline_local_bar_24);
+            iconoTipo.setVisibility(View.VISIBLE);
+        } else if (receta.getTipoReceta() == TipoReceta.SIDE) {
+            iconoTipo.setImageResource(R.drawable.ic_baseline_flatware_24);
+            iconoTipo.setVisibility(View.VISIBLE);
+        } else {
+            iconoTipo.setImageResource(R.drawable.postre_icono);
+        }
+
         shared.setVisibility(receta.isShared() ? View.VISIBLE : View.GONE);
 
         boolean hasBadScore = receta.getIngredientes() != null &&

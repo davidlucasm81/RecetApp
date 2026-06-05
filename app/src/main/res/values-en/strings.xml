@@ -8,7 +8,7 @@
     <string name="eliminar">Delete</string>
     <string name="recetas">Recipes</string>
     <string name="ver_recetas">View Recipes</string>
-    <string name="nombre">Names</string>
+    <string name="nombre">Name</string>
     <string name="temporada">Season</string>
     <string name="invierno">Winter</string>
     <string name="verano">Summer</string>
@@ -41,7 +41,10 @@
     <string name="calendario_actualizado">Updated Calendar</string>
     <string name="ultima_fecha_calendario">Last date on the calendar</string>
     <string name="alergenos">Allergens</string>
-    <string name="postre">Dessert</string>
+    <string name="tipo_postre">Dessert</string>
+    <string name="tipo_coctel">Cocktail</string>
+    <string name="tipo_side">Side / Accompaniment</string>
+    <string name="tipo_principal">Main Dish</string>
     <string name="buscar_recetas">Search recipes</string>
     <string name="borrar_busqueda">Clear search</string>
     <string name="sin_al_rgenos">Without allergens</string>
@@ -58,6 +61,17 @@
     <string name="importar_exportar">Import / Export</string>
     <string name="exportar">Export</string>
     <string name="buscar_postres">Search only desserts</string>
+    <string name="buscar_cocteles">Search only cocktails</string>
+    <string name="buscar_sides">Search only sides</string>
+    <string name="buscar_principales">Search only main dishes</string>
+    <string name="buscar_todos">Search all</string>
+    <string name="seleccionar_tipo">Select Type</string>
+    <string-array name="tipos_receta">
+        <item>@string/tipo_principal</item>
+        <item>@string/tipo_postre</item>
+        <item>@string/tipo_coctel</item>
+        <item>@string/tipo_side</item>
+    </string-array>
     <string name="puntuacion_dada">Score given</string>
     <string name="ver_calendario">View Calendar</string>
     <string name="calendario">Calendar</string>
@@ -71,6 +85,10 @@
     <string name="lista_compra">Shopping list</string>
     <string name="seleccionar_dias">Select days</string>
     <string name="selecciona_dias">Select days range:</string>
+    <string name="cantidad">Quantity</string>
+    <string name="unidad">Unit</string>
+    <string name="horas">Hours</string>
+    <string name="minutos">Minutes</string>
     <string name="dia_inicio">Start day:</string>
     <string name="numero_personas">Number of people</string>
     <string name="numero_recetas">Number of recipes per day</string>

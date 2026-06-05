@@ -77,7 +77,7 @@ public abstract class RecetaBaseActivity extends AppCompatActivity {
         outState.putSerializable(KEY_PASOS, pasos);
     }
 
-    protected void setupIngredientes(String[] ingredientList, Spinner spinner) {
+    protected void setupIngredientes(String[] ingredientList, AutoCompleteTextView spinner) {
         // ... Lógica para inicializar ingredientes y spinner ...
         String[] ingredientNames = new String[ingredientList.length];
         for (int i = 0; i < ingredientList.length; i++) {
@@ -99,10 +99,11 @@ public abstract class RecetaBaseActivity extends AppCompatActivity {
             }
         }
         ingredientes = new ArrayList<>();
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, getResources().getStringArray(R.array.quantity_units));
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, getResources().getStringArray(R.array.quantity_units));
         spinner.setAdapter(adapter);
-        spinner.setSelection(0);
+        if (adapter.getCount() > 0) {
+            spinner.setText(adapter.getItem(0), false);
+        }
     }
 
     protected void agregarIngrediente(String nombre, String numero, String tipoCantidad) {
@@ -125,8 +126,7 @@ public abstract class RecetaBaseActivity extends AppCompatActivity {
             EditText editTextCantidad = ingredienteView.findViewById(R.id.editTextCantidad);
             Spinner spinnerCantidad = ingredienteView.findViewById(R.id.spinner_quantity_unit);
             List<String> opcionesTipoCantidad = Arrays.asList(getResources().getStringArray(R.array.quantity_units));
-            ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, opcionesTipoCantidad);
-            spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, opcionesTipoCantidad);
             spinnerCantidad.setAdapter(spinnerAdapter);
             int selectedTypeIndex = opcionesTipoCantidad.indexOf(ingrediente.getTipoCantidad());
             spinnerCantidad.setSelection(selectedTypeIndex);
@@ -215,7 +215,7 @@ public abstract class RecetaBaseActivity extends AppCompatActivity {
     protected void mostrarPasos() {
         linearLayoutListaPasos.removeAllViews();
         for (int position = 0; position < pasos.size(); position++) {
-            ViewGroup parent = findViewById(R.id.linearLayoutPaso);
+            ViewGroup parent = findViewById(R.id.linearLayoutListaPasos);
             View convertView = LayoutInflater.from(this).inflate(R.layout.list_item_paso, parent, false);
             TextView textViewNumero = convertView.findViewById(R.id.textViewNumero);
             EditText editTextPaso = convertView.findViewById(R.id.editTextPaso);

@@ -11,6 +11,7 @@ import com.david.recetapp.R;
 import com.david.recetapp.negocio.beans.Day;
 import com.david.recetapp.negocio.beans.Receta;
 import com.david.recetapp.negocio.beans.RecetaDia;
+import com.david.recetapp.negocio.beans.TipoReceta;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -744,14 +745,14 @@ public class CalendarioSrv {
                         // Usar la temporada del mes que se está rellenando, no la actual de hoy
                         com.david.recetapp.negocio.beans.Temporada temporadaObjetivo = UtilsSrv.getTemporadaFecha(java.time.LocalDate.of(anio, mes + 1, 1));
                         List<Receta> filtradas = recetasDisponibles.stream()
-                                .filter(r -> !r.isPostre() && r.getTemporadas().contains(temporadaObjetivo))
+                                .filter(r -> r.getTipoReceta() == TipoReceta.PRINCIPAL && r.getTemporadas().contains(temporadaObjetivo))
                                 .toList();
 
-                        List<Receta> sinPostre = recetasDisponibles.stream()
-                                .filter(r -> !r.isPostre())
+                        List<Receta> soloPrincipales = recetasDisponibles.stream()
+                                .filter(r -> r.getTipoReceta() == TipoReceta.PRINCIPAL)
                                 .toList();
 
-                        Queue<Receta> cola = new LinkedList<>(!filtradas.isEmpty() ? filtradas : sinPostre);
+                        Queue<Receta> cola = new LinkedList<>(!filtradas.isEmpty() ? filtradas : soloPrincipales);
                         Set<Receta> recetasUtilizadasRecientemente = new HashSet<>();
                         List<ActualizacionFecha> actualizacionesPendientes = new ArrayList<>();
 

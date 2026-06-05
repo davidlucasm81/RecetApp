@@ -30,7 +30,9 @@ import com.david.recetapp.R;
 import com.david.recetapp.actividades.recetas.AddRecetaActivity;
 import com.david.recetapp.actividades.ImportExportActivity;
 import com.david.recetapp.adaptadores.RecetaExpandableListAdapter;
+import com.google.android.material.chip.ChipGroup;
 import com.david.recetapp.negocio.beans.Receta;
+import com.david.recetapp.negocio.beans.TipoReceta;
 import com.david.recetapp.negocio.servicios.RecetasSrv;
 import com.david.recetapp.negocio.servicios.UtilsSrv;
 import com.google.android.gms.common.ConnectionResult;
@@ -53,7 +55,7 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
     private TextView contadorTextView;
     private ExpandableListView expandableListView;
     private AutoCompleteTextView autoCompleteTextViewRecetas;
-    private SwitchCompat botonPostres;
+    private ChipGroup chipGroupTipoReceta;
     private Handler mainHandler;
     private Handler debounceHandler;
     private Runnable debounceRunnable;
@@ -98,7 +100,7 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
         expandableListView = rootView.findViewById(R.id.expandableListView);
         textViewEmpty = rootView.findViewById(R.id.textViewEmpty);
         autoCompleteTextViewRecetas = rootView.findViewById(R.id.autoCompleteTextViewRecetas);
-        botonPostres = rootView.findViewById(R.id.botonPostre);
+        chipGroupTipoReceta = rootView.findViewById(R.id.chipGroupTipoReceta);
         contadorTextView = rootView.findViewById(R.id.textViewContadorRecetas);
         progressBar = rootView.findViewById(R.id.progressBar);
 
@@ -153,7 +155,7 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
     }
 
     private void setupListeners() {
-        botonPostres.setOnCheckedChangeListener((buttonView, isChecked) ->
+        chipGroupTipoReceta.setOnCheckedStateChangeListener((group, checkedIds) ->
                 filtrarYActualizarLista(autoCompleteTextViewRecetas.getText().toString()));
 
         autoCompleteTextViewRecetas.addTextChangedListener(new TextWatcher() {
@@ -267,7 +269,7 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
         }
         if (expandableListView != null) expandableListView.setVisibility(View.GONE);
 
-        final boolean onlyPostres = (botonPostres != null) && botonPostres.isChecked();
+        final int checkedChipId = (chipGroupTipoReceta != null) ? chipGroupTipoReceta.getCheckedChipId() : -1;
         final String query = (consulta == null) ? "" : consulta.trim().toLowerCase(Locale.ROOT);
 
         // Ejecutar en executor (reutilizable)
@@ -286,8 +288,14 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
                 });
             }
 
-            if (onlyPostres) {
-                copyList.removeIf(r -> !r.isPostre());
+            if (checkedChipId != -1 && checkedChipId != R.id.chipTodos) {
+                copyList.removeIf(r -> {
+                    if (checkedChipId == R.id.chipPrincipales) return r.getTipoReceta() != TipoReceta.PRINCIPAL;
+                    if (checkedChipId == R.id.chipPostres) return r.getTipoReceta() != TipoReceta.POSTRE;
+                    if (checkedChipId == R.id.chipCocteles) return r.getTipoReceta() != TipoReceta.COCTEL;
+                    if (checkedChipId == R.id.chipSides) return r.getTipoReceta() != TipoReceta.SIDE;
+                    return false;
+                });
             }
 
             copyList.sort(Comparator.comparing(
@@ -394,7 +402,7 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
         rootView = null;
         expandableListView = null;
         autoCompleteTextViewRecetas = null;
-        botonPostres = null;
+        chipGroupTipoReceta = null;
         contadorTextView = null;
         fab = null;
         progressBar = null;

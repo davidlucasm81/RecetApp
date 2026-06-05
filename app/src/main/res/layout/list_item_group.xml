@@ -32,11 +32,11 @@
             tools:ignore="InefficientWeight,RtlSymmetry" />
 
         <ImageView
-            android:id="@+id/imageViewPostreIcono"
+            android:id="@+id/imageViewTipoIcono"
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_marginStart="15dp"
-            android:contentDescription="@string/postre"
+            android:contentDescription="@string/tipo_principal"
             android:src="@drawable/postre_icono"
             android:visibility="gone"
             tools:ignore="RtlSymmetry" />

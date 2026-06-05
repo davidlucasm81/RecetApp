@@ -6,7 +6,19 @@
     <color name="colorGrisTextoFondo">#A0A0A0</color>
     <color name="estrellas">#27A727</color>
     <color name="colorPrimary">#FF5722</color>
-    <color name="colorPostre" tools:ignore="UnusedResources">#FFD4E5</color>
+
+    <!-- Fondos para tipos de recetas (Light Mode: Pasteles) -->
+    <color name="bg_reciente">#FFFDE7</color>    <!-- Amarillo muy claro -->
+    <color name="stroke_reciente">#FDD835</color>
+
+    <color name="bg_postre">#FDF2F5</color>      <!-- Rosa muy claro -->
+    <color name="stroke_postre">#F48FB1</color>
+
+    <color name="bg_side">#F1F8E9</color>        <!-- Verde muy claro -->
+    <color name="stroke_side">#A5D6A7</color>
+
+    <color name="bg_coctel">#F3E5F5</color>      <!-- Púrpura muy claro -->
+    <color name="stroke_coctel">#CE93D8</color>
 
     <!-- Colores para Temporadas -->
     <color name="colorVerano">#FFB300</color>    <!-- Ámbar/Sol -->

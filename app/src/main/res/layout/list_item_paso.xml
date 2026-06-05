@@ -1,61 +1,84 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/linearLayoutPaso"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cardPaso"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:gravity="center_vertical"
-    android:orientation="horizontal">
+    android:layout_marginVertical="4dp"
+    app:cardCornerRadius="4dp"
+    app:cardElevation="0dp"
+    app:strokeColor="@color/dividerColor"
+    app:strokeWidth="1dp">
 
-    <!-- Ícono para indicar que la fila se puede mover -->
-    <ImageView
-        android:id="@+id/imageViewReordenar"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/linearLayoutPaso"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:contentDescription="@string/reordenar"
-        android:src="@drawable/ic_baseline_drag_indicator_24" />
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="8dp">
 
-    <TextView
-        android:id="@+id/textViewNumero"
-        android:layout_width="35dp"
-        android:layout_height="wrap_content"
-        android:textSize="18sp" />
+        <ImageView
+            android:id="@+id/imageViewReordenar"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:contentDescription="@string/reordenar"
+            android:padding="4dp"
+            android:src="@drawable/ic_baseline_drag_indicator_24"
+            app:tint="@color/colorIcono" />
 
-    <com.google.android.material.textfield.TextInputLayout
-        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="5dp"
-        android:layout_weight="1"
-        android:textSize="18sp">
-
-        <EditText
-            android:id="@+id/editTextPaso"
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/textViewNumero"
+            android:layout_width="24dp"
             android:layout_height="wrap_content"
-            android:inputType="textMultiLine"
-            android:textSize="18sp"
-            tools:ignore="Autofill,LabelFor,SpeakableTextPresentCheck,VisualLintTextFieldSize" />
+            android:gravity="center"
+            android:textSize="14sp"
+            android:textStyle="bold" />
 
-    </com.google.android.material.textfield.TextInputLayout>
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:paddingHorizontal="8dp">
 
-    <EditText
-        android:id="@+id/editTextTiempo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="5dp"
-        android:inputType="text"
-        android:textSize="16sp"
-        tools:ignore="Autofill,LabelFor,SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+            <EditText
+                android:id="@+id/editTextPaso"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/field_background"
+                android:hint="@string/texto_del_paso"
+                android:inputType="textMultiLine"
+                android:justificationMode="inter_word"
+                android:minHeight="40dp"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="4dp"
+                android:textSize="16sp"
+                tools:ignore="Autofill" />
 
-    <ImageButton
-        android:id="@+id/btnEliminarPaso"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="10dp"
-        android:background="@android:color/transparent"
-        android:contentDescription="@string/x"
-        android:src="@drawable/ic_baseline_delete_24"
-        android:textSize="16sp"
-        tools:ignore="TextContrastCheck,ImageContrastCheck,TouchTargetSizeCheck" />
+            <EditText
+                android:id="@+id/editTextTiempo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/field_background"
+                android:hint="@string/tiempo"
+                android:inputType="text"
+                android:minHeight="32dp"
+                android:paddingHorizontal="8dp"
+                android:textColor="?attr/colorPrimary"
+                android:textSize="12sp"
+                tools:ignore="Autofill" />
+        </LinearLayout>
 
-</LinearLayout>
+        <ImageButton
+            android:id="@+id/btnEliminarPaso"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/x"
+            android:src="@drawable/ic_baseline_delete_24"
+            app:tint="@color/colorIcono" />
+
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

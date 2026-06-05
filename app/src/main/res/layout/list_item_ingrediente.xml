@@ -1,77 +1,79 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:gravity="center"
-    android:orientation="horizontal">
-
-    <!-- Botón de eliminar (mantenlo igual) -->
-    <ImageButton
-        android:id="@+id/btnEliminarIngrediente"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="10dp"
-        android:background="@android:color/transparent"
-        android:contentDescription="@string/x"
-        android:src="@drawable/ic_baseline_delete_24"
-        tools:ignore="TouchTargetSizeCheck" />
-
-    <!-- Campo de edición del nombre del ingrediente -->
-
-    <!-- Campo de edición de la cantidad -->
+    android:layout_marginVertical="4dp"
+    app:cardCornerRadius="4dp"
+    app:cardElevation="0dp"
+    app:strokeColor="@color/dividerColor"
+    app:strokeWidth="1dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="vertical">
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="8dp">
 
-        <EditText
-            android:id="@+id/editTextNombreIngrediente"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="text"
-            android:minHeight="48dp"
-            android:textSize="18sp"
-            tools:ignore="Autofill,LabelFor,SpeakableTextPresentCheck,VisualLintTextFieldSize" />
+        <ImageButton
+            android:id="@+id/btnEliminarIngrediente"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/x"
+            android:src="@drawable/ic_baseline_delete_24"
+            app:tint="@color/colorIcono" />
 
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:orientation="horizontal">
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:paddingStart="8dp"
+            tools:ignore="RtlSymmetry">
 
-            <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
-                android:layout_width="125dp"
-                android:layout_height="match_parent"
-                android:layout_marginStart="16dp"
-                android:minHeight="70dp"
-                android:paddingStart="4dp"
-                android:paddingTop="2dp"
-                android:paddingEnd="4dp"
-                android:paddingBottom="2dp">
+            <EditText
+                android:id="@+id/editTextNombreIngrediente"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/field_background"
+                android:hint="@string/nombre_del_ingrediente"
+                android:inputType="text"
+                android:minHeight="56dp"
+                android:paddingHorizontal="12dp"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:ignore="Autofill" />
 
-                <com.google.android.material.textfield.TextInputEditText
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:orientation="horizontal">
+
+                <EditText
                     android:id="@+id/editTextCantidad"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center_horizontal|center_vertical"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/field_background"
+                    android:hint="@string/cantidad"
                     android:inputType="text"
-                    android:maxLines="1"
-                    android:text="1"
-                    tools:ignore="HardcodedText" />
+                    android:minHeight="40dp"
+                    android:paddingHorizontal="8dp"
+                    android:textSize="14sp"
+                    tools:ignore="Autofill" />
 
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <Spinner
-                android:id="@+id/spinner_quantity_unit"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:textAlignment="center" />
+                <Spinner
+                    android:id="@+id/spinner_quantity_unit"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:layout_weight="1.5"
+                    android:background="@drawable/field_background"
+                    android:minHeight="40dp" />
+            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
-
-    <!-- Campo de edición del tipo de cantidad -->
-
-</LinearLayout>
+</com.google.android.material.card.MaterialCardView>

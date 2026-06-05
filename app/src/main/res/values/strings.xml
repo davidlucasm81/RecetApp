@@ -43,7 +43,10 @@
     <string name="ultima_fecha_calendario">Última fecha en el calendario</string>
     <string name="alergenos">Alérgenos</string>
     <string name="placeholder" translatable="false">placeholder</string>
-    <string name="postre">Postre</string>
+    <string name="tipo_postre">Postre</string>
+    <string name="tipo_coctel">Cóctel</string>
+    <string name="tipo_side">Side / Acompañamiento</string>
+    <string name="tipo_principal">Plato Principal</string>
     <string name="buscar_recetas">Buscar recetas</string>
     <string name="borrar_busqueda">Borrar búsqueda</string>
     <string name="sin_al_rgenos">Sin alérgenos</string>
@@ -60,6 +63,17 @@
     <string name="importar_exportar">Importar / Exportar</string>
     <string name="exportar">Exportar</string>
     <string name="buscar_postres">Buscar solo postres</string>
+    <string name="buscar_cocteles">Buscar solo cócteles</string>
+    <string name="buscar_sides">Buscar solo sides</string>
+    <string name="buscar_principales">Buscar solo platos principales</string>
+    <string name="buscar_todos">Buscar todos</string>
+    <string name="seleccionar_tipo">Seleccionar Tipo</string>
+    <string-array name="tipos_receta">
+        <item>@string/tipo_principal</item>
+        <item>@string/tipo_postre</item>
+        <item>@string/tipo_coctel</item>
+        <item>@string/tipo_side</item>
+    </string-array>
     <string name="puntuacion_dada">Puntuación dada</string>
     <string name="ver_calendario">Ver Calendario</string>
     <string name="calendario">Calendario</string>
@@ -74,6 +88,10 @@
     <string name="warning" translatable="false">Warning</string>
     <string name="seleccionar_dias">Seleccionar días</string>
     <string name="selecciona_dias">Selecciona los días del mes:</string>
+    <string name="cantidad">Cantidad</string>
+    <string name="unidad">Unidad</string>
+    <string name="horas">Horas</string>
+    <string name="minutos">Minutos</string>
     <string name="dia_inicio">Día Inicial:</string>
     <string name="dia_fin">Díá Fin:</string>
     <string name="numero_personas">Número de personas para la receta</string>

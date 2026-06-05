@@ -5,4 +5,17 @@
     <color name="colorGrisTextoFondo">#D0D0D0</color>
     <color name="estrellas">#00AA00</color>
     <color name="colorPrimary">#FF5722</color>
+
+    <!-- Fondos para tipos de recetas (Dark Mode: Tonos profundos) -->
+    <color name="bg_reciente">#3E3B20</color>    <!-- Ámbar oscuro/noche -->
+    <color name="stroke_reciente">#827717</color>
+
+    <color name="bg_postre">#3D1F2A</color>      <!-- Vino/Rosa profundo -->
+    <color name="stroke_postre">#880E4F</color>
+
+    <color name="bg_side">#1B2E1D</color>        <!-- Verde bosque oscuro -->
+    <color name="stroke_side">#2E7D32</color>
+
+    <color name="bg_coctel">#2A1B2E</color>      <!-- Púrpura noche -->
+    <color name="stroke_coctel">#6A1B9A</color>
 </resources>

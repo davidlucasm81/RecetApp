@@ -24,7 +24,7 @@ public class Receta implements Parcelable {
     private int numPersonas;
     private Date fechaCalendario;
     private boolean shared;
-    private boolean postre;
+    private TipoReceta tipoReceta;
     private double puntuacionDada;
     private String userId; // si lo usas
 
@@ -40,7 +40,7 @@ public class Receta implements Parcelable {
         numPersonas = -1;
         fechaCalendario = null;
         shared = false;
-        postre = false;
+        tipoReceta = TipoReceta.PRINCIPAL;
         puntuacionDada = -1;
         userId = "";
     }
@@ -66,7 +66,8 @@ public class Receta implements Parcelable {
         long ts = in.readLong();
         fechaCalendario = (ts != -1L) ? new Date(ts) : null;
         shared = in.readByte() != 0;
-        postre = in.readByte() != 0;
+        int tipoOrd = in.readInt();
+        tipoReceta = (tipoOrd != -1) ? TipoReceta.values()[tipoOrd] : TipoReceta.PRINCIPAL;
         puntuacionDada = in.readDouble();
         userId = in.readString();
     }
@@ -101,7 +102,7 @@ public class Receta implements Parcelable {
         dest.writeInt(numPersonas);
         dest.writeLong(fechaCalendario != null ? fechaCalendario.getTime() : -1L);
         dest.writeByte((byte) (shared ? 1 : 0));
-        dest.writeByte((byte) (postre ? 1 : 0));
+        dest.writeInt(tipoReceta != null ? tipoReceta.ordinal() : TipoReceta.PRINCIPAL.ordinal());
         dest.writeDouble(puntuacionDada);
         dest.writeString(userId);
     }
@@ -142,8 +143,14 @@ public class Receta implements Parcelable {
     public boolean isShared() { return shared; }
     public void setShared(boolean shared) { this.shared = shared; }
 
-    public boolean isPostre() { return postre; }
-    public void setPostre(boolean postre) { this.postre = postre; }
+    public TipoReceta getTipoReceta() { return tipoReceta; }
+    public void setTipoReceta(TipoReceta tipoReceta) { this.tipoReceta = tipoReceta; }
+
+    public boolean isPostre() { return tipoReceta == TipoReceta.POSTRE; }
+    public void setPostre(boolean postre) { 
+        if (postre) this.tipoReceta = TipoReceta.POSTRE;
+        else if (this.tipoReceta == TipoReceta.POSTRE) this.tipoReceta = TipoReceta.PRINCIPAL;
+    }
 
     public double getPuntuacionDada() { return puntuacionDada; }
     public void setPuntuacionDada(double puntuacionDada) { this.puntuacionDada = puntuacionDada; }

@@ -8,11 +8,12 @@ import android.os.Handler;
 import android.os.Looper;
 import android.view.DragEvent;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.david.recetapp.MainActivity;
@@ -23,10 +24,13 @@ import com.david.recetapp.negocio.beans.Ingrediente;
 import com.david.recetapp.negocio.beans.Paso;
 import com.david.recetapp.negocio.beans.Receta;
 import com.david.recetapp.negocio.beans.Temporada;
+import com.david.recetapp.negocio.beans.TipoReceta;
 import com.david.recetapp.negocio.servicios.RecetasSrv;
 import com.david.recetapp.negocio.servicios.UtilsSrv;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 
 public class AddRecetaActivity extends RecetaBaseActivity {
@@ -88,14 +92,14 @@ public class AddRecetaActivity extends RecetaBaseActivity {
     }
 
     private void setupIngredientesSection() {
-        Spinner spinner = findViewById(R.id.spinner_quantity_unit);
+        AutoCompleteTextView spinner = findViewById(R.id.spinner_quantity_unit);
         setupIngredientes(RecetasSrv.getIngredientListStrings(this), spinner);
 
         Button btnAgregarIngrediente = findViewById(R.id.btnAgregarIngrediente);
         btnAgregarIngrediente.setOnClickListener(v -> {
             String nombreIngrediente = autoCompleteTextViewNombreIngrediente.getText().toString().trim();
             String cantidad = editTextCantidad.getText().toString().trim();
-            String tipoCantidad = (String) spinner.getSelectedItem();
+            String tipoCantidad = spinner.getText().toString();
 
             if (validarIngrediente(nombreIngrediente, cantidad, tipoCantidad)) {
                 agregarIngrediente(nombreIngrediente, cantidad, tipoCantidad);
@@ -115,7 +119,7 @@ public class AddRecetaActivity extends RecetaBaseActivity {
                 && UtilsSrv.esNumeroEnteroOFraccionValida(cantidad);
     }
 
-    private void limpiarCamposIngrediente(Spinner spinner) {
+    private void limpiarCamposIngrediente(AutoCompleteTextView spinner) {
         autoCompleteTextViewNombreIngrediente.setText("");
         editTextCantidad.setText("1");
     }
@@ -176,11 +180,22 @@ public class AddRecetaActivity extends RecetaBaseActivity {
     }
 
     private void setupCrearButton() {
+        AutoCompleteTextView spinnerTipo = findViewById(R.id.spinnerTipoReceta);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.tipos_receta, android.R.layout.simple_spinner_dropdown_item);
+        spinnerTipo.setAdapter(adapter);
+        if (adapter.getCount() > 0) {
+            spinnerTipo.setText(adapter.getItem(0), false);
+        }
+
         btnCrear.setOnClickListener(v -> crearReceta());
     }
 
     private void crearReceta() {
-        CheckBox postre = findViewById(R.id.checkBoxPostre);
+        AutoCompleteTextView spinnerTipo = findViewById(R.id.spinnerTipoReceta);
+        String tipoStr = spinnerTipo.getText().toString();
+        List<String> tipos = Arrays.asList(getResources().getStringArray(R.array.tipos_receta));
+        int tipoPos = Math.max(0, tipos.indexOf(tipoStr));
 
         // Validaciones
         String nombre = editTextNombre.getText().toString().trim();
@@ -222,7 +237,7 @@ public class AddRecetaActivity extends RecetaBaseActivity {
         receta.setEstrellas(estrellas.getRating());
         receta.setAlergenos(alergenosSeleccionados);
         receta.setShared(false);
-        receta.setPostre(postre.isChecked());
+        receta.setTipoReceta(TipoReceta.values()[tipoPos]);
 
         // Guardar receta con callback
         guardarReceta(receta);

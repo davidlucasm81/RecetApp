@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.david.recetapp.R;
 import com.david.recetapp.negocio.beans.Receta;
+import com.david.recetapp.negocio.beans.TipoReceta;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -149,11 +150,11 @@ public class RecetasAdapter extends RecyclerView.Adapter<RecetasAdapter.RecetaVi
 
                 // Añadimos puntuación y fecha a la comparación para forzar rebind cuando cambien.
                 boolean mismoNombre = Objects.equals(oldReceta.getNombre(), newReceta.getNombre());
-                boolean mismoPostre = oldReceta.isPostre() == newReceta.isPostre();
+                boolean mismoTipo = oldReceta.getTipoReceta() == newReceta.getTipoReceta();
                 boolean mismaPuntuacion = Double.compare(oldReceta.getPuntuacionDada(), newReceta.getPuntuacionDada()) == 0;
                 boolean mismaFecha = Objects.equals(oldReceta.getFechaCalendario(), newReceta.getFechaCalendario());
 
-                return mismoNombre && mismoPostre && mismaPuntuacion && mismaFecha;
+                return mismoNombre && mismoTipo && mismaPuntuacion && mismaFecha;
             }
         });
 
@@ -191,17 +192,25 @@ public class RecetasAdapter extends RecyclerView.Adapter<RecetasAdapter.RecetaVi
             Context ctx = button.getContext();
             button.setText(receta.getNombre());
 
-            // Background logic (postre / fecha previa / default)
-            if (receta.isPostre()) {
+            // 🚀 Background logic con PRIORIDAD:
+            // 1. Recientemente añadida (en el último mes) -> Amarillo
+            // 2. Por tipo de receta (Postre, Cóctel, Side) -> Rosa, Púrpura, Verde
+            // 3. Default -> Blanco
+
+            Date f = receta.getFechaCalendario();
+            boolean esReciente = f != null && fechaIntervaloPrevio != null && fechaElegida != null
+                    && f.after(fechaIntervaloPrevio) && f.before(fechaElegida);
+
+            if (esReciente) {
+                button.setBackground(ContextCompat.getDrawable(ctx, R.drawable.previous_selected_background));
+            } else if (receta.getTipoReceta() == TipoReceta.POSTRE) {
                 button.setBackground(ContextCompat.getDrawable(ctx, R.drawable.postre_background));
+            } else if (receta.getTipoReceta() == TipoReceta.COCTEL) {
+                button.setBackground(ContextCompat.getDrawable(ctx, R.drawable.coctel_background));
+            } else if (receta.getTipoReceta() == TipoReceta.SIDE) {
+                button.setBackground(ContextCompat.getDrawable(ctx, R.drawable.side_background));
             } else {
-                Date f = receta.getFechaCalendario();
-                if (f != null && fechaIntervaloPrevio != null && fechaElegida != null
-                        && f.after(fechaIntervaloPrevio) && f.before(fechaElegida)) {
-                    button.setBackground(ContextCompat.getDrawable(ctx, R.drawable.previous_selected_background));
-                } else {
-                    button.setBackground(ContextCompat.getDrawable(ctx, R.drawable.edittext_background));
-                }
+                button.setBackground(ContextCompat.getDrawable(ctx, R.drawable.edittext_background));
             }
 
             double score = receta.getPuntuacionDada();

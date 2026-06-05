@@ -29,6 +29,7 @@ import com.david.recetapp.negocio.beans.Day;
 import com.david.recetapp.negocio.beans.Ingrediente;
 import com.david.recetapp.negocio.beans.Receta;
 import com.david.recetapp.negocio.beans.Temporada;
+import com.david.recetapp.negocio.beans.TipoReceta;
 import com.david.recetapp.negocio.servicios.AlergenosSrv;
 import com.david.recetapp.negocio.servicios.CalendarioSrv;
 import com.david.recetapp.negocio.servicios.RecetasSrv;
@@ -117,7 +118,7 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
 
     @Override
     public long getChildId(int groupPosition, int childPosition) {
-        return childPosition;
+        return ((long) groupPosition << 32) | (childPosition & 0xffffffffL);
     }
 
     @Override
@@ -136,12 +137,30 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
         ImageButton btnEliminar = convertView.findViewById(R.id.btnEliminar);
 
         Receta receta = listaRecetas.get(groupPosition);
-        txtTituloReceta.setText(receta.getNombre());
-        ImageView postre = convertView.findViewById(R.id.imageViewPostreIcono);
+        txtTituloReceta.setText(receta.getNombre() != null ? receta.getNombre() : activity.getString(R.string.sin_nombre));
+
+        ImageView warning = convertView.findViewById(R.id.warning);
+        ImageView iconoTipo = convertView.findViewById(R.id.imageViewTipoIcono);
         ImageView shared = convertView.findViewById(R.id.imageViewSharedIcono);
 
-        postre.setVisibility(View.GONE);
-        shared.setVisibility(View.GONE);
+        iconoTipo.setVisibility(receta.getTipoReceta() == TipoReceta.POSTRE ? View.VISIBLE : View.GONE);
+
+        if (receta.getTipoReceta() == TipoReceta.COCTEL) {
+            iconoTipo.setImageResource(R.drawable.ic_baseline_local_bar_24);
+            iconoTipo.setVisibility(View.VISIBLE);
+        } else if (receta.getTipoReceta() == TipoReceta.SIDE) {
+            iconoTipo.setImageResource(R.drawable.ic_baseline_flatware_24);
+            iconoTipo.setVisibility(View.VISIBLE);
+        } else {
+            iconoTipo.setImageResource(R.drawable.postre_icono);
+        }
+
+        shared.setVisibility(receta.isShared() ? View.VISIBLE : View.GONE);
+
+        boolean hasBadScore = receta.getIngredientes() != null &&
+                receta.getIngredientes().stream().anyMatch(i -> i.getPuntuacion() < -1);
+        boolean invalidPersons = receta.getNumPersonas() <= 0;
+        warning.setVisibility((invalidPersons || hasBadScore) ? View.VISIBLE : View.GONE);
 
         btnEliminar.setOnClickListener(v -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(activity);
@@ -219,136 +238,159 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
         RatingBar ratingBar = convertView.findViewById(R.id.ratingBar);
         ratingBar.setVisibility(View.GONE);
         LinearLayout iconosAlergenos = convertView.findViewById(R.id.iconosAlergenos);
-        iconosAlergenos.setVisibility(View.GONE);
+        if (iconosAlergenos != null) iconosAlergenos.setVisibility(View.GONE);
 
         switch (childPosition) {
-            case 0:
+            case 0: // Temporadas
                 txtInformacion.setVisibility(View.VISIBLE);
                 txtTitulo.setText(R.string.temporadas);
-                List<String> temporadas = receta.getTemporadas().stream().map(Temporada::getStringRes).map(convertView.getContext()::getString).collect(Collectors.toList());
+                List<String> temporadas = (receta.getTemporadas() != null)
+                        ? receta.getTemporadas().stream().map(Temporada::getStringRes).map(activity::getString).collect(Collectors.toList())
+                        : new ArrayList<>();
                 txtInformacion.setText(TextUtils.join(", ", temporadas));
                 break;
-            case 1:
+
+            case 1: // Numero de personas
                 txtInformacion.setVisibility(View.VISIBLE);
                 txtTitulo.setText(R.string.numero_personas);
                 txtInformacion.setText(String.valueOf(receta.getNumPersonas()));
                 break;
-            case 2:
+
+            case 2: // Ingredientes
                 txtInformacion.setVisibility(View.VISIBLE);
                 txtTitulo.setText(R.string.ingredientes);
-                StringBuilder sbIngredientes = new StringBuilder();
-                int totalIngredientes = receta.getIngredientes().size();
+                List<Ingrediente> ingredientes = receta.getIngredientes();
+                if (ingredientes == null || ingredientes.isEmpty()) {
+                    txtInformacion.setText(R.string.sin_ingredientes);
+                } else {
+                    StringBuilder sbIngredientes = new StringBuilder();
+                    int totalIngredientes = ingredientes.size();
 
-                for (int i = 0; i < totalIngredientes; i++) {
-                    Ingrediente ingrediente = receta.getIngredientes().get(i);
-                    sbIngredientes.append("- ").append(ingrediente.getCantidad()).append(" ")
-                            .append(ingrediente.getTipoCantidad()).append(activity.getString(R.string.literal_de))
-                            .append(ingrediente.getNombre())
-                            .append(ingrediente.getPuntuacion() >= 0 ? " (Score: " + ingrediente.getPuntuacion() + ")" : "");
+                    for (int i = 0; i < totalIngredientes; i++) {
+                        Ingrediente ingrediente = ingredientes.get(i);
+                        sbIngredientes.append("- ")
+                                .append(ingrediente.getCantidad() != null ? ingrediente.getCantidad() : "")
+                                .append(" ")
+                                .append(ingrediente.getTipoCantidad() != null ? ingrediente.getTipoCantidad() : "")
+                                .append(activity.getString(R.string.literal_de))
+                                .append(ingrediente.getNombre() != null ? ingrediente.getNombre() : "");
 
-                    // Agregar dos saltos de línea si no es la última iteración
-                    if (i < totalIngredientes - 1) {
-                        sbIngredientes.append("\n\n");
-                    } else {
-                        sbIngredientes.append("\n");
+                        double puntuacion = ingrediente.getPuntuacion();
+                        if (puntuacion >= 0) {
+                            sbIngredientes.append(" (Score: ").append(puntuacion).append(")");
+                        } else if (puntuacion != -1) {
+                            sbIngredientes.append(" (Score no encontrado)");
+                        }
+
+                        if (i < totalIngredientes - 1) {
+                            sbIngredientes.append("\n\n");
+                        } else {
+                            sbIngredientes.append("\n");
+                        }
                     }
+                    String texto = sbIngredientes.length() != 0 ? sbIngredientes.toString().trim() : activity.getString(R.string.sin_ingredientes);
+                    txtInformacion.setText(texto);
                 }
-                txtInformacion.setText(sbIngredientes.substring(0, sbIngredientes.length() - 1));
                 break;
-            case 3:
+
+            case 3: // Pasos
                 txtInformacion.setVisibility(View.VISIBLE);
                 txtTitulo.setText(R.string.pasos);
-                SpannableStringBuilder sbPasos = new SpannableStringBuilder();
-                int totalPasos = receta.getPasos().size();
-                int minutosTotales = 0;
+                List<com.david.recetapp.negocio.beans.Paso> pasos = receta.getPasos();
+                if (pasos == null || pasos.isEmpty()) {
+                    txtInformacion.setText(R.string.sin_pasos);
+                } else {
+                    SpannableStringBuilder sbPasos = new SpannableStringBuilder();
+                    int totalPasos = pasos.size();
+                    int minutosTotales = 0;
 
-                for (int i = 0; i < totalPasos; i++) {
-                    String tiempoReceta = receta.getPasos().get(i).getTiempo(); // HH:MM
-                    String[] tiempos = tiempoReceta.split(":");
-                    int horas = Integer.parseInt(tiempos[0]);
-                    int minutos = Integer.parseInt(tiempos[1]);
-                    minutosTotales += minutos + 60 * horas;
-                }
-
-                int horas = minutosTotales / 60;
-                int minutos = minutosTotales % 60;
-
-                // Formateamos horas y minutos con 2 dígitos
-                String tiempoTotal = String.format(Locale.getDefault(), "%02d:%02d", horas, minutos);
-
-                // Creamos un SpannableStringBuilder para el texto completo
-                SpannableStringBuilder sbResaltado = new SpannableStringBuilder(activity.getString(R.string.tiempo_total) + tiempoTotal);
-
-                // Aplicamos el estilo negrita solo a la parte de tiempoTotal (HH:MM)
-                int startIndex = sbResaltado.length() - tiempoTotal.length();
-                int endIndex = sbResaltado.length();
-                sbResaltado.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), startIndex, endIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-                // Aplicamos el subrayado a tod0 el texto
-                sbResaltado.setSpan(new UnderlineSpan(), 0, sbResaltado.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-                // Agregamos el texto resaltado al sbPasos
-                sbPasos.append(sbResaltado);
-                sbPasos.append("\n\n");
-
-                for (int i = 0; i < totalPasos; i++) {
-                    String tiempo = receta.getPasos().get(i).getTiempo();
-                    String paso = receta.getPasos().get(i).getPaso();
-                    String pasoFormateado = "[" + tiempo + "] " + (i + 1) + ") " + paso;
-
-                    SpannableString spannablePaso = new SpannableString(pasoFormateado);
-                    int startPos = pasoFormateado.indexOf("[");
-                    int endPos = pasoFormateado.indexOf("]") + 1;
-                    spannablePaso.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), startPos, endPos, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-                    sbPasos.append(spannablePaso);
-
-                    // Agregar un salto de línea si no es la última iteración
-                    if (i < totalPasos - 1) {
-                        sbPasos.append("\n\n");
+                    for (int i = 0; i < totalPasos; i++) {
+                        String tiempoReceta = pasos.get(i).getTiempo(); // HH:MM
+                        try {
+                            String[] tiempos = tiempoReceta.split(":");
+                            int h = Integer.parseInt(tiempos[0]);
+                            int m = Integer.parseInt(tiempos[1]);
+                            minutosTotales += m + 60 * h;
+                        } catch (Exception ignored) {}
                     }
-                }
 
-                txtInformacion.setText(sbPasos);
+                    int hTotal = minutosTotales / 60;
+                    int mTotal = minutosTotales % 60;
+                    String tiempoTotal = String.format(Locale.getDefault(), "%02d:%02d", hTotal, mTotal);
+
+                    SpannableStringBuilder sbResaltado = new SpannableStringBuilder(activity.getString(R.string.tiempo_total) + tiempoTotal);
+                    int startIndex = sbResaltado.length() - tiempoTotal.length();
+                    int endIndex = sbResaltado.length();
+                    sbResaltado.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), startIndex, endIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    sbResaltado.setSpan(new UnderlineSpan(), 0, sbResaltado.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+                    sbPasos.append(sbResaltado);
+                    sbPasos.append("\n\n");
+
+                    for (int i = 0; i < totalPasos; i++) {
+                        String tiempo = pasos.get(i).getTiempo();
+                        String paso = pasos.get(i).getPaso();
+                        String pasoFormateado = "[" + (tiempo != null ? tiempo : "00:00") + "] " + (i + 1) + ") " + (paso != null ? paso : "");
+
+                        SpannableString spannablePaso = new SpannableString(pasoFormateado);
+                        int startPos = pasoFormateado.indexOf("[");
+                        int endPos = pasoFormateado.indexOf("]") + 1;
+                        if (startPos >= 0 && endPos > startPos) {
+                            spannablePaso.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), startPos, endPos, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        }
+                        sbPasos.append(spannablePaso);
+                        if (i < totalPasos - 1) sbPasos.append("\n\n");
+                    }
+                    txtInformacion.setText(sbPasos);
+                }
                 break;
-            case 4:
+
+            case 4: // Alergenos
                 txtTitulo.setText(R.string.alergenos);
                 txtInformacion.setVisibility(View.GONE);
-                iconosAlergenos.setVisibility(View.VISIBLE);
-                iconosAlergenos.removeAllViews(); // Elimina todas las vistas hijos del LinearLayout
-                // Recorremos la lista de drawables
-                for (Alergeno alergeno : receta.getAlergenos()) {
-                    // Creamos un nuevo ImageView
-                    ImageView imageView = new ImageView(activity);
-                    imageView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-
-                    // Asignamos el drawable al ImageView
-                    imageView.setImageResource(AlergenosSrv.obtenerImagen(alergeno.getNumero()));
-
-                    // Agregamos el ImageView al LinearLayout
-                    iconosAlergenos.addView(imageView);
-                }
-                if (receta.getAlergenos().isEmpty()) {
-                    TextView textView = new TextView(activity);
-                    textView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-                    textView.setText(R.string.sin_al_rgenos);
-                    iconosAlergenos.addView(textView);
+                if (iconosAlergenos != null) {
+                    iconosAlergenos.setVisibility(View.VISIBLE);
+                    iconosAlergenos.removeAllViews();
+                    List<Alergeno> alergenos = receta.getAlergenos();
+                    if (alergenos == null || alergenos.isEmpty()) {
+                        TextView textView = new TextView(activity);
+                        textView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+                        textView.setText(R.string.sin_al_rgenos);
+                        iconosAlergenos.addView(textView);
+                    } else {
+                        for (Alergeno alergeno : alergenos) {
+                            ImageView imageView = new ImageView(activity);
+                            imageView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+                            imageView.setImageResource(AlergenosSrv.obtenerImagen(alergeno.getNumero()));
+                            iconosAlergenos.addView(imageView);
+                        }
+                    }
                 }
                 break;
 
-            case 5:
+            case 5: // Estrellas
                 txtTitulo.setText(R.string.estrellas);
                 ratingBar.setVisibility(View.VISIBLE);
                 ratingBar.setRating(receta.getEstrellas());
                 txtInformacion.setVisibility(View.GONE);
                 break;
-            case 6:
+
+            case 6: // Fecha calendario
                 txtInformacion.setVisibility(View.VISIBLE);
                 txtTitulo.setText(R.string.ultima_fecha_calendario);
-                SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-                txtInformacion.setText(dateFormat.format(receta.getFechaCalendario()));
+                if (receta.getFechaCalendario() != null) {
+                    try {
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+                        txtInformacion.setText(dateFormat.format(receta.getFechaCalendario()));
+                    } catch (Exception ex) {
+                        txtInformacion.setText("-");
+                    }
+                } else {
+                    txtInformacion.setText("-");
+                }
                 break;
-            case 7:
+
+            case 7: // Puntuacion dada
                 txtInformacion.setVisibility(View.VISIBLE);
                 txtTitulo.setText(R.string.puntuacion_dada);
                 txtInformacion.setText(String.valueOf(receta.getPuntuacionDada()));
@@ -357,6 +399,7 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
 
         return convertView;
     }
+
 
     @Override
     public boolean isChildSelectable(int groupPosition, int childPosition) {
