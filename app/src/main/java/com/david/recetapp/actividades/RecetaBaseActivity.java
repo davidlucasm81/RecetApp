@@ -33,6 +33,7 @@ import com.david.recetapp.negocio.beans.Ingrediente;
 import com.david.recetapp.negocio.beans.Paso;
 import com.david.recetapp.negocio.beans.Temporada;
 import com.david.recetapp.negocio.servicios.AlergenosSrv;
+import com.david.recetapp.negocio.servicios.RecetasSrv;
 import com.david.recetapp.negocio.servicios.UtilsSrv;
 
 import java.util.ArrayList;
@@ -130,7 +131,8 @@ public abstract class RecetaBaseActivity extends AppCompatActivity {
             spinnerCantidad.setAdapter(spinnerAdapter);
             int selectedTypeIndex = opcionesTipoCantidad.indexOf(ingrediente.getTipoCantidad());
             spinnerCantidad.setSelection(selectedTypeIndex);
-            editTextNombre.setText(ingrediente.getNombre());
+            // Mostrar nombre traducido si existe traducción (por ejemplo ingredientes almacenados en otro idioma)
+            editTextNombre.setText(RecetasSrv.getNombreTraducido(ingrediente.getNombre()));
             editTextCantidad.setText(String.valueOf(ingrediente.getCantidad()));
             editTextNombre.addTextChangedListener(new TextWatcher() {
                 @Override public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}

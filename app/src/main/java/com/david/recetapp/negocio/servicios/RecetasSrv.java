@@ -41,6 +41,7 @@ public class RecetasSrv {
     private static Map<String, Integer> ingredientMapCache = null;
     public static Map<String, Integer> unitImportanceMapCache = null;
     public static Map<String, Integer> gramosMapCache = null;
+    private static Map<String, String> translationMapCache = null; // Key (any lang) -> Target name (current locale)
     private static final Object cacheLock = new Object();
 
     // 🚀 ExecutorService para procesamiento en background
@@ -168,61 +169,76 @@ public class RecetasSrv {
 
     /**
      * 🚀 Inicializa mapas de ingredientes, unidades y gramos (SOLO UNA VEZ por sesión).
-     * Parsea el XML directamente para leer nombre, puntuacion y gramos.
+     * Parsea el XML consolidado para leer nombres (es/en), puntuacion y gramos.
      */
     public static void inicializarMapas(Context context) {
         synchronized (cacheLock) {
-            if (ingredientMapCache != null && unitImportanceMapCache != null && gramosMapCache != null) {
+            if (ingredientMapCache != null && unitImportanceMapCache != null && gramosMapCache != null && translationMapCache != null) {
                 return;
             }
 
-            // ——— Mapa de ingredientes y gramos via XmlResourceParser ———
             ingredientMapCache = new HashMap<>();
             gramosMapCache = new HashMap<>();
+            translationMapCache = new HashMap<>();
+            String targetLang = Locale.getDefault().getLanguage();
 
             try {
                 XmlResourceParser parser = context.getResources().getXml(R.xml.ingredient_list);
                 int event = parser.getEventType();
 
-                String nombre = null;
-                int puntuacion = -2;
-                int gramos = -1;
+                int currentPuntuacion = -2;
+                int currentGramos = -1;
                 String currentTag = null;
+                List<String> currentNombres = new ArrayList<>();
+                String targetNombre = null;
+                String currentLangAttr = null;
 
                 while (event != XmlPullParser.END_DOCUMENT) {
                     switch (event) {
                         case XmlPullParser.START_TAG:
                             currentTag = parser.getName();
                             if ("item".equals(currentTag)) {
-                                nombre = null;
-                                puntuacion = -2;
-                                gramos = -1;
+                                String pStr = parser.getAttributeValue(null, "puntuacion");
+                                String gStr = parser.getAttributeValue(null, "gramos");
+                                try { currentPuntuacion = Integer.parseInt(pStr); } catch (Exception ignored) { currentPuntuacion = -2; }
+                                try { currentGramos = Integer.parseInt(gStr); } catch (Exception ignored) { currentGramos = -1; }
+                                currentNombres.clear();
+                                targetNombre = null;
+                            } else if ("nombre".equals(currentTag)) {
+                                currentLangAttr = parser.getAttributeValue(null, "lang");
                             }
                             break;
 
                         case XmlPullParser.TEXT:
-                            if (currentTag == null) break;
-                            String text = parser.getText().trim();
-                            switch (currentTag) {
-                                case "nombre":
-                                    nombre = text;
-                                    break;
-                                case "puntuacion":
-                                    try { puntuacion = Integer.parseInt(text); } catch (NumberFormatException ignored) {}
-                                    break;
-                                case "gramos":
-                                    try { gramos = Integer.parseInt(text); } catch (NumberFormatException ignored) {}
-                                    break;
+                            if ("nombre".equals(currentTag)) {
+                                String nombre = parser.getText().trim();
+                                if (!nombre.isEmpty()) {
+                                    currentNombres.add(nombre);
+                                    if (targetLang.equals(currentLangAttr)) {
+                                        targetNombre = nombre;
+                                    }
+                                }
                             }
                             break;
 
                         case XmlPullParser.END_TAG:
-                            if ("item".equals(parser.getName()) && nombre != null) {
-                                String key = nombre.toLowerCase(Locale.getDefault());
-                                ingredientMapCache.put(key, puntuacion);
-                                gramosMapCache.put(key, gramos);
+                            if ("item".equals(parser.getName())) {
+                                // Si no encontramos el nombre en el idioma objetivo, usamos el primero disponible (fallback)
+                                if (targetNombre == null && !currentNombres.isEmpty()) {
+                                    targetNombre = currentNombres.get(0);
+                                }
+
+                                for (String n : currentNombres) {
+                                    String key = n.toLowerCase(Locale.getDefault());
+                                    ingredientMapCache.put(key, currentPuntuacion);
+                                    gramosMapCache.put(key, currentGramos);
+                                    if (targetNombre != null) {
+                                        translationMapCache.put(key, targetNombre);
+                                    }
+                                }
                             }
                             currentTag = null;
+                            currentLangAttr = null;
                             break;
                     }
                     event = parser.next();
@@ -508,6 +524,12 @@ public class RecetasSrv {
         firebaseManager.setUserId(userId);
     }
 
+    public static String getNombreTraducido(String nombre) {
+        if (translationMapCache == null || nombre == null) return nombre;
+        String translated = translationMapCache.get(nombre.toLowerCase(Locale.getDefault()));
+        return translated != null ? translated : nombre;
+    }
+
     public static void limpiarCaches() {
         synchronized (recetasCache) {
             recetasCache.clear();
@@ -516,6 +538,7 @@ public class RecetasSrv {
             ingredientMapCache = null;
             unitImportanceMapCache = null;
             gramosMapCache = null;
+            translationMapCache = null;
         }
     }
 
@@ -538,23 +561,43 @@ public class RecetasSrv {
      */
     public static String[] getIngredientListStrings(Context context) {
         List<String> list = new ArrayList<>();
+        String targetLang = Locale.getDefault().getLanguage(); // "es" o "en"
+
         try {
             XmlResourceParser parser = context.getResources().getXml(R.xml.ingredient_list);
             int event = parser.getEventType();
-            String nombre = null;
-            String puntuacion = "-2";
+            String currentNombre = null;
+            String currentPuntuacion = "-2";
             String currentTag = null;
+            boolean isTargetLang = false;
 
             while (event != XmlPullParser.END_DOCUMENT) {
-                if (event == XmlPullParser.START_TAG) {
-                    currentTag = parser.getName();
-                } else if (event == XmlPullParser.TEXT) {
-                    if ("nombre".equals(currentTag)) nombre = parser.getText().trim();
-                    else if ("puntuacion".equals(currentTag)) puntuacion = parser.getText().trim();
-                } else if (event == XmlPullParser.END_TAG && "item".equals(parser.getName())) {
-                    if (nombre != null) list.add(nombre + " " + puntuacion);
-                    nombre = null;
-                    puntuacion = "-2";
+                switch (event) {
+                    case XmlPullParser.START_TAG:
+                        currentTag = parser.getName();
+                        if ("item".equals(currentTag)) {
+                            currentPuntuacion = parser.getAttributeValue(null, "puntuacion");
+                        } else if ("nombre".equals(currentTag)) {
+                            String lang = parser.getAttributeValue(null, "lang");
+                            isTargetLang = targetLang.equals(lang);
+                        }
+                        break;
+
+                    case XmlPullParser.TEXT:
+                        if ("nombre".equals(currentTag) && isTargetLang) {
+                            currentNombre = parser.getText().trim();
+                        }
+                        break;
+
+                    case XmlPullParser.END_TAG:
+                        if ("item".equals(parser.getName())) {
+                            if (currentNombre != null) {
+                                list.add(currentNombre + " " + currentPuntuacion);
+                            }
+                            currentNombre = null;
+                        }
+                        currentTag = null;
+                        break;
                 }
                 event = parser.next();
             }

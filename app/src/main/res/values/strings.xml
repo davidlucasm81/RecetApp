@@ -22,7 +22,7 @@
     <string name="tiempo">Tiempo</string>
     <string name="agregar_paso">Agregar Paso</string>
     <string name="no_hay_recetas">No hay recetas</string>
-    <string name="confirmacion">Confirmacion</string>"
+    <string name="confirmacion">Confirmacion</string>
     <string name="alerta_eliminar">¿Está seguro de que desea eliminar la receta</string>
     <string name="aceptar">Aceptar</string>
     <string name="cancelar">Cancelar</string>
@@ -75,6 +75,8 @@
         <item>@string/tipo_side</item>
     </string-array>
     <string name="puntuacion_dada">Puntuación dada</string>
+    <string name="score_label">Puntuación</string>
+    <string name="score_no_encontrado">Score no encontrado</string>
     <string name="ver_calendario">Ver Calendario</string>
     <string name="calendario">Calendario</string>
     <string name="detalle_dia">Detalle del día</string>

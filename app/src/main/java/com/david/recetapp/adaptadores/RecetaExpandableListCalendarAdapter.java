@@ -268,18 +268,20 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
 
                     for (int i = 0; i < totalIngredientes; i++) {
                         Ingrediente ingrediente = ingredientes.get(i);
+                        // Mostrar nombre traducido según el idioma actual (si existe traducción en caché)
+                        String nombreMostrado = RecetasSrv.getNombreTraducido(ingrediente.getNombre());
                         sbIngredientes.append("- ")
                                 .append(ingrediente.getCantidad() != null ? ingrediente.getCantidad() : "")
                                 .append(" ")
                                 .append(ingrediente.getTipoCantidad() != null ? ingrediente.getTipoCantidad() : "")
                                 .append(activity.getString(R.string.literal_de))
-                                .append(ingrediente.getNombre() != null ? ingrediente.getNombre() : "");
+                                .append(nombreMostrado != null ? nombreMostrado : "");
 
                         double puntuacion = ingrediente.getPuntuacion();
                         if (puntuacion >= 0) {
-                            sbIngredientes.append(" (Score: ").append(puntuacion).append(")");
+                            sbIngredientes.append(" (").append(activity.getString(R.string.score_label)).append(": ").append(puntuacion).append(")");
                         } else if (puntuacion != -1) {
-                            sbIngredientes.append(" (Score no encontrado)");
+                            sbIngredientes.append(" (").append(activity.getString(R.string.score_no_encontrado)).append(")");
                         }
 
                         if (i < totalIngredientes - 1) {
