@@ -121,6 +121,10 @@
     <nombre lang="es">Pimiento choricero</nombre>
     <nombre lang="en">Choricero pepper</nombre>
   </item>
+  <item puntuacion="-1" gramos="15">
+    <nombre lang="es">Pasta de pimiento choricero</nombre>
+    <nombre lang="en">Choricero pepper paste</nombre>
+  </item>
   <item puntuacion="-1" gramos="1">
     <nombre lang="es">Clavo de olor</nombre>
     <nombre lang="en">Cloves</nombre>
@@ -334,6 +338,10 @@
     <nombre lang="en">Water</nombre>
   </item>
   <item puntuacion="-1" gramos="-1">
+    <nombre lang="es">Hielo picado</nombre>
+    <nombre lang="en">Cubed ice</nombre>
+  </item>
+  <item puntuacion="-1" gramos="-1">
     <nombre lang="es">Bicarbonato sódico</nombre>
     <nombre lang="en">Baking soda</nombre>
   </item>
@@ -369,7 +377,7 @@
     <nombre lang="es">Curry</nombre>
     <nombre lang="en">Curry</nombre>
   </item>
-  <item puntuacion="5" gramos="5">
+  <item puntuacion="-1" gramos="5">
     <nombre lang="es">Sal gruesa</nombre>
     <nombre lang="en">Coarse salt</nombre>
   </item>
@@ -459,6 +467,10 @@
     <nombre lang="es">Cebolla morada</nombre>
     <nombre lang="en">Red onion</nombre>
   </item>
+  <item puntuacion="9" gramos="120">
+    <nombre lang="es">Cebollin</nombre>
+    <nombre lang="en">Scallion</nombre>
+  </item>
   <item puntuacion="9" gramos="50">
     <nombre lang="es">Cebolleta</nombre>
     <nombre lang="en">Spring onion</nombre>
@@ -475,7 +487,7 @@
     <nombre lang="es">Cebollino</nombre>
     <nombre lang="en">Chives</nombre>
   </item>
-  <item puntuacion="-1" gramos="5">
+  <item puntuacion="7" gramos="5">
     <nombre lang="es">Ajo</nombre>
     <nombre lang="en">Garlic</nombre>
   </item>
@@ -651,7 +663,7 @@
     <nombre lang="es">Pimiento rojo en lata</nombre>
     <nombre lang="en">Canned red pepper</nombre>
   </item>
-  <item puntuacion="4" gramos="30">
+  <item puntuacion="7" gramos="30">
     <nombre lang="es">Pimiento del piquillo</nombre>
     <nombre lang="en">Piquillo pepper</nombre>
   </item>
@@ -1205,15 +1217,15 @@
     <nombre lang="es">Espaguetis</nombre>
     <nombre lang="en">Spaghetti</nombre>
   </item>
-  <item puntuacion="4" gramos="500">
+  <item puntuacion="5" gramos="500">
     <nombre lang="es">Fideos</nombre>
     <nombre lang="en">Noodles (fideos)</nombre>
   </item>
-  <item puntuacion="4" gramos="500">
+  <item puntuacion="5" gramos="500">
     <nombre lang="es">Fideos finos</nombre>
     <nombre lang="en">Thin noodles</nombre>
   </item>
-  <item puntuacion="4" gramos="500">
+  <item puntuacion="5" gramos="500">
     <nombre lang="es">Noodles</nombre>
     <nombre lang="en">Asian Noodles</nombre>
   </item>
@@ -1224,6 +1236,10 @@
   <item puntuacion="3" gramos="250">
     <nombre lang="es">Pan</nombre>
     <nombre lang="en">Bread</nombre>
+  </item>
+  <item puntuacion="2" gramos="1">
+    <nombre lang="es">Picatostes</nombre>
+    <nombre lang="en">Picatostes</nombre>
   </item>
   <item puntuacion="6" gramos="250">
     <nombre lang="es">Pan integral</nombre>
@@ -1253,7 +1269,7 @@
     <nombre lang="es">Harina de maíz</nombre>
     <nombre lang="en">Corn flour</nombre>
   </item>
-  <item puntuacion="5" gramos="400">
+  <item puntuacion="3" gramos="400">
     <nombre lang="es">Maicena</nombre>
     <nombre lang="en">Cornstarch</nombre>
   </item>
@@ -1303,21 +1319,13 @@
   </item>
 
   <!-- Fats and Oils -->
-  <item puntuacion="-1" gramos="1000">
+  <item puntuacion="7" gramos="1000">
     <nombre lang="es">Aceite de Oliva Virgen Extra</nombre>
     <nombre lang="en">Extra Virgin Olive Oil</nombre>
   </item>
-  <item puntuacion="-1" gramos="1000">
-    <nombre lang="es">Aceite de oliva virgen extra</nombre>
-    <nombre lang="en">Extra virgin olive oil</nombre>
-  </item>
-  <item puntuacion="-1" gramos="1000">
+  <item puntuacion="6" gramos="1000">
     <nombre lang="es">Aceite de Oliva</nombre>
     <nombre lang="en">Olive Oil</nombre>
-  </item>
-  <item puntuacion="-1" gramos="1000">
-    <nombre lang="es">Aceite de oliva</nombre>
-    <nombre lang="en">Olive oil</nombre>
   </item>
   <item puntuacion="-1" gramos="1000">
     <nombre lang="es">Aceite de sésamo</nombre>
@@ -1523,6 +1531,10 @@
     <nombre lang="es">Cerveza</nombre>
     <nombre lang="en">Beer</nombre>
   </item>
+  <item puntuacion="0" gramos="-1">
+    <nombre lang="es">Ron Blanco</nombre>
+    <nombre lang="en">White rum</nombre>
+  </item>
   <item puntuacion="5" gramos="10">
     <nombre lang="es">Chile rojo</nombre>
     <nombre lang="en">Red chili</nombre>
@@ -1619,7 +1631,7 @@
     <nombre lang="es">Miel</nombre>
     <nombre lang="en">Honey</nombre>
   </item>
-  <item puntuacion="15" gramos="200">
+  <item puntuacion="2" gramos="200">
     <nombre lang="es">Morcilla</nombre>
     <nombre lang="en">Blood sausage</nombre>
   </item>
@@ -1767,5 +1779,8 @@
     <nombre lang="es">Zumo de naranja</nombre>
     <nombre lang="en">Orange juice</nombre>
   </item>
-
+  <item puntuacion="0" gramos="1000">
+    <nombre lang="es">Fanta Limon</nombre>
+    <nombre lang="en">Lemon Fanta</nombre>
+  </item>
 </ingredient_list>
