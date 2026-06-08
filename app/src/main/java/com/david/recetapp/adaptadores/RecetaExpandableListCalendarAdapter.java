@@ -277,6 +277,10 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
                                 .append(activity.getString(R.string.literal_de))
                                 .append(nombreMostrado != null ? nombreMostrado : "");
 
+                        if (ingrediente.isOpcional()) {
+                            sbIngredientes.append(" (").append(activity.getString(R.string.opcional).toLowerCase(Locale.getDefault())).append(")");
+                        }
+
                         double puntuacion = ingrediente.getPuntuacion();
                         if (puntuacion >= 0) {
                             sbIngredientes.append(" (").append(activity.getString(R.string.score_label)).append(": ").append(puntuacion).append(")");

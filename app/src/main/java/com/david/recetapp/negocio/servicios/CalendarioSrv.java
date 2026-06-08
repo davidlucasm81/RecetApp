@@ -498,7 +498,7 @@ public class CalendarioSrv {
 
         if (a.getIngredientes() != null) {
             for (com.david.recetapp.negocio.beans.Ingrediente ing : a.getIngredientes()) {
-                if (ing == null) continue;
+                if (ing == null || ing.isOpcional()) continue;
                 try { if (ing.getPuntuacion() < 0) continue; } catch (Exception ignored) {}
                 if (ing.getNombre() != null && !ing.getNombre().trim().isEmpty())
                     listaA.add(ing.getNombre().toLowerCase(java.util.Locale.getDefault()).trim());
@@ -506,7 +506,7 @@ public class CalendarioSrv {
         }
         if (b.getIngredientes() != null) {
             for (com.david.recetapp.negocio.beans.Ingrediente ing : b.getIngredientes()) {
-                if (ing == null) continue;
+                if (ing == null || ing.isOpcional()) continue;
                 try { if (ing.getPuntuacion() < 0) continue; } catch (Exception ignored) {}
                 if (ing.getNombre() != null && !ing.getNombre().trim().isEmpty())
                     listaB.add(ing.getNombre().toLowerCase(java.util.Locale.getDefault()).trim());

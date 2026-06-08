@@ -107,12 +107,12 @@ public abstract class RecetaBaseActivity extends AppCompatActivity {
         }
     }
 
-    protected void agregarIngrediente(String nombre, String numero, String tipoCantidad) {
+    protected void agregarIngrediente(String nombre, String numero, String tipoCantidad, boolean opcional) {
         Integer puntuacion = ingredientMap.getOrDefault(nombre.toLowerCase(Locale.getDefault()), -2);
         if (puntuacion == null) {
             puntuacion = -2; // Valor predeterminado en caso de que sea nulo
         }
-        Ingrediente ingrediente = new Ingrediente(nombre, numero, tipoCantidad, puntuacion);
+        Ingrediente ingrediente = new Ingrediente(nombre, numero, tipoCantidad, puntuacion, opcional);
         ingredientes.add(ingrediente);
         mostrarIngredientes();
     }
@@ -126,11 +126,14 @@ public abstract class RecetaBaseActivity extends AppCompatActivity {
             EditText editTextNombre = ingredienteView.findViewById(R.id.editTextNombreIngrediente);
             EditText editTextCantidad = ingredienteView.findViewById(R.id.editTextCantidad);
             Spinner spinnerCantidad = ingredienteView.findViewById(R.id.spinner_quantity_unit);
+            CheckBox checkboxOpcional = ingredienteView.findViewById(R.id.checkboxOpcional);
             List<String> opcionesTipoCantidad = Arrays.asList(getResources().getStringArray(R.array.quantity_units));
             ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, opcionesTipoCantidad);
             spinnerCantidad.setAdapter(spinnerAdapter);
             int selectedTypeIndex = opcionesTipoCantidad.indexOf(ingrediente.getTipoCantidad());
             spinnerCantidad.setSelection(selectedTypeIndex);
+            checkboxOpcional.setChecked(ingrediente.isOpcional());
+
             // Mostrar nombre traducido si existe traducción (por ejemplo ingredientes almacenados en otro idioma)
             editTextNombre.setText(RecetasSrv.getNombreTraducido(ingrediente.getNombre()));
             editTextCantidad.setText(String.valueOf(ingrediente.getCantidad()));
@@ -160,6 +163,9 @@ public abstract class RecetaBaseActivity extends AppCompatActivity {
                     ingrediente.setTipoCantidad(selectedType);
                 }
                 @Override public void onNothingSelected(AdapterView<?> adapterView) {}
+            });
+            checkboxOpcional.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                ingrediente.setOpcional(isChecked);
             });
             ImageButton btnEliminar = ingredienteView.findViewById(R.id.btnEliminarIngrediente);
             btnEliminar.setOnClickListener(v -> {

@@ -93,6 +93,7 @@ public class AddRecetaActivity extends RecetaBaseActivity {
 
     private void setupIngredientesSection() {
         AutoCompleteTextView spinner = findViewById(R.id.spinner_quantity_unit);
+        CheckBox checkboxOpcional = findViewById(R.id.checkboxOpcional);
         setupIngredientes(RecetasSrv.getIngredientListStrings(this), spinner);
 
         Button btnAgregarIngrediente = findViewById(R.id.btnAgregarIngrediente);
@@ -100,10 +101,12 @@ public class AddRecetaActivity extends RecetaBaseActivity {
             String nombreIngrediente = autoCompleteTextViewNombreIngrediente.getText().toString().trim();
             String cantidad = editTextCantidad.getText().toString().trim();
             String tipoCantidad = spinner.getText().toString();
+            boolean opcional = checkboxOpcional.isChecked();
 
             if (validarIngrediente(nombreIngrediente, cantidad, tipoCantidad)) {
-                agregarIngrediente(nombreIngrediente, cantidad, tipoCantidad);
+                agregarIngrediente(nombreIngrediente, cantidad, tipoCantidad, opcional);
                 limpiarCamposIngrediente(spinner);
+                checkboxOpcional.setChecked(false);
                 UtilsSrv.notificacion(this, getString(R.string.ingrediente_aniadido), Toast.LENGTH_SHORT).show();
             } else {
                 UtilsSrv.notificacion(this, getString(R.string.ingrediente_no_aniadido), Toast.LENGTH_SHORT).show();

@@ -222,14 +222,17 @@ public class EditarRecetaActivity extends RecetaBaseActivity {
 
         // Botón agregar ingrediente
         Button btnAgregarIngrediente = findViewById(R.id.btnAgregarIngrediente);
+        CheckBox checkboxOpcional = findViewById(R.id.checkboxOpcional);
         btnAgregarIngrediente.setOnClickListener(v -> {
             String nombreIngrediente = autoCompleteTextViewNombreIngrediente.getText().toString().trim();
             String cantidad = editTextCantidad.getText().toString().trim();
             String tipoCantidad = spinner.getText().toString();
+            boolean opcional = checkboxOpcional.isChecked();
 
             if (validarIngrediente(nombreIngrediente, cantidad, tipoCantidad)) {
-                agregarIngrediente(nombreIngrediente, cantidad, tipoCantidad);
+                agregarIngrediente(nombreIngrediente, cantidad, tipoCantidad, opcional);
                 limpiarCamposIngrediente();
+                checkboxOpcional.setChecked(false);
                 UtilsSrv.notificacion(this, getString(R.string.ingrediente_aniadido), Toast.LENGTH_SHORT).show();
             } else {
                 UtilsSrv.notificacion(this, getString(R.string.ingrediente_no_aniadido), Toast.LENGTH_SHORT).show();
@@ -466,9 +469,9 @@ public class EditarRecetaActivity extends RecetaBaseActivity {
         }
     }
 
-    protected void agregarIngrediente(String nombre, String numero, String tipoCantidad) {
+    protected void agregarIngrediente(String nombre, String numero, String tipoCantidad, boolean opcional) {
         Ingrediente ingrediente = new Ingrediente(nombre, numero, tipoCantidad,
-                ingredientMap.getOrDefault(nombre.toLowerCase(Locale.getDefault()), -2));
+                ingredientMap.getOrDefault(nombre.toLowerCase(Locale.getDefault()), -2), opcional);
         ingredientes.add(ingrediente);
         mostrarIngredientes();
     }
@@ -485,6 +488,7 @@ public class EditarRecetaActivity extends RecetaBaseActivity {
             EditText editTextNombre = ingredienteView.findViewById(R.id.editTextNombreIngrediente);
             EditText editTextCantidad = ingredienteView.findViewById(R.id.editTextCantidad);
             Spinner spinnerCantidad = ingredienteView.findViewById(R.id.spinner_quantity_unit);
+            CheckBox checkboxOpcional = ingredienteView.findViewById(R.id.checkboxOpcional);
 
             List<String> opcionesTipoCantidad = Arrays.asList(getResources().getStringArray(R.array.quantity_units));
             ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(this,
@@ -494,11 +498,12 @@ public class EditarRecetaActivity extends RecetaBaseActivity {
 
             int selectedTypeIndex = opcionesTipoCantidad.indexOf(ingrediente.getTipoCantidad());
             spinnerCantidad.setSelection(selectedTypeIndex);
+            checkboxOpcional.setChecked(ingrediente.isOpcional());
 
             editTextNombre.setText(ingrediente.getNombre());
             editTextCantidad.setText(String.valueOf(ingrediente.getCantidad()));
 
-            setupIngredienteListeners(ingrediente, editTextNombre, editTextCantidad, spinnerCantidad);
+            setupIngredienteListeners(ingrediente, editTextNombre, editTextCantidad, spinnerCantidad, checkboxOpcional);
 
             ImageButton btnEliminar = ingredienteView.findViewById(R.id.btnEliminarIngrediente);
             btnEliminar.setOnClickListener(v -> {
@@ -512,7 +517,7 @@ public class EditarRecetaActivity extends RecetaBaseActivity {
     }
 
     private void setupIngredienteListeners(Ingrediente ingrediente, EditText editTextNombre,
-                                           EditText editTextCantidad, Spinner spinnerCantidad) {
+                                           EditText editTextCantidad, Spinner spinnerCantidad, CheckBox checkboxOpcional) {
         editTextNombre.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
@@ -555,6 +560,10 @@ public class EditarRecetaActivity extends RecetaBaseActivity {
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {}
+        });
+
+        checkboxOpcional.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            ingrediente.setOpcional(isChecked);
         });
     }
 

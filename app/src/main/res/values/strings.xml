@@ -75,6 +75,7 @@
         <item>@string/tipo_side</item>
     </string-array>
     <string name="puntuacion_dada">Puntuación dada</string>
+    <string name="opcional">Opcional</string>
     <string name="score_label">Puntuación</string>
     <string name="score_no_encontrado">Score no encontrado</string>
     <string name="ver_calendario">Ver Calendario</string>

@@ -278,7 +278,7 @@ public class RecetasSrv {
 
         double cantidadTotal = 0;
         for (Ingrediente ing : receta.getIngredientes()) {
-            if (ing.getPuntuacion() >= 0) {
+            if (ing.getPuntuacion() >= 0 && !ing.isOpcional()) {
                 double cantidad = UtilsSrv.convertirNumero(ing.getCantidad());
                 cantidadTotal += cantidad * getImportancia(ing);
             }
@@ -291,7 +291,7 @@ public class RecetasSrv {
 
         double puntuacionTotal = 0;
         for (Ingrediente ing : receta.getIngredientes()) {
-            if (ing.getPuntuacion() >= 0) {
+            if (ing.getPuntuacion() >= 0 && !ing.isOpcional()) {
                 double cantidad = UtilsSrv.convertirNumero(ing.getCantidad());
                 double peso = (cantidad * getImportancia(ing)) / cantidadTotal;
                 puntuacionTotal += ing.getPuntuacion() * peso;

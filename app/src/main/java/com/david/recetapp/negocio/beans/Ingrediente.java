@@ -11,12 +11,18 @@ public class Ingrediente implements Parcelable {
     private String cantidad;
     private String tipoCantidad;
     private double puntuacion;
+    private boolean opcional;
 
     public Ingrediente(String nombre, String cantidad, String tipoCantidad, double puntuacion) {
+        this(nombre, cantidad, tipoCantidad, puntuacion, false);
+    }
+
+    public Ingrediente(String nombre, String cantidad, String tipoCantidad, double puntuacion, boolean opcional) {
         this.nombre = nombre;
         this.cantidad = cantidad;
         this.tipoCantidad = tipoCantidad;
         this.puntuacion = puntuacion;
+        this.opcional = opcional;
     }
 
     protected Ingrediente(Parcel in) {
@@ -24,6 +30,7 @@ public class Ingrediente implements Parcelable {
         cantidad = in.readString();
         tipoCantidad = in.readString();
         puntuacion = in.readDouble();
+        opcional = in.readByte() != 0;
     }
 
     public Ingrediente() {
@@ -54,6 +61,7 @@ public class Ingrediente implements Parcelable {
         dest.writeString(cantidad);
         dest.writeString(tipoCantidad);
         dest.writeDouble(puntuacion);
+        dest.writeByte((byte) (opcional ? 1 : 0));
     }
 
     // getters and setters
@@ -87,5 +95,13 @@ public class Ingrediente implements Parcelable {
 
     public void setPuntuacion(double puntuacion) {
         this.puntuacion = puntuacion;
+    }
+
+    public boolean isOpcional() {
+        return opcional;
+    }
+
+    public void setOpcional(boolean opcional) {
+        this.opcional = opcional;
     }
 }

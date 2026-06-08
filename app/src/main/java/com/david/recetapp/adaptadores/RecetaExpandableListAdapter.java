@@ -261,6 +261,10 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
                                 .append(context.getString(R.string.literal_de))
                                 .append(nombreMostrado != null ? nombreMostrado : "");
 
+                        if (ingrediente.isOpcional()) {
+                            sbIngredientes.append(" (").append(context.getString(R.string.opcional).toLowerCase(Locale.getDefault())).append(")");
+                        }
+
                         double puntuacion = ingrediente.getPuntuacion();
                         if (puntuacion >= 0) {
                             sbIngredientes.append(" (").append(context.getString(R.string.score_label)).append(": ").append(puntuacion).append(")");

@@ -73,6 +73,14 @@
                     android:layout_weight="1.5"
                     android:background="@drawable/field_background"
                     android:minHeight="40dp" />
+
+                <CheckBox
+                    android:id="@+id/checkboxOpcional"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:text="@string/opcional"
+                    android:textSize="12sp" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
