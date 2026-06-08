@@ -1,15 +1,25 @@
 package com.david.recetapp.negocio.beans;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
+@SuppressWarnings("unused")
 public class RecetaDia implements Serializable {
 
     private String idReceta;
     private int numeroPersonas;
+    private Map<String, String> ingredientesElegidos; // MainIngredientName -> ChosenIngredientName
 
     public RecetaDia(String idReceta, int numeroPersonas) {
+        this(idReceta, numeroPersonas, new HashMap<>());
+    }
+
+    public RecetaDia(String idReceta, int numeroPersonas, Map<String, String> ingredientesElegidos) {
         this.idReceta = idReceta;
         this.numeroPersonas = numeroPersonas;
+        this.ingredientesElegidos = ingredientesElegidos != null ? ingredientesElegidos : new HashMap<>();
     }
 
     public RecetaDia(){
@@ -32,20 +42,27 @@ public class RecetaDia implements Serializable {
         this.numeroPersonas = numeroPersonas;
     }
 
+    public Map<String, String> getIngredientesElegidos() {
+        if (ingredientesElegidos == null) ingredientesElegidos = new HashMap<>();
+        return ingredientesElegidos;
+    }
+
+    public void setIngredientesElegidos(Map<String, String> ingredientesElegidos) {
+        this.ingredientesElegidos = ingredientesElegidos;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
         RecetaDia other = (RecetaDia) obj;
-        if (numeroPersonas != other.numeroPersonas) return false;
-        if (idReceta == null) return other.idReceta == null;
-        return idReceta.equals(other.idReceta);
+        return numeroPersonas == other.numeroPersonas &&
+                Objects.equals(idReceta, other.idReceta) &&
+                Objects.equals(ingredientesElegidos, other.ingredientesElegidos);
     }
 
     @Override
     public int hashCode() {
-        int result = (idReceta != null) ? idReceta.hashCode() : 0;
-        result = 31 * result + numeroPersonas;
-        return result;
+        return Objects.hash(idReceta, numeroPersonas, ingredientesElegidos);
     }
 }

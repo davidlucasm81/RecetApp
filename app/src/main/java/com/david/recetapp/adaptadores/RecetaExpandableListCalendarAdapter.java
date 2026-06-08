@@ -39,6 +39,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapter {
@@ -168,7 +169,16 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
                     .setMessage(activity.getString(R.string.alerta_eliminar) + " '" + receta.getNombre() + "' ?")
                     .setPositiveButton(activity.getString(R.string.aceptar), (dialog, which) -> {
                         // Eliminar la receta del calendario y refrescar la pantalla
-                        Receta eliminada = listaRecetas.remove(groupPosition);
+                        // Buscar de forma segura la posición por ID antes de eliminar, ya que la lista
+                        // puede haber cambiado entre la creación de la vista y el click.
+                        String idToRemove = receta.getId();
+                        int indexToRemove = findIndexById(idToRemove);
+                        if (indexToRemove == -1) {
+                            // No encontramos la receta en la lista actual: informar y cancelar
+                            UtilsSrv.notificacion(activity, activity.getString(R.string.error_eliminar_receta), Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        Receta eliminada = listaRecetas.remove(indexToRemove);
                         selectedDay.removeReceta(eliminada.getId());
 
                         CalendarioSrv.actualizarDia(activity, selectedDay.getMonth(), selectedDay.getYear(), selectedDay, new CalendarioSrv.SimpleCallback() {
@@ -190,8 +200,9 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
 
                             @Override
                             public void onFailure(Exception e) {
-                                // Restaurar la receta si falla
-                                listaRecetas.add(groupPosition, eliminada);
+                                 // Restaurar la receta si falla (insertar en la misma posición si es posible)
+                                 int restoreIndex = Math.max(0, Math.min(indexToRemove, listaRecetas.size()));
+                                 listaRecetas.add(restoreIndex, eliminada);
                                 selectedDay.getRecetas().add(new com.david.recetapp.negocio.beans.RecetaDia(
                                         eliminada.getId(), eliminada.getNumPersonas()));
                                 mainHandler.post(() -> {
@@ -250,45 +261,52 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
                 txtInformacion.setText(TextUtils.join(", ", temporadas));
                 break;
 
-            case 1: // Numero de personas
+            case 1: // Número de personas
                 txtInformacion.setVisibility(View.VISIBLE);
                 txtTitulo.setText(R.string.numero_personas);
                 txtInformacion.setText(String.valueOf(receta.getNumPersonas()));
                 break;
 
             case 2: // Ingredientes
-                txtInformacion.setVisibility(View.VISIBLE);
                 txtTitulo.setText(R.string.ingredientes);
                 List<Ingrediente> ingredientes = receta.getIngredientes();
                 if (ingredientes == null || ingredientes.isEmpty()) {
                     txtInformacion.setText(R.string.sin_ingredientes);
                 } else {
                     StringBuilder sbIngredientes = new StringBuilder();
-                    int totalIngredientes = ingredientes.size();
 
-                    for (int i = 0; i < totalIngredientes; i++) {
-                        Ingrediente ingrediente = ingredientes.get(i);
-                        // Mostrar nombre traducido según el idioma actual (si existe traducción en caché)
-                        String nombreMostrado = RecetasSrv.getNombreTraducido(ingrediente.getNombre());
-                        sbIngredientes.append("- ")
-                                .append(ingrediente.getCantidad() != null ? ingrediente.getCantidad() : "")
-                                .append(" ")
-                                .append(ingrediente.getTipoCantidad() != null ? ingrediente.getTipoCantidad() : "")
-                                .append(activity.getString(R.string.literal_de))
-                                .append(nombreMostrado != null ? nombreMostrado : "");
+                    // Agrupar por principal (mismo algoritmo que en el otro adapter)
+                    java.util.Map<String, java.util.List<Ingrediente>> grupos = new java.util.LinkedHashMap<>();
+                    java.util.List<Ingrediente> principales = new java.util.ArrayList<>();
 
-                        if (ingrediente.isOpcional()) {
-                            sbIngredientes.append(" (").append(activity.getString(R.string.opcional).toLowerCase(Locale.getDefault())).append(")");
+                    for (Ingrediente ing : ingredientes) {
+                        if (ing.getEsSustitutoDe() == null || ing.getEsSustitutoDe().isEmpty()) {
+                            principales.add(ing);
+                        }
+                    }
+                    for (Ingrediente principal : principales) {
+                        grupos.put(principal.getNombre(), new java.util.ArrayList<>());
+                    }
+                    for (Ingrediente ing : ingredientes) {
+                        if (ing.getEsSustitutoDe() != null && !ing.getEsSustitutoDe().isEmpty()) {
+                            java.util.List<Ingrediente> susts = grupos.get(ing.getEsSustitutoDe());
+                            Objects.requireNonNullElse(susts, principales).add(ing);
+                        }
+                    }
+
+                    for (int i = 0; i < principales.size(); i++) {
+                        Ingrediente principal = principales.get(i);
+                        appendIngredienteInfo(sbIngredientes, principal, false);
+
+                        java.util.List<Ingrediente> sustitutos = grupos.get(principal.getNombre());
+                        if (sustitutos != null) {
+                            for (Ingrediente sust : sustitutos) {
+                                sbIngredientes.append("\n");
+                                appendIngredienteInfo(sbIngredientes, sust, true);
+                            }
                         }
 
-                        double puntuacion = ingrediente.getPuntuacion();
-                        if (puntuacion >= 0) {
-                            sbIngredientes.append(" (").append(activity.getString(R.string.score_label)).append(": ").append(puntuacion).append(")");
-                        } else if (puntuacion != -1) {
-                            sbIngredientes.append(" (").append(activity.getString(R.string.score_no_encontrado)).append(")");
-                        }
-
-                        if (i < totalIngredientes - 1) {
+                        if (i < principales.size() - 1) {
                             sbIngredientes.append("\n\n");
                         } else {
                             sbIngredientes.append("\n");
@@ -410,6 +428,41 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
     @Override
     public boolean isChildSelectable(int groupPosition, int childPosition) {
         return false;
+    }
+
+    private int findIndexById(String id) {
+        if (id == null || listaRecetas == null) return -1;
+        for (int i = 0; i < listaRecetas.size(); i++) {
+            Receta r = listaRecetas.get(i);
+            if (r != null && id.equals(r.getId())) return i;
+        }
+        return -1;
+    }
+
+    private void appendIngredienteInfo(StringBuilder sb, Ingrediente ing, boolean isSustituto) {
+        String nombreMostrado = RecetasSrv.getNombreTraducido(ing.getNombre());
+        sb.append(isSustituto ? "  └ " : "- ")
+                .append(ing.getCantidad() != null ? ing.getCantidad() : "")
+                .append(" ")
+                .append(ing.getTipoCantidad() != null ? ing.getTipoCantidad() : "")
+                .append(activity.getString(R.string.literal_de))
+                .append(nombreMostrado != null ? nombreMostrado : "");
+
+        if (ing.isOpcional()) {
+            sb.append(" (").append(activity.getString(R.string.opcional).toLowerCase(java.util.Locale.getDefault())).append(")");
+        }
+
+        if (isSustituto) {
+            sb.append(" (").append(activity.getString(R.string.sustituto_de).toLowerCase(java.util.Locale.getDefault()))
+                    .append(" ").append(ing.getEsSustitutoDe()).append(")");
+        }
+
+        double puntuacion = ing.getPuntuacion();
+        if (puntuacion >= 0) {
+            sb.append(" (").append(activity.getString(R.string.score_label)).append(": ").append(puntuacion).append(")");
+        } else if (puntuacion != -1) {
+            sb.append(" (").append(activity.getString(R.string.score_no_encontrado)).append(")");
+        }
     }
 
     public interface EmptyListListener {

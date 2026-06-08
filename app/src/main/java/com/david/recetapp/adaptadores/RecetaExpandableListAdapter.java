@@ -39,6 +39,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import android.text.style.LeadingMarginSpan;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -51,7 +53,7 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
     private final Handler mainHandler;
 
     // Lista interna mutable (hacemos copia defensiva en constructor)
-    private List<Receta> listaRecetas;
+    private final List<Receta> listaRecetas;
 
     public RecetaExpandableListAdapter(Context context, List<Receta> listaRecetas,
                                        ExpandableListView expandableListView, EmptyListListener emptyListListener) {
@@ -234,7 +236,7 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
                 txtInformacion.setText(TextUtils.join(", ", temporadas));
                 break;
 
-            case 1: // Numero de personas
+            case 1: // Número de personas
                 txtInformacion.setVisibility(View.VISIBLE);
                 txtTitulo.setText(R.string.numero_personas);
                 txtInformacion.setText(String.valueOf(receta.getNumPersonas()));
@@ -247,40 +249,54 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
                 if (ingredientes == null || ingredientes.isEmpty()) {
                     txtInformacion.setText(R.string.sin_ingredientes);
                 } else {
-                    StringBuilder sbIngredientes = new StringBuilder();
-                    int totalIngredientes = ingredientes.size();
+                    SpannableStringBuilder sbIngredientes = new SpannableStringBuilder();
 
-                    for (int i = 0; i < totalIngredientes; i++) {
-                        Ingrediente ingrediente = ingredientes.get(i);
-                        // Mostrar nombre traducido según el idioma actual (si existe traducción en caché)
-                        String nombreMostrado = RecetasSrv.getNombreTraducido(ingrediente.getNombre());
-                        sbIngredientes.append("- ")
-                                .append(ingrediente.getCantidad() != null ? ingrediente.getCantidad() : "")
-                                .append(" ")
-                                .append(ingrediente.getTipoCantidad() != null ? ingrediente.getTipoCantidad() : "")
-                                .append(context.getString(R.string.literal_de))
-                                .append(nombreMostrado != null ? nombreMostrado : "");
+                    // Agrupar por principal
+                    java.util.Map<String, java.util.List<Ingrediente>> grupos = new java.util.LinkedHashMap<>();
+                    java.util.List<Ingrediente> principales = new java.util.ArrayList<>();
 
-                        if (ingrediente.isOpcional()) {
-                            sbIngredientes.append(" (").append(context.getString(R.string.opcional).toLowerCase(Locale.getDefault())).append(")");
+                    for (Ingrediente ing : ingredientes) {
+                        if (ing.getEsSustitutoDe() == null || ing.getEsSustitutoDe().isEmpty()) {
+                            principales.add(ing);
+                        }
+                    }
+
+                    for (Ingrediente principal : principales) {
+                        grupos.put(principal.getNombre(), new java.util.ArrayList<>());
+                    }
+
+                    for (Ingrediente ing : ingredientes) {
+                        if (ing.getEsSustitutoDe() != null && !ing.getEsSustitutoDe().isEmpty()) {
+                            java.util.List<Ingrediente> susts = grupos.get(ing.getEsSustitutoDe());
+                            // Huérfano
+                            Objects.requireNonNullElse(susts, principales).add(ing);
+                        }
+                    }
+
+                    for (int i = 0; i < principales.size(); i++) {
+                        Ingrediente principal = principales.get(i);
+                        appendIngredienteInfo(sbIngredientes, principal, false);
+
+                        java.util.List<Ingrediente> sustitutos = grupos.get(principal.getNombre());
+                        if (sustitutos != null) {
+                            for (Ingrediente sust : sustitutos) {
+                                sbIngredientes.append("\n");
+                                appendIngredienteInfo(sbIngredientes, sust, true);
+                            }
                         }
 
-                        double puntuacion = ingrediente.getPuntuacion();
-                        if (puntuacion >= 0) {
-                            sbIngredientes.append(" (").append(context.getString(R.string.score_label)).append(": ").append(puntuacion).append(")");
-                        } else if (puntuacion != -1) {
-                            sbIngredientes.append(" (").append(context.getString(R.string.score_no_encontrado)).append(")");
-                        }
-
-                        if (i < totalIngredientes - 1) {
+                        if (i < principales.size() - 1) {
                             sbIngredientes.append("\n\n");
                         } else {
                             sbIngredientes.append("\n");
                         }
                     }
-                    // proteger caso raro de longitud 0
-                    String texto = sbIngredientes.length() != 0? sbIngredientes.toString().trim() : context.getString(R.string.sin_ingredientes);
-                    txtInformacion.setText(texto);
+                    // Si hay contenido, seteamos el Spannable (preserva spans). Si no, mostramos el texto "sin ingredientes".
+                    if (sbIngredientes.length() != 0) {
+                        txtInformacion.setText(sbIngredientes);
+                    } else {
+                        txtInformacion.setText(context.getString(R.string.sin_ingredientes));
+                    }
                 }
                 break;
 
@@ -424,11 +440,46 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
         });
     }
 
-    /**
-     * Método helper para actualizar la UI desde callbacks de background si se necesita.
-     */
-    private void postNotifyChanged() {
-        mainHandler.post(this::notifyDataSetChanged);
+    private void appendIngredienteInfo(SpannableStringBuilder sb, Ingrediente ing, boolean isSustituto) {
+        String nombreMostrado = RecetasSrv.getNombreTraducido(ing.getNombre());
+
+        String prefix = isSustituto ? "  └ " : "- ";
+        StringBuilder linea = new StringBuilder();
+        linea.append(prefix)
+                .append(ing.getCantidad() != null ? ing.getCantidad() : "")
+                .append(" ")
+                .append(ing.getTipoCantidad() != null ? ing.getTipoCantidad() : "")
+                .append(context.getString(R.string.literal_de))
+                .append(nombreMostrado != null ? nombreMostrado : "");
+
+        if (ing.isOpcional()) {
+            linea.append(" (").append(context.getString(R.string.opcional).toLowerCase(Locale.getDefault())).append(")");
+        }
+
+        if (isSustituto) {
+            linea.append(" (").append(context.getString(R.string.sustituto_de).toLowerCase(Locale.getDefault()))
+                    .append(" ").append(ing.getEsSustitutoDe()).append(")");
+        }
+
+        double puntuacion = ing.getPuntuacion();
+        if (puntuacion >= 0) {
+            linea.append(" (").append(context.getString(R.string.score_label)).append(": ").append(puntuacion).append(")");
+        } else if (puntuacion != -1) {
+            linea.append(" (").append(context.getString(R.string.score_no_encontrado)).append(")");
+        }
+
+        int start = sb.length();
+        sb.append(linea.toString());
+        int end = sb.length();
+
+        // Si es sustituto aplicamos un LeadingMarginSpan para que las líneas partidas visualmente mantengan la sangría
+        if (isSustituto) {
+            // Medimos el ancho del prefijo para usarlo como sangría
+            TextView tmp = new TextView(context);
+            float prefixWidth = tmp.getPaint().measureText(prefix);
+            int indentPx = (int) Math.ceil(prefixWidth);
+            sb.setSpan(new LeadingMarginSpan.Standard(0, indentPx), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
     }
 
     public interface EmptyListListener {

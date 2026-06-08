@@ -102,9 +102,10 @@ public class AddRecetaActivity extends RecetaBaseActivity {
             String cantidad = editTextCantidad.getText().toString().trim();
             String tipoCantidad = spinner.getText().toString();
             boolean opcional = checkboxOpcional.isChecked();
+            String esSustitutoDe = (autoCompleteSustitutoDe != null) ? autoCompleteSustitutoDe.getText().toString() : null;
 
             if (validarIngrediente(nombreIngrediente, cantidad, tipoCantidad)) {
-                agregarIngrediente(nombreIngrediente, cantidad, tipoCantidad, opcional);
+                agregarIngrediente(nombreIngrediente, cantidad, tipoCantidad, opcional, esSustitutoDe);
                 limpiarCamposIngrediente(spinner);
                 checkboxOpcional.setChecked(false);
                 UtilsSrv.notificacion(this, getString(R.string.ingrediente_aniadido), Toast.LENGTH_SHORT).show();

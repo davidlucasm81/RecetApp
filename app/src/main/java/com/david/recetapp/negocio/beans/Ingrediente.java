@@ -12,17 +12,23 @@ public class Ingrediente implements Parcelable {
     private String tipoCantidad;
     private double puntuacion;
     private boolean opcional;
+    private String esSustitutoDe;
 
     public Ingrediente(String nombre, String cantidad, String tipoCantidad, double puntuacion) {
-        this(nombre, cantidad, tipoCantidad, puntuacion, false);
+        this(nombre, cantidad, tipoCantidad, puntuacion, false, null);
     }
 
     public Ingrediente(String nombre, String cantidad, String tipoCantidad, double puntuacion, boolean opcional) {
+        this(nombre, cantidad, tipoCantidad, puntuacion, opcional, null);
+    }
+
+    public Ingrediente(String nombre, String cantidad, String tipoCantidad, double puntuacion, boolean opcional, String esSustitutoDe) {
         this.nombre = nombre;
         this.cantidad = cantidad;
         this.tipoCantidad = tipoCantidad;
         this.puntuacion = puntuacion;
         this.opcional = opcional;
+        this.esSustitutoDe = esSustitutoDe;
     }
 
     protected Ingrediente(Parcel in) {
@@ -31,6 +37,7 @@ public class Ingrediente implements Parcelable {
         tipoCantidad = in.readString();
         puntuacion = in.readDouble();
         opcional = in.readByte() != 0;
+        esSustitutoDe = in.readString();
     }
 
     public Ingrediente() {
@@ -62,6 +69,7 @@ public class Ingrediente implements Parcelable {
         dest.writeString(tipoCantidad);
         dest.writeDouble(puntuacion);
         dest.writeByte((byte) (opcional ? 1 : 0));
+        dest.writeString(esSustitutoDe);
     }
 
     // getters and setters
@@ -103,5 +111,13 @@ public class Ingrediente implements Parcelable {
 
     public void setOpcional(boolean opcional) {
         this.opcional = opcional;
+    }
+
+    public String getEsSustitutoDe() {
+        return esSustitutoDe;
+    }
+
+    public void setEsSustitutoDe(String esSustitutoDe) {
+        this.esSustitutoDe = esSustitutoDe;
     }
 }

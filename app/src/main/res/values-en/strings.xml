@@ -74,6 +74,9 @@
     </string-array>
     <string name="puntuacion_dada">Score given</string>
     <string name="opcional">Optional</string>
+    <string name="sustituto_de">Substitute for</string>
+    <string name="ninguno">None</string>
+    <string name="seleccionar_sustituto">Select ingredient</string>
     <string name="score_label">Score</string>
     <string name="score_no_encontrado">Score not found</string>
     <string name="ver_calendario">View Calendar</string>

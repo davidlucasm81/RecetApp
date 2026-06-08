@@ -25,7 +25,6 @@ import com.google.firebase.firestore.WriteBatch;
 import com.google.firebase.firestore.DocumentReference;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -55,12 +54,6 @@ public class FirebaseManager {
 
     // 🚀 Flag para saber si ya hicimos la primera carga desde servidor
     private boolean recetasCargadasDesdeServidor = false;
-
-    public FirebaseManager() {
-        this.db = FirebaseFirestore.getInstance();
-        this.userId = "default_user";
-        configurarFirestore();
-    }
 
     public FirebaseManager(String userId) {
         this.db = FirebaseFirestore.getInstance();
@@ -121,11 +114,6 @@ public class FirebaseManager {
         recetasCache.remove(getEffectiveUserId());
     }
 
-    private void invalidateCalendarioCache(int mes, int anio) {
-        String cacheKey = getCalendarioCacheKey(mes, anio);
-        calendarioCache.remove(cacheKey);
-    }
-
     private void invalidateAllCaches() {
         recetasCache.clear();
         calendarioCache.clear();
@@ -166,7 +154,7 @@ public class FirebaseManager {
             return;
         }
 
-        // 2️⃣ Intentar desde CACHE LOCAL de Firestore (muy rápido, ~50-100ms)
+        // 2️⃣ Intentar desde CACHÉ LOCAL de Firestore (muy rápido, ~50-100 ms)
         cargarDesdeCache(context, callback);
     }
 
@@ -182,13 +170,13 @@ public class FirebaseManager {
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     if (!queryDocumentSnapshots.isEmpty()) {
                         Log.d(TAG, "✅ Recetas desde caché Firestore (~50ms)");
-                        List<Receta> recetas = procesarRecetas(queryDocumentSnapshots, context);
+                        List<Receta> recetas = procesarRecetas(queryDocumentSnapshots);
                         recetasCache.put(getEffectiveUserId(), new CacheEntry<>(recetas));
 
                         // 3️⃣ En background, sincronizar con servidor si nunca se ha hecho
                         if (!recetasCargadasDesdeServidor) {
                             Log.d(TAG, "🔄 Sincronizando con servidor para asegurar datos frescos...");
-                            sincronizarConServidorEnBackground(context, callback);
+                            sincronizarConServidorEnBackground(callback);
                         } else {
                             // Si ya sincronizamos en esta sesión, podemos devolver caché sin miedo
                             callback.onSuccess(recetas);
@@ -217,7 +205,7 @@ public class FirebaseManager {
                 .get(Source.SERVER) // Forzar servidor
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     Log.d(TAG, "✅ Recetas desde servidor");
-                    List<Receta> recetas = procesarRecetas(queryDocumentSnapshots, context);
+                    List<Receta> recetas = procesarRecetas(queryDocumentSnapshots);
                     recetasCache.put(getEffectiveUserId(), new CacheEntry<>(recetas));
                     recetasCargadasDesdeServidor = true;
                     callback.onSuccess(recetas);
@@ -239,7 +227,7 @@ public class FirebaseManager {
     /**
      * 🚀 Sincroniza con servidor en background
      */
-    private void sincronizarConServidorEnBackground(Context context, RecetasCallback callback) {
+    private void sincronizarConServidorEnBackground(RecetasCallback callback) {
         db.collection(COLLECTION_RECETAS)
                 .whereEqualTo("userId", getEffectiveUserId())
                 .orderBy("timestamp", Query.Direction.DESCENDING)
@@ -247,7 +235,7 @@ public class FirebaseManager {
                 .get(Source.SERVER)
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     Log.d(TAG, "🔄 Sincronización background completada");
-                    List<Receta> recetas = procesarRecetas(queryDocumentSnapshots, context);
+                    List<Receta> recetas = procesarRecetas(queryDocumentSnapshots);
                     recetasCache.put(getEffectiveUserId(), new CacheEntry<>(recetas));
                     recetasCargadasDesdeServidor = true;
                     if (callback != null) callback.onSuccess(recetas);
@@ -267,7 +255,7 @@ public class FirebaseManager {
                 });
     }
 
-    private List<Receta> procesarRecetas(Iterable<QueryDocumentSnapshot> snapshots, Context context) {
+    private List<Receta> procesarRecetas(Iterable<QueryDocumentSnapshot> snapshots) {
         List<Receta> recetas = new ArrayList<>();
         for (QueryDocumentSnapshot document : snapshots) {
             try {
@@ -294,34 +282,6 @@ public class FirebaseManager {
         invalidateRecetasCache();
         recetasCargadasDesdeServidor = false;
         cargarDesdeServidor(context, callback);
-    }
-
-    /**
-     * 🚀 LISTENER EN TIEMPO REAL (opcional, para actualizaciones automáticas)
-     */
-    public void activarListenerRecetas(Context context, RecetasCallback callback) {
-        if (recetasListener != null) {
-            Log.d(TAG, "Listener ya activo");
-            return;
-        }
-
-        recetasListener = db.collection(COLLECTION_RECETAS)
-                .whereEqualTo("userId", getEffectiveUserId())
-                .orderBy("timestamp", Query.Direction.DESCENDING)
-                .limit(MAX_RECETAS_POR_USUARIO)
-                .addSnapshotListener((snapshots, error) -> {
-                    if (error != null) {
-                        Log.e(TAG, "Error en listener", error);
-                        return;
-                    }
-
-                    if (snapshots != null) {
-                        Log.d(TAG, "🔄 Listener actualizó recetas");
-                        List<Receta> recetas = procesarRecetas(snapshots, context);
-                        recetasCache.put(getEffectiveUserId(), new CacheEntry<>(recetas));
-                        callback.onSuccess(recetas);
-                    }
-                });
     }
 
     // ==================== RESTO DE MÉTODOS (sin cambios) ====================
@@ -475,7 +435,7 @@ public class FirebaseManager {
                 .addOnFailureListener(callback::onFailure);
     }
 
-    /** Siempre llama callback.onSuccess (o onFailure), sin condiciones. */
+    /** Siempre llama callback.onSuccess (u onFailure), sin condiciones. */
     private void cargarCalendarioDesdeServidor(int mes, int anio, DocumentReference docRef,
                                                String cacheKey,
                                                CalendarioCallback callback) {
@@ -676,22 +636,6 @@ public class FirebaseManager {
         return result;
     }
 
-    private void syncCalendarioInBackground(int mes, int anio, List<Day> days) {
-        if (days == null || days.isEmpty()) return;
-
-        String calendarioId = getCalendarioId(mes, anio);
-
-        Map<String, Object> updateData = new HashMap<>();
-        updateData.put("days", daysToList(days));
-        updateData.put("timestamp", FieldValue.serverTimestamp());
-
-        db.collection(COLLECTION_CALENDARIO)
-                .document(calendarioId)
-                .set(updateData, SetOptions.merge())
-                .addOnSuccessListener(aVoid -> Log.d(TAG, "Calendario sincronizado en background"))
-                .addOnFailureListener(e -> Log.e(TAG, "Error sincronizando calendario", e));
-    }
-
     // Apply a Day update only in the in-memory cache so the UI can read the change immediately
     public void applyLocalDayUpdate(int mes, int anio, Day day) {
         String cacheKey = getCalendarioCacheKey(mes, anio);
@@ -847,11 +791,19 @@ public class FirebaseManager {
 
         int numeroPersonas = toInt(numObj, 1);
 
+        Map<String, String> ingredientesElegidos = new HashMap<>();
+        Object ingObj = map.get("ingredientesElegidos");
+        if (ingObj instanceof Map<?, ?> ingMap) {
+            for (Map.Entry<?, ?> entry : ingMap.entrySet()) {
+                ingredientesElegidos.put(entry.getKey().toString(), entry.getValue().toString());
+            }
+        }
+
         if (idReceta == null) {
             return null;
         }
 
-        return new RecetaDia(idReceta, numeroPersonas);
+        return new RecetaDia(idReceta, numeroPersonas, ingredientesElegidos);
     }
 
     private List<Map<String, Object>> daysToList(List<Day> days) {
@@ -880,6 +832,7 @@ public class FirebaseManager {
                 Map<String, Object> rm = new HashMap<>();
                 rm.put("idReceta", rd.getIdReceta());
                 rm.put("numeroPersonas", rd.getNumeroPersonas());
+                rm.put("ingredientesElegidos", rd.getIngredientesElegidos());
                 recetasAsMaps.add(rm);
             }
         }
@@ -918,34 +871,4 @@ public class FirebaseManager {
         return days;
     }
 
-    public static void clearAllRecetasCache() {
-        recetasCache.clear();
-    }
-
-    // Al lado de getCalendarioId()
-    private String getCalendarioIdMesAnterior() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.MONTH, -1);
-        int mes = calendar.get(Calendar.MONTH);
-        int anio = calendar.get(Calendar.YEAR);
-        return getEffectiveUserId() + "_" + anio + "_" + mes;
-    }
-
-    public void eliminarCalendarioMesAnterior(SimpleCallback callback) {
-        String idAnterior = getCalendarioIdMesAnterior();
-        db.collection(COLLECTION_CALENDARIO)
-                .document(idAnterior)
-                .delete()
-                .addOnSuccessListener(aVoid -> {
-                    Log.d(TAG, "🗑️ Calendario mes anterior eliminado: " + idAnterior);
-                    // Limpiar también su caché si existiera
-                    calendarioCache.entrySet().removeIf(e -> e.getKey().contains(idAnterior));
-                    if (callback != null) callback.onSuccess();
-                })
-                .addOnFailureListener(e -> {
-                    // No es crítico — puede que simplemente no existiera
-                    Log.w(TAG, "⚠️ No se encontró calendario anterior (normal si es primer uso)", e);
-                    if (callback != null) callback.onSuccess();
-                });
-    }
 }

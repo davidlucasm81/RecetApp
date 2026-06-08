@@ -23,6 +23,7 @@ import androidx.core.content.FileProvider;
 import com.david.recetapp.R;
 import com.david.recetapp.negocio.beans.Receta;
 import com.david.recetapp.negocio.servicios.FirebaseManager;
+import com.google.firebase.auth.FirebaseAuth;
 import com.david.recetapp.negocio.servicios.RecetasSrv;
 import com.david.recetapp.negocio.servicios.UtilsSrv;
 import com.google.gson.Gson;
@@ -47,7 +48,12 @@ public class ImportExportActivity extends AppCompatActivity {
     private static final int PICK_JSON_FILE_REQUEST = 1;
     private ActivityResultLauncher<String> mGetContentLauncher;
     private static final int REQUEST_PERMISSION_READ_EXTERNAL_STORAGE = 1;
-    private final FirebaseManager firebaseManager = new FirebaseManager();
+    // Inicializar con el userId actual del usuario autenticado (si hay uno)
+    private final FirebaseManager firebaseManager = new FirebaseManager(
+            FirebaseAuth.getInstance().getCurrentUser() != null
+                    ? FirebaseAuth.getInstance().getCurrentUser().getUid()
+                    : "default_user"
+    );
 
     private void checkAndRequestPermissions() {
         int permissionReadStorage = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);

@@ -39,6 +39,7 @@ import com.david.recetapp.negocio.servicios.UtilsSrv;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -58,6 +59,7 @@ public abstract class RecetaBaseActivity extends AppCompatActivity {
     protected List<Temporada> temporadas;
     protected EditText numberPickerNumeroPersonas;
     protected AutoCompleteTextView autoCompleteTextViewNombreIngrediente;
+    protected AutoCompleteTextView autoCompleteSustitutoDe;
     protected EditText editTextCantidad;
     protected LinearLayout linearLayoutIngredientes;
     protected ArrayList<Ingrediente> ingredientes;
@@ -79,7 +81,11 @@ public abstract class RecetaBaseActivity extends AppCompatActivity {
     }
 
     protected void setupIngredientes(String[] ingredientList, AutoCompleteTextView spinner) {
-        // ... Lógica para inicializar ingredientes y spinner ...
+        autoCompleteTextViewNombreIngrediente = findViewById(R.id.autoCompleteTextViewNombreIngrediente);
+        autoCompleteSustitutoDe = findViewById(R.id.spinnerSustitutoDe);
+        editTextCantidad = findViewById(R.id.editTextCantidad);
+        linearLayoutIngredientes = findViewById(R.id.linearLayoutIngredientes);
+
         String[] ingredientNames = new String[ingredientList.length];
         for (int i = 0; i < ingredientList.length; i++) {
             String entry = ingredientList[i].trim();
@@ -105,76 +111,184 @@ public abstract class RecetaBaseActivity extends AppCompatActivity {
         if (adapter.getCount() > 0) {
             spinner.setText(adapter.getItem(0), false);
         }
+        actualizarSpinnersSustitutos();
     }
 
-    protected void agregarIngrediente(String nombre, String numero, String tipoCantidad, boolean opcional) {
+    protected void actualizarSpinnersSustitutos() {
+        if (autoCompleteSustitutoDe == null) return;
+        List<String> opciones = new ArrayList<>();
+        opciones.add(getString(R.string.ninguno));
+        if (ingredientes != null) {
+            for (Ingrediente ing : ingredientes) {
+                if (ing.getEsSustitutoDe() == null || ing.getEsSustitutoDe().isEmpty()) {
+                    opciones.add(ing.getNombre());
+                }
+            }
+        }
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, opciones);
+        autoCompleteSustitutoDe.setAdapter(adapter);
+    }
+
+    protected void agregarIngrediente(String nombre, String numero, String tipoCantidad, boolean opcional, String esSustitutoDe) {
         Integer puntuacion = ingredientMap.getOrDefault(nombre.toLowerCase(Locale.getDefault()), -2);
         if (puntuacion == null) {
-            puntuacion = -2; // Valor predeterminado en caso de que sea nulo
+            puntuacion = -2;
         }
-        Ingrediente ingrediente = new Ingrediente(nombre, numero, tipoCantidad, puntuacion, opcional);
+        if (getString(R.string.ninguno).equals(esSustitutoDe)) esSustitutoDe = null;
+
+        Ingrediente ingrediente = new Ingrediente(nombre, numero, tipoCantidad, puntuacion, opcional, esSustitutoDe);
         ingredientes.add(ingrediente);
         mostrarIngredientes();
+        actualizarSpinnersSustitutos();
     }
 
     protected void mostrarIngredientes() {
         linearLayoutIngredientes.removeAllViews();
-        for (int i = 0; i < ingredientes.size(); i++) {
-            final Ingrediente ingrediente = ingredientes.get(i);
-            ViewGroup parent = findViewById(R.id.linearLayoutIngredientes);
-            View ingredienteView = LayoutInflater.from(this).inflate(R.layout.list_item_ingrediente, parent, false);
-            EditText editTextNombre = ingredienteView.findViewById(R.id.editTextNombreIngrediente);
-            EditText editTextCantidad = ingredienteView.findViewById(R.id.editTextCantidad);
-            Spinner spinnerCantidad = ingredienteView.findViewById(R.id.spinner_quantity_unit);
-            CheckBox checkboxOpcional = ingredienteView.findViewById(R.id.checkboxOpcional);
-            List<String> opcionesTipoCantidad = Arrays.asList(getResources().getStringArray(R.array.quantity_units));
-            ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, opcionesTipoCantidad);
-            spinnerCantidad.setAdapter(spinnerAdapter);
-            int selectedTypeIndex = opcionesTipoCantidad.indexOf(ingrediente.getTipoCantidad());
-            spinnerCantidad.setSelection(selectedTypeIndex);
-            checkboxOpcional.setChecked(ingrediente.isOpcional());
+        if (ingredientes == null) return;
 
-            // Mostrar nombre traducido si existe traducción (por ejemplo ingredientes almacenados en otro idioma)
-            editTextNombre.setText(RecetasSrv.getNombreTraducido(ingrediente.getNombre()));
-            editTextCantidad.setText(String.valueOf(ingrediente.getCantidad()));
-            editTextNombre.addTextChangedListener(new TextWatcher() {
-                @Override public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
-                @Override public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                    if (!charSequence.toString().trim().isEmpty())
-                        ingrediente.setNombre(charSequence.toString().trim());
+        // Agrupar ingredientes: Principal -> Lista de sustitutos
+        Map<String, List<Ingrediente>> grupos = new LinkedHashMap<>();
+        List<Ingrediente> principales = new ArrayList<>();
+
+        for (Ingrediente ing : ingredientes) {
+            if (ing.getEsSustitutoDe() == null || ing.getEsSustitutoDe().isEmpty()) {
+                principales.add(ing);
+                grupos.computeIfAbsent(ing.getNombre(), k -> new ArrayList<>());
+            }
+        }
+
+        // Añadir sustitutos a sus grupos
+        for (Ingrediente ing : ingredientes) {
+            if (ing.getEsSustitutoDe() != null && !ing.getEsSustitutoDe().isEmpty()) {
+                grupos.computeIfAbsent(ing.getEsSustitutoDe(), k -> new ArrayList<>()).add(ing);
+            }
+        }
+
+        for (Ingrediente principal : principales) {
+            View groupView = LayoutInflater.from(this).inflate(R.layout.list_item_ingrediente_group, linearLayoutIngredientes, false);
+            LinearLayout container = groupView.findViewById(R.id.containerIngredientes);
+
+            // Añadir el principal
+            container.addView(crearVistaIngrediente(principal, container));
+
+            // Añadir sus sustitutos
+            List<Ingrediente> sustitutos = grupos.get(principal.getNombre());
+            if (sustitutos != null) {
+                for (Ingrediente sust : sustitutos) {
+                    // Añadir un divisor si se desea
+                    View divider = new View(this);
+                    divider.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 1));
+                    divider.setBackgroundColor(getResources().getColor(R.color.dividerColor, getTheme()));
+                    container.addView(divider);
+                    
+                    container.addView(crearVistaIngrediente(sust, container));
                 }
-                @Override public void afterTextChanged(Editable editable) {}
-            });
-            editTextCantidad.addTextChangedListener(new TextWatcher() {
-                @Override public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
-                @Override public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                    if (!charSequence.toString().trim().isEmpty()) {
-                        String cantidadStr = charSequence.toString().trim();
-                        if (UtilsSrv.esNumeroEnteroOFraccionValida(cantidadStr)) {
-                            ingrediente.setCantidad(cantidadStr);
-                        }
+            }
+
+            linearLayoutIngredientes.addView(groupView);
+        }
+
+        // Manejar ingredientes "huérfanos" (sustitutos de algo que no existe en la receta)
+        for (Ingrediente ing : ingredientes) {
+            if (ing.getEsSustitutoDe() != null && !ing.getEsSustitutoDe().isEmpty() && !grupos.containsKey(ing.getEsSustitutoDe())) {
+                View groupView = LayoutInflater.from(this).inflate(R.layout.list_item_ingrediente_group, linearLayoutIngredientes, false);
+                LinearLayout container = groupView.findViewById(R.id.containerIngredientes);
+                container.addView(crearVistaIngrediente(ing, container));
+                linearLayoutIngredientes.addView(groupView);
+            }
+        }
+    }
+
+    private View crearVistaIngrediente(final Ingrediente ingrediente, ViewGroup parentGroup) {
+        View ingredienteView = LayoutInflater.from(this).inflate(R.layout.item_ingrediente_inner, parentGroup, false);
+        EditText editTextNombre = ingredienteView.findViewById(R.id.editTextNombreIngrediente);
+        EditText editTextCantidad = ingredienteView.findViewById(R.id.editTextCantidad);
+        Spinner spinnerCantidad = ingredienteView.findViewById(R.id.spinner_quantity_unit);
+        CheckBox checkboxOpcional = ingredienteView.findViewById(R.id.checkboxOpcional);
+        Spinner spinnerSustituto = ingredienteView.findViewById(R.id.spinnerSustitutoDe);
+
+        List<String> opcionesTipoCantidad = Arrays.asList(getResources().getStringArray(R.array.quantity_units));
+        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, opcionesTipoCantidad);
+        spinnerCantidad.setAdapter(spinnerAdapter);
+        int selectedTypeIndex = opcionesTipoCantidad.indexOf(ingrediente.getTipoCantidad());
+        spinnerCantidad.setSelection(selectedTypeIndex);
+        checkboxOpcional.setChecked(ingrediente.isOpcional());
+
+        // Configurar spinner sustituto
+        List<String> opcionesSustituto = new ArrayList<>();
+        opcionesSustituto.add(getString(R.string.ninguno));
+        for (Ingrediente ing : ingredientes) {
+            if (ing != ingrediente && (ing.getEsSustitutoDe() == null || ing.getEsSustitutoDe().isEmpty())) {
+                opcionesSustituto.add(ing.getNombre());
+            }
+        }
+        ArrayAdapter<String> sustAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, opcionesSustituto);
+        spinnerSustituto.setAdapter(sustAdapter);
+        int sustIndex = (ingrediente.getEsSustitutoDe() == null) ? 0 : opcionesSustituto.indexOf(ingrediente.getEsSustitutoDe());
+        if (sustIndex < 0) sustIndex = 0;
+        spinnerSustituto.setSelection(sustIndex);
+
+        editTextNombre.setText(RecetasSrv.getNombreTraducido(ingrediente.getNombre()));
+        editTextCantidad.setText(String.valueOf(ingrediente.getCantidad()));
+        editTextNombre.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+            @Override public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                if (!charSequence.toString().trim().isEmpty()) {
+                    ingrediente.setNombre(charSequence.toString().trim());
+                }
+            }
+            @Override public void afterTextChanged(Editable editable) {}
+        });
+        editTextNombre.setOnFocusChangeListener((v, hasFocus) -> {
+            if (!hasFocus) {
+                actualizarSpinnersSustitutos();
+                mostrarIngredientes();
+            }
+        });
+
+        editTextCantidad.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+            @Override public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                if (!charSequence.toString().trim().isEmpty()) {
+                    String cantidadStr = charSequence.toString().trim();
+                    if (UtilsSrv.esNumeroEnteroOFraccionValida(cantidadStr)) {
+                        ingrediente.setCantidad(cantidadStr);
                     }
                 }
-                @Override public void afterTextChanged(Editable editable) {}
-            });
-            spinnerCantidad.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
-                    String selectedType = (String) adapterView.getItemAtPosition(position);
-                    ingrediente.setTipoCantidad(selectedType);
+            }
+            @Override public void afterTextChanged(Editable editable) {}
+        });
+        spinnerCantidad.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
+                String selectedType = (String) adapterView.getItemAtPosition(position);
+                ingrediente.setTipoCantidad(selectedType);
+            }
+            @Override public void onNothingSelected(AdapterView<?> adapterView) {}
+        });
+        spinnerSustituto.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selected = (String) parent.getItemAtPosition(position);
+                String oldSust = ingrediente.getEsSustitutoDe();
+                String newSust = getString(R.string.ninguno).equals(selected) ? null : selected;
+                
+                if (!Objects.equals(oldSust, newSust)) {
+                    ingrediente.setEsSustitutoDe(newSust);
+                    actualizarSpinnersSustitutos();
+                    mostrarIngredientes();
                 }
-                @Override public void onNothingSelected(AdapterView<?> adapterView) {}
-            });
-            checkboxOpcional.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                ingrediente.setOpcional(isChecked);
-            });
-            ImageButton btnEliminar = ingredienteView.findViewById(R.id.btnEliminarIngrediente);
-            btnEliminar.setOnClickListener(v -> {
-                ingredientes.remove(ingrediente);
-                mostrarIngredientes();
-                UtilsSrv.notificacion(RecetaBaseActivity.this, getString(R.string.ingrediente_eliminado), Toast.LENGTH_SHORT).show();
-            });
-            linearLayoutIngredientes.addView(ingredienteView);
-        }
+            }
+            @Override public void onNothingSelected(AdapterView<?> parent) {}
+        });
+
+        checkboxOpcional.setOnCheckedChangeListener((buttonView, isChecked) -> ingrediente.setOpcional(isChecked));
+        ImageButton btnEliminar = ingredienteView.findViewById(R.id.btnEliminarIngrediente);
+        btnEliminar.setOnClickListener(v -> {
+            ingredientes.remove(ingrediente);
+            mostrarIngredientes();
+            actualizarSpinnersSustitutos();
+            UtilsSrv.notificacion(RecetaBaseActivity.this, getString(R.string.ingrediente_eliminado), Toast.LENGTH_SHORT).show();
+        });
+        return ingredienteView;
     }
 
     protected void mostrarAlergenos() {

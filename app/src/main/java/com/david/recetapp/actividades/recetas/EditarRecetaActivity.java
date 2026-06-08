@@ -23,9 +23,7 @@ import android.widget.EditText;
 import android.widget.GridLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.RatingBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -51,7 +49,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -60,27 +57,6 @@ public class EditarRecetaActivity extends RecetaBaseActivity {
     private static final Pattern patternIngredient = Pattern.compile("^(.+)\\s(-?\\d+)$");
     private static final String KEY_INGREDIENTES = "ingredientes";
     private static final String KEY_PASOS = "pasos";
-
-    private EditText editTextNombre;
-    private CheckBox checkboxInvierno;
-    private CheckBox checkboxVerano;
-    private CheckBox checkboxOtonio;
-    private CheckBox checkboxPrimavera;
-    private List<Temporada> temporadas;
-    private EditText numberPickerNumeroPersonas;
-    private AutoCompleteTextView autoCompleteTextViewNombreIngrediente;
-    private EditText editTextCantidad;
-    private LinearLayout linearLayoutIngredientes;
-    private ArrayList<Ingrediente> ingredientes;
-    private LinearLayout linearLayoutListaPasos;
-    private ArrayList<Paso> pasos;
-    private int draggedItemPosition = -1;
-    private List<Alergeno> alergenos;
-    private List<Alergeno> alergenosSeleccionados;
-    private GridLayout gridLayout;
-    private RatingBar estrellas;
-    private Map<String, Integer> ingredientMap;
-    private boolean isDragging = false;
 
     private ProgressBar progressBar;
     private Button btnGuardar;
@@ -136,6 +112,7 @@ public class EditarRecetaActivity extends RecetaBaseActivity {
         autoCompleteTextViewNombreIngrediente = findViewById(R.id.autoCompleteTextViewNombreIngrediente);
         editTextCantidad = findViewById(R.id.editTextCantidad);
         linearLayoutIngredientes = findViewById(R.id.linearLayoutIngredientes);
+        autoCompleteSustitutoDe = findViewById(R.id.spinnerSustitutoDe);
         linearLayoutListaPasos = findViewById(R.id.linearLayoutListaPasos);
         gridLayout = findViewById(R.id.gridLayoutAlergenos);
         estrellas = findViewById(R.id.estrellas);
@@ -147,6 +124,7 @@ public class EditarRecetaActivity extends RecetaBaseActivity {
         }
 
         temporadas = new ArrayList<>();
+        ingredientes = new ArrayList<>();
         pasos = new ArrayList<>();
         alergenos = new ArrayList<>();
         alergenosSeleccionados = new ArrayList<>();
@@ -175,9 +153,9 @@ public class EditarRecetaActivity extends RecetaBaseActivity {
         temporadas = recetaActual.getTemporadas();
         numberPickerNumeroPersonas.setText(String.valueOf(recetaActual.getNumPersonas()));
 
-        ingredientes = (ArrayList<Ingrediente>) recetaActual.getIngredientes();
-        pasos = (ArrayList<Paso>) recetaActual.getPasos();
-        alergenosSeleccionados = recetaActual.getAlergenos();
+        ingredientes = recetaActual.getIngredientes() != null ? new ArrayList<>(recetaActual.getIngredientes()) : new ArrayList<>();
+        pasos = recetaActual.getPasos() != null ? new ArrayList<>(recetaActual.getPasos()) : new ArrayList<>();
+        alergenosSeleccionados = recetaActual.getAlergenos() != null ? new ArrayList<>(recetaActual.getAlergenos()) : new ArrayList<>();
 
         estrellas.setRating(recetaActual.getEstrellas());
     }
@@ -228,9 +206,10 @@ public class EditarRecetaActivity extends RecetaBaseActivity {
             String cantidad = editTextCantidad.getText().toString().trim();
             String tipoCantidad = spinner.getText().toString();
             boolean opcional = checkboxOpcional.isChecked();
+            String esSustitutoDe = (autoCompleteSustitutoDe != null) ? autoCompleteSustitutoDe.getText().toString() : null;
 
             if (validarIngrediente(nombreIngrediente, cantidad, tipoCantidad)) {
-                agregarIngrediente(nombreIngrediente, cantidad, tipoCantidad, opcional);
+                agregarIngrediente(nombreIngrediente, cantidad, tipoCantidad, opcional, esSustitutoDe);
                 limpiarCamposIngrediente();
                 checkboxOpcional.setChecked(false);
                 UtilsSrv.notificacion(this, getString(R.string.ingrediente_aniadido), Toast.LENGTH_SHORT).show();
@@ -239,6 +218,7 @@ public class EditarRecetaActivity extends RecetaBaseActivity {
             }
         });
 
+        actualizarSpinnersSustitutos();
         mostrarIngredientes();
     }
 
@@ -469,102 +449,17 @@ public class EditarRecetaActivity extends RecetaBaseActivity {
         }
     }
 
-    protected void agregarIngrediente(String nombre, String numero, String tipoCantidad, boolean opcional) {
+    @Override
+    protected void agregarIngrediente(String nombre, String numero, String tipoCantidad, boolean opcional, String esSustitutoDe) {
+        if (getString(R.string.ninguno).equals(esSustitutoDe)) esSustitutoDe = null;
+        Integer puntuacion = ingredientMap.getOrDefault(nombre.toLowerCase(Locale.getDefault()), -2);
+        if (puntuacion == null) puntuacion = -2;
+        
         Ingrediente ingrediente = new Ingrediente(nombre, numero, tipoCantidad,
-                ingredientMap.getOrDefault(nombre.toLowerCase(Locale.getDefault()), -2), opcional);
+                puntuacion, opcional, esSustitutoDe);
         ingredientes.add(ingrediente);
         mostrarIngredientes();
-    }
-
-    protected void mostrarIngredientes() {
-        linearLayoutIngredientes.removeAllViews();
-
-        for (int i = 0; i < ingredientes.size(); i++) {
-            final Ingrediente ingrediente = ingredientes.get(i);
-
-            ViewGroup parent = findViewById(R.id.linearLayoutIngredientes);
-            View ingredienteView = LayoutInflater.from(this).inflate(R.layout.list_item_ingrediente, parent, false);
-
-            EditText editTextNombre = ingredienteView.findViewById(R.id.editTextNombreIngrediente);
-            EditText editTextCantidad = ingredienteView.findViewById(R.id.editTextCantidad);
-            Spinner spinnerCantidad = ingredienteView.findViewById(R.id.spinner_quantity_unit);
-            CheckBox checkboxOpcional = ingredienteView.findViewById(R.id.checkboxOpcional);
-
-            List<String> opcionesTipoCantidad = Arrays.asList(getResources().getStringArray(R.array.quantity_units));
-            ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(this,
-                    android.R.layout.simple_spinner_item, opcionesTipoCantidad);
-            spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            spinnerCantidad.setAdapter(spinnerAdapter);
-
-            int selectedTypeIndex = opcionesTipoCantidad.indexOf(ingrediente.getTipoCantidad());
-            spinnerCantidad.setSelection(selectedTypeIndex);
-            checkboxOpcional.setChecked(ingrediente.isOpcional());
-
-            editTextNombre.setText(ingrediente.getNombre());
-            editTextCantidad.setText(String.valueOf(ingrediente.getCantidad()));
-
-            setupIngredienteListeners(ingrediente, editTextNombre, editTextCantidad, spinnerCantidad, checkboxOpcional);
-
-            ImageButton btnEliminar = ingredienteView.findViewById(R.id.btnEliminarIngrediente);
-            btnEliminar.setOnClickListener(v -> {
-                ingredientes.remove(ingrediente);
-                mostrarIngredientes();
-                UtilsSrv.notificacion(this, getString(R.string.ingrediente_eliminado), Toast.LENGTH_SHORT).show();
-            });
-
-            linearLayoutIngredientes.addView(ingredienteView);
-        }
-    }
-
-    private void setupIngredienteListeners(Ingrediente ingrediente, EditText editTextNombre,
-                                           EditText editTextCantidad, Spinner spinnerCantidad, CheckBox checkboxOpcional) {
-        editTextNombre.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if (!charSequence.toString().trim().isEmpty()) {
-                    ingrediente.setNombre(charSequence.toString().trim());
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {}
-        });
-
-        editTextCantidad.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if (!charSequence.toString().trim().isEmpty()) {
-                    String cantidadStr = charSequence.toString().trim();
-                    if (UtilsSrv.esNumeroEnteroOFraccionValida(cantidadStr)) {
-                        ingrediente.setCantidad(cantidadStr);
-                    }
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {}
-        });
-
-        spinnerCantidad.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
-                String selectedType = (String) adapterView.getItemAtPosition(position);
-                ingrediente.setTipoCantidad(selectedType);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {}
-        });
-
-        checkboxOpcional.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            ingrediente.setOpcional(isChecked);
-        });
+        actualizarSpinnersSustitutos();
     }
 
     protected void mostrarPasos() {

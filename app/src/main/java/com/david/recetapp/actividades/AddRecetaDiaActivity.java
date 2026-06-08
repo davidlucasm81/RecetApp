@@ -22,6 +22,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.david.recetapp.R;
 import com.david.recetapp.adaptadores.RecetasAdapter;
 import com.david.recetapp.negocio.beans.Day;
+import com.david.recetapp.negocio.beans.Ingrediente;
 import com.david.recetapp.negocio.beans.Receta;
 import com.david.recetapp.negocio.beans.RecetaDia;
 import com.david.recetapp.negocio.servicios.CalendarioSrv;
@@ -32,6 +33,10 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 🚀 AddRecetaDiaActivity OPTIMIZADA Y COMPATIBLE
@@ -196,7 +201,7 @@ public class AddRecetaDiaActivity extends AppCompatActivity {
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle(getString(R.string.Confirmacion))
                 .setMessage(getString(R.string.quieres_anadir_receta) + " " + receta.getNombre() + "?")
-                .setPositiveButton(getString(R.string.si), (d, which) -> showNumberTextDialog(receta))
+                .setPositiveButton(getString(R.string.si), (d, which) -> checkSubstitutions(receta))
                 .setNegativeButton("No", null)
                 .create();
 
@@ -204,7 +209,65 @@ public class AddRecetaDiaActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    private void showNumberTextDialog(Receta receta) {
+    private void checkSubstitutions(Receta receta) {
+        // Agrupar ingredientes por su "principal"
+        Map<String, List<Ingrediente>> grupos = new HashMap<>();
+        for (Ingrediente ing : receta.getIngredientes()) {
+            String key = (ing.getEsSustitutoDe() != null && !ing.getEsSustitutoDe().isEmpty())
+                    ? ing.getEsSustitutoDe() : ing.getNombre();
+            grupos.computeIfAbsent(key, k -> new ArrayList<>()).add(ing);
+        }
+
+        // Filtrar solo grupos que tengan más de una opción
+        List<Map.Entry<String, List<Ingrediente>>> gruposConSustitutos = grupos.entrySet().stream()
+                .filter(e -> e.getValue().size() > 1)
+                .collect(Collectors.toList());
+
+        if (gruposConSustitutos.isEmpty()) {
+            showNumberTextDialog(receta, new HashMap<>());
+        } else {
+            showSubstitutionSelectionDialog(receta, gruposConSustitutos, 0, new HashMap<>());
+        }
+    }
+
+    private void showSubstitutionSelectionDialog(Receta receta, List<Map.Entry<String, List<Ingrediente>>> grupos, int index, Map<String, String> elegidos) {
+        if (index >= grupos.size()) {
+            showNumberTextDialog(receta, elegidos);
+            return;
+        }
+
+        Map.Entry<String, List<Ingrediente>> grupo = grupos.get(index);
+        String principal = grupo.getKey();
+        List<Ingrediente> opciones = grupo.getValue();
+        String[] nombresOpciones = opciones.stream().map(Ingrediente::getNombre).toArray(String[]::new);
+
+        // Preseleccionar el mejor por defecto
+        int defaultChoice = 0;
+        double maxScore = -100;
+        for (int i = 0; i < opciones.size(); i++) {
+            if (opciones.get(i).getPuntuacion() > maxScore) {
+                maxScore = opciones.get(i).getPuntuacion();
+                defaultChoice = i;
+            }
+        }
+
+        final int[] selected = {defaultChoice};
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.seleccionar_sustituto) + ": " + principal)
+                .setSingleChoiceItems(nombresOpciones, defaultChoice, (d, which) -> selected[0] = which)
+                .setPositiveButton(R.string.aceptar, (d, which) -> {
+                    elegidos.put(principal, nombresOpciones[selected[0]]);
+                    showSubstitutionSelectionDialog(receta, grupos, index + 1, elegidos);
+                })
+                .setNegativeButton(R.string.cancelar, null)
+                .create();
+
+        currentDialog = new WeakReference<>(dialog);
+        dialog.show();
+    }
+
+    private void showNumberTextDialog(Receta receta, Map<String, String> elegidos) {
         if (isAddingRecipe) return;
 
         dismissCurrentDialog();
@@ -218,7 +281,7 @@ public class AddRecetaDiaActivity extends AppCompatActivity {
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle(R.string.numero_personas)
                 .setView(editText)
-                .setPositiveButton(R.string.aceptar, (d, which) -> procesarNumeroPersonas(editText, receta))
+                .setPositiveButton(R.string.aceptar, (d, which) -> procesarNumeroPersonas(editText, receta, elegidos))
                 .setNegativeButton(R.string.cancelar, null)
                 .create();
 
@@ -229,7 +292,7 @@ public class AddRecetaDiaActivity extends AppCompatActivity {
     /**
      * 🚀 Procesa la adición de receta con indicador de carga
      */
-    private void procesarNumeroPersonas(EditText editText, Receta receta) {
+    private void procesarNumeroPersonas(EditText editText, Receta receta, Map<String, String> elegidos) {
         String input = editText.getText().toString();
 
         if (!input.isEmpty()) {
@@ -246,7 +309,7 @@ public class AddRecetaDiaActivity extends AppCompatActivity {
                     }
 
                     // Añadir localmente y actualizar caché para que la UI vea el cambio inmediatamente
-                    selectedDay.getRecetas().add(new RecetaDia(receta.getId(), numPersonas));
+                    selectedDay.getRecetas().add(new RecetaDia(receta.getId(), numPersonas, elegidos));
                     CalendarioSrv.aplicarActualizacionLocalDia(selectedDay.getMonth(), selectedDay.getYear(), selectedDay);
 
                     // Lanzar sincronización en background sin bloquear la UI.

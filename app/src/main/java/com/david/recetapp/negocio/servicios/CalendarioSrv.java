@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 
 import com.david.recetapp.R;
 import com.david.recetapp.negocio.beans.Day;
+import com.david.recetapp.negocio.beans.Ingrediente;
 import com.david.recetapp.negocio.beans.Receta;
 import com.david.recetapp.negocio.beans.RecetaDia;
 import com.david.recetapp.negocio.beans.TipoReceta;
@@ -28,6 +29,7 @@ import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import com.google.firebase.auth.FirebaseAuth;
 import java.util.stream.Collectors;
 
 /**
@@ -40,7 +42,12 @@ public class CalendarioSrv {
     private static final String TAG = "CalendarioSrv";
     private static final int LIMITE_DIAS = 3;
     private static final java.util.Random RANDOM = new java.util.Random();
-    private static final FirebaseManager firebaseManager = new FirebaseManager();
+    // Crear FirebaseManager pasando el userId actual (si existe) o "default_user" en caso contrario.
+    private static final FirebaseManager firebaseManager = new FirebaseManager(
+            FirebaseAuth.getInstance().getCurrentUser() != null
+                    ? FirebaseAuth.getInstance().getCurrentUser().getUid()
+                    : "default_user"
+    );
 
     // ← ID del usuario activo; toda operación con datos requiere que esté configurado
     private static volatile String currentUserId = null;
@@ -420,7 +427,21 @@ public class CalendarioSrv {
             int personasToSet = (numPersonas > 0) ? numPersonas : receta.getNumPersonas();
             if (personasToSet <= 0) personasToSet = 2;
 
-            dia.getRecetas().add(new RecetaDia(recetaId, personasToSet));
+            // 🚀 Auto-seleccionar mejores sustitutos para rellenado automático
+            Map<String, String> elegidos = new HashMap<>();
+            Map<String, List<Ingrediente>> grupos = new HashMap<>();
+            for (Ingrediente ing : receta.getIngredientes()) {
+                String key = (ing.getEsSustitutoDe() != null && !ing.getEsSustitutoDe().isEmpty())
+                        ? ing.getEsSustitutoDe() : ing.getNombre();
+                grupos.computeIfAbsent(key, k -> new ArrayList<>()).add(ing);
+            }
+
+            for (Map.Entry<String, List<Ingrediente>> entry : grupos.entrySet()) {
+                entry.getValue().stream()
+                        .max(Comparator.comparingDouble(Ingrediente::getPuntuacion)).ifPresent(mejor -> elegidos.put(entry.getKey(), mejor.getNombre()));
+            }
+
+            dia.getRecetas().add(new RecetaDia(recetaId, personasToSet, elegidos));
             break;
         }
     }

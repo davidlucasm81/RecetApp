@@ -14,6 +14,7 @@ import com.david.recetapp.negocio.beans.RecetaDia;
 import com.david.recetapp.negocio.beans.Temporada;
 
 import org.xmlpull.v1.XmlPullParser;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -29,7 +30,12 @@ import java.util.stream.Collectors;
 public class RecetasSrv {
     private static final String TAG = "RecetasSrv";
 
-    private static final FirebaseManager firebaseManager = new FirebaseManager();
+    // Crear FirebaseManager pasando el userId actual (si existe) o "default_user" en caso contrario.
+    private static final FirebaseManager firebaseManager = new FirebaseManager(
+            FirebaseAuth.getInstance().getCurrentUser() != null
+                    ? FirebaseAuth.getInstance().getCurrentUser().getUid()
+                    : "default_user"
+    );
 
     // ← ID del usuario activo; toda operación con datos requiere que esté configurado
     private static volatile String currentUserId = null;
@@ -276,8 +282,21 @@ public class RecetasSrv {
             ing.setPuntuacion(puntu != null ? puntu : -2);
         }
 
-        double cantidadTotal = 0;
+        // 🚀 Agrupar por sustitución para elegir el mejor representante en el cálculo global
+        Map<String, Ingrediente> mejoresRepresentantes = new HashMap<>();
         for (Ingrediente ing : receta.getIngredientes()) {
+            String key = (ing.getEsSustitutoDe() != null && !ing.getEsSustitutoDe().isEmpty())
+                    ? ing.getEsSustitutoDe().toLowerCase(Locale.getDefault())
+                    : ing.getNombre().toLowerCase(Locale.getDefault());
+
+            Ingrediente actualMejor = mejoresRepresentantes.get(key);
+            if (actualMejor == null || ing.getPuntuacion() > actualMejor.getPuntuacion()) {
+                mejoresRepresentantes.put(key, ing);
+            }
+        }
+
+        double cantidadTotal = 0;
+        for (Ingrediente ing : mejoresRepresentantes.values()) {
             if (ing.getPuntuacion() >= 0 && !ing.isOpcional()) {
                 double cantidad = UtilsSrv.convertirNumero(ing.getCantidad());
                 cantidadTotal += cantidad * getImportancia(ing);
@@ -290,7 +309,7 @@ public class RecetasSrv {
         }
 
         double puntuacionTotal = 0;
-        for (Ingrediente ing : receta.getIngredientes()) {
+        for (Ingrediente ing : mejoresRepresentantes.values()) {
             if (ing.getPuntuacion() >= 0 && !ing.isOpcional()) {
                 double cantidad = UtilsSrv.convertirNumero(ing.getCantidad());
                 double peso = (cantidad * getImportancia(ing)) / cantidadTotal;
@@ -497,6 +516,51 @@ public class RecetasSrv {
 
             // Evitar división por cero si orig == 0
             double factor = (orig == 0) ? 1.0 : ((double) objInt / orig);
+
+            // 🚀 Filtrar ingredientes según los elegidos por el usuario (o sustitutos predeterminados)
+            List<Ingrediente> ingredientesFinales = new ArrayList<>();
+            Map<String, String> elegidos = selectedDay.getRecetas().stream()
+                    .filter(rd -> rd.getIdReceta().equals(r.getId()))
+                    .findFirst()
+                    .map(RecetaDia::getIngredientesElegidos)
+                    .orElse(new HashMap<>());
+
+            // Agrupar ingredientes originales por su "principal"
+            Map<String, List<Ingrediente>> grupos = new HashMap<>();
+            for (Ingrediente ing : r.getIngredientes()) {
+                String key = (ing.getEsSustitutoDe() != null && !ing.getEsSustitutoDe().isEmpty())
+                        ? ing.getEsSustitutoDe()
+                        : ing.getNombre();
+                grupos.computeIfAbsent(key, k -> new ArrayList<>()).add(ing);
+            }
+
+            for (Map.Entry<String, List<Ingrediente>> entry : grupos.entrySet()) {
+                String principal = entry.getKey();
+                List<Ingrediente> opciones = entry.getValue();
+                String elegido = elegidos.get(principal);
+
+                Ingrediente seleccionado;
+                if (elegido != null) {
+                    seleccionado = opciones.stream()
+                            .filter(o -> o.getNombre().equals(elegido))
+                            .findFirst()
+                            .orElse(opciones.get(0)); // Fallback al primero del grupo
+                } else {
+                    // Si no hay elección explícita, buscar el que NO sea sustituto (el principal)
+                    seleccionado = opciones.stream()
+                            .filter(o -> o.getEsSustitutoDe() == null || o.getEsSustitutoDe().isEmpty())
+                            .findFirst()
+                            .orElse(opciones.get(0));
+                }
+                
+                // Clonar para no modificar la receta original de la lista total
+                Ingrediente clon = new Ingrediente(seleccionado.getNombre(), seleccionado.getCantidad(), 
+                        seleccionado.getTipoCantidad(), seleccionado.getPuntuacion(), seleccionado.isOpcional(), 
+                        seleccionado.getEsSustitutoDe());
+                ingredientesFinales.add(clon);
+            }
+
+            r.setIngredientes(ingredientesFinales);
 
             for (Ingrediente ing : r.getIngredientes()) {
                 double base = UtilsSrv.convertirNumero(ing.getCantidad());
