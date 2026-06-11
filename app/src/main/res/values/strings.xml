@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name" translatable="false">RecetApp</string>
     <string name="add_recipe">Añadir receta</string>
     <string name="Boton_Nombre_Add_Receta">Ingresa el nombre</string>
@@ -22,8 +22,8 @@
     <string name="tiempo">Tiempo</string>
     <string name="agregar_paso">Agregar Paso</string>
     <string name="no_hay_recetas">No hay recetas</string>
-    <string name="confirmacion">Confirmacion</string>
-    <string name="alerta_eliminar">¿Está seguro de que desea eliminar la receta</string>
+    <string name="confirmacion">Confirmación</string>
+    <string name="alerta_eliminar">¿Está seguro de que desea eliminar la receta \'%1$s\'?</string>
     <string name="aceptar">Aceptar</string>
     <string name="cancelar">Cancelar</string>
     <string name="ingrediente_aniadido">Ingrediente añadido</string>
@@ -45,11 +45,15 @@
     <string name="placeholder" translatable="false">placeholder</string>
     <string name="tipo_postre">Postre</string>
     <string name="tipo_coctel">Cóctel</string>
-    <string name="tipo_side">Side / Acompañamiento</string>
+    <string name="tipo_side">Acompañamiento</string>
     <string name="tipo_principal">Plato Principal</string>
     <string name="buscar_recetas">Buscar recetas</string>
     <string name="borrar_busqueda">Borrar búsqueda</string>
     <string name="sin_al_rgenos">Sin alérgenos</string>
+    <string name="puntuacion">puntuación</string>
+    <string name="receta_singular">receta</string>
+    <string name="recetas_plural">recetas</string>
+    <string name="error_play_services">Error: permisos de Play Services. Se usará caché local.</string>
     <string name="tiempo_total">"Tiempo total de la receta: "</string>
     <string name="literal_de">" de "</string>
     <string name="reordenar">Reordenar</string>
@@ -64,7 +68,7 @@
     <string name="exportar">Exportar</string>
     <string name="buscar_postres">Buscar solo postres</string>
     <string name="buscar_cocteles">Buscar solo cócteles</string>
-    <string name="buscar_sides">Buscar solo sides</string>
+    <string name="buscar_sides">Buscar solo acompañamientos</string>
     <string name="buscar_principales">Buscar solo platos principales</string>
     <string name="buscar_todos">Buscar todos</string>
     <string name="seleccionar_tipo">Seleccionar Tipo</string>
@@ -80,14 +84,14 @@
     <string name="ninguno">Ninguno</string>
     <string name="seleccionar_sustituto">Seleccionar ingrediente</string>
     <string name="score_label">Puntuación</string>
-    <string name="score_no_encontrado">Score no encontrado</string>
+    <string name="score_no_encontrado">Puntuación no encontrada</string>
     <string name="ver_calendario">Ver Calendario</string>
     <string name="calendario">Calendario</string>
     <string name="detalle_dia">Detalle del día</string>
     <string name="calendario_no_actualizado">No se ha actualizado el calendario</string>
-    <string name="Confirmacion">Confirmacion</string>
+    <string name="Confirmacion">Confirmación</string>
     <string name="quieres_anadir_receta">¿Quieres añadir la receta:</string>
-    <string name="si">Si</string>
+    <string name="si">Sí</string>
     <string name="actualizar_recetas">Actualizar recetas</string>
     <string name="alerta_actualizar_calendario">¿Quiere cargar de recetas el calendario?</string>
     <string name="lista_compra">Lista de la compra</string>
@@ -99,7 +103,7 @@
     <string name="horas">Horas</string>
     <string name="minutos">Minutos</string>
     <string name="dia_inicio">Día Inicial:</string>
-    <string name="dia_fin">Díá Fin:</string>
+    <string name="dia_fin">Día Fin:</string>
     <string name="numero_personas">Número de personas para la receta</string>
     <string name="numero_recetas">Número de recetas por día</string>
     <string name="numero_personas_incorrecto">Número de personas incorrecto</string>
@@ -125,7 +129,7 @@
     <!-- Mensajes existentes que podrían faltar -->
     <string name="error_crear_receta">Error al crear la receta</string>
     <string name="error_editar_receta">Error al editar la receta. Por favor, inténtalo de nuevo.</string>
-    <string name="calendario_vacio">Calendario Vacio</string>
+    <string name="calendario_vacio">Calendario Vacío</string>
     <string name="sin_pasos">Sin pasos</string>
     <string name="sin_ingredientes">Sin ingredientes</string>
     <string name="sin_nombre">Sin nombre</string>
@@ -137,4 +141,13 @@
     <string name="solo_mes_actual">Esta operación solo está permitida en el mes actual</string>
     <string name="anterior">Anterior</string>
     <string name="siguiente">Siguiente</string>
+    <string name="comida">Comida</string>
+    <string name="cena">Cena</string>
+    <string name="ambos">Ambos</string>
+    <string name="momento_receta" tools:ignore="Typos">Momento</string>
+    <string-array name="momentos_receta">
+        <item>@string/comida</item>
+        <item>@string/cena</item>
+        <item>@string/ambos</item>
+    </string-array>
 </resources>

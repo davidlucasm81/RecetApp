@@ -27,6 +27,7 @@ import com.david.recetapp.R;
 import com.david.recetapp.negocio.beans.Alergeno;
 import com.david.recetapp.negocio.beans.Day;
 import com.david.recetapp.negocio.beans.Ingrediente;
+import com.david.recetapp.negocio.beans.MomentoReceta;
 import com.david.recetapp.negocio.beans.Receta;
 import com.david.recetapp.negocio.beans.Temporada;
 import com.david.recetapp.negocio.beans.TipoReceta;
@@ -88,7 +89,7 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
 
     @Override
     public int getChildrenCount(int groupPosition) {
-        return 8; // Temporadas, Ingredientes, Pasos, Alergenos, Estrellas, Fecha en el calendario y Puntuacion
+        return 9; // Temporadas, Ingredientes, Pasos, Alergenos, Estrellas, Fecha en el calendario, Puntuacion y Momento Consumo
     }
 
     @Override
@@ -108,6 +109,7 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
             case 5 -> receta.getEstrellas();
             case 6 -> receta.getFechaCalendario();
             case 7 -> receta.getPuntuacionDada();
+            case 8 -> receta.getMomentoReceta();
             default -> null;
         };
     }
@@ -166,7 +168,7 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
         btnEliminar.setOnClickListener(v -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(activity);
             builder.setTitle(activity.getString(R.string.confirmacion))
-                    .setMessage(activity.getString(R.string.alerta_eliminar) + " '" + receta.getNombre() + "' ?")
+                    .setMessage(activity.getString(R.string.alerta_eliminar, receta.getNombre()))
                     .setPositiveButton(activity.getString(R.string.aceptar), (dialog, which) -> {
                         // Eliminar la receta del calendario y refrescar la pantalla
                         // Buscar de forma segura la posición por ID antes de eliminar, ya que la lista
@@ -418,6 +420,18 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
                 txtInformacion.setVisibility(View.VISIBLE);
                 txtTitulo.setText(R.string.puntuacion_dada);
                 txtInformacion.setText(String.valueOf(receta.getPuntuacionDada()));
+                break;
+
+            case 8: // Momento de la receta
+                txtTitulo.setText(R.string.momento_receta);
+                if (receta.getTipoReceta() == TipoReceta.PRINCIPAL) {
+                    txtInformacion.setVisibility(View.VISIBLE);
+                    MomentoReceta mr = receta.getMomentoReceta();
+                    txtInformacion.setText(mr != null ? activity.getString(mr.getStringRes()) : activity.getString(R.string.ambos));
+                } else {
+                    txtInformacion.setVisibility(View.GONE);
+                    txtTitulo.setText("");
+                }
                 break;
         }
 

@@ -368,7 +368,7 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
     private void actualizarContadorUI(int count) {
         if (contadorTextView == null) return;
         contadorTextView.setText(String.format(Locale.getDefault(),
-                "%d %s", count, (count == 1 ? "receta" : "recetas")));
+                "%d %s", count, (count == 1 ? getString(R.string.receta_singular) : getString(R.string.recetas_plural))));
 
         if (textViewEmpty != null) textViewEmpty.setVisibility(count == 0 ? View.VISIBLE : View.GONE);
     }
@@ -433,7 +433,7 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
             Log.e(TAG, "SecurityException al acceder a Google Play Services", se);
             mainHandler.post(() -> {
                 if (!isAdded()) return;
-                UtilsSrv.notificacion(getContext(), "Error: permisos de Play Services. Se usará caché local.", Toast.LENGTH_LONG).show();
+                UtilsSrv.notificacion(getContext(), getString(R.string.error_play_services), Toast.LENGTH_LONG).show();
             });
 
             try {

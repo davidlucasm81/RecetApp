@@ -22,6 +22,7 @@ import com.david.recetapp.actividades.RecetaBaseActivity;
 import com.david.recetapp.negocio.beans.Alergeno;
 import com.david.recetapp.negocio.beans.Ingrediente;
 import com.david.recetapp.negocio.beans.Paso;
+import com.david.recetapp.negocio.beans.MomentoReceta;
 import com.david.recetapp.negocio.beans.Receta;
 import com.david.recetapp.negocio.beans.Temporada;
 import com.david.recetapp.negocio.beans.TipoReceta;
@@ -37,6 +38,8 @@ public class AddRecetaActivity extends RecetaBaseActivity {
 
     private ProgressBar progressBar;
     private Button btnCrear;
+    private AutoCompleteTextView spinnerMomentoReceta;
+    private View layoutMomentoReceta;
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     @SuppressWarnings("deprecation")
@@ -82,6 +85,9 @@ public class AddRecetaActivity extends RecetaBaseActivity {
         btnCrear = findViewById(R.id.btnCrear);
         progressBar = findViewById(R.id.progressBar);
 
+        spinnerMomentoReceta = findViewById(R.id.spinnerMomentoReceta);
+        layoutMomentoReceta = findViewById(R.id.layoutMomentoReceta);
+
         if (progressBar != null) {
             progressBar.setVisibility(View.GONE);
         }
@@ -106,7 +112,7 @@ public class AddRecetaActivity extends RecetaBaseActivity {
 
             if (validarIngrediente(nombreIngrediente, cantidad, tipoCantidad)) {
                 agregarIngrediente(nombreIngrediente, cantidad, tipoCantidad, opcional, esSustitutoDe);
-                limpiarCamposIngrediente(spinner);
+                limpiarCamposIngrediente();
                 checkboxOpcional.setChecked(false);
                 UtilsSrv.notificacion(this, getString(R.string.ingrediente_aniadido), Toast.LENGTH_SHORT).show();
             } else {
@@ -123,7 +129,7 @@ public class AddRecetaActivity extends RecetaBaseActivity {
                 && UtilsSrv.esNumeroEnteroOFraccionValida(cantidad);
     }
 
-    private void limpiarCamposIngrediente(AutoCompleteTextView spinner) {
+    private void limpiarCamposIngrediente() {
         autoCompleteTextViewNombreIngrediente.setText("");
         editTextCantidad.setText("1");
     }
@@ -192,6 +198,20 @@ public class AddRecetaActivity extends RecetaBaseActivity {
             spinnerTipo.setText(adapter.getItem(0), false);
         }
 
+        // Setup Momento Receta Spinner
+        ArrayAdapter<CharSequence> momentAdapter = ArrayAdapter.createFromResource(this,
+                R.array.momentos_receta, android.R.layout.simple_spinner_dropdown_item);
+        spinnerMomentoReceta.setAdapter(momentAdapter);
+        spinnerMomentoReceta.setText(momentAdapter.getItem(2), false); // Default: AMBOS
+
+        spinnerTipo.setOnItemClickListener((parent, view, position, id) -> {
+            if (position == TipoReceta.PRINCIPAL.ordinal()) {
+                layoutMomentoReceta.setVisibility(View.VISIBLE);
+            } else {
+                layoutMomentoReceta.setVisibility(View.GONE);
+            }
+        });
+
         btnCrear.setOnClickListener(v -> crearReceta());
     }
 
@@ -200,6 +220,11 @@ public class AddRecetaActivity extends RecetaBaseActivity {
         String tipoStr = spinnerTipo.getText().toString();
         List<String> tipos = Arrays.asList(getResources().getStringArray(R.array.tipos_receta));
         int tipoPos = Math.max(0, tipos.indexOf(tipoStr));
+
+        String momentStr = spinnerMomentoReceta.getText().toString();
+        List<String> momentos = Arrays.asList(getResources().getStringArray(R.array.momentos_receta));
+        int momentPos = momentos.indexOf(momentStr);
+        if (momentPos < 0) momentPos = MomentoReceta.AMBOS.ordinal();
 
         // Validaciones
         String nombre = editTextNombre.getText().toString().trim();
@@ -242,6 +267,7 @@ public class AddRecetaActivity extends RecetaBaseActivity {
         receta.setAlergenos(alergenosSeleccionados);
         receta.setShared(false);
         receta.setTipoReceta(TipoReceta.values()[tipoPos]);
+        receta.setMomentoReceta(MomentoReceta.values()[momentPos]);
 
         // Guardar receta con callback
         guardarReceta(receta);

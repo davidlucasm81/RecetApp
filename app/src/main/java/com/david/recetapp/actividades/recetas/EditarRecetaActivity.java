@@ -14,7 +14,6 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -24,7 +23,6 @@ import android.widget.GridLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,6 +34,7 @@ import com.david.recetapp.R;
 import com.david.recetapp.actividades.RecetaBaseActivity;
 import com.david.recetapp.negocio.beans.Alergeno;
 import com.david.recetapp.negocio.beans.Ingrediente;
+import com.david.recetapp.negocio.beans.MomentoReceta;
 import com.david.recetapp.negocio.beans.Paso;
 import com.david.recetapp.negocio.beans.Receta;
 import com.david.recetapp.negocio.beans.Temporada;
@@ -60,6 +59,8 @@ public class EditarRecetaActivity extends RecetaBaseActivity {
 
     private ProgressBar progressBar;
     private Button btnGuardar;
+    private AutoCompleteTextView spinnerMomentoReceta;
+    private View layoutMomentoReceta;
     private Receta recetaActual;
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
@@ -78,16 +79,24 @@ public class EditarRecetaActivity extends RecetaBaseActivity {
         outState.putSerializable(KEY_PASOS, pasos);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_editar_receta);
 
-        // Obtener receta a editar
-        int posicion = getIntent().getSerializableExtra("position", Integer.class);
+        // Obtener receta a editar (comprobaciones para evitar NPE por unboxing)
+        Integer posicionObj = getIntent().getSerializableExtra("position", Integer.class);
+        int posicion = (posicionObj != null) ? posicionObj : -1;
         List<Receta> recetas = (List<Receta>) getIntent().getSerializableExtra("listaRecetas", ArrayList.class);
-        assert recetas != null;
+
+        // Validar datos recibidos
+        if (recetas == null || recetas.isEmpty() || posicion < 0 || posicion >= recetas.size()) {
+            // Notificar y salir si no hay datos válidos
+            UtilsSrv.notificacion(this, getString(R.string.error_editar_receta), Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
+
         recetaActual = recetas.get(posicion);
 
         initializeViews();
@@ -119,6 +128,9 @@ public class EditarRecetaActivity extends RecetaBaseActivity {
         btnGuardar = findViewById(R.id.btnCrear);
         progressBar = findViewById(R.id.progressBar);
 
+        spinnerMomentoReceta = findViewById(R.id.spinnerMomentoReceta);
+        layoutMomentoReceta = findViewById(R.id.layoutMomentoReceta);
+
         if (progressBar != null) {
             progressBar.setVisibility(View.GONE);
         }
@@ -139,8 +151,31 @@ public class EditarRecetaActivity extends RecetaBaseActivity {
 
         if (recetaActual.getTipoReceta() != null) {
             spinnerTipo.setText(adapter.getItem(recetaActual.getTipoReceta().ordinal()), false);
+            if (recetaActual.getTipoReceta() == TipoReceta.PRINCIPAL) {
+                layoutMomentoReceta.setVisibility(View.VISIBLE);
+            } else {
+                layoutMomentoReceta.setVisibility(View.GONE);
+            }
         } else if (adapter.getCount() > 0) {
             spinnerTipo.setText(adapter.getItem(0), false);
+        }
+
+        spinnerTipo.setOnItemClickListener((parent, view, position, id) -> {
+            if (position == TipoReceta.PRINCIPAL.ordinal()) {
+                layoutMomentoReceta.setVisibility(View.VISIBLE);
+            } else {
+                layoutMomentoReceta.setVisibility(View.GONE);
+            }
+        });
+
+        // Setup Momento Receta Spinner
+        ArrayAdapter<CharSequence> momentAdapter = ArrayAdapter.createFromResource(this,
+                R.array.momentos_receta, android.R.layout.simple_spinner_dropdown_item);
+        spinnerMomentoReceta.setAdapter(momentAdapter);
+        if (recetaActual.getMomentoReceta() != null) {
+            spinnerMomentoReceta.setText(momentAdapter.getItem(recetaActual.getMomentoReceta().ordinal()), false);
+        } else {
+            spinnerMomentoReceta.setText(momentAdapter.getItem(2), false); // Default: AMBOS
         }
 
         editTextNombre.setText(recetaActual.getNombre());
@@ -306,6 +341,11 @@ public class EditarRecetaActivity extends RecetaBaseActivity {
         List<String> tipos = Arrays.asList(getResources().getStringArray(R.array.tipos_receta));
         int tipoPos = Math.max(0, tipos.indexOf(tipoStr));
 
+        String momentStr = spinnerMomentoReceta.getText().toString();
+        List<String> momentos = Arrays.asList(getResources().getStringArray(R.array.momentos_receta));
+        int momentPos = momentos.indexOf(momentStr);
+        if (momentPos < 0) momentPos = MomentoReceta.AMBOS.ordinal();
+
         // Validaciones
         String nombre = editTextNombre.getText().toString().trim();
         if (nombre.isEmpty()) {
@@ -346,6 +386,7 @@ public class EditarRecetaActivity extends RecetaBaseActivity {
         recetaActual.setAlergenos(alergenosSeleccionados);
         recetaActual.setShared(false);
         recetaActual.setTipoReceta(TipoReceta.values()[tipoPos]);
+        recetaActual.setMomentoReceta(MomentoReceta.values()[momentPos]);
 
         // Guardar con callback
         editarRecetaConCallback(recetaActual);

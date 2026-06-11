@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+@SuppressWarnings("unused")
 @IgnoreExtraProperties
 public class Receta implements Parcelable {
 
@@ -27,6 +28,7 @@ public class Receta implements Parcelable {
     private TipoReceta tipoReceta;
     private double puntuacionDada;
     private String userId; // si lo usas
+    private MomentoReceta momentoReceta;
 
     // Constructor vacío requerido por Firestore
     public Receta() {
@@ -43,6 +45,7 @@ public class Receta implements Parcelable {
         tipoReceta = TipoReceta.PRINCIPAL;
         puntuacionDada = -1;
         userId = "";
+        momentoReceta = MomentoReceta.AMBOS;
     }
 
     // Parcelable
@@ -70,6 +73,8 @@ public class Receta implements Parcelable {
         tipoReceta = (tipoOrd != -1) ? TipoReceta.values()[tipoOrd] : TipoReceta.PRINCIPAL;
         puntuacionDada = in.readDouble();
         userId = in.readString();
+        int momentoOrd = in.readInt();
+        momentoReceta = (momentoOrd != -1) ? MomentoReceta.values()[momentoOrd] : MomentoReceta.AMBOS;
     }
 
     public static final Creator<Receta> CREATOR = new Creator<>() {
@@ -105,6 +110,7 @@ public class Receta implements Parcelable {
         dest.writeInt(tipoReceta != null ? tipoReceta.ordinal() : TipoReceta.PRINCIPAL.ordinal());
         dest.writeDouble(puntuacionDada);
         dest.writeString(userId);
+        dest.writeInt(momentoReceta != null ? momentoReceta.ordinal() : -1);
     }
 
     @Override
@@ -157,6 +163,9 @@ public class Receta implements Parcelable {
 
     public String getUserId() { return userId; }
     public void setUserId(String userId) { this.userId = userId; }
+
+    public MomentoReceta getMomentoReceta() { return momentoReceta; }
+    public void setMomentoReceta(MomentoReceta momentoReceta) { this.momentoReceta = momentoReceta; }
 
     @Override
     public boolean equals(Object o) {

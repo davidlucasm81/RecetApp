@@ -9,14 +9,13 @@ import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -31,10 +30,10 @@ import java.util.Locale;
 import java.util.Objects;
 
 /**
- * RecetasAdapter corregido:
- *  - Busca el Button por id dentro del itemView (no castea itemView directamente)
- *  - DiffUtil.areContentsTheSame compara puntuación y fecha para forzar rebind cuando cambian
- *  - Mejora centrado del texto en el badge
+ * RecetasAdapter optimizado para AddRecetaDiaActivity:
+ *  - Muestra iconos en lugar de cambiar colores de fondo.
+ *  - Soporta icono de reloj para recetas recientes.
+ *  - Coherencia visual con RecetaExpandableListAdapter.
  */
 public class RecetasAdapter extends RecyclerView.Adapter<RecetasAdapter.RecetaViewHolder> {
     private final OnRecetaClickListener listener;
@@ -62,7 +61,7 @@ public class RecetasAdapter extends RecyclerView.Adapter<RecetasAdapter.RecetaVi
         float radius = sizePx / 2f;
         canvas.drawCircle(cx, cy, radius, circlePaint);
 
-        // texto centrado (medición más fiable)
+        // texto centrado
         Paint textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         textPaint.setColor(Color.WHITE);
         textPaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
@@ -70,7 +69,6 @@ public class RecetasAdapter extends RecyclerView.Adapter<RecetasAdapter.RecetaVi
         textPaint.setTextSize(textSizePx);
 
         float textWidth = textPaint.measureText(scoreText);
-        // centrar verticalmente con ascent/descent
         float textHeightOffset = (textPaint.descent() + textPaint.ascent()) / 2f;
 
         float tx = cx - (textWidth / 2f);
@@ -148,7 +146,6 @@ public class RecetasAdapter extends RecyclerView.Adapter<RecetasAdapter.RecetaVi
                 Receta oldReceta = oldList.get(oldItemPosition);
                 Receta newReceta = newRecetas.get(newItemPosition);
 
-                // Añadimos puntuación y fecha a la comparación para forzar rebind cuando cambien.
                 boolean mismoNombre = Objects.equals(oldReceta.getNombre(), newReceta.getNombre());
                 boolean mismoTipo = oldReceta.getTipoReceta() == newReceta.getTipoReceta();
                 boolean mismaPuntuacion = Double.compare(oldReceta.getPuntuacionDada(), newReceta.getPuntuacionDada()) == 0;
@@ -167,66 +164,64 @@ public class RecetasAdapter extends RecyclerView.Adapter<RecetasAdapter.RecetaVi
     }
 
     class RecetaViewHolder extends RecyclerView.ViewHolder {
-        private final Button button;
+        private final View layout;
+        private final TextView txtNombre;
+        private final ImageView imgRecent;
+        private final ImageView imgType;
+        private final ImageView imgWarning;
+        private final ImageView imgBadge;
 
         RecetaViewHolder(View itemView) {
             super(itemView);
-            // BUSCAR el Button dentro del layout (más seguro que castear itemView)
-            Button b = itemView.findViewById(R.id.buttonReceta);
-            if (b == null && itemView instanceof Button) {
-                b = (Button) itemView; // fallback si el root es un Button
-            }
-            button = b;
-            if (button == null) {
-                throw new IllegalStateException("item_receta_button debe contener un Button con id @+id/buttonReceta o ser un Button como root.");
-            }
-
-            button.setClickable(true);
-            button.setFocusable(true);
-
-            button.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
-            button.setCompoundDrawablePadding(dpToPx(button.getContext(), 8));
+            layout = itemView.findViewById(R.id.layoutReceta);
+            txtNombre = itemView.findViewById(R.id.txtNombreReceta);
+            imgRecent = itemView.findViewById(R.id.imgRecent);
+            imgType = itemView.findViewById(R.id.imgType);
+            imgWarning = itemView.findViewById(R.id.imgWarning);
+            imgBadge = itemView.findViewById(R.id.imgBadge);
         }
 
         void bind(final Receta receta) {
-            Context ctx = button.getContext();
-            button.setText(receta.getNombre());
+            Context ctx = itemView.getContext();
+            txtNombre.setText(receta.getNombre());
 
-            // 🚀 Background logic con PRIORIDAD:
-            // 1. Recientemente añadida (en el último mes) -> Amarillo
-            // 2. Por tipo de receta (Postre, Cóctel, Side) -> Rosa, Púrpura, Verde
-            // 3. Default -> Blanco
-
+            // 1. Recientemente añadida (reloj)
             Date f = receta.getFechaCalendario();
             boolean esReciente = f != null && fechaIntervaloPrevio != null && fechaElegida != null
                     && f.after(fechaIntervaloPrevio) && f.before(fechaElegida);
+            imgRecent.setVisibility(esReciente ? View.VISIBLE : View.GONE);
 
-            if (esReciente) {
-                button.setBackground(ContextCompat.getDrawable(ctx, R.drawable.previous_selected_background));
-            } else if (receta.getTipoReceta() == TipoReceta.POSTRE) {
-                button.setBackground(ContextCompat.getDrawable(ctx, R.drawable.postre_background));
+            // 2. Tipo de receta
+            if (receta.getTipoReceta() == TipoReceta.POSTRE) {
+                imgType.setImageResource(R.drawable.postre_icono);
+                imgType.setVisibility(View.VISIBLE);
             } else if (receta.getTipoReceta() == TipoReceta.COCTEL) {
-                button.setBackground(ContextCompat.getDrawable(ctx, R.drawable.coctel_background));
+                imgType.setImageResource(R.drawable.ic_baseline_local_bar_24);
+                imgType.setVisibility(View.VISIBLE);
             } else if (receta.getTipoReceta() == TipoReceta.SIDE) {
-                button.setBackground(ContextCompat.getDrawable(ctx, R.drawable.side_background));
+                imgType.setImageResource(R.drawable.ic_baseline_flatware_24);
+                imgType.setVisibility(View.VISIBLE);
             } else {
-                button.setBackground(ContextCompat.getDrawable(ctx, R.drawable.edittext_background));
+                imgType.setVisibility(View.GONE);
             }
 
+            // 3. Warning (ingredientes mal puntuados o personas <= 0)
+            boolean hasBadScore = receta.getIngredientes() != null &&
+                    receta.getIngredientes().stream().anyMatch(i -> i.getPuntuacion() < -1);
+            boolean invalidPersons = receta.getNumPersonas() <= 0;
+            imgWarning.setVisibility((invalidPersons || hasBadScore) ? View.VISIBLE : View.GONE);
+
+            // 4. Score Badge
             double score = receta.getPuntuacionDada();
             String scoreText = String.format(Locale.getDefault(), "%.1f", score);
             Drawable badge = createScoreBadgeDrawable(ctx, scoreText, score);
+            imgBadge.setImageDrawable(badge);
 
-            // poner a la derecha y forzar re-paint
-            button.setCompoundDrawables(null, null, badge, null);
-            button.invalidate();
-            button.requestLayout();
-
-            button.setContentDescription(receta.getNombre() + ", puntuación " + scoreText);
-
-            button.setOnClickListener(v -> {
+            layout.setOnClickListener(v -> {
                 if (listener != null) listener.onRecetaClick(receta);
             });
+            
+            layout.setContentDescription(receta.getNombre() + ", " + ctx.getString(R.string.puntuacion) + " " + scoreText);
         }
     }
 }

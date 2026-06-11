@@ -27,6 +27,7 @@ import com.david.recetapp.R;
 import com.david.recetapp.actividades.recetas.EditarRecetaActivity;
 import com.david.recetapp.negocio.beans.Alergeno;
 import com.david.recetapp.negocio.beans.Ingrediente;
+import com.david.recetapp.negocio.beans.MomentoReceta;
 import com.david.recetapp.negocio.beans.Receta;
 import com.david.recetapp.negocio.beans.TipoReceta;
 import com.david.recetapp.negocio.beans.Temporada;
@@ -72,8 +73,8 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
 
     @Override
     public int getChildrenCount(int groupPosition) {
-        // Mantengo la estructura fija: 8 children tal como estaba (temporadas, personas, ingredientes, pasos, alérgenos, estrellas, fecha, puntuación)
-        return 8;
+        // Mantengo la estructura fija: 9 children
+        return 9;
     }
 
     @Override
@@ -93,6 +94,7 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
             case 5 -> receta.getEstrellas();
             case 6 -> receta.getFechaCalendario();
             case 7 -> receta.getPuntuacionDada();
+            case 8 -> receta.getMomentoReceta();
             default -> null;
         };
     }
@@ -155,7 +157,7 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
         btnEliminar.setOnClickListener(v -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
             builder.setTitle(context.getString(R.string.confirmacion))
-                    .setMessage(context.getString(R.string.alerta_eliminar) + " '" + receta.getNombre() + "' ?")
+                    .setMessage(context.getString(R.string.alerta_eliminar, receta.getNombre()))
                     .setPositiveButton(context.getString(R.string.aceptar), (dialog, which) -> {
                         // Eliminar la receta del JSON y refrescar la pantalla
                         RecetasSrv.eliminarReceta(groupPosition, listaRecetas, new RecetasSrv.SimpleCallback() {
@@ -403,6 +405,18 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
                 txtInformacion.setVisibility(View.VISIBLE);
                 txtTitulo.setText(R.string.puntuacion_dada);
                 txtInformacion.setText(String.valueOf(receta.getPuntuacionDada()));
+                break;
+
+            case 8: // Momento de la receta
+                txtTitulo.setText(R.string.momento_receta);
+                if (receta.getTipoReceta() == TipoReceta.PRINCIPAL) {
+                    txtInformacion.setVisibility(View.VISIBLE);
+                    MomentoReceta mr = receta.getMomentoReceta();
+                    txtInformacion.setText(mr != null ? context.getString(mr.getStringRes()) : context.getString(R.string.ambos));
+                } else {
+                    txtInformacion.setVisibility(View.GONE);
+                    txtTitulo.setText(""); // Ocultar si no es principal
+                }
                 break;
 
             default:

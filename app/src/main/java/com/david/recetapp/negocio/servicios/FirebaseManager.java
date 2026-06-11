@@ -727,6 +727,7 @@ public class FirebaseManager {
         map.put("numPersonas", receta.getNumPersonas());
         map.put("shared", receta.isShared());
         map.put("tipoReceta", receta.getTipoReceta() != null ? receta.getTipoReceta().name() : TipoReceta.PRINCIPAL.name());
+        map.put("momentoReceta", receta.getMomentoReceta() != null ? receta.getMomentoReceta().name() : "AMBOS");
         // ← puntuacionDada eliminada: siempre se calcula localmente
         map.put("fechaCalendario", receta.getFechaCalendario());
         map.put("timestamp", FieldValue.serverTimestamp());

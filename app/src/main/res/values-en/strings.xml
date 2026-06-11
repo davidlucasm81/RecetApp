@@ -19,9 +19,9 @@
     <string name="texto_del_paso">Step Description</string>
     <string name="tiempo">Time</string>
     <string name="agregar_paso">Add Step</string>
-    <string name="no_hay_recetas">There is no recipes</string>
+    <string name="no_hay_recetas">There are no recipes</string>
     <string name="confirmacion">Confirmation</string>
-    <string name="alerta_eliminar">Are you sure you want to delete the recipe</string>
+    <string name="alerta_eliminar">Are you sure you want to delete the recipe \'%1$s\'?</string>
     <string name="dia_fin">End day:</string>
     <string name="aceptar">Accept</string>
     <string name="cancelar">Cancel</string>
@@ -43,11 +43,15 @@
     <string name="alergenos">Allergens</string>
     <string name="tipo_postre">Dessert</string>
     <string name="tipo_coctel">Cocktail</string>
-    <string name="tipo_side">Side / Accompaniment</string>
+    <string name="tipo_side">Side Dish</string>
     <string name="tipo_principal">Main Dish</string>
     <string name="buscar_recetas">Search recipes</string>
     <string name="borrar_busqueda">Clear search</string>
     <string name="sin_al_rgenos">Without allergens</string>
+    <string name="puntuacion">score</string>
+    <string name="receta_singular">recipe</string>
+    <string name="recetas_plural">recipes</string>
+    <string name="error_play_services">Error: Play Services permissions. Local cache will be used.</string>
     <string name="tiempo_total">"Total recipe time: "</string>
     <string name="literal_de">" of "</string>
     <string name="reordenar">Reorder</string>
@@ -104,7 +108,7 @@
     <string name="exportacion_ok">Recipes exported successfully</string>
     <string name="no_recetas_importar">There is no recipes to import</string>
     <string name="importando_recetas">Importing…</string>
-    <string name="todas_recetas_ya_existen">All recipes alredy exists</string>
+    <string name="todas_recetas_ya_existen">All recipes already exist</string>
     <string name="importando_todas_recetas">Importing all recipes…</string>
     <!-- Error messages -->
     <string name="error_cargar_recetas">Error loading recipes</string>
@@ -130,4 +134,16 @@
     <string name="cerrar_sesion">Sign out</string>
     <string name="confirmar_cerrar_sesion">Are you sure you want to sign out?</string>
     <string name="error_login">Login failed. Please try again.</string>
+    <string name="solo_mes_actual">This operation is only allowed for the current month</string>
+    <string name="anterior">Previous</string>
+    <string name="siguiente">Next</string>
+    <string name="comida">Lunch</string>
+    <string name="cena">Dinner</string>
+    <string name="ambos">Both</string>
+    <string name="momento_receta">Time of day</string>
+    <string-array name="momentos_receta">
+        <item>@string/comida</item>
+        <item>@string/cena</item>
+        <item>@string/ambos</item>
+    </string-array>
 </resources>
