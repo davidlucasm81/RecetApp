@@ -526,7 +526,7 @@ public class CalendarioFragment extends Fragment {
         int mes = calendarViewing.get(Calendar.MONTH);
         int anio = calendarViewing.get(Calendar.YEAR);
 
-        CalendarioSrv.rellenarRangoDias(requireContext(), mes, anio, diaInicio, diaFin, true, numRecetas, numPersonas, new CalendarioSrv.RellenarCallback() {
+        CalendarioSrv.addMenu(requireContext(), mes, anio, diaInicio, diaFin, true, numRecetas, numPersonas, new CalendarioSrv.RellenarCallback() {
             @Override
             public void onSuccess(List<Day> updatedCalendar) {
                 mainHandler.post(() -> {

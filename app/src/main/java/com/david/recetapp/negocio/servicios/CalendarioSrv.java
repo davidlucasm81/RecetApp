@@ -872,10 +872,10 @@ public class CalendarioSrv {
     }
 
     /**
-     * Rellena un rango de días añadiendo recetas (no borra recetas existentes).
+     * Rellena un rango de días añadiendo recetas (no borra recetas existentes) generando un menu.
      */
-    public static void rellenarRangoDias(final Context context, final int mes, final int anio, final int diaInicio, final int diaFin,
-                                         final boolean forzarPasados, final int numRecetas, final int numPersonas, final RellenarCallback callback) {
+    public static void addMenu(final Context context, final int mes, final int anio, final int diaInicio, final int diaFin,
+                               final boolean forzarPasados, final int numRecetas, final int numPersonas, final RellenarCallback callback) {
         if (!checkUserId(callback)) return;
 
         obtenerCalendario(context, mes, anio, new CalendarioCallback() {
@@ -898,15 +898,27 @@ public class CalendarioSrv {
 
                                 // Usar la temporada del mes que se está rellenando
                                 com.david.recetapp.negocio.beans.Temporada temporadaObjetivo = UtilsSrv.getTemporadaFecha(java.time.LocalDate.of(anio, mes + 1, 1));
-                                List<Receta> filtradas = recetasDisponibles.stream()
+
+                                // --- PREPARAR COLAS DE RECETAS ---
+                                
+                                // Platos Principales (Priorizando temporada)
+                                List<Receta> filtradasPrincipales = recetasDisponibles.stream()
                                         .filter(r -> r.getTipoReceta() == TipoReceta.PRINCIPAL && r.getTemporadas().contains(temporadaObjetivo))
                                         .toList();
-
                                 List<Receta> soloPrincipales = recetasDisponibles.stream()
                                         .filter(r -> r.getTipoReceta() == TipoReceta.PRINCIPAL)
                                         .toList();
+                                Queue<Receta> colaPrincipales = new LinkedList<>(!filtradasPrincipales.isEmpty() ? filtradasPrincipales : soloPrincipales);
 
-                                Queue<Receta> cola = new LinkedList<>(!filtradas.isEmpty() ? filtradas : soloPrincipales);
+                                // Acompañamientos (Priorizando temporada)
+                                List<Receta> filtradasSides = recetasDisponibles.stream()
+                                        .filter(r -> r.getTipoReceta() == TipoReceta.SIDE && r.getTemporadas().contains(temporadaObjetivo))
+                                        .toList();
+                                List<Receta> soloSides = recetasDisponibles.stream()
+                                        .filter(r -> r.getTipoReceta() == TipoReceta.SIDE)
+                                        .toList();
+                                Queue<Receta> colaSides = new LinkedList<>(!filtradasSides.isEmpty() ? filtradasSides : soloSides);
+
                                 Set<Receta> recetasUtilizadasRecientemente = new HashSet<>();
                                 List<ActualizacionFecha> actualizacionesPendientes = new ArrayList<>();
 
@@ -928,11 +940,19 @@ public class CalendarioSrv {
 
                                         for (int i = 0; i < numRecetas; i++) {
                                             MomentoReceta momentoRequerido = null;
+                                            Queue<Receta> colaAUsar = colaPrincipales;
+
                                             if (numRecetas >= 2) {
-                                                if (i == 0) momentoRequerido = MomentoReceta.COMIDA;
-                                                else if (i == 1) momentoRequerido = MomentoReceta.CENA;
+                                                if (i == 0) {
+                                                    momentoRequerido = MomentoReceta.COMIDA;
+                                                } else if (i == 1) {
+                                                    momentoRequerido = MomentoReceta.CENA;
+                                                } else {
+                                                    // A partir de la 3ª receta, acompañamientos
+                                                    colaAUsar = !colaSides.isEmpty() ? colaSides : colaPrincipales;
+                                                }
                                             }
-                                            addReceta(cola, recetasUtilizadasRecientemente, dia, actualizacionesPendientes, numPersonas, mes, anio, momentoRequerido, weeklyStats, mapRecetas);
+                                            addReceta(colaAUsar, recetasUtilizadasRecientemente, dia, actualizacionesPendientes, numPersonas, mes, anio, momentoRequerido, weeklyStats, mapRecetas);
                                         }
 
                                         limpiarRecetasUtilizadasRecientemente(recetasUtilizadasRecientemente, dia, mes, anio);
