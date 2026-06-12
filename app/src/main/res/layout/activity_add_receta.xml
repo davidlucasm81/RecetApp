@@ -38,6 +38,13 @@
                 android:orientation="vertical"
                 android:padding="12dp">
 
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:visibility="gone"
+                    android:labelFor="@id/spinnerTipoReceta"
+                    android:text="@string/seleccionar_tipo" />
+
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -55,7 +62,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:hint="@string/seleccionar_tipo">
+                    android:hint="@string/seleccionar_tipo"
+                    android:labelFor="@id/spinnerTipoReceta">
 
                     <AutoCompleteTextView
                         android:id="@+id/spinnerTipoReceta"
@@ -64,6 +72,13 @@
                         android:inputType="none" />
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:visibility="gone"
+                    android:labelFor="@id/spinnerMomentoReceta"
+                    android:text="@string/momento_receta" />
+
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/layoutMomentoReceta"
                     style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
@@ -71,7 +86,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:hint="@string/momento_receta"
-                    android:visibility="visible">
+                    android:visibility="visible"
+                    android:labelFor="@id/spinnerMomentoReceta">
 
                     <AutoCompleteTextView
                         android:id="@+id/spinnerMomentoReceta"
@@ -174,10 +190,18 @@
                 android:orientation="vertical"
                 android:padding="12dp">
 
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:visibility="gone"
+                    android:labelFor="@id/autoCompleteTextViewNombreIngrediente"
+                    android:text="@string/nombre_del_ingrediente" />
+
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/nombre_del_ingrediente">
+                    android:hint="@string/nombre_del_ingrediente"
+                    android:labelFor="@id/autoCompleteTextViewNombreIngrediente">
 
                     <AutoCompleteTextView
                         android:id="@+id/autoCompleteTextViewNombreIngrediente"
@@ -192,7 +216,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:baselineAligned="false">
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="0dp"
@@ -204,24 +229,32 @@
                             android:id="@+id/editTextCantidad"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:inputType="text"
-                            android:text="1" />
+                                android:inputType="text"
+                                android:text="@string/default_one" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:layout_weight="1.5"
-                        android:hint="@string/unidad">
+                                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
+                                        android:layout_width="0dp"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="8dp"
+                                        android:layout_weight="1.5"
+                                        android:hint="@string/unidad"
+                                        android:labelFor="@id/spinner_quantity_unit">
 
-                        <AutoCompleteTextView
-                            android:id="@+id/spinner_quantity_unit"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inputType="none" />
-                    </com.google.android.material.textfield.TextInputLayout>
+                                        <TextView
+                                            android:layout_width="0dp"
+                                            android:layout_height="0dp"
+                                            android:visibility="gone"
+                                            android:labelFor="@id/spinner_quantity_unit"
+                                            android:text="@string/unidad" />
+
+                                        <AutoCompleteTextView
+                                            android:id="@+id/spinner_quantity_unit"
+                                            android:layout_width="match_parent"
+                                            android:layout_height="wrap_content"
+                                            android:inputType="none" />
+                                    </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
 
                 <CheckBox
@@ -236,7 +269,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:hint="@string/sustituto_de">
+                    android:hint="@string/sustituto_de"
+                    android:labelFor="@id/spinnerSustitutoDe">
 
                     <AutoCompleteTextView
                         android:id="@+id/spinnerSustitutoDe"
@@ -298,7 +332,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:baselineAligned="false">
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="0dp"
@@ -311,7 +346,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:inputType="number"
-                            android:text="0" />
+                            android:text="@string/default_zero" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <TextView
@@ -319,7 +354,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:padding="8dp"
-                        android:text=":"
+                        android:text="@string/colon"
                         android:textSize="20sp" />
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -333,7 +368,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:inputType="number"
-                            android:text="0" />
+                            android:text="@string/default_zero" />
                     </com.google.android.material.textfield.TextInputLayout>
                 </LinearLayout>
 

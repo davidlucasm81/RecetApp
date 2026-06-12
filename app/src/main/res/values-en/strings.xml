@@ -1,6 +1,5 @@
 <resources>
     <string name="add_recipe">Add recipe</string>
-    <string name="Boton_Nombre_Add_Receta">Enter the name</string>
     <string name="Aniadir">Add</string>
     <string name="temporadas">Seasons</string>
     <string name="ingredientes">Ingredients</string>
@@ -64,10 +63,6 @@
     <string name="shared">Shared</string>
     <string name="importar_exportar">Import / Export</string>
     <string name="exportar">Export</string>
-    <string name="buscar_postres">Search only desserts</string>
-    <string name="buscar_cocteles">Search only cocktails</string>
-    <string name="buscar_sides">Search only sides</string>
-    <string name="buscar_principales">Search only main dishes</string>
     <string name="buscar_todos">Search all</string>
     <string name="seleccionar_tipo">Select Type</string>
     <string-array name="tipos_receta">
@@ -91,7 +86,6 @@
     <string name="quieres_anadir_receta">Do you want to add the recipe:</string>
     <string name="si">Yes</string>
     <string name="actualizar_recetas">Update recipes</string>
-    <string name="alerta_actualizar_calendario">Do you want to load the calendar with recipes?</string>
     <string name="lista_compra">Shopping list</string>
     <string name="seleccionar_dias">Select days</string>
     <string name="selecciona_dias">Select days range:</string>
@@ -120,7 +114,6 @@
     <string name="confirmar_borrar_calendario">Are you sure you want to clear and recreate the calendar?</string>
     <string name="calendario_recreado">Calendar recreated successfully</string>
     <string name="error_conexion_lenta">Slow connection. Could not load calendar.</string>
-    <string name="reintentando_carga">Slow connection, retrying load&#8230;</string>
 
     <!-- Existing messages that might be missing -->
     <string name="error_crear_receta">Error creating recipe</string>
@@ -131,6 +124,7 @@
     <string name="sin_nombre">Without name</string>
 
     <string name="login_con_google">Sign in with Google</string>
+    <string name="desc_google_sign_in">Sign in with Google button</string>
     <string name="cerrar_sesion">Sign out</string>
     <string name="confirmar_cerrar_sesion">Are you sure you want to sign out?</string>
     <string name="error_login">Login failed. Please try again.</string>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <!--
+        Acknowledging the Play Store App Access requirement.
+        Credentials are provided in the Google Play Console UI under App Content > App Access.
+        Setting severity to informational to keep the policy insight visible without triggering errors.
+    -->
+    <issue id="PlayStoreAppAccess" severity="informational" />
+</lint>

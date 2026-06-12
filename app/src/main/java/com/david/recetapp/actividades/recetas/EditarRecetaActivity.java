@@ -1,6 +1,5 @@
 package com.david.recetapp.actividades.recetas;
 
-import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.Intent;
 import android.graphics.Rect;
@@ -26,6 +25,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.core.view.ViewCompat;
 
@@ -64,14 +64,6 @@ public class EditarRecetaActivity extends RecetaBaseActivity {
     private Receta recetaActual;
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
-    @SuppressWarnings("deprecation")
-    @SuppressLint("MissingSuperCall")
-    @Override
-    public void onBackPressed() {
-        Intent intent = new Intent(EditarRecetaActivity.this, MainActivity.class);
-        startActivity(intent);
-    }
-
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -83,6 +75,15 @@ public class EditarRecetaActivity extends RecetaBaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_editar_receta);
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                Intent intent = new Intent(EditarRecetaActivity.this, MainActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
 
         // Obtener receta a editar (comprobaciones para evitar NPE por unboxing)
         Integer posicionObj = getIntent().getSerializableExtra("position", Integer.class);

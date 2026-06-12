@@ -141,7 +141,7 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
             iconoTipo.setImageResource(R.drawable.ic_baseline_local_bar_24);
             iconoTipo.setVisibility(View.VISIBLE);
         } else if (receta.getTipoReceta() == TipoReceta.SIDE) {
-            iconoTipo.setImageResource(R.drawable.ic_baseline_flatware_24);
+            iconoTipo.setImageResource(R.drawable.ic_baguette);
             iconoTipo.setVisibility(View.VISIBLE);
         } else {
             iconoTipo.setImageResource(R.drawable.postre_icono);

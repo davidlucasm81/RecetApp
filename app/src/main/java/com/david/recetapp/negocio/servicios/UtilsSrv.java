@@ -25,7 +25,7 @@ public class UtilsSrv {
     // Devuelve la temporada dado un día de la semana
     public static Temporada getTemporadaFecha(LocalDate date) {
         // Obtener el mes de la fecha
-        int month = date.getMonthValue(); // Enero = 1, Diciembre = 12
+        int month = date.getMonthValue(); // enero = 1, diciembre = 12
 
         // Mapear el mes a la temporada (Ajustado para clima de España)
         if (month == 12 || month <= 2) {
@@ -166,11 +166,11 @@ public class UtilsSrv {
         // LocalDate usa meses de 1-12, Calendar de 0-11
         LocalDate fecha = LocalDate.of(anio, mes + 1, diaDelMes);
 
-        // Obtener el día de la semana (1 = Lunes, 7 = Domingo)
+        // Obtener el día de la semana (1 = lunes, 7 = domingo)
         int diaDeLaSemana = fecha.getDayOfWeek().getValue();
 
         // Convertir el día de la semana a la columna correspondiente
-        // Lunes = 0, Domingo = 6
+        // lunes = 0, domingo = 6
         return (diaDeLaSemana == 7) ? 6 : diaDeLaSemana - 1;
     }
 

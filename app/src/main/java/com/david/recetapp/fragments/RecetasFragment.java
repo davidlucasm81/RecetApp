@@ -23,7 +23,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
 
 import com.david.recetapp.R;
@@ -414,7 +413,7 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
 
     /**
      * Llama a RecetasSrv.cargarListaRecetas de forma segura.
-     * Si Play Services no está disponible o lanza SecurityException, intenta fallback a cache local.
+     * Si Play Services no está disponible o lanza SecurityException, intenta fallback a caché local.
      */
     private void safeCargarListaRecetas(boolean forceServer, RecetasSrv.RecetasCallback callback) {
         try {
@@ -437,7 +436,7 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
             });
 
             try {
-                // fallback: cargar desde cache/local sin forzar servidor
+                // fallback: cargar desde caché/local sin forzar servidor
                 RecetasSrv.cargarListaRecetas(requireContext(), false, callback);
             } catch (Exception ex) {
                 Log.e(TAG, "Error fallback al cargar recetas tras SecurityException", ex);
@@ -449,8 +448,6 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
         }
     }
 
-    private void safeCargarListaRecetas(RecetasSrv.RecetasCallback callback) {
-        safeCargarListaRecetas(false, callback);
-    }
-
+    // Helper overload intentionally removed because the two-argument version is used throughout the class.
+    // If needed in the future, reintroduce this convenience method.
 }

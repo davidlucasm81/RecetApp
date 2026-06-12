@@ -49,6 +49,7 @@ public class Alergeno implements Parcelable {
         return nombre;
     }
 
+    @SuppressWarnings("unused")
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
@@ -57,6 +58,7 @@ public class Alergeno implements Parcelable {
         return numero;
     }
 
+    @SuppressWarnings("unused")
     public void setNumero(int numero) {
         this.numero = numero;
     }
@@ -74,6 +76,7 @@ public class Alergeno implements Parcelable {
         return Objects.hash(nombre, numero);
     }
 
+    @SuppressWarnings("unused")
     public Alergeno(){
 
     }

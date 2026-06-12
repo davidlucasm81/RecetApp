@@ -5,6 +5,7 @@
     android:layout_height="wrap_content"
     android:gravity="center_vertical"
     android:orientation="horizontal"
+    android:baselineAligned="false"
     android:padding="4dp">
 
     <ImageButton
@@ -41,7 +42,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:baselineAligned="false">
 
             <EditText
                 android:id="@+id/editTextCantidad"
@@ -79,7 +81,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:baselineAligned="false">
 
             <TextView
                 android:layout_width="wrap_content"

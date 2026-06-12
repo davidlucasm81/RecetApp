@@ -1,7 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name" translatable="false">RecetApp</string>
     <string name="add_recipe">Añadir receta</string>
-    <string name="Boton_Nombre_Add_Receta">Ingresa el nombre</string>
     <string name="Aniadir">Añadir</string>
     <string name="temporadas">Temporadas</string>
     <string name="ingredientes">Ingredientes</string>
@@ -66,10 +65,6 @@
     <string name="shared">Compartido</string>
     <string name="importar_exportar">Importar / Exportar</string>
     <string name="exportar">Exportar</string>
-    <string name="buscar_postres">Buscar solo postres</string>
-    <string name="buscar_cocteles">Buscar solo cócteles</string>
-    <string name="buscar_sides">Buscar solo acompañamientos</string>
-    <string name="buscar_principales">Buscar solo platos principales</string>
     <string name="buscar_todos">Buscar todos</string>
     <string name="seleccionar_tipo">Seleccionar Tipo</string>
     <string-array name="tipos_receta">
@@ -93,7 +88,6 @@
     <string name="quieres_anadir_receta">¿Quieres añadir la receta:</string>
     <string name="si">Sí</string>
     <string name="actualizar_recetas">Actualizar recetas</string>
-    <string name="alerta_actualizar_calendario">¿Quiere cargar de recetas el calendario?</string>
     <string name="lista_compra">Lista de la compra</string>
     <string name="warning" translatable="false">Warning</string>
     <string name="seleccionar_dias">Seleccionar días</string>
@@ -102,6 +96,10 @@
     <string name="unidad">Unidad</string>
     <string name="horas">Horas</string>
     <string name="minutos">Minutos</string>
+    <!-- Valores por defecto usados en layouts para evitar textos hardcoded -->
+    <string name="default_one" translatable="false">1</string>
+    <string name="default_zero" translatable="false">0</string>
+    <string name="colon" translatable="false">:</string>
     <string name="dia_inicio">Día Inicial:</string>
     <string name="dia_fin">Día Fin:</string>
     <string name="numero_personas">Número de personas para la receta</string>
@@ -124,7 +122,6 @@
     <string name="confirmar_borrar_calendario">¿Está seguro de que desea borrar y recrear el calendario?</string>
     <string name="calendario_recreado">Calendario recreado correctamente</string>
     <string name="error_conexion_lenta">La conexión es lenta. No se ha podido cargar el calendario.</string>
-    <string name="reintentando_carga">Conexión lenta, reintentando carga&#8230;</string>
 
     <!-- Mensajes existentes que podrían faltar -->
     <string name="error_crear_receta">Error al crear la receta</string>
@@ -135,6 +132,7 @@
     <string name="sin_nombre">Sin nombre</string>
 
     <string name="login_con_google">Entrar con Google</string>
+    <string name="desc_google_sign_in">Sign in with Google button</string>
     <string name="cerrar_sesion">Cerrar sesión</string>
     <string name="confirmar_cerrar_sesion">¿Seguro que quieres cerrar sesión?</string>
     <string name="error_login">Error al iniciar sesión. Inténtalo de nuevo.</string>

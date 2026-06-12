@@ -11,6 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:baselineAligned="false"
         tools:ignore="RtlSymmetry">
 
         <TextView
@@ -26,7 +27,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center|end"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:baselineAligned="false">
 
             <ImageButton
                 android:id="@+id/btnActualizar"

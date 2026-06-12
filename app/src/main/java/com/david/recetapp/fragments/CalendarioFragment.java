@@ -250,7 +250,7 @@ public class CalendarioFragment extends Fragment {
                     numberPickerFin.setMinValue(1);
                     numberPickerFin.setMaxValue(maxDay);
 
-                    // Configurar NumberPicker de recetas (ej: de 1 a 5 recetas por día)
+                    // Configurar NumberPicker de recetas (ej.: de 1 a 5 recetas por día)
                     numberPickerRecetas.setMinValue(1);
                     numberPickerRecetas.setMaxValue(5);
                     numberPickerRecetas.setValue(2); // Valor por defecto anterior

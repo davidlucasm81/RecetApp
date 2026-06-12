@@ -61,7 +61,7 @@ public class RecetasSrv {
 
     public interface SimpleCallback {
         void onSuccess();
-        void onFailure(Exception e);
+        void onFailure(@SuppressWarnings("unused") Exception e);
     }
 
     // ——— Helpers de validación de userId ———
@@ -229,7 +229,7 @@ public class RecetasSrv {
 
                         case XmlPullParser.END_TAG:
                             if ("item".equals(parser.getName())) {
-                                // Si no encontramos el nombre en el idioma objetivo, usamos el primero disponible (fallback)
+                                // Si no encontramos el nombre en el idioma objetivo, usamos el primer elemento disponible (fallback)
                                 if (targetNombre == null && !currentNombres.isEmpty()) {
                                     targetNombre = currentNombres.get(0);
                                 }

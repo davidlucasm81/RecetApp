@@ -47,8 +47,7 @@ public class RecetasAdapter extends RecyclerView.Adapter<RecetasAdapter.RecetaVi
     }
 
     private static Drawable createScoreBadgeDrawable(Context ctx, String scoreText, double score) {
-        final int sizeDp = 36; // diámetro del badge
-        int sizePx = dpToPx(ctx, sizeDp);
+        int sizePx = dpToPx(ctx);
         Bitmap bmp = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bmp);
 
@@ -93,9 +92,9 @@ public class RecetasAdapter extends RecyclerView.Adapter<RecetasAdapter.RecetaVi
         }
     }
 
-    private static int dpToPx(Context ctx, int dp) {
+    private static int dpToPx(Context ctx) {
         float density = ctx.getResources().getDisplayMetrics().density;
-        return Math.round(dp * density);
+        return Math.round(36 * density);
     }
 
     private static int spToPx(Context ctx) {
@@ -199,7 +198,7 @@ public class RecetasAdapter extends RecyclerView.Adapter<RecetasAdapter.RecetaVi
                 imgType.setImageResource(R.drawable.ic_baseline_local_bar_24);
                 imgType.setVisibility(View.VISIBLE);
             } else if (receta.getTipoReceta() == TipoReceta.SIDE) {
-                imgType.setImageResource(R.drawable.ic_baseline_flatware_24);
+                imgType.setImageResource(R.drawable.ic_baguette);
                 imgType.setVisibility(View.VISIBLE);
             } else {
                 imgType.setVisibility(View.GONE);

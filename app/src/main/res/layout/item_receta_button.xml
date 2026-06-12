@@ -11,6 +11,7 @@
     android:focusable="true"
     android:gravity="center_vertical"
     android:orientation="horizontal"
+    android:baselineAligned="false"
     android:padding="12dp">
 
     <TextView
@@ -42,7 +43,8 @@
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:layout_marginStart="8dp"
-        android:visibility="gone" />
+        android:visibility="gone"
+        android:contentDescription="@null" />
 
     <ImageView
         android:id="@+id/imgWarning"
@@ -58,6 +60,7 @@
         android:layout_width="36dp"
         android:layout_height="36dp"
         android:layout_marginStart="12dp"
-        tools:src="@android:color/darker_gray" />
+        tools:src="@android:color/darker_gray"
+        android:contentDescription="@null" />
 
 </LinearLayout>

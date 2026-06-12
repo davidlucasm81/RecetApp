@@ -30,8 +30,8 @@
 # =============================================
 
 # Evita renombrar clases y métodos utilizados por librerías de Android
--keep class androidx.** { *; }
--keep class android.** { *; }
+# -keep class androidx.** { *; }
+# -keep class android.** { *; }
 
 # Evita optimizaciones que rompan reflexiones (por ejemplo, Firestore)
 -keepattributes Signature

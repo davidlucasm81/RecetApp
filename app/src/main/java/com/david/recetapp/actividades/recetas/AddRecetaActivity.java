@@ -1,6 +1,5 @@
 package com.david.recetapp.actividades.recetas;
 
-import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,6 +15,7 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import com.david.recetapp.MainActivity;
 import com.david.recetapp.R;
 import com.david.recetapp.actividades.RecetaBaseActivity;
@@ -42,18 +42,19 @@ public class AddRecetaActivity extends RecetaBaseActivity {
     private View layoutMomentoReceta;
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
-    @SuppressWarnings("deprecation")
-    @SuppressLint("MissingSuperCall")
-    @Override
-    public void onBackPressed() {
-        Intent intent = new Intent(AddRecetaActivity.this, MainActivity.class);
-        startActivity(intent);
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_receta);
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                Intent intent = new Intent(AddRecetaActivity.this, MainActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
 
         initializeViews();
         setupIngredientesSection();

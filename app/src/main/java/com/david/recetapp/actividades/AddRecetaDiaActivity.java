@@ -1,6 +1,5 @@
 package com.david.recetapp.actividades;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -12,6 +11,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DefaultItemAnimator;
@@ -73,6 +73,16 @@ public class AddRecetaDiaActivity extends AppCompatActivity {
         setupRecyclerView();
         setupSwipeRefresh(); // Funciona aunque no exista el SwipeRefresh
         initializeDates();
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (!isAddingRecipe) {
+                    volverADetalleDiaActivity();
+                }
+            }
+        });
+
         loadRecetas(false);
     }
 
@@ -357,14 +367,6 @@ public class AddRecetaDiaActivity extends AppCompatActivity {
         isAddingRecipe = false;
     }
 
-    @SuppressWarnings("deprecation")
-    @SuppressLint("MissingSuperCall")
-    @Override
-    public void onBackPressed() {
-        if (!isAddingRecipe) {
-            volverADetalleDiaActivity();
-        }
-    }
 
     private void volverADetalleDiaActivity() {
         // Devolver resultado a la actividad que lanzó este Activity (DetalleDiaActivity)

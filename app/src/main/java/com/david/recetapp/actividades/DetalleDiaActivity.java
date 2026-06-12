@@ -1,6 +1,5 @@
 package com.david.recetapp.actividades;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -9,6 +8,9 @@ import android.widget.ExpandableListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.activity.OnBackPressedCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.david.recetapp.R;
@@ -30,19 +32,8 @@ public class DetalleDiaActivity extends AppCompatActivity
     private Button addReceta;
     private ProgressBar progressBar;
     private Day selectedDay;
+    private ActivityResultLauncher<Intent> addRecetaLauncher;
 
-    @SuppressWarnings("deprecation")
-    @SuppressLint("MissingSuperCall")
-    @Override
-    public void onBackPressed() {
-        // Volver al MainActivity simplemente finalizando esta actividad para preservar la pila
-        // y evitar recreaciones costosas.
-        // Pasar resultado opcional para que MainActivity/CalendarioFragment pueda actualizarse si es necesario.
-        Intent result = new Intent();
-        if (selectedDay != null) result.putExtra("selectedDayDayOfMonth", selectedDay.getDayOfMonth());
-        setResult(RESULT_OK, result);
-        finish();
-    }
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -147,53 +138,68 @@ public class DetalleDiaActivity extends AppCompatActivity
 
         refreshUI();
 
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                // Volver al MainActivity simplemente finalizando esta actividad para preservar la pila
+                // y evitar recreaciones costosas.
+                // Pasar resultado opcional para que MainActivity/CalendarioFragment pueda actualizarse si es necesario.
+                Intent result = new Intent();
+                if (selectedDay != null) result.putExtra("selectedDayDayOfMonth", selectedDay.getDayOfMonth());
+                setResult(RESULT_OK, result);
+                finish();
+            }
+        });
+
+        addRecetaLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        int dayOfMonth = result.getData().getIntExtra("selectedDayDayOfMonth", -1);
+                        if (dayOfMonth > 0 && selectedDay != null) {
+                            // Usar el mes y año del día seleccionado, no necesariamente el actual "real"
+                            int mes = selectedDay.getMonth();
+                            int anio = selectedDay.getYear();
+
+                            java.util.List<Day> cached = CalendarioSrv.obtenerCalendarioCache(mes, anio);
+                            if (cached != null && !cached.isEmpty()) {
+                                for (Day d : cached) {
+                                    if (d.getDayOfMonth() == dayOfMonth) {
+                                        selectedDay = d;
+                                        refreshUI();
+                                        return;
+                                    }
+                                }
+                            }
+
+                            CalendarioSrv.obtenerCalendario(this, mes, anio, new CalendarioSrv.CalendarioCallback() {
+                                @Override
+                                public void onSuccess(java.util.List<Day> days) {
+                                    for (Day d : days) {
+                                        if (d.getDayOfMonth() == dayOfMonth) {
+                                            selectedDay = d;
+                                            runOnUiThread(() -> refreshUI());
+                                            return;
+                                        }
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(Exception e) { }
+                            });
+                        }
+                    }
+                }
+        );
+
         addReceta.setOnClickListener(v -> {
             Intent intent2 = new Intent(this, AddRecetaDiaActivity.class);
             intent2.putExtra("selectedDay", selectedDay);
             // Lanzar esperando resultado para que podamos refrescar cuando vuelva
-            startActivityForResult(intent2, 1001);
+            addRecetaLauncher.launch(intent2);
         });
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 1001 && resultCode == RESULT_OK && data != null) {
-            int dayOfMonth = data.getIntExtra("selectedDayDayOfMonth", -1);
-            if (dayOfMonth > 0 && selectedDay != null) {
-                // Usar el mes y año del día seleccionado, no necesariamente el actual "real"
-                int mes = selectedDay.getMonth();
-                int anio = selectedDay.getYear();
-                
-                java.util.List<Day> cached = CalendarioSrv.obtenerCalendarioCache(mes, anio);
-                if (cached != null && !cached.isEmpty()) {
-                    for (Day d : cached) {
-                        if (d.getDayOfMonth() == dayOfMonth) {
-                            selectedDay = d;
-                            refreshUI();
-                            return;
-                        }
-                    }
-                }
-
-                CalendarioSrv.obtenerCalendario(this, mes, anio, new CalendarioSrv.CalendarioCallback() {
-                    @Override
-                    public void onSuccess(java.util.List<Day> days) {
-                        for (Day d : days) {
-                            if (d.getDayOfMonth() == dayOfMonth) {
-                                selectedDay = d;
-                                runOnUiThread(() -> refreshUI());
-                                return;
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Exception e) { }
-                });
-            }
-        }
-    }
 
     private void refreshUI() {
         if (selectedDay == null) return;

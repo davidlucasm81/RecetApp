@@ -39,6 +39,7 @@ public class Day implements Serializable {
         return dayOfMonth;
     }
 
+    @SuppressWarnings("unused")
     public void setDayOfMonth(int dayOfMonth) {
         this.dayOfMonth = dayOfMonth;
     }
@@ -47,6 +48,7 @@ public class Day implements Serializable {
         return month;
     }
 
+    @SuppressWarnings("unused")
     public void setMonth(int month) {
         this.month = month;
     }
@@ -55,6 +57,7 @@ public class Day implements Serializable {
         return year;
     }
 
+    @SuppressWarnings("unused")
     public void setYear(int year) {
         this.year = year;
     }

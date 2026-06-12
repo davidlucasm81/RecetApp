@@ -17,7 +17,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:baselineAligned="false">
 
         <TextView
             android:id="@+id/txtInformacion"
@@ -33,6 +34,7 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:orientation="horizontal"
+        android:baselineAligned="false"
         android:visibility="gone">
 
     </LinearLayout>
@@ -41,7 +43,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:baselineAligned="false">
 
         <RatingBar
             android:id="@+id/ratingBar"

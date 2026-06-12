@@ -1,10 +1,7 @@
 package com.david.recetapp.actividades;
 
-import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -12,12 +9,11 @@ import android.util.Log;
 import android.widget.Button;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
 import com.david.recetapp.R;
@@ -47,7 +43,6 @@ public class ImportExportActivity extends AppCompatActivity {
 
     private static final int PICK_JSON_FILE_REQUEST = 1;
     private ActivityResultLauncher<String> mGetContentLauncher;
-    private static final int REQUEST_PERMISSION_READ_EXTERNAL_STORAGE = 1;
     // Inicializar con el userId actual del usuario autenticado (si hay uno)
     private final FirebaseManager firebaseManager = new FirebaseManager(
             FirebaseAuth.getInstance().getCurrentUser() != null
@@ -55,28 +50,7 @@ public class ImportExportActivity extends AppCompatActivity {
                     : "default_user"
     );
 
-    private void checkAndRequestPermissions() {
-        int permissionReadStorage = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
 
-        List<String> permissions = new ArrayList<>();
-
-        if (permissionReadStorage != PackageManager.PERMISSION_GRANTED) {
-            permissions.add(Manifest.permission.READ_EXTERNAL_STORAGE);
-        }
-
-        if (!permissions.isEmpty()) {
-            ActivityCompat.requestPermissions(this, permissions.toArray(new String[0]), REQUEST_PERMISSION_READ_EXTERNAL_STORAGE);
-        }
-    }
-
-    @SuppressWarnings("deprecation")
-    @SuppressLint("MissingSuperCall")
-    @Override
-    public void onBackPressed() {
-        // Devolver que no se importó nada si el usuario sale manualmente
-        setResult(RESULT_CANCELED);
-        finish();
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,10 +63,17 @@ public class ImportExportActivity extends AppCompatActivity {
         importButton.setOnClickListener(v -> mGetContentLauncher.launch("application/json"));
         exportButton.setOnClickListener(v -> exportarListaRecetas());
 
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                // Devolver que no se importó nada si el usuario sale manualmente
+                setResult(RESULT_CANCELED);
+                finish();
+            }
+        });
+
         // Inicializar el lanzador de resultados para la selección de archivos
         mGetContentLauncher = registerForActivityResult(new ActivityResultContracts.GetContent(), this::onFileSelected);
-        // Solicitar permisos
-        checkAndRequestPermissions();
     }
 
     private void onFileSelected(Uri fileUri) {

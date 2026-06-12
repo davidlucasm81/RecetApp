@@ -28,6 +28,7 @@
         android:layout_marginBottom="16dp"
         android:background="@drawable/boton_redondo"
         android:text="@string/login_con_google"
+        android:contentDescription="@string/desc_google_sign_in"
         android:textSize="16sp" />
 
     <ProgressBar

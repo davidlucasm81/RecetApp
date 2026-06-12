@@ -64,12 +64,12 @@ public class CalendarioSrv {
 
     public interface ListaCompraCallback {
         void onSuccess(String listaCompra);
-        void onFailure(Exception e);
+        void onFailure(@SuppressWarnings("unused") Exception e);
     }
 
     public interface RellenarCallback {
         void onSuccess(List<Day> updatedCalendar);
-        void onFailure(Exception e);
+        void onFailure(@SuppressWarnings("unused") Exception e);
     }
 
     // ——— Helpers de validación de userId ———
@@ -375,16 +375,9 @@ public class CalendarioSrv {
     }
 
     /**
-     * 🚀 Clase auxiliar para batch updates
-     */
-    private static class ActualizacionFecha {
-        String idReceta;
-        int diaMes;
-
-        ActualizacionFecha(String idReceta, int diaMes) {
-            this.idReceta = idReceta;
-            this.diaMes = diaMes;
-        }
+         * 🚀 Clase auxiliar para batch updates
+         */
+        private record ActualizacionFecha(String idReceta, int diaMes) {
     }
 
     private static void addReceta(Queue<Receta> cola,
