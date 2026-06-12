@@ -67,7 +67,10 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
         RecetasSrv.cargarListaRecetas(activity, new RecetasSrv.RecetasCallback() {
             @Override
             public void onSuccess(List<Receta> recetas) {
-                listaRecetas = RecetasSrv.getRecetasAdaptadasCalendario(recetas, selectedDay);
+                List<Receta> adaptadas = RecetasSrv.getRecetasAdaptadasCalendario(recetas, selectedDay);
+                // Ordenar por momento: COMIDA < AMBOS < CENA < Otros
+                adaptadas.sort((r1, r2) -> Integer.compare(getMomentoPriority(r1), getMomentoPriority(r2)));
+                listaRecetas = adaptadas;
                 mainHandler.post(() -> notifyDataSetChanged());
             }
 
@@ -451,6 +454,19 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
             if (r != null && id.equals(r.getId())) return i;
         }
         return -1;
+    }
+
+    private int getMomentoPriority(Receta r) {
+        if (r.getTipoReceta() != TipoReceta.PRINCIPAL) {
+            return 10 + r.getTipoReceta().ordinal();
+        }
+        MomentoReceta mr = r.getMomentoReceta();
+        if (mr == null) return 1; // Default to AMBOS
+        return switch (mr) {
+            case COMIDA -> 0;
+            case AMBOS -> 1;
+            case CENA -> 2;
+        };
     }
 
     private void appendIngredienteInfo(StringBuilder sb, Ingrediente ing, boolean isSustituto) {
