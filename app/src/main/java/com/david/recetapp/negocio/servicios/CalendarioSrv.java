@@ -17,7 +17,9 @@ import com.david.recetapp.negocio.beans.TipoReceta;
 
 import com.david.recetapp.negocio.beans.TipoIngrediente;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
@@ -398,19 +400,20 @@ public class CalendarioSrv {
                                   int mes,
                                   int anio,
                                   MomentoReceta momentoRequerido,
-                                  WeeklyStats weeklyStats,
+                                  WindowStats windowStats,
+                                  DailyStats dailyStats,
                                   Map<String, Receta> mapRecetas) {
         final int MAX_TRIES = 12;
         int tries = 0;
         Receta receta;
 
         while (tries < MAX_TRIES && !cola.isEmpty()) {
-            receta = obtenerRecetaNoRepetida(cola, recetasUtilizadasRecientemente, dia, mes, anio, momentoRequerido, weeklyStats, mapRecetas);
+            receta = obtenerRecetaNoRepetida(cola, recetasUtilizadasRecientemente, dia, mes, anio, momentoRequerido, windowStats, dailyStats, mapRecetas);
             tries++;
             if (receta == null) {
                 // Si pedimos un momento específico y no hay, intentamos sin filtro de momento
                 if (momentoRequerido != null) {
-                    receta = obtenerRecetaNoRepetida(cola, recetasUtilizadasRecientemente, dia, mes, anio, null, weeklyStats, mapRecetas);
+                    receta = obtenerRecetaNoRepetida(cola, recetasUtilizadasRecientemente, dia, mes, anio, null, windowStats, dailyStats, mapRecetas);
                 }
                 if (receta == null) break;
             }
@@ -434,7 +437,7 @@ public class CalendarioSrv {
             }
 
             recetasUtilizadasRecientemente.add(receta);
-            updateWeeklyStats(weeklyStats, receta);
+            updateWindowStats(windowStats, receta);
             cola.offer(receta);
 
             int personasToSet = (numPersonas > 0) ? numPersonas : receta.getNumPersonas();
@@ -465,15 +468,16 @@ public class CalendarioSrv {
                                                   int mes,
                                                   int anio,
                                                   MomentoReceta momentoRequerido,
-                                                  WeeklyStats weeklyStats,
+                                                  WindowStats windowStats,
+                                                  DailyStats dailyStats,
                                                   Map<String, Receta> mapRecetas) {
         List<Receta> candidatos = new ArrayList<>();
         for (Receta receta : cola) {
             if (recetasUtilizadasRecientemente.contains(receta)) continue;
             if (recetaRepetidaEnProximosDias(receta, dia, mes, anio)) continue;
 
-            // Dieta mediterránea: Límite estricto de carne roja (max 1/semana)
-            if (weeklyStats != null && weeklyStats.carneRoja >= 1) {
+            // Dieta mediterránea: Límite estricto de carne roja (max 1/semana deslizante)
+            if (windowStats != null && windowStats.carneRoja >= 1) {
                 if (containsIngredientType(receta, TipoIngrediente.CARNE_ROJA, TipoIngrediente.CARNE_PROCESADA)) {
                     continue;
                 }
@@ -516,40 +520,60 @@ public class CalendarioSrv {
             Receta r = candidatos.get(i);
             
             // 🚀 NUEVA LÓGICA DE PESOS: Salud (puntuacionDada) + Gusto (estrellas)
-            // puntuacionDada (Salud): Factor dominante
-            double healthScore = 0.0;
-            try { healthScore = r.getPuntuacionDada(); } catch (Exception ignored) {}
-            if (Double.isNaN(healthScore) || healthScore <= 0.0) healthScore = 10.0; // Valor base si no tiene
+            
+            // 1. Normalización de salud (0..1)
+            double healthNorm = r.getPuntuacionDada();
+            if (healthNorm > 10.0) healthNorm /= 100.0;
+            else healthNorm /= 10.0;
+            if (healthNorm <= 0) healthNorm = 0.5; // Valor medio si no tiene
+            
+            // 2. Normalización de estrellas (0..1)
+            double starsNorm = (r.getEstrellas() - 1.0) / 4.0;
+            if (starsNorm < 0) starsNorm = 0;
 
-            // Estrellas (Gusto): Factor secundario
-            float stars = r.getEstrellas();
-            if (stars <= 0) stars = 1.0f;
+            // 3. Score base: La salud decide primero, las estrellas desempatan
+            final double PESO_SALUD = 1.0;
+            
+            double score = healthNorm * PESO_SALUD;
+            
+            // Las estrellas se usan como un factor menor para desempatar o ajustar el score
+            score += starsNorm * 0.2;
 
-            // El peso final combina ambos, dando prioridad a la salud (puntuacionDada)
-            // Multiplicamos la salud por un factor para que sea el motor principal
-            double score = (healthScore * 1.5) + (stars * 10.0);
-
-            // Dieta mediterránea: Priorizar legumbres y pescado si no se han alcanzado mínimos
-            if (weeklyStats != null) {
-                if (weeklyStats.legumbres < 2 && containsIngredientType(r, TipoIngrediente.LEGUMBRE)) {
+            // 4. Modificadores de dieta mediterránea
+            if (windowStats != null) {
+                if (windowStats.legumbres < 2 && containsIngredientType(r, TipoIngrediente.LEGUMBRE)) {
                     score *= 3.0;
                 }
-                if (weeklyStats.pescado < 2 && containsIngredientType(r, TipoIngrediente.PESCADO_BLANCO, TipoIngrediente.PESCADO_AZUL, TipoIngrediente.MARISCO)) {
+                if (windowStats.pescado < 2 && containsIngredientType(r, TipoIngrediente.PESCADO_BLANCO, TipoIngrediente.PESCADO_AZUL, TipoIngrediente.MARISCO)) {
                     score *= 3.0;
                 }
                 
                 // Penalizar exceso de carne blanca si ya hay suficiente
-                if (weeklyStats.carneBlanca >= 2 && containsIngredientType(r, TipoIngrediente.CARNE_BLANCA)) {
+                if (windowStats.carneBlanca >= 2 && containsIngredientType(r, TipoIngrediente.CARNE_BLANCA)) {
                     score *= 0.5;
                 }
                 
                 // Penalizar exceso de huevos si ya hay suficiente
-                if (weeklyStats.huevos >= 2 && containsIngredientType(r, TipoIngrediente.HUEVO)) {
+                if (windowStats.huevos >= 2 && containsIngredientType(r, TipoIngrediente.HUEVO)) {
                     score *= 0.5;
                 }
             }
+            
+            // Bonus de verduras si el día aún no cumple el mínimo
+            if (dailyStats != null && dailyStats.verduras < 1 && containsIngredientType(r, TipoIngrediente.VERDURA)) {
+                score *= 2.0;
+            }
 
-            double noise = 0.1 * RANDOM.nextDouble();
+            // 5. Balance energético y ligereza de cena
+            if (momentoRequerido == MomentoReceta.CENA) {
+                if (isRecetaDensa(r)) {
+                    score *= 0.75; // Penalización cena densa
+                } else {
+                    score *= 1.25; // Bonus cena ligera
+                }
+            }
+
+            double noise = 0.05 * RANDOM.nextDouble();
             double w = score + noise;
             weights[i] = w;
             totalWeight += w;
@@ -570,7 +594,7 @@ public class CalendarioSrv {
 
     // --- NUEVOS MÉTODOS PARA DIETA MEDITERRÁNEA ---
 
-    private static class WeeklyStats {
+    private static class WindowStats {
         int pescado = 0;
         int carneBlanca = 0;
         int carneRoja = 0;
@@ -578,10 +602,25 @@ public class CalendarioSrv {
         int legumbres = 0;
     }
 
-    private static int getWeekOfYear(int day, int month, int year) {
-        Calendar cal = Calendar.getInstance();
-        cal.set(year, month, day);
-        return cal.get(Calendar.WEEK_OF_YEAR);
+    private static class DailyStats {
+        int verduras = 0;
+    }
+
+    private static java.time.LocalDate getLocalDate(int day, int month, int year) {
+        return java.time.LocalDate.of(year, month + 1, day);
+    }
+
+    private static WindowStats getWindowStats(java.time.LocalDate date, Map<java.time.LocalDate, Receta> asignaciones) {
+        WindowStats stats = new WindowStats();
+        // Ventana de 7 días (el día actual y los 6 anteriores)
+        for (int i = 0; i < 7; i++) {
+            java.time.LocalDate d = date.minusDays(i);
+            Receta r = asignaciones.get(d);
+            if (r != null) {
+                updateWindowStats(stats, r);
+            }
+        }
+        return stats;
     }
 
     private static boolean containsIngredientType(Receta r, TipoIngrediente... tipos) {
@@ -595,7 +634,7 @@ public class CalendarioSrv {
         return false;
     }
 
-    private static void updateWeeklyStats(WeeklyStats stats, Receta r) {
+    private static void updateWindowStats(WindowStats stats, Receta r) {
         if (stats == null || r == null) return;
         if (containsIngredientType(r, TipoIngrediente.CARNE_ROJA, TipoIngrediente.CARNE_PROCESADA)) {
             stats.carneRoja += 1;
@@ -614,6 +653,36 @@ public class CalendarioSrv {
         }
     }
 
+    private static DailyStats getDailyStats(java.time.LocalDate date, Map<java.time.LocalDate, List<Receta>> asignacionesDiarias) {
+        DailyStats stats = new DailyStats();
+        List<Receta> recetas = asignacionesDiarias.get(date);
+        if (recetas != null) {
+            for (Receta r : recetas) {
+                if (containsIngredientType(r, TipoIngrediente.VERDURA)) {
+                    stats.verduras++;
+                }
+            }
+        }
+        return stats;
+    }
+
+    private static boolean isRecetaDensa(Receta r) {
+        if (r == null) return false;
+        // Definición de receta densa: contiene carne roja, procesados, harinas, grasas o dulces
+        // y NO contiene verduras (o las verduras no son el componente principal, simplificado aquí)
+        boolean tieneComponenteDenso = containsIngredientType(r, 
+                TipoIngrediente.CARNE_ROJA, 
+                TipoIngrediente.CARNE_PROCESADA, 
+                TipoIngrediente.HARINA, 
+                TipoIngrediente.GRASA, 
+                TipoIngrediente.DULCE,
+                TipoIngrediente.PROCESADO);
+        
+        boolean tieneVerdura = containsIngredientType(r, TipoIngrediente.VERDURA);
+        
+        return tieneComponenteDenso && !tieneVerdura;
+    }
+
     /**
      * Determina si dos recetas son muy parecidas basándose en la intersección de ingredientes.
      */
@@ -622,20 +691,33 @@ public class CalendarioSrv {
         List<String> listaA = new ArrayList<>();
         List<String> listaB = new ArrayList<>();
 
+        // Ingredientes base mediterráneos que NO cuentan para la similitud
+        Set<String> ingredientesBase = new HashSet<>(Arrays.asList(
+                "ajo", "cebolla", "tomate", "aceite", "sal", "pimienta", "perejil", "laurel", "vinagre"
+        ));
+
         if (a.getIngredientes() != null) {
             for (com.david.recetapp.negocio.beans.Ingrediente ing : a.getIngredientes()) {
                 if (ing == null || ing.isOpcional()) continue;
-                try { if (ing.getPuntuacion() < 0) continue; } catch (Exception ignored) {}
-                if (ing.getNombre() != null && !ing.getNombre().trim().isEmpty())
-                    listaA.add(ing.getNombre().toLowerCase(java.util.Locale.getDefault()).trim());
+                if (ing.getTipo() == TipoIngrediente.ACEITE || ing.getTipo() == TipoIngrediente.ESPECIA) continue;
+                
+                String nombre = ing.getNombre().toLowerCase(java.util.Locale.getDefault()).trim();
+                if (ingredientesBase.contains(nombre)) continue;
+                
+                if (!nombre.isEmpty())
+                    listaA.add(nombre);
             }
         }
         if (b.getIngredientes() != null) {
             for (com.david.recetapp.negocio.beans.Ingrediente ing : b.getIngredientes()) {
                 if (ing == null || ing.isOpcional()) continue;
-                try { if (ing.getPuntuacion() < 0) continue; } catch (Exception ignored) {}
-                if (ing.getNombre() != null && !ing.getNombre().trim().isEmpty())
-                    listaB.add(ing.getNombre().toLowerCase(java.util.Locale.getDefault()).trim());
+                if (ing.getTipo() == TipoIngrediente.ACEITE || ing.getTipo() == TipoIngrediente.ESPECIA) continue;
+
+                String nombre = ing.getNombre().toLowerCase(java.util.Locale.getDefault()).trim();
+                if (ingredientesBase.contains(nombre)) continue;
+
+                if (!nombre.isEmpty())
+                    listaB.add(nombre);
             }
         }
 
@@ -649,12 +731,12 @@ public class CalendarioSrv {
 
         if (intersection >= 2) return true;
 
-        // 🚀 MEJORA: Evitar repetir grupos de alimentos pesados el mismo día (Pasta, Arroz, Legumbres)
+        // Evitar repetir grupos de alimentos pesados el mismo día (Pasta, Arroz, Legumbres)
         if (containsIngredientType(a, TipoIngrediente.PASTA) && containsIngredientType(b, TipoIngrediente.PASTA)) return true;
         if (containsIngredientType(a, TipoIngrediente.CEREAL) && containsIngredientType(b, TipoIngrediente.CEREAL)) return true;
         if (containsIngredientType(a, TipoIngrediente.LEGUMBRE) && containsIngredientType(b, TipoIngrediente.LEGUMBRE)) return true;
         
-        // 🚀 MEJORA: Evitar repetir grupos de proteínas el mismo día (Pescado, Carne Blanca)
+        // Evitar repetir grupos de proteínas el mismo día (Pescado, Carne Blanca)
         if (containsIngredientType(a, TipoIngrediente.PESCADO_BLANCO, TipoIngrediente.PESCADO_AZUL, TipoIngrediente.MARISCO) && 
             containsIngredientType(b, TipoIngrediente.PESCADO_BLANCO, TipoIngrediente.PESCADO_AZUL, TipoIngrediente.MARISCO)) return true;
             
@@ -922,8 +1004,27 @@ public class CalendarioSrv {
                                 Set<Receta> recetasUtilizadasRecientemente = new HashSet<>();
                                 List<ActualizacionFecha> actualizacionesPendientes = new ArrayList<>();
 
-                                // Estadísticas para dieta mediterránea
-                                Map<Integer, WeeklyStats> statsPorSemana = new HashMap<>();
+                                // Estructuras para seguimiento de estadísticas
+                                Map<LocalDate, Receta> asignacionesPrincipales = new HashMap<>();
+                                Map<LocalDate, List<Receta>> asignacionesDiarias = new HashMap<>();
+
+                                // Pre-poblar estadísticas con recetas ya existentes en el calendario
+                                for (Day diaExistente : calendario) {
+                                    if (diaExistente.getRecetas() != null && !diaExistente.getRecetas().isEmpty()) {
+                                        LocalDate fecha = getLocalDate(diaExistente.getDayOfMonth(), mes, anio);
+                                        List<Receta> recetasDelDia = new ArrayList<>();
+                                        for (int j = 0; j < diaExistente.getRecetas().size(); j++) {
+                                            Receta r = mapRecetas.get(diaExistente.getRecetas().get(j).getIdReceta());
+                                            if (r != null) {
+                                                recetasDelDia.add(r);
+                                                if (j == 0 || j == 1) { // COMIDA o CENA aproximado
+                                                    asignacionesPrincipales.put(fecha, r);
+                                                }
+                                            }
+                                        }
+                                        asignacionesDiarias.put(fecha, recetasDelDia);
+                                    }
+                                }
 
                                 for (Day dia : calendario) {
                                     if (dia.getDayOfMonth() >= diaInicio && dia.getDayOfMonth() <= diaFin) {
@@ -934,9 +1035,7 @@ public class CalendarioSrv {
 
                                         if (dia.getRecetas() == null) dia.setRecetas(new ArrayList<>());
 
-                                        // Obtener o crear estadísticas de la semana
-                                        int week = getWeekOfYear(dia.getDayOfMonth(), mes, anio);
-                                        WeeklyStats weeklyStats = statsPorSemana.computeIfAbsent(week, k -> new WeeklyStats());
+                                        LocalDate fechaActual = getLocalDate(dia.getDayOfMonth(), mes, anio);
 
                                         for (int i = 0; i < numRecetas; i++) {
                                             MomentoReceta momentoRequerido = null;
@@ -952,7 +1051,24 @@ public class CalendarioSrv {
                                                     colaAUsar = !colaSides.isEmpty() ? colaSides : colaPrincipales;
                                                 }
                                             }
-                                            addReceta(colaAUsar, recetasUtilizadasRecientemente, dia, actualizacionesPendientes, numPersonas, mes, anio, momentoRequerido, weeklyStats, mapRecetas);
+                                            
+                                            // Calcular estadísticas para el momento de la asignación
+                                            WindowStats windowStats = getWindowStats(fechaActual, asignacionesPrincipales);
+                                            DailyStats dailyStats = getDailyStats(fechaActual, asignacionesDiarias);
+
+                                            int sizeAntes = dia.getRecetas().size();
+                                            addReceta(colaAUsar, recetasUtilizadasRecientemente, dia, actualizacionesPendientes, numPersonas, mes, anio, momentoRequerido, windowStats, dailyStats, mapRecetas);
+                                            
+                                            // Si se añadió una receta, actualizar el rastreo local para el siguiente slot o día
+                                            if (dia.getRecetas().size() > sizeAntes) {
+                                                Receta nueva = mapRecetas.get(dia.getRecetas().get(dia.getRecetas().size() - 1).getIdReceta());
+                                                if (nueva != null) {
+                                                    if (i == 0 || i == 1) {
+                                                        asignacionesPrincipales.put(fechaActual, nueva);
+                                                    }
+                                                    asignacionesDiarias.computeIfAbsent(fechaActual, k -> new ArrayList<>()).add(nueva);
+                                                }
+                                            }
                                         }
 
                                         limpiarRecetasUtilizadasRecientemente(recetasUtilizadasRecientemente, dia, mes, anio);
