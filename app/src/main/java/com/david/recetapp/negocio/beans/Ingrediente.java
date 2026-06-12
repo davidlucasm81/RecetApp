@@ -13,6 +13,7 @@ public class Ingrediente implements Parcelable {
     private double puntuacion;
     private boolean opcional;
     private String esSustitutoDe;
+    private TipoIngrediente tipo;
 
     public Ingrediente(String nombre, String cantidad, String tipoCantidad, double puntuacion) {
         this(nombre, cantidad, tipoCantidad, puntuacion, false, null);
@@ -38,6 +39,10 @@ public class Ingrediente implements Parcelable {
         puntuacion = in.readDouble();
         opcional = in.readByte() != 0;
         esSustitutoDe = in.readString();
+        String tipoStr = in.readString();
+        if (tipoStr != null) {
+            tipo = TipoIngrediente.valueOf(tipoStr);
+        }
     }
 
     public Ingrediente() {
@@ -70,6 +75,7 @@ public class Ingrediente implements Parcelable {
         dest.writeDouble(puntuacion);
         dest.writeByte((byte) (opcional ? 1 : 0));
         dest.writeString(esSustitutoDe);
+        dest.writeString(tipo != null ? tipo.name() : null);
     }
 
     // getters and setters
@@ -119,5 +125,13 @@ public class Ingrediente implements Parcelable {
 
     public void setEsSustitutoDe(String esSustitutoDe) {
         this.esSustitutoDe = esSustitutoDe;
+    }
+
+    public TipoIngrediente getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(TipoIngrediente tipo) {
+        this.tipo = tipo;
     }
 }

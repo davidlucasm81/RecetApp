@@ -1,1785 +1,1785 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ingredient_list>
   <!-- Spices and Seasonings (Score -1) -->
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Vinagre de manzana</nombre>
     <nombre lang="en">Apple cider vinegar</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Azafrán</nombre>
     <nombre lang="en">Saffron</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Pimentón</nombre>
     <nombre lang="en">Paprika</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Comino</nombre>
     <nombre lang="en">Cumin</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Orégano</nombre>
     <nombre lang="en">Oregano</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Tomillo</nombre>
     <nombre lang="en">Thyme</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Perejil</nombre>
     <nombre lang="en">Parsley</nombre>
   </item>
-  <item puntuacion="-1" gramos="1">
+  <item puntuacion="-1" gramos="1" tipo="ESPECIA">
     <nombre lang="es">Laurel</nombre>
     <nombre lang="en">Bay leaf</nombre>
   </item>
-  <item puntuacion="-1" gramos="1">
+  <item puntuacion="-1" gramos="1" tipo="ESPECIA">
     <nombre lang="es">Clavo</nombre>
     <nombre lang="en">Clove</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Canela</nombre>
     <nombre lang="en">Cinnamon</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Albahaca</nombre>
     <nombre lang="en">Basil</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Eneldo</nombre>
     <nombre lang="en">Dill</nombre>
   </item>
-  <item puntuacion="-1" gramos="5">
+  <item puntuacion="-1" gramos="5" tipo="ESPECIA">
     <nombre lang="es">Guindilla</nombre>
     <nombre lang="en">Chili pepper</nombre>
   </item>
-  <item puntuacion="-1" gramos="5">
+  <item puntuacion="-1" gramos="5" tipo="ESPECIA">
     <nombre lang="es">Nuez moscada</nombre>
     <nombre lang="en">Nutmeg</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Cúrcuma</nombre>
     <nombre lang="en">Turmeric</nombre>
   </item>
-  <item puntuacion="-1" gramos="1">
+  <item puntuacion="-1" gramos="1" tipo="ESPECIA">
     <nombre lang="es">Cardamomo</nombre>
     <nombre lang="en">Cardamom</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Mostaza</nombre>
     <nombre lang="en">Mustard</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Hinojo</nombre>
     <nombre lang="en">Fennel</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Pimienta negra</nombre>
     <nombre lang="en">Black pepper</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Salvia</nombre>
     <nombre lang="en">Sage</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Romero</nombre>
     <nombre lang="en">Rosemary</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Manzanilla</nombre>
     <nombre lang="en">Chamomile</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Anís</nombre>
     <nombre lang="en">Anise</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Hierbabuena</nombre>
     <nombre lang="en">Spearmint</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Sal</nombre>
     <nombre lang="en">Salt</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Pimienta blanca</nombre>
     <nombre lang="en">White pepper</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Cilantro</nombre>
     <nombre lang="en">Cilantro</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Menta</nombre>
     <nombre lang="en">Mint</nombre>
   </item>
-  <item puntuacion="-1" gramos="1">
+  <item puntuacion="-1" gramos="1" tipo="ESPECIA">
     <nombre lang="es">Chile</nombre>
     <nombre lang="en">Chili</nombre>
   </item>
-  <item puntuacion="-1" gramos="15">
+  <item puntuacion="-1" gramos="15" tipo="VERDURA">
     <nombre lang="es">Pimiento choricero</nombre>
     <nombre lang="en">Choricero pepper</nombre>
   </item>
-  <item puntuacion="-1" gramos="15">
+  <item puntuacion="-1" gramos="15" tipo="SALSA">
     <nombre lang="es">Pasta de pimiento choricero</nombre>
     <nombre lang="en">Choricero pepper paste</nombre>
   </item>
-  <item puntuacion="-1" gramos="1">
+  <item puntuacion="-1" gramos="1" tipo="ESPECIA">
     <nombre lang="es">Clavo de olor</nombre>
     <nombre lang="en">Cloves</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Regaliz</nombre>
     <nombre lang="en">Liquorice</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Pimentón dulce</nombre>
     <nombre lang="en">Sweet paprika</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Pimentón picante</nombre>
     <nombre lang="en">Hot paprika</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Ajo en polvo</nombre>
     <nombre lang="en">Garlic powder</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Cebolla en polvo</nombre>
     <nombre lang="en">Onion powder</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="OTROS">
     <nombre lang="es">Levadura seca de panadería</nombre>
     <nombre lang="en">Dry baker's yeast</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Extracto de Vainilla</nombre>
     <nombre lang="en">Vanilla extract</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="OTROS">
     <nombre lang="es">Colorante alimentario rosa</nombre>
     <nombre lang="en">Pink food coloring</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="OTROS">
     <nombre lang="es">Colorante</nombre>
     <nombre lang="en">Food coloring</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Canela molida</nombre>
     <nombre lang="en">Ground cinnamon</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="OTROS">
     <nombre lang="es">Levadura</nombre>
     <nombre lang="en">Yeast</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Pimentón ahumado</nombre>
     <nombre lang="en">Smoked paprika</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Comino molido</nombre>
     <nombre lang="en">Ground cumin</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Cilantro molido</nombre>
     <nombre lang="en">Ground cilantro</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Garam masala</nombre>
     <nombre lang="en">Garam masala</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Cayena</nombre>
     <nombre lang="en">Cayenne</nombre>
   </item>
-  <item puntuacion="-1" gramos="4">
+  <item puntuacion="-1" gramos="4" tipo="ESPECIA">
     <nombre lang="es">Canela en rama</nombre>
     <nombre lang="en">Cinnamon stick</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="SALSA">
     <nombre lang="es">Piripiri</nombre>
     <nombre lang="en">Piri piri</nombre>
   </item>
-  <item puntuacion="-1" gramos="1">
+  <item puntuacion="-1" gramos="1" tipo="ESPECIA">
     <nombre lang="es">Perejil fresco</nombre>
     <nombre lang="en">Fresh parsley</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Semillas de cilantro</nombre>
     <nombre lang="en">Coriander seeds</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Semillas de comino</nombre>
     <nombre lang="en">Cumin seeds</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="OTROS">
     <nombre lang="es">Colorante alimentario rojo</nombre>
     <nombre lang="en">Red food coloring</nombre>
   </item>
-  <item puntuacion="-1" gramos="1">
+  <item puntuacion="-1" gramos="1" tipo="ESPECIA">
     <nombre lang="es">Cardamomo negro</nombre>
     <nombre lang="en">Black cardamom</nombre>
   </item>
-  <item puntuacion="-1" gramos="1">
+  <item puntuacion="-1" gramos="1" tipo="ESPECIA">
     <nombre lang="es">Cardamomo verde</nombre>
     <nombre lang="en">Green cardamom</nombre>
   </item>
-  <item puntuacion="-1" gramos="1">
+  <item puntuacion="-1" gramos="1" tipo="ESPECIA">
     <nombre lang="es">Anís estrellado</nombre>
     <nombre lang="en">Star anise</nombre>
   </item>
-  <item puntuacion="-1" gramos="1">
+  <item puntuacion="-1" gramos="1" tipo="ESPECIA">
     <nombre lang="es">Cilantro fresco</nombre>
     <nombre lang="en">Fresh cilantro</nombre>
   </item>
-  <item puntuacion="-1" gramos="1">
+  <item puntuacion="-1" gramos="1" tipo="ESPECIA">
     <nombre lang="es">Hojas de hierbabuena</nombre>
     <nombre lang="en">Mint leaves</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Comino en grano</nombre>
     <nombre lang="en">Cumin grains</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Jengibre fresco rallado</nombre>
     <nombre lang="en">Grated fresh ginger</nombre>
   </item>
-  <item puntuacion="-1" gramos="20">
+  <item puntuacion="-1" gramos="20" tipo="ESPECIA">
     <nombre lang="es">Jengibre fresco</nombre>
     <nombre lang="en">Fresh ginger</nombre>
   </item>
-  <item puntuacion="-1" gramos="20">
+  <item puntuacion="-1" gramos="20" tipo="ESPECIA">
     <nombre lang="es">Jengibre</nombre>
     <nombre lang="en">Ginger</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="OTROS">
     <nombre lang="es">Levadura instantánea de panadero</nombre>
     <nombre lang="en">Instant baker's yeast</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Mostaza en grano</nombre>
     <nombre lang="en">Mustard grains</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Azafrán en polvo</nombre>
     <nombre lang="en">Saffron powder</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="OTROS">
     <nombre lang="es">Levadura química en polvo</nombre>
     <nombre lang="en">Baking powder</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="OTROS">
     <nombre lang="es">Levadura química</nombre>
     <nombre lang="en">Baking powder</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Tomillo fresco</nombre>
     <nombre lang="en">Fresh thyme</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="BEBIDA">
     <nombre lang="es">Vino blanco</nombre>
     <nombre lang="en">White wine</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="BEBIDA">
     <nombre lang="es">Vino Blanco Fino</nombre>
     <nombre lang="en">Fine white wine</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="BEBIDA">
     <nombre lang="es">Vino Tinto Pedro Ximenez</nombre>
     <nombre lang="en">Pedro Ximenez red wine</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="BEBIDA">
     <nombre lang="es">Vino tinto</nombre>
     <nombre lang="en">Red wine</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="BEBIDA">
     <nombre lang="es">Sidra natural</nombre>
     <nombre lang="en">Natural cider</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="BEBIDA">
     <nombre lang="es">Jerez seco</nombre>
     <nombre lang="en">Dry sherry</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Vinagre de Jerez</nombre>
     <nombre lang="en">Sherry vinegar</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Vinagre de vino</nombre>
     <nombre lang="en">Wine vinegar</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Vinagre balsámico</nombre>
     <nombre lang="en">Balsamic vinegar</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Vinagre de Modena</nombre>
     <nombre lang="en">Modena vinegar</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Vinagre</nombre>
     <nombre lang="en">Vinegar</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Vinagre de arroz</nombre>
     <nombre lang="en">Rice vinegar</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Vinagre de sidra de manzana</nombre>
     <nombre lang="en">Apple cider vinegar</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="BEBIDA">
     <nombre lang="es">Café</nombre>
     <nombre lang="en">Coffee</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="BEBIDA">
     <nombre lang="es">Agua</nombre>
     <nombre lang="en">Water</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="BEBIDA">
     <nombre lang="es">Hielo picado</nombre>
     <nombre lang="en">Cubed ice</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="OTROS">
     <nombre lang="es">Bicarbonato sódico</nombre>
     <nombre lang="en">Baking soda</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="BEBIDA">
     <nombre lang="es">Sake</nombre>
     <nombre lang="en">Sake</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Azafrán (colorante amarillo)</nombre>
     <nombre lang="en">Saffron (yellow coloring)</nombre>
   </item>
-  <item puntuacion="8" gramos="150">
+  <item puntuacion="8" gramos="150" tipo="VERDURA">
     <nombre lang="es">Concentrado de tomate</nombre>
     <nombre lang="en">Tomato concentrate</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Jengibre rallado</nombre>
     <nombre lang="en">Grated ginger</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="SEMILLA">
     <nombre lang="es">Semillas de sésamo</nombre>
     <nombre lang="en">Sesame seeds</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Jengibre en polvo</nombre>
     <nombre lang="en">Ginger powder</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Cebolla molida</nombre>
     <nombre lang="en">Ground onion</nombre>
   </item>
-  <item puntuacion="5" gramos="5">
+  <item puntuacion="5" gramos="5" tipo="ESPECIA">
     <nombre lang="es">Curry</nombre>
     <nombre lang="en">Curry</nombre>
   </item>
-  <item puntuacion="-1" gramos="5">
+  <item puntuacion="-1" gramos="5" tipo="ESPECIA">
     <nombre lang="es">Sal gruesa</nombre>
     <nombre lang="en">Coarse salt</nombre>
   </item>
-  <item puntuacion="5" gramos="5">
+  <item puntuacion="5" gramos="5" tipo="ESPECIA">
     <nombre lang="es">Pasta de ajo</nombre>
     <nombre lang="en">Garlic paste</nombre>
   </item>
-  <item puntuacion="5" gramos="5">
+  <item puntuacion="5" gramos="5" tipo="SALSA">
     <nombre lang="es">Pasta Harissa</nombre>
     <nombre lang="en">Harissa paste</nombre>
   </item>
 
   <!-- Vegetables and Greens -->
-  <item puntuacion="9" gramos="150">
+  <item puntuacion="9" gramos="150" tipo="VERDURA">
     <nombre lang="es">Tomate</nombre>
     <nombre lang="en">Tomato</nombre>
   </item>
-  <item puntuacion="10" gramos="15">
+  <item puntuacion="10" gramos="15" tipo="VERDURA">
     <nombre lang="es">Tomate cherry</nombre>
     <nombre lang="en">Cherry tomato</nombre>
   </item>
-  <item puntuacion="10" gramos="150">
+  <item puntuacion="10" gramos="150" tipo="VERDURA">
     <nombre lang="es">Tomate natural</nombre>
     <nombre lang="en">Natural tomato</nombre>
   </item>
-  <item puntuacion="10" gramos="220">
+  <item puntuacion="10" gramos="220" tipo="VERDURA">
     <nombre lang="es">Tomate grande</nombre>
     <nombre lang="en">Large tomato</nombre>
   </item>
-  <item puntuacion="9" gramos="150">
+  <item puntuacion="9" gramos="150" tipo="VERDURA">
     <nombre lang="es">Tomate picado</nombre>
     <nombre lang="en">Chopped tomato</nombre>
   </item>
-  <item puntuacion="10" gramos="120">
+  <item puntuacion="10" gramos="120" tipo="VERDURA">
     <nombre lang="es">Tomate pera</nombre>
     <nombre lang="en">Plum tomato</nombre>
   </item>
-  <item puntuacion="9" gramos="150">
+  <item puntuacion="9" gramos="150" tipo="VERDURA">
     <nombre lang="es">Tomate en rodajas</nombre>
     <nombre lang="en">Sliced tomato</nombre>
   </item>
-  <item puntuacion="9" gramos="150">
+  <item puntuacion="9" gramos="150" tipo="VERDURA">
     <nombre lang="es">Tomate troceado</nombre>
     <nombre lang="en">Diced tomato</nombre>
   </item>
-  <item puntuacion="10" gramos="400">
+  <item puntuacion="10" gramos="400" tipo="VERDURA">
     <nombre lang="es">Tomate natural triturado</nombre>
     <nombre lang="en">Crushed natural tomato</nombre>
   </item>
-  <item puntuacion="8" gramos="400">
+  <item puntuacion="8" gramos="400" tipo="VERDURA">
     <nombre lang="es">Tomate triturado</nombre>
     <nombre lang="en">Crushed tomato</nombre>
   </item>
-  <item puntuacion="9" gramos="150">
+  <item puntuacion="9" gramos="150" tipo="VERDURA">
     <nombre lang="es">Pimiento</nombre>
     <nombre lang="en">Pepper</nombre>
   </item>
-  <item puntuacion="10" gramos="150">
+  <item puntuacion="10" gramos="150" tipo="VERDURA">
     <nombre lang="es">Pimiento rojo</nombre>
     <nombre lang="en">Red pepper</nombre>
   </item>
-  <item puntuacion="10" gramos="120">
+  <item puntuacion="10" gramos="120" tipo="VERDURA">
     <nombre lang="es">Pimiento verde</nombre>
     <nombre lang="en">Green pepper</nombre>
   </item>
-  <item puntuacion="9" gramos="150">
+  <item puntuacion="9" gramos="150" tipo="VERDURA">
     <nombre lang="es">Pimiento amarillo</nombre>
     <nombre lang="en">Yellow pepper</nombre>
   </item>
-  <item puntuacion="-1" gramos="120">
+  <item puntuacion="-1" gramos="120" tipo="VERDURA">
     <nombre lang="es">Cebolla</nombre>
     <nombre lang="en">Onion</nombre>
   </item>
-  <item puntuacion="-1" gramos="120">
+  <item puntuacion="-1" gramos="120" tipo="VERDURA">
     <nombre lang="es">Cebolla mediana</nombre>
     <nombre lang="en">Medium onion</nombre>
   </item>
-  <item puntuacion="-1" gramos="200">
+  <item puntuacion="-1" gramos="200" tipo="VERDURA">
     <nombre lang="es">Cebolla grande</nombre>
     <nombre lang="en">Large onion</nombre>
   </item>
-  <item puntuacion="-1" gramos="80">
+  <item puntuacion="-1" gramos="80" tipo="VERDURA">
     <nombre lang="es">Cebolla pequeña</nombre>
     <nombre lang="en">Small onion</nombre>
   </item>
-  <item puntuacion="-1" gramos="120">
+  <item puntuacion="-1" gramos="120" tipo="VERDURA">
     <nombre lang="es">Cebolla morada</nombre>
     <nombre lang="en">Red onion</nombre>
   </item>
-  <item puntuacion="9" gramos="120">
+  <item puntuacion="9" gramos="120" tipo="VERDURA">
     <nombre lang="es">Cebollin</nombre>
     <nombre lang="en">Scallion</nombre>
   </item>
-  <item puntuacion="9" gramos="50">
+  <item puntuacion="9" gramos="50" tipo="VERDURA">
     <nombre lang="es">Cebolleta</nombre>
     <nombre lang="en">Spring onion</nombre>
   </item>
-  <item puntuacion="9" gramos="50">
+  <item puntuacion="9" gramos="50" tipo="VERDURA">
     <nombre lang="es">Cebolletas chinas</nombre>
     <nombre lang="en">Green onions (scallions)</nombre>
   </item>
-  <item puntuacion="9" gramos="40">
+  <item puntuacion="9" gramos="40" tipo="VERDURA">
     <nombre lang="es">Chalota</nombre>
     <nombre lang="en">Shallot</nombre>
   </item>
-  <item puntuacion="10" gramos="2">
+  <item puntuacion="10" gramos="2" tipo="VERDURA">
     <nombre lang="es">Cebollino</nombre>
     <nombre lang="en">Chives</nombre>
   </item>
-  <item puntuacion="7" gramos="5">
+  <item puntuacion="7" gramos="5" tipo="VERDURA">
     <nombre lang="es">Ajo</nombre>
     <nombre lang="en">Garlic</nombre>
   </item>
-  <item puntuacion="6" gramos="150">
+  <item puntuacion="6" gramos="150" tipo="VERDURA">
     <nombre lang="es">Patata</nombre>
     <nombre lang="en">Potato</nombre>
   </item>
-  <item puntuacion="6" gramos="250">
+  <item puntuacion="6" gramos="250" tipo="VERDURA">
     <nombre lang="es">Patata grande</nombre>
     <nombre lang="en">Large potato</nombre>
   </item>
-  <item puntuacion="6" gramos="80">
+  <item puntuacion="6" gramos="80" tipo="VERDURA">
     <nombre lang="es">Patata pequeña</nombre>
     <nombre lang="en">Small potato</nombre>
   </item>
-  <item puntuacion="6" gramos="150">
+  <item puntuacion="6" gramos="150" tipo="VERDURA">
     <nombre lang="es">Patatas medianas</nombre>
     <nombre lang="en">Medium potatoes</nombre>
   </item>
-  <item puntuacion="9" gramos="200">
+  <item puntuacion="9" gramos="200" tipo="VERDURA">
     <nombre lang="es">Boniato</nombre>
     <nombre lang="en">Sweet potato</nombre>
   </item>
-  <item puntuacion="9" gramos="200">
+  <item puntuacion="9" gramos="200" tipo="VERDURA">
     <nombre lang="es">Calabacín</nombre>
     <nombre lang="en">Zucchini</nombre>
   </item>
-  <item puntuacion="9" gramos="250">
+  <item puntuacion="9" gramos="250" tipo="VERDURA">
     <nombre lang="es">Berenjena</nombre>
     <nombre lang="en">Eggplant</nombre>
   </item>
-  <item puntuacion="10" gramos="250">
+  <item puntuacion="10" gramos="250" tipo="VERDURA">
     <nombre lang="es">Espinaca</nombre>
     <nombre lang="en">Spinach</nombre>
   </item>
-  <item puntuacion="10" gramos="250">
+  <item puntuacion="10" gramos="250" tipo="VERDURA">
     <nombre lang="es">Espinacas frescas</nombre>
     <nombre lang="en">Fresh spinach</nombre>
   </item>
-  <item puntuacion="10" gramos="500">
+  <item puntuacion="10" gramos="500" tipo="VERDURA">
     <nombre lang="es">Acelga</nombre>
     <nombre lang="en">Chard</nombre>
   </item>
-  <item puntuacion="9" gramos="300">
+  <item puntuacion="9" gramos="300" tipo="VERDURA">
     <nombre lang="es">Lechuga</nombre>
     <nombre lang="en">Lettuce</nombre>
   </item>
-  <item puntuacion="10" gramos="200">
+  <item puntuacion="10" gramos="200" tipo="VERDURA">
     <nombre lang="es">Alcachofa</nombre>
     <nombre lang="en">Artichoke</nombre>
   </item>
-  <item puntuacion="9" gramos="400">
+  <item puntuacion="9" gramos="400" tipo="VERDURA">
     <nombre lang="es">Alcachofas en trozos congeladas</nombre>
     <nombre lang="en">Frozen artichoke hearts</nombre>
   </item>
-  <item puntuacion="9" gramos="200">
+  <item puntuacion="9" gramos="200" tipo="VERDURA">
     <nombre lang="es">Pepino</nombre>
     <nombre lang="en">Cucumber</nombre>
   </item>
-  <item puntuacion="9" gramos="80">
+  <item puntuacion="9" gramos="80" tipo="VERDURA">
     <nombre lang="es">Zanahoria</nombre>
     <nombre lang="en">Carrot</nombre>
   </item>
-  <item puntuacion="8" gramos="150">
+  <item puntuacion="8" gramos="150" tipo="VERDURA">
     <nombre lang="es">Remolacha</nombre>
     <nombre lang="en">Beetroot</nombre>
   </item>
-  <item puntuacion="9" gramos="250">
+  <item puntuacion="9" gramos="250" tipo="VERDURA">
     <nombre lang="es">Judía verde</nombre>
     <nombre lang="en">Green bean</nombre>
   </item>
-  <item puntuacion="9" gramos="15">
+  <item puntuacion="9" gramos="15" tipo="VERDURA">
     <nombre lang="es">Champiñón</nombre>
     <nombre lang="en">Mushroom</nombre>
   </item>
-  <item puntuacion="9" gramos="20">
+  <item puntuacion="9" gramos="20" tipo="VERDURA">
     <nombre lang="es">Seta</nombre>
     <nombre lang="en">Seta (Wild Mushroom)</nombre>
   </item>
-  <item puntuacion="10" gramos="20">
+  <item puntuacion="10" gramos="20" tipo="VERDURA">
     <nombre lang="es">Seta Shiitake</nombre>
     <nombre lang="en">Shiitake mushroom</nombre>
   </item>
-  <item puntuacion="9" gramos="20">
+  <item puntuacion="9" gramos="20" tipo="VERDURA">
     <nombre lang="es">Setas ostra</nombre>
     <nombre lang="en">Oyster mushrooms</nombre>
   </item>
-  <item puntuacion="8" gramos="1000">
+  <item puntuacion="8" gramos="1000" tipo="VERDURA">
     <nombre lang="es">Calabaza</nombre>
     <nombre lang="en">Pumpkin</nombre>
   </item>
-  <item puntuacion="9" gramos="20">
+  <item puntuacion="9" gramos="20" tipo="VERDURA">
     <nombre lang="es">Espárrago</nombre>
     <nombre lang="en">Asparagus</nombre>
   </item>
-  <item puntuacion="9" gramos="25">
+  <item puntuacion="9" gramos="25" tipo="VERDURA">
     <nombre lang="es">Espárragos blancos</nombre>
     <nombre lang="en">White asparagus</nombre>
   </item>
-  <item puntuacion="10" gramos="20">
+  <item puntuacion="10" gramos="20" tipo="VERDURA">
     <nombre lang="es">Espárragos verdes</nombre>
     <nombre lang="en">Green asparagus</nombre>
   </item>
-  <item puntuacion="10" gramos="20">
+  <item puntuacion="10" gramos="20" tipo="VERDURA">
     <nombre lang="es">Espárragos trigueros</nombre>
     <nombre lang="en">Wild asparagus</nombre>
   </item>
-  <item puntuacion="10" gramos="300">
+  <item puntuacion="10" gramos="300" tipo="VERDURA">
     <nombre lang="es">Brócoli</nombre>
     <nombre lang="en">Broccoli</nombre>
   </item>
-  <item puntuacion="10" gramos="800">
+  <item puntuacion="10" gramos="800" tipo="VERDURA">
     <nombre lang="es">Col</nombre>
     <nombre lang="en">Cabbage</nombre>
   </item>
-  <item puntuacion="10" gramos="800">
+  <item puntuacion="10" gramos="800" tipo="VERDURA">
     <nombre lang="es">Repollo</nombre>
     <nombre lang="en">Savoy cabbage</nombre>
   </item>
-  <item puntuacion="10" gramos="600">
+  <item puntuacion="10" gramos="600" tipo="VERDURA">
     <nombre lang="es">Coliflor</nombre>
     <nombre lang="en">Cauliflower</nombre>
   </item>
-  <item puntuacion="10" gramos="400">
+  <item puntuacion="10" gramos="400" tipo="VERDURA">
     <nombre lang="es">Coliflor pequeña</nombre>
     <nombre lang="en">Small cauliflower</nombre>
   </item>
-  <item puntuacion="10" gramos="200">
+  <item puntuacion="10" gramos="200" tipo="VERDURA">
     <nombre lang="es">Kale</nombre>
     <nombre lang="en">Kale</nombre>
   </item>
-  <item puntuacion="10" gramos="200">
+  <item puntuacion="10" gramos="200" tipo="VERDURA">
     <nombre lang="es">Bimi</nombre>
     <nombre lang="en">Bimi (Broccolini)</nombre>
   </item>
-  <item puntuacion="10" gramos="250">
+  <item puntuacion="10" gramos="250" tipo="VERDURA">
     <nombre lang="es">Pak choi</nombre>
     <nombre lang="en">Pak choi</nombre>
   </item>
-  <item puntuacion="9" gramos="150">
+  <item puntuacion="9" gramos="150" tipo="VERDURA">
     <nombre lang="es">Puerro</nombre>
     <nombre lang="en">Leek</nombre>
   </item>
-  <item puntuacion="10" gramos="100">
+  <item puntuacion="10" gramos="100" tipo="VERDURA">
     <nombre lang="es">Apio</nombre>
     <nombre lang="en">Celery</nombre>
   </item>
-  <item puntuacion="10" gramos="15">
+  <item puntuacion="10" gramos="15" tipo="VERDURA">
     <nombre lang="es">Rábano</nombre>
     <nombre lang="en">Radish</nombre>
   </item>
-  <item puntuacion="9" gramos="150">
+  <item puntuacion="9" gramos="150" tipo="VERDURA">
     <nombre lang="es">Cogollo</nombre>
     <nombre lang="en">Little gem lettuce</nombre>
   </item>
-  <item puntuacion="10" gramos="150">
+  <item puntuacion="10" gramos="150" tipo="FRUTA">
     <nombre lang="es">Aguacate</nombre>
     <nombre lang="en">Avocado</nombre>
   </item>
-  <item puntuacion="10" gramos="400">
+  <item puntuacion="10" gramos="400" tipo="LEGUMBRE">
     <nombre lang="es">Edamame</nombre>
     <nombre lang="en">Edamame</nombre>
   </item>
-  <item puntuacion="6" gramos="15">
+  <item puntuacion="6" gramos="15" tipo="VERDURA">
     <nombre lang="es">Pepinillo</nombre>
     <nombre lang="en">Pickle</nombre>
   </item>
-  <item puntuacion="7" gramos="200">
+  <item puntuacion="7" gramos="200" tipo="CEREAL">
     <nombre lang="es">Maíz</nombre>
     <nombre lang="en">Corn</nombre>
   </item>
-  <item puntuacion="7" gramos="400">
+  <item puntuacion="7" gramos="400" tipo="VERDURA">
     <nombre lang="es">Pimiento rojo en lata</nombre>
     <nombre lang="en">Canned red pepper</nombre>
   </item>
-  <item puntuacion="7" gramos="30">
+  <item puntuacion="7" gramos="30" tipo="VERDURA">
     <nombre lang="es">Pimiento del piquillo</nombre>
     <nombre lang="en">Piquillo pepper</nombre>
   </item>
-  <item puntuacion="8" gramos="15">
+  <item puntuacion="8" gramos="15" tipo="VERDURA">
     <nombre lang="es">Pimientos del padrón</nombre>
     <nombre lang="en">Padrón peppers</nombre>
   </item>
-  <item puntuacion="5" gramos="1">
+  <item puntuacion="5" gramos="1" tipo="ESPECIA">
     <nombre lang="es">Albahaca fresca</nombre>
     <nombre lang="en">Fresh basil</nombre>
   </item>
 
   <!-- Legumes -->
-  <item puntuacion="10" gramos="500">
+  <item puntuacion="10" gramos="500" tipo="LEGUMBRE">
     <nombre lang="es">Lentejas</nombre>
     <nombre lang="en">Lentils</nombre>
   </item>
-  <item puntuacion="9" gramos="500">
+  <item puntuacion="9" gramos="500" tipo="LEGUMBRE">
     <nombre lang="es">Garbanzo</nombre>
     <nombre lang="en">Chickpea</nombre>
   </item>
-  <item puntuacion="8" gramos="400">
+  <item puntuacion="8" gramos="400" tipo="LEGUMBRE">
     <nombre lang="es">Garbanzos cocidos</nombre>
     <nombre lang="en">Cooked chickpeas</nombre>
   </item>
-  <item puntuacion="9" gramos="500">
+  <item puntuacion="9" gramos="500" tipo="LEGUMBRE">
     <nombre lang="es">Alubia</nombre>
     <nombre lang="en">Bean</nombre>
   </item>
-  <item puntuacion="8" gramos="400">
+  <item puntuacion="8" gramos="400" tipo="LEGUMBRE">
     <nombre lang="es">Judías blancas de bote</nombre>
     <nombre lang="en">Canned white beans</nombre>
   </item>
-  <item puntuacion="9" gramos="250">
+  <item puntuacion="9" gramos="250" tipo="LEGUMBRE">
     <nombre lang="es">Guisante</nombre>
     <nombre lang="en">Pea</nombre>
   </item>
-  <item puntuacion="10" gramos="100">
+  <item puntuacion="10" gramos="100" tipo="LEGUMBRE">
     <nombre lang="es">Guisante lágrima</nombre>
     <nombre lang="en">Tear pea</nombre>
   </item>
-  <item puntuacion="9" gramos="250">
+  <item puntuacion="9" gramos="250" tipo="LEGUMBRE">
     <nombre lang="es">Habas</nombre>
     <nombre lang="en">Broad beans</nombre>
   </item>
-  <item puntuacion="9" gramos="500">
+  <item puntuacion="9" gramos="500" tipo="LEGUMBRE">
     <nombre lang="es">Fabes</nombre>
     <nombre lang="en">Fabes (Asturian beans)</nombre>
   </item>
 
   <!-- Fruits -->
-  <item puntuacion="10" gramos="100">
+  <item puntuacion="10" gramos="100" tipo="FRUTA">
     <nombre lang="es">Limón</nombre>
     <nombre lang="en">Lemon</nombre>
   </item>
-  <item puntuacion="9" gramos="180">
+  <item puntuacion="9" gramos="180" tipo="FRUTA">
     <nombre lang="es">Naranja</nombre>
     <nombre lang="en">Orange</nombre>
   </item>
-  <item puntuacion="9" gramos="80">
+  <item puntuacion="9" gramos="80" tipo="FRUTA">
     <nombre lang="es">Mandarina</nombre>
     <nombre lang="en">Mandarin</nombre>
   </item>
-  <item puntuacion="8" gramos="120">
+  <item puntuacion="8" gramos="120" tipo="FRUTA">
     <nombre lang="es">Plátano</nombre>
     <nombre lang="en">Banana</nombre>
   </item>
-  <item puntuacion="9" gramos="180">
+  <item puntuacion="9" gramos="180" tipo="FRUTA">
     <nombre lang="es">Manzana</nombre>
     <nombre lang="en">Apple</nombre>
   </item>
-  <item puntuacion="9" gramos="170">
+  <item puntuacion="9" gramos="170" tipo="FRUTA">
     <nombre lang="es">Pera</nombre>
     <nombre lang="en">Pear</nombre>
   </item>
-  <item puntuacion="8" gramos="150">
+  <item puntuacion="8" gramos="150" tipo="FRUTA">
     <nombre lang="es">Melocotón</nombre>
     <nombre lang="en">Peach</nombre>
   </item>
-  <item puntuacion="9" gramos="60">
+  <item puntuacion="9" gramos="60" tipo="FRUTA">
     <nombre lang="es">Ciruela</nombre>
     <nombre lang="en">Plum</nombre>
   </item>
-  <item puntuacion="9" gramos="50">
+  <item puntuacion="9" gramos="50" tipo="FRUTA">
     <nombre lang="es">Albaricoque</nombre>
     <nombre lang="en">Apricot</nombre>
   </item>
-  <item puntuacion="9" gramos="4000">
+  <item puntuacion="9" gramos="4000" tipo="FRUTA">
     <nombre lang="es">Sandía</nombre>
     <nombre lang="en">Watermelon</nombre>
   </item>
-  <item puntuacion="6" gramos="100">
+  <item puntuacion="6" gramos="100" tipo="FRUTA">
     <nombre lang="es">Coco rallado</nombre>
     <nombre lang="en">Grated coconut</nombre>
   </item>
-  <item puntuacion="9" gramos="2000">
+  <item puntuacion="9" gramos="2000" tipo="FRUTA">
     <nombre lang="es">Melón</nombre>
     <nombre lang="en">Melon</nombre>
   </item>
-  <item puntuacion="10" gramos="15">
+  <item puntuacion="10" gramos="15" tipo="FRUTA">
     <nombre lang="es">Fresa</nombre>
     <nombre lang="en">Strawberry</nombre>
   </item>
-  <item puntuacion="10" gramos="5">
+  <item puntuacion="10" gramos="5" tipo="FRUTA">
     <nombre lang="es">Frambuesa</nombre>
     <nombre lang="en">Raspberry</nombre>
   </item>
-  <item puntuacion="10" gramos="3">
+  <item puntuacion="10" gramos="3" tipo="FRUTA">
     <nombre lang="es">Arándano</nombre>
     <nombre lang="en">Blueberry</nombre>
   </item>
-  <item puntuacion="10" gramos="5">
+  <item puntuacion="10" gramos="5" tipo="FRUTA">
     <nombre lang="es">Mora</nombre>
     <nombre lang="en">Blackberry</nombre>
   </item>
-  <item puntuacion="10" gramos="300">
+  <item puntuacion="10" gramos="300" tipo="FRUTA">
     <nombre lang="es">Granada</nombre>
     <nombre lang="en">Pomegranate</nombre>
   </item>
-  <item puntuacion="8" gramos="50">
+  <item puntuacion="8" gramos="50" tipo="FRUTA">
     <nombre lang="es">Higo</nombre>
     <nombre lang="en">Fig</nombre>
   </item>
-  <item puntuacion="8" gramos="300">
+  <item puntuacion="8" gramos="300" tipo="FRUTA">
     <nombre lang="es">Chirimoya</nombre>
     <nombre lang="en">Cherimoya</nombre>
   </item>
-  <item puntuacion="10" gramos="80">
+  <item puntuacion="10" gramos="80" tipo="FRUTA">
     <nombre lang="es">Kiwi</nombre>
     <nombre lang="en">Kiwi</nombre>
   </item>
-  <item puntuacion="9" gramos="1000">
+  <item puntuacion="9" gramos="1000" tipo="FRUTA">
     <nombre lang="es">Piña</nombre>
     <nombre lang="en">Pineapple</nombre>
   </item>
-  <item puntuacion="9" gramos="80">
+  <item puntuacion="9" gramos="80" tipo="FRUTA">
     <nombre lang="es">Maracuyá (Fruta de la pasión)</nombre>
     <nombre lang="en">Passion fruit</nombre>
   </item>
-  <item puntuacion="9" gramos="500">
+  <item puntuacion="9" gramos="500" tipo="FRUTA">
     <nombre lang="es">Papaya</nombre>
     <nombre lang="en">Papaya</nombre>
   </item>
-  <item puntuacion="7" gramos="400">
+  <item puntuacion="7" gramos="400" tipo="FRUTA">
     <nombre lang="es">Coco</nombre>
     <nombre lang="en">Coconut</nombre>
   </item>
-  <item puntuacion="7" gramos="150">
+  <item puntuacion="7" gramos="150" tipo="FRUTA">
     <nombre lang="es">Membrillo</nombre>
     <nombre lang="en">Quince</nombre>
   </item>
-  <item puntuacion="9" gramos="8">
+  <item puntuacion="9" gramos="8" tipo="FRUTA">
     <nombre lang="es">Cereza</nombre>
     <nombre lang="en">Cherry</nombre>
   </item>
-  <item puntuacion="8" gramos="200">
+  <item puntuacion="8" gramos="200" tipo="FRUTA">
     <nombre lang="es">Caqui</nombre>
     <nombre lang="en">Persimmon</nombre>
   </item>
-  <item puntuacion="10" gramos="80">
+  <item puntuacion="10" gramos="80" tipo="FRUTA">
     <nombre lang="es">Lima</nombre>
     <nombre lang="en">Lime</nombre>
   </item>
-  <item puntuacion="8" gramos="5">
+  <item puntuacion="8" gramos="5" tipo="FRUTA">
     <nombre lang="es">Uva</nombre>
     <nombre lang="en">Grape</nombre>
   </item>
-  <item puntuacion="2" gramos="500">
+  <item puntuacion="2" gramos="500" tipo="PROCESADO">
     <nombre lang="es">Piña en almíbar</nombre>
     <nombre lang="en">Pineapple in syrup</nombre>
   </item>
 
   <!-- Nuts and Seeds -->
-  <item puntuacion="10" gramos="2">
+  <item puntuacion="10" gramos="2" tipo="FRUTO_SECO">
     <nombre lang="es">Almendra</nombre>
     <nombre lang="en">Almond</nombre>
   </item>
-  <item puntuacion="10" gramos="2">
+  <item puntuacion="10" gramos="2" tipo="FRUTO_SECO">
     <nombre lang="es">Almendra cruda sin piel</nombre>
     <nombre lang="en">Raw peeled almond</nombre>
   </item>
-  <item puntuacion="9" gramos="100">
+  <item puntuacion="9" gramos="100" tipo="FRUTO_SECO">
     <nombre lang="es">Almendra laminada</nombre>
     <nombre lang="en">Sliced almonds</nombre>
   </item>
-  <item puntuacion="9" gramos="250">
+  <item puntuacion="9" gramos="250" tipo="FRUTO_SECO">
     <nombre lang="es">Almendra molida</nombre>
     <nombre lang="en">Ground almond</nombre>
   </item>
-  <item puntuacion="10" gramos="2">
+  <item puntuacion="10" gramos="2" tipo="FRUTO_SECO">
     <nombre lang="es">Avellana</nombre>
     <nombre lang="en">Hazelnut</nombre>
   </item>
-  <item puntuacion="10" gramos="5">
+  <item puntuacion="10" gramos="5" tipo="FRUTO_SECO">
     <nombre lang="es">Nuez</nombre>
     <nombre lang="en">Walnut</nombre>
   </item>
-  <item puntuacion="10" gramos="5">
+  <item puntuacion="10" gramos="5" tipo="FRUTO_SECO">
     <nombre lang="es">Nueces de California</nombre>
     <nombre lang="en">California walnuts</nombre>
   </item>
-  <item puntuacion="9" gramos="1">
+  <item puntuacion="9" gramos="1" tipo="FRUTO_SECO">
     <nombre lang="es">Pistacho</nombre>
     <nombre lang="en">Pistachio</nombre>
   </item>
-  <item puntuacion="8" gramos="15">
+  <item puntuacion="8" gramos="15" tipo="FRUTO_SECO">
     <nombre lang="es">Castaña</nombre>
     <nombre lang="en">Chestnut</nombre>
   </item>
-  <item puntuacion="9" gramos="100">
+  <item puntuacion="9" gramos="100" tipo="FRUTO_SECO">
     <nombre lang="es">Piñón</nombre>
     <nombre lang="en">Pine nut</nombre>
   </item>
-  <item puntuacion="10" gramos="150">
+  <item puntuacion="10" gramos="150" tipo="SEMILLA">
     <nombre lang="es">Chía</nombre>
     <nombre lang="en">Chia</nombre>
   </item>
-  <item puntuacion="10" gramos="150">
+  <item puntuacion="10" gramos="150" tipo="SEMILLA">
     <nombre lang="es">Semillas de lino</nombre>
     <nombre lang="en">Flax seeds</nombre>
   </item>
-  <item puntuacion="10" gramos="500">
+  <item puntuacion="10" gramos="500" tipo="SEMILLA">
     <nombre lang="es">Quinoa</nombre>
     <nombre lang="en">Quinoa</nombre>
   </item>
 
   <!-- Meats and Poultry -->
-  <item puntuacion="8" gramos="1500">
+  <item puntuacion="8" gramos="1500" tipo="CARNE_BLANCA">
     <nombre lang="es">Pollo</nombre>
     <nombre lang="en">Chicken</nombre>
   </item>
-  <item puntuacion="8" gramos="500">
+  <item puntuacion="8" gramos="500" tipo="CARNE_BLANCA">
     <nombre lang="es">Pollo en trozos</nombre>
     <nombre lang="en">Chicken pieces</nombre>
   </item>
-  <item puntuacion="9" gramos="200">
+  <item puntuacion="9" gramos="200" tipo="CARNE_BLANCA">
     <nombre lang="es">Pechuga de pollo</nombre>
     <nombre lang="en">Chicken breast</nombre>
   </item>
-  <item puntuacion="10" gramos="200">
+  <item puntuacion="10" gramos="200" tipo="CARNE_BLANCA">
     <nombre lang="es">Pechuga de pollo, sin piel y deshuesada</nombre>
     <nombre lang="en">Chicken breast, skinless and boneless</nombre>
   </item>
-  <item puntuacion="9" gramos="100">
+  <item puntuacion="9" gramos="100" tipo="CARNE_BLANCA">
     <nombre lang="es">Solomillo de pollo</nombre>
     <nombre lang="en">Chicken tenderloin</nombre>
   </item>
-  <item puntuacion="8" gramos="150">
+  <item puntuacion="8" gramos="150" tipo="CARNE_BLANCA">
     <nombre lang="es">Contramuslo de pollo</nombre>
     <nombre lang="en">Chicken thigh (boneless)</nombre>
   </item>
-  <item puntuacion="7" gramos="180">
+  <item puntuacion="7" gramos="180" tipo="CARNE_BLANCA">
     <nombre lang="es">Muslo de pollo</nombre>
     <nombre lang="en">Chicken drumstick</nombre>
   </item>
-  <item puntuacion="6" gramos="180">
+  <item puntuacion="6" gramos="180" tipo="CARNE_BLANCA">
     <nombre lang="es">Muslo de pollo con hueso y piel</nombre>
     <nombre lang="en">Chicken drumstick with bone and skin</nombre>
   </item>
-  <item puntuacion="7" gramos="300">
+  <item puntuacion="7" gramos="300" tipo="CARNE_BLANCA">
     <nombre lang="es">Cuartos traseros de pollo</nombre>
     <nombre lang="en">Chicken quarters</nombre>
   </item>
-  <item puntuacion="5" gramos="60">
+  <item puntuacion="5" gramos="60" tipo="CARNE_BLANCA">
     <nombre lang="es">Alitas de pollo</nombre>
     <nombre lang="en">Chicken wings</nombre>
   </item>
-  <item puntuacion="8" gramos="1500">
+  <item puntuacion="8" gramos="1500" tipo="CARNE_BLANCA">
     <nombre lang="es">Pollo entero alimentado con cereal</nombre>
     <nombre lang="en">Whole cereal-fed chicken</nombre>
   </item>
-  <item puntuacion="9" gramos="1500">
+  <item puntuacion="9" gramos="1500" tipo="CARNE_BLANCA">
     <nombre lang="es">Pavo</nombre>
     <nombre lang="en">Turkey</nombre>
   </item>
-  <item puntuacion="10" gramos="500">
+  <item puntuacion="10" gramos="500" tipo="CARNE_BLANCA">
     <nombre lang="es">Pechuga de pavo</nombre>
     <nombre lang="en">Turkey breast</nombre>
   </item>
-  <item puntuacion="9" gramos="1200">
+  <item puntuacion="9" gramos="1200" tipo="CARNE_BLANCA">
     <nombre lang="es">Conejo</nombre>
     <nombre lang="en">Rabbit</nombre>
   </item>
-  <item puntuacion="3" gramos="150">
+  <item puntuacion="3" gramos="150" tipo="CARNE_ROJA">
     <nombre lang="es">Ternera</nombre>
     <nombre lang="en">Beef</nombre>
   </item>
-  <item puntuacion="3" gramos="150">
+  <item puntuacion="3" gramos="150" tipo="CARNE_ROJA">
     <nombre lang="es">Filete de ternera</nombre>
     <nombre lang="en">Beef steak</nombre>
   </item>
-  <item puntuacion="3" gramos="120">
+  <item puntuacion="3" gramos="120" tipo="CARNE_ROJA">
     <nombre lang="es">Filete de ternera fina</nombre>
     <nombre lang="en">Thin beef steak</nombre>
   </item>
-  <item puntuacion="5" gramos="150">
+  <item puntuacion="5" gramos="150" tipo="CARNE_BLANCA">
     <nombre lang="es">Cerdo</nombre>
     <nombre lang="en">Pork</nombre>
   </item>
-  <item puntuacion="7" gramos="1000">
+  <item puntuacion="7" gramos="1000" tipo="CARNE_BLANCA">
     <nombre lang="es">Lomo de cerdo</nombre>
     <nombre lang="en">Pork loin</nombre>
   </item>
-  <item puntuacion="7" gramos="400">
+  <item puntuacion="7" gramos="400" tipo="CARNE_BLANCA">
     <nombre lang="es">Solomillo de cerdo</nombre>
     <nombre lang="en">Pork tenderloin</nombre>
   </item>
-  <item puntuacion="6" gramos="2000">
+  <item puntuacion="6" gramos="2000" tipo="CARNE_ROJA">
     <nombre lang="es">Cordero</nombre>
     <nombre lang="en">Lamb</nombre>
   </item>
-  <item puntuacion="7" gramos="100">
+  <item puntuacion="7" gramos="100" tipo="CARNE_ROJA">
     <nombre lang="es">Chuletas de cordero</nombre>
     <nombre lang="en">Lamb chops</nombre>
   </item>
-  <item puntuacion="8" gramos="150">
+  <item puntuacion="8" gramos="150" tipo="CARNE_ROJA">
     <nombre lang="es">Venado</nombre>
     <nombre lang="en">Venison</nombre>
   </item>
-  <item puntuacion="6" gramos="150">
+  <item puntuacion="6" gramos="150" tipo="CARNE_ROJA">
     <nombre lang="es">Jabalí</nombre>
     <nombre lang="en">Wild boar</nombre>
   </item>
-  <item puntuacion="8" gramos="300">
+  <item puntuacion="8" gramos="300" tipo="CARNE_BLANCA">
     <nombre lang="es">Perdiz</nombre>
     <nombre lang="en">Partridge</nombre>
   </item>
-  <item puntuacion="7" gramos="1500">
+  <item puntuacion="7" gramos="1500" tipo="CARNE_ROJA">
     <nombre lang="es">Pato</nombre>
     <nombre lang="en">Duck</nombre>
   </item>
-  <item puntuacion="7" gramos="1500">
+  <item puntuacion="7" gramos="1500" tipo="CARNE_BLANCA">
     <nombre lang="es">Gallina</nombre>
     <nombre lang="en">Hen</nombre>
   </item>
-  <item puntuacion="7" gramos="200">
+  <item puntuacion="7" gramos="200" tipo="CARNE_BLANCA">
     <nombre lang="es">Muslo de gallina</nombre>
     <nombre lang="en">Hen thigh</nombre>
   </item>
-  <item puntuacion="8" gramos="500">
+  <item puntuacion="8" gramos="500" tipo="CARNE_BLANCA">
     <nombre lang="es">Carne picada de pollo</nombre>
     <nombre lang="en">Minced chicken meat</nombre>
   </item>
-  <item puntuacion="6" gramos="500">
+  <item puntuacion="6" gramos="500" tipo="CARNE_ROJA">
     <nombre lang="es">Carne picada</nombre>
     <nombre lang="en">Minced meat</nombre>
   </item>
-  <item puntuacion="5" gramos="500">
+  <item puntuacion="5" gramos="500" tipo="CARNE_ROJA">
     <nombre lang="es">Carne picada mixta</nombre>
     <nombre lang="en">Mixed minced meat</nombre>
   </item>
-  <item puntuacion="8" gramos="150">
+  <item puntuacion="8" gramos="150" tipo="CARNE_ROJA">
     <nombre lang="es">Hígado</nombre>
     <nombre lang="en">Liver</nombre>
   </item>
-  <item puntuacion="5" gramos="100">
+  <item puntuacion="5" gramos="100" tipo="CARNE_BLANCA">
     <nombre lang="es">Carrilleras de cerdo</nombre>
     <nombre lang="en">Pork cheeks</nombre>
   </item>
-  <item puntuacion="5" gramos="300">
+  <item puntuacion="5" gramos="300" tipo="CARNE_ROJA">
     <nombre lang="es">Costilla de ternera</nombre>
     <nombre lang="en">Beef rib</nombre>
   </item>
-  <item puntuacion="9" gramos="100">
+  <item puntuacion="9" gramos="100" tipo="CARNE_BLANCA">
     <nombre lang="es">Filete de pollo</nombre>
     <nombre lang="en">Chicken fillet</nombre>
   </item>
-  <item puntuacion="5" gramos="500">
+  <item puntuacion="5" gramos="500" tipo="CARNE_ROJA">
     <nombre lang="es">Morcillo de ternera</nombre>
     <nombre lang="en">Beef shank</nombre>
   </item>
 
   <!-- Fish and Seafood -->
-  <item puntuacion="10" gramos="150">
+  <item puntuacion="10" gramos="150" tipo="PESCADO_BLANCO">
     <nombre lang="es">Bacalao</nombre>
     <nombre lang="en">Cod</nombre>
   </item>
-  <item puntuacion="10" gramos="150">
+  <item puntuacion="10" gramos="150" tipo="PESCADO_BLANCO">
     <nombre lang="es">Filete de bacalao</nombre>
     <nombre lang="en">Cod fillet</nombre>
   </item>
-  <item puntuacion="9" gramos="200">
+  <item puntuacion="9" gramos="200" tipo="PESCADO_BLANCO">
     <nombre lang="es">Lomo de bacalao desalado</nombre>
     <nombre lang="en">Desalted cod loin</nombre>
   </item>
-  <item puntuacion="9" gramos="150">
+  <item puntuacion="9" gramos="150" tipo="PESCADO_BLANCO">
     <nombre lang="es">Merluza</nombre>
     <nombre lang="en">Hake</nombre>
   </item>
-  <item puntuacion="9" gramos="200">
+  <item puntuacion="9" gramos="200" tipo="PESCADO_BLANCO">
     <nombre lang="es">Pescadilla</nombre>
     <nombre lang="en">Whiting</nombre>
   </item>
-  <item puntuacion="10" gramos="150">
+  <item puntuacion="10" gramos="150" tipo="PESCADO_AZUL">
     <nombre lang="es">Salmón</nombre>
     <nombre lang="en">Salmon</nombre>
   </item>
-  <item puntuacion="9" gramos="150">
+  <item puntuacion="9" gramos="150" tipo="PESCADO_AZUL">
     <nombre lang="es">Atún</nombre>
     <nombre lang="en">Tuna</nombre>
   </item>
-  <item puntuacion="10" gramos="80">
+  <item puntuacion="10" gramos="80" tipo="PESCADO_AZUL">
     <nombre lang="es">Atún natural en conserva</nombre>
     <nombre lang="en">Natural canned tuna</nombre>
   </item>
-  <item puntuacion="10" gramos="80">
+  <item puntuacion="10" gramos="80" tipo="PESCADO_AZUL">
     <nombre lang="es">Sardinas</nombre>
     <nombre lang="en">Sardines</nombre>
   </item>
-  <item puntuacion="10" gramos="10">
+  <item puntuacion="10" gramos="10" tipo="PESCADO_AZUL">
     <nombre lang="es">Boquerones</nombre>
     <nombre lang="en">Anchovies</nombre>
   </item>
-  <item puntuacion="9" gramos="300">
+  <item puntuacion="9" gramos="300" tipo="PESCADO_BLANCO">
     <nombre lang="es">Dorada</nombre>
     <nombre lang="en">Sea bream</nombre>
   </item>
-  <item puntuacion="9" gramos="300">
+  <item puntuacion="9" gramos="300" tipo="PESCADO_BLANCO">
     <nombre lang="es">Lubina</nombre>
     <nombre lang="en">Sea bass</nombre>
   </item>
-  <item puntuacion="10" gramos="300">
+  <item puntuacion="10" gramos="300" tipo="PESCADO_BLANCO">
     <nombre lang="es">Lubina limpia sin espinas</nombre>
     <nombre lang="en">Clean sea bass without bones</nombre>
   </item>
-  <item puntuacion="10" gramos="300">
+  <item puntuacion="10" gramos="300" tipo="MARISCO">
     <nombre lang="es">Sepia</nombre>
     <nombre lang="en">Cuttlefish</nombre>
   </item>
-  <item puntuacion="10" gramos="150">
+  <item puntuacion="10" gramos="150" tipo="MARISCO">
     <nombre lang="es">Calamar</nombre>
     <nombre lang="en">Squid</nombre>
   </item>
-  <item puntuacion="10" gramos="1000">
+  <item puntuacion="10" gramos="1000" tipo="MARISCO">
     <nombre lang="es">Pulpo</nombre>
     <nombre lang="en">Octopus</nombre>
   </item>
-  <item puntuacion="10" gramos="15">
+  <item puntuacion="10" gramos="15" tipo="MARISCO">
     <nombre lang="es">Gambas</nombre>
     <nombre lang="en">Prawns</nombre>
   </item>
-  <item puntuacion="9" gramos="8">
+  <item puntuacion="9" gramos="8" tipo="MARISCO">
     <nombre lang="es">Gambas pequeñas</nombre>
     <nombre lang="en">Small prawns</nombre>
   </item>
-  <item puntuacion="10" gramos="15">
+  <item puntuacion="10" gramos="15" tipo="MARISCO">
     <nombre lang="es">Gambas/Langostinos (crudos)</nombre>
     <nombre lang="en">Prawns/King Prawns (raw)</nombre>
   </item>
-  <item puntuacion="9" gramos="20">
+  <item puntuacion="9" gramos="20" tipo="MARISCO">
     <nombre lang="es">Langostinos</nombre>
     <nombre lang="en">King prawns</nombre>
   </item>
-  <item puntuacion="9" gramos="20">
+  <item puntuacion="9" gramos="20" tipo="MARISCO">
     <nombre lang="es">Langostino</nombre>
     <nombre lang="en">King prawn</nombre>
   </item>
-  <item puntuacion="9" gramos="20">
+  <item puntuacion="9" gramos="20" tipo="MARISCO">
     <nombre lang="es">Langostino crudo</nombre>
     <nombre lang="en">Raw king prawn</nombre>
   </item>
-  <item puntuacion="10" gramos="15">
+  <item puntuacion="10" gramos="15" tipo="MARISCO">
     <nombre lang="es">Mejillones</nombre>
     <nombre lang="en">Mussels</nombre>
   </item>
-  <item puntuacion="10" gramos="10">
+  <item puntuacion="10" gramos="10" tipo="MARISCO">
     <nombre lang="es">Almejas</nombre>
     <nombre lang="en">Clams</nombre>
   </item>
-  <item puntuacion="10" gramos="10">
+  <item puntuacion="10" gramos="10" tipo="MARISCO">
     <nombre lang="es">Chirlas</nombre>
     <nombre lang="en">Baby clams</nombre>
   </item>
-  <item puntuacion="10" gramos="70">
+  <item puntuacion="10" gramos="70" tipo="MARISCO">
     <nombre lang="es">Ostras</nombre>
     <nombre lang="en">Oysters</nombre>
   </item>
-  <item puntuacion="5" gramos="5">
+  <item puntuacion="5" gramos="5" tipo="PESCADO_AZUL">
     <nombre lang="es">Anchoas</nombre>
     <nombre lang="en">Anchovies</nombre>
   </item>
-  <item puntuacion="9" gramos="150">
+  <item puntuacion="9" gramos="150" tipo="PESCADO_AZUL">
     <nombre lang="es">Bonito</nombre>
     <nombre lang="en">Skipjack tuna</nombre>
   </item>
-  <item puntuacion="5" gramos="150">
+  <item puntuacion="5" gramos="150" tipo="MARISCO">
     <nombre lang="es">Calamar, pota o sepia</nombre>
     <nombre lang="en">Squid, jumbo squid or cuttlefish</nombre>
   </item>
-  <item puntuacion="5" gramos="100">
+  <item puntuacion="5" gramos="100" tipo="PESCADO_BLANCO">
     <nombre lang="es">Raspas de pescado</nombre>
     <nombre lang="en">Fish trimmings</nombre>
   </item>
-  <item puntuacion="5" gramos="4">
+  <item puntuacion="5" gramos="4" tipo="OTROS">
     <nombre lang="es">Tinta de calamar</nombre>
     <nombre lang="en">Squid ink</nombre>
   </item>
 
   <!-- Plant-based Proteins -->
-  <item puntuacion="10" gramos="250">
+  <item puntuacion="10" gramos="250" tipo="PROTEINA_VEGETAL">
     <nombre lang="es">Tofu</nombre>
     <nombre lang="en">Tofu</nombre>
   </item>
-  <item puntuacion="9" gramos="180">
+  <item puntuacion="9" gramos="180" tipo="PROTEINA_VEGETAL">
     <nombre lang="es">Heura</nombre>
     <nombre lang="en">Heura (Plant-based chicken alternative)</nombre>
   </item>
-  <item puntuacion="10" gramos="200">
+  <item puntuacion="10" gramos="200" tipo="PROTEINA_VEGETAL">
     <nombre lang="es">Tempeh</nombre>
     <nombre lang="en">Tempeh</nombre>
   </item>
-  <item puntuacion="9" gramos="250">
+  <item puntuacion="9" gramos="250" tipo="PROTEINA_VEGETAL">
     <nombre lang="es">Soja texturizada</nombre>
     <nombre lang="en">Textured soy</nombre>
   </item>
-  <item puntuacion="5" gramos="400">
+  <item puntuacion="5" gramos="400" tipo="LACTEO">
     <nombre lang="es">Leche de coco</nombre>
     <nombre lang="en">Coconut milk</nombre>
   </item>
 
   <!-- Cereals, Flours and Pastas -->
-  <item puntuacion="4" gramos="1000">
+  <item puntuacion="4" gramos="1000" tipo="CEREAL">
     <nombre lang="es">Arroz</nombre>
     <nombre lang="en">Rice</nombre>
   </item>
-  <item puntuacion="6" gramos="1000">
+  <item puntuacion="6" gramos="1000" tipo="CEREAL">
     <nombre lang="es">Arroz integral</nombre>
     <nombre lang="en">Brown rice</nombre>
   </item>
-  <item puntuacion="4" gramos="1000">
+  <item puntuacion="4" gramos="1000" tipo="CEREAL">
     <nombre lang="es">Arroz basmati</nombre>
     <nombre lang="en">Basmati rice</nombre>
   </item>
-  <item puntuacion="4" gramos="1000">
+  <item puntuacion="4" gramos="1000" tipo="CEREAL">
     <nombre lang="es">Arroz de sushi</nombre>
     <nombre lang="en">Sushi rice</nombre>
   </item>
-  <item puntuacion="5" gramos="500">
+  <item puntuacion="5" gramos="500" tipo="PASTA">
     <nombre lang="es">Pasta</nombre>
     <nombre lang="en">Pasta</nombre>
   </item>
-  <item puntuacion="8" gramos="500">
+  <item puntuacion="8" gramos="500" tipo="PASTA">
     <nombre lang="es">Pasta integral</nombre>
     <nombre lang="en">Whole grain pasta</nombre>
   </item>
-  <item puntuacion="5" gramos="500">
+  <item puntuacion="5" gramos="500" tipo="PASTA">
     <nombre lang="es">Macarrones</nombre>
     <nombre lang="en">Macaroni</nombre>
   </item>
-  <item puntuacion="5" gramos="500">
+  <item puntuacion="5" gramos="500" tipo="PASTA">
     <nombre lang="es">Espaguetis</nombre>
     <nombre lang="en">Spaghetti</nombre>
   </item>
-  <item puntuacion="5" gramos="500">
+  <item puntuacion="5" gramos="500" tipo="PASTA">
     <nombre lang="es">Fideos</nombre>
     <nombre lang="en">Noodles (fideos)</nombre>
   </item>
-  <item puntuacion="5" gramos="500">
+  <item puntuacion="5" gramos="500" tipo="PASTA">
     <nombre lang="es">Fideos finos</nombre>
     <nombre lang="en">Thin noodles</nombre>
   </item>
-  <item puntuacion="5" gramos="500">
+  <item puntuacion="5" gramos="500" tipo="PASTA">
     <nombre lang="es">Noodles</nombre>
     <nombre lang="en">Asian Noodles</nombre>
   </item>
-  <item puntuacion="7" gramos="500">
+  <item puntuacion="7" gramos="500" tipo="CEREAL">
     <nombre lang="es">Cuscús</nombre>
     <nombre lang="en">Couscous</nombre>
   </item>
-  <item puntuacion="3" gramos="250">
+  <item puntuacion="3" gramos="250" tipo="CEREAL">
     <nombre lang="es">Pan</nombre>
     <nombre lang="en">Bread</nombre>
   </item>
-  <item puntuacion="2" gramos="1">
+  <item puntuacion="2" gramos="1" tipo="CEREAL">
     <nombre lang="es">Picatostes</nombre>
     <nombre lang="en">Picatostes</nombre>
   </item>
-  <item puntuacion="6" gramos="250">
+  <item puntuacion="6" gramos="250" tipo="CEREAL">
     <nombre lang="es">Pan integral</nombre>
     <nombre lang="en">Whole grain bread</nombre>
   </item>
-  <item puntuacion="5" gramos="500">
+  <item puntuacion="5" gramos="500" tipo="CEREAL">
     <nombre lang="es">Pan de molde integral</nombre>
     <nombre lang="en">Whole grain sliced bread</nombre>
   </item>
-  <item puntuacion="10" gramos="500">
+  <item puntuacion="10" gramos="500" tipo="CEREAL">
     <nombre lang="es">Copos de avena</nombre>
     <nombre lang="en">Oat flakes</nombre>
   </item>
-  <item puntuacion="2" gramos="500">
+  <item puntuacion="2" gramos="500" tipo="HARINA">
     <nombre lang="es">Pan rallado</nombre>
     <nombre lang="en">Breadcrumbs</nombre>
   </item>
-  <item puntuacion="3" gramos="1000">
+  <item puntuacion="3" gramos="1000" tipo="HARINA">
     <nombre lang="es">Harina de trigo</nombre>
     <nombre lang="en">Wheat flour</nombre>
   </item>
-  <item puntuacion="4" gramos="1000">
+  <item puntuacion="4" gramos="1000" tipo="HARINA">
     <nombre lang="es">Harina de fuerza</nombre>
     <nombre lang="en">Strong flour</nombre>
   </item>
-  <item puntuacion="5" gramos="1000">
+  <item puntuacion="5" gramos="1000" tipo="HARINA">
     <nombre lang="es">Harina de maíz</nombre>
     <nombre lang="en">Corn flour</nombre>
   </item>
-  <item puntuacion="3" gramos="400">
+  <item puntuacion="3" gramos="400" tipo="HARINA">
     <nombre lang="es">Maicena</nombre>
     <nombre lang="en">Cornstarch</nombre>
   </item>
-  <item puntuacion="5" gramos="1000">
+  <item puntuacion="5" gramos="1000" tipo="HARINA">
     <nombre lang="es">Harina de repostería</nombre>
     <nombre lang="en">Pastry flour</nombre>
   </item>
-  <item puntuacion="3" gramos="1000">
+  <item puntuacion="3" gramos="1000" tipo="HARINA">
     <nombre lang="es">Harina de trigo de fuerza</nombre>
     <nombre lang="en">Strong wheat flour</nombre>
   </item>
-  <item puntuacion="2" gramos="250">
+  <item puntuacion="2" gramos="250" tipo="PASTA">
     <nombre lang="es">Lámina de hojaldre</nombre>
     <nombre lang="en">Puff pastry sheet</nombre>
   </item>
-  <item puntuacion="5" gramos="250">
+  <item puntuacion="5" gramos="250" tipo="PASTA">
     <nombre lang="es">Láminas de lasaña</nombre>
     <nombre lang="en">Lasagna sheets</nombre>
   </item>
-  <item puntuacion="1" gramos="250">
+  <item puntuacion="1" gramos="250" tipo="PASTA">
     <nombre lang="es">Masa Quebrada</nombre>
     <nombre lang="en">Shortcrust pastry</nombre>
   </item>
-  <item puntuacion="5" gramos="500">
+  <item puntuacion="5" gramos="500" tipo="PASTA">
     <nombre lang="es">Ñoquis</nombre>
     <nombre lang="en">Gnocchi</nombre>
   </item>
-  <item puntuacion="3" gramos="250">
+  <item puntuacion="3" gramos="250" tipo="CEREAL">
     <nombre lang="es">Pan chapata</nombre>
     <nombre lang="en">Ciabatta bread</nombre>
   </item>
-  <item puntuacion="3" gramos="60">
+  <item puntuacion="3" gramos="60" tipo="CEREAL">
     <nombre lang="es">Pan de payés</nombre>
     <nombre lang="en">Country-style bread</nombre>
   </item>
-  <item puntuacion="2" gramos="500">
+  <item puntuacion="2" gramos="500" tipo="HARINA">
     <nombre lang="es">Pan rallado panko</nombre>
     <nombre lang="en">Panko breadcrumbs</nombre>
   </item>
-  <item puntuacion="3" gramos="30">
+  <item puntuacion="3" gramos="30" tipo="CEREAL">
     <nombre lang="es">Rebanada de pan</nombre>
     <nombre lang="en">Slice of bread</nombre>
   </item>
-  <item puntuacion="5" gramos="500">
+  <item puntuacion="5" gramos="500" tipo="PASTA">
     <nombre lang="es">Fideos de estrellitas</nombre>
     <nombre lang="en">Star pasta (fideos)</nombre>
   </item>
 
   <!-- Fats and Oils -->
-  <item puntuacion="7" gramos="1000">
+  <item puntuacion="7" gramos="1000" tipo="ACEITE">
     <nombre lang="es">Aceite de Oliva Virgen Extra</nombre>
     <nombre lang="en">Extra Virgin Olive Oil</nombre>
   </item>
-  <item puntuacion="6" gramos="1000">
+  <item puntuacion="6" gramos="1000" tipo="ACEITE">
     <nombre lang="es">Aceite de Oliva</nombre>
     <nombre lang="en">Olive Oil</nombre>
   </item>
-  <item puntuacion="-1" gramos="1000">
+  <item puntuacion="-1" gramos="1000" tipo="ACEITE">
     <nombre lang="es">Aceite de sésamo</nombre>
     <nombre lang="en">Sesame oil</nombre>
   </item>
-  <item puntuacion="-1" gramos="1000">
+  <item puntuacion="-1" gramos="1000" tipo="ACEITE">
     <nombre lang="es">Aceite de Girasol</nombre>
     <nombre lang="en">Sunflower Oil</nombre>
   </item>
-  <item puntuacion="3" gramos="250">
+  <item puntuacion="3" gramos="250" tipo="GRASA">
     <nombre lang="es">Mantequilla</nombre>
     <nombre lang="en">Butter</nombre>
   </item>
-  <item puntuacion="3" gramos="250">
+  <item puntuacion="3" gramos="250" tipo="GRASA">
     <nombre lang="es">Mantequilla sin sal</nombre>
     <nombre lang="en">Unsalted butter</nombre>
   </item>
-  <item puntuacion="1" gramos="200">
+  <item puntuacion="1" gramos="200" tipo="CARNE_PROCESADA">
     <nombre lang="es">Tocino</nombre>
     <nombre lang="en">Bacon fat / Fatback</nombre>
   </item>
-  <item puntuacion="1" gramos="200">
+  <item puntuacion="1" gramos="200" tipo="CARNE_PROCESADA">
     <nombre lang="es">Tocino fresco</nombre>
     <nombre lang="en">Fresh bacon fat</nombre>
   </item>
 
   <!-- Dairy and Eggs -->
-  <item puntuacion="9" gramos="55">
+  <item puntuacion="9" gramos="55" tipo="HUEVO">
     <nombre lang="es">Huevo</nombre>
     <nombre lang="en">Egg</nombre>
   </item>
-  <item puntuacion="10" gramos="30">
+  <item puntuacion="10" gramos="30" tipo="HUEVO">
     <nombre lang="es">Clara de huevo</nombre>
     <nombre lang="en">Egg white</nombre>
   </item>
-  <item puntuacion="6" gramos="20">
+  <item puntuacion="6" gramos="20" tipo="HUEVO">
     <nombre lang="es">Yema de huevo</nombre>
     <nombre lang="en">Egg yolk</nombre>
   </item>
-  <item puntuacion="8" gramos="65">
+  <item puntuacion="8" gramos="65" tipo="HUEVO">
     <nombre lang="es">Huevos grandes</nombre>
     <nombre lang="en">Large eggs</nombre>
   </item>
-  <item puntuacion="9" gramos="125">
+  <item puntuacion="9" gramos="125" tipo="LACTEO">
     <nombre lang="es">Yogur natural</nombre>
     <nombre lang="en">Natural yogurt</nombre>
   </item>
-  <item puntuacion="8" gramos="125">
+  <item puntuacion="8" gramos="125" tipo="LACTEO">
     <nombre lang="es">Yogur griego</nombre>
     <nombre lang="en">Greek yogurt</nombre>
   </item>
-  <item puntuacion="10" gramos="1000">
+  <item puntuacion="10" gramos="1000" tipo="LACTEO">
     <nombre lang="es">Kéfir</nombre>
     <nombre lang="en">Kefir</nombre>
   </item>
-  <item puntuacion="3" gramos="1000">
+  <item puntuacion="3" gramos="1000" tipo="LACTEO">
     <nombre lang="es">Leche entera</nombre>
     <nombre lang="en">Whole milk</nombre>
   </item>
-  <item puntuacion="3" gramos="1000">
+  <item puntuacion="3" gramos="1000" tipo="LACTEO">
     <nombre lang="es">Leche</nombre>
     <nombre lang="en">Milk</nombre>
   </item>
-  <item puntuacion="4" gramos="1000">
+  <item puntuacion="4" gramos="1000" tipo="LACTEO">
     <nombre lang="es">Leche de cabra</nombre>
     <nombre lang="en">Goat milk</nombre>
   </item>
-  <item puntuacion="3" gramos="250">
+  <item puntuacion="3" gramos="250" tipo="LACTEO">
     <nombre lang="es">Queso fresco</nombre>
     <nombre lang="en">Fresh cheese</nombre>
   </item>
-  <item puntuacion="3" gramos="125">
+  <item puntuacion="3" gramos="125" tipo="LACTEO">
     <nombre lang="es">Requesón</nombre>
     <nombre lang="en">Cottage cheese</nombre>
   </item>
-  <item puntuacion="7" gramos="1000">
+  <item puntuacion="7" gramos="1000" tipo="LACTEO">
     <nombre lang="es">Leche de avena</nombre>
     <nombre lang="en">Oat milk</nombre>
   </item>
-  <item puntuacion="8" gramos="1000">
+  <item puntuacion="8" gramos="1000" tipo="LACTEO">
     <nombre lang="es">Leche de soja</nombre>
     <nombre lang="en">Soy milk</nombre>
   </item>
-  <item puntuacion="8" gramos="1000">
+  <item puntuacion="8" gramos="1000" tipo="LACTEO">
     <nombre lang="es">Bebida de almendras sin azúcar</nombre>
     <nombre lang="en">Unsweetened almond drink</nombre>
   </item>
-  <item puntuacion="5" gramos="200">
+  <item puntuacion="5" gramos="200" tipo="LACTEO">
     <nombre lang="es">Creme Fresh</nombre>
     <nombre lang="en">Crème fraîche</nombre>
   </item>
-  <item puntuacion="5" gramos="125">
+  <item puntuacion="5" gramos="125" tipo="LACTEO">
     <nombre lang="es">Mozarella fresca</nombre>
     <nombre lang="en">Fresh mozzarella</nombre>
   </item>
-  <item puntuacion="5" gramos="250">
+  <item puntuacion="5" gramos="250" tipo="LACTEO">
     <nombre lang="es">Mozzarella rallada</nombre>
     <nombre lang="en">Shredded mozzarella</nombre>
   </item>
-  <item puntuacion="5" gramos="200">
+  <item puntuacion="5" gramos="200" tipo="LACTEO">
     <nombre lang="es">Nata de cocinar</nombre>
     <nombre lang="en">Cooking cream</nombre>
   </item>
-  <item puntuacion="5" gramos="200">
+  <item puntuacion="5" gramos="200" tipo="LACTEO">
     <nombre lang="es">Nata para montar</nombre>
     <nombre lang="en">Whipping cream</nombre>
   </item>
 
   <!-- Others / Processed (Low scores) -->
-  <item puntuacion="0" gramos="1000">
+  <item puntuacion="0" gramos="1000" tipo="DULCE">
     <nombre lang="es">Azúcar</nombre>
     <nombre lang="en">Sugar</nombre>
   </item>
-  <item puntuacion="0" gramos="1000">
+  <item puntuacion="0" gramos="1000" tipo="DULCE">
     <nombre lang="es">Azúcar blanco</nombre>
     <nombre lang="en">White sugar</nombre>
   </item>
-  <item puntuacion="0" gramos="1000">
+  <item puntuacion="0" gramos="1000" tipo="DULCE">
     <nombre lang="es">Azúcar glas</nombre>
     <nombre lang="en">Icing sugar</nombre>
   </item>
-  <item puntuacion="1" gramos="1000">
+  <item puntuacion="1" gramos="1000" tipo="DULCE">
     <nombre lang="es">Azúcar moreno</nombre>
     <nombre lang="en">Brown sugar</nombre>
   </item>
-  <item puntuacion="1" gramos="20">
+  <item puntuacion="1" gramos="20" tipo="CARNE_PROCESADA">
     <nombre lang="es">Bacon</nombre>
     <nombre lang="en">Bacon</nombre>
   </item>
-  <item puntuacion="2" gramos="80">
+  <item puntuacion="2" gramos="80" tipo="CARNE_PROCESADA">
     <nombre lang="es">Chorizo</nombre>
     <nombre lang="en">Chorizo</nombre>
   </item>
-  <item puntuacion="2" gramos="80">
+  <item puntuacion="2" gramos="80" tipo="CARNE_PROCESADA">
     <nombre lang="es">Chorizo fresco</nombre>
     <nombre lang="en">Fresh chorizo</nombre>
   </item>
-  <item puntuacion="1" gramos="80">
+  <item puntuacion="1" gramos="80" tipo="CARNE_PROCESADA">
     <nombre lang="es">Salchichas</nombre>
     <nombre lang="en">Sausages</nombre>
   </item>
-  <item puntuacion="2" gramos="80">
+  <item puntuacion="2" gramos="80" tipo="CARNE_PROCESADA">
     <nombre lang="es">Salchichas frescas</nombre>
     <nombre lang="en">Fresh sausages</nombre>
   </item>
-  <item puntuacion="1" gramos="300">
+  <item puntuacion="1" gramos="300" tipo="SALSA">
     <nombre lang="es">Ketchup</nombre>
     <nombre lang="en">Ketchup</nombre>
   </item>
-  <item puntuacion="2" gramos="300">
+  <item puntuacion="2" gramos="300" tipo="SALSA">
     <nombre lang="es">Mayonesa</nombre>
     <nombre lang="en">Mayonnaise</nombre>
   </item>
-  <item puntuacion="5" gramos="4">
+  <item puntuacion="5" gramos="4" tipo="PROCESADO">
     <nombre lang="es">Aceitunas</nombre>
     <nombre lang="en">Olives</nombre>
   </item>
-  <item puntuacion="5" gramos="4">
+  <item puntuacion="5" gramos="4" tipo="PROCESADO">
     <nombre lang="es">Aceitunas negras</nombre>
     <nombre lang="en">Black olives</nombre>
   </item>
-  <item puntuacion="5" gramos="4">
+  <item puntuacion="5" gramos="4" tipo="PROCESADO">
     <nombre lang="es">Aceitunas verdes sin hueso</nombre>
     <nombre lang="en">Pitted green olives</nombre>
   </item>
-  <item puntuacion="5" gramos="100">
+  <item puntuacion="5" gramos="100" tipo="PROCESADO">
     <nombre lang="es">Alcaparras</nombre>
     <nombre lang="en">Capers</nombre>
   </item>
-  <item puntuacion="5" gramos="100">
+  <item puntuacion="5" gramos="100" tipo="PESCADO_AZUL">
     <nombre lang="es">Atún en aceite</nombre>
     <nombre lang="en">Tuna in oil</nombre>
   </item>
-  <item puntuacion="5" gramos="100">
+  <item puntuacion="5" gramos="100" tipo="DULCE">
     <nombre lang="es">Cacao en polvo</nombre>
     <nombre lang="en">Cocoa powder</nombre>
   </item>
-  <item puntuacion="5" gramos="1000">
+  <item puntuacion="5" gramos="1000" tipo="OTROS">
     <nombre lang="es">Caldo</nombre>
     <nombre lang="en">Broth</nombre>
   </item>
-  <item puntuacion="5" gramos="1000">
+  <item puntuacion="5" gramos="1000" tipo="OTROS">
     <nombre lang="es">Caldo de carne</nombre>
     <nombre lang="en">Meat broth</nombre>
   </item>
-  <item puntuacion="5" gramos="1000">
+  <item puntuacion="5" gramos="1000" tipo="OTROS">
     <nombre lang="es">Caldo de pescado</nombre>
     <nombre lang="en">Fish broth</nombre>
   </item>
-  <item puntuacion="5" gramos="1000">
+  <item puntuacion="5" gramos="1000" tipo="OTROS">
     <nombre lang="es">Caldo de pollo</nombre>
     <nombre lang="en">Chicken broth</nombre>
   </item>
-  <item puntuacion="5" gramos="1000">
+  <item puntuacion="5" gramos="1000" tipo="OTROS">
     <nombre lang="es">Caldo de verduras</nombre>
     <nombre lang="en">Vegetable broth</nombre>
   </item>
-  <item puntuacion="5" gramos="300">
+  <item puntuacion="5" gramos="300" tipo="CARNE_BLANCA">
     <nombre lang="es">Carcasa de pollo</nombre>
     <nombre lang="en">Chicken carcass</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="BEBIDA">
     <nombre lang="es">Cerveza</nombre>
     <nombre lang="en">Beer</nombre>
   </item>
-  <item puntuacion="0" gramos="-1">
+  <item puntuacion="0" gramos="-1" tipo="BEBIDA">
     <nombre lang="es">Ron Blanco</nombre>
     <nombre lang="en">White rum</nombre>
   </item>
-  <item puntuacion="5" gramos="10">
+  <item puntuacion="5" gramos="10" tipo="VERDURA">
     <nombre lang="es">Chile rojo</nombre>
     <nombre lang="en">Red chili</nombre>
   </item>
-  <item puntuacion="5" gramos="50">
+  <item puntuacion="5" gramos="50" tipo="ESPECIA">
     <nombre lang="es">Chile seco</nombre>
     <nombre lang="en">Dried chili</nombre>
   </item>
-  <item puntuacion="5" gramos="10">
+  <item puntuacion="5" gramos="10" tipo="VERDURA">
     <nombre lang="es">Chile verde</nombre>
     <nombre lang="en">Green chili</nombre>
   </item>
-  <item puntuacion="5" gramos="10">
+  <item puntuacion="5" gramos="10" tipo="VERDURA">
     <nombre lang="es">Chili rojo</nombre>
     <nombre lang="en">Red chili</nombre>
   </item>
-  <item puntuacion="3" gramos="200">
+  <item puntuacion="3" gramos="200" tipo="DULCE">
     <nombre lang="es">Chips de chocolate</nombre>
     <nombre lang="en">Chocolate chips</nombre>
   </item>
-  <item puntuacion="5" gramos="100">
+  <item puntuacion="5" gramos="100" tipo="DULCE">
     <nombre lang="es">Chocolate negro</nombre>
     <nombre lang="en">Dark chocolate</nombre>
   </item>
-  <item puntuacion="5" gramos="200">
+  <item puntuacion="5" gramos="200" tipo="LACTEO">
     <nombre lang="es">Creme Fresh</nombre>
     <nombre lang="en">Crème fraîche</nombre>
   </item>
-  <item puntuacion="5" gramos="150">
+  <item puntuacion="5" gramos="150" tipo="CARNE_PROCESADA">
     <nombre lang="es">Cubitos de bacon</nombre>
     <nombre lang="en">Bacon cubes</nombre>
   </item>
-  <item puntuacion="5" gramos="150">
+  <item puntuacion="5" gramos="150" tipo="CARNE_PROCESADA">
     <nombre lang="es">Cubitos de jamón</nombre>
     <nombre lang="en">Ham cubes</nombre>
   </item>
-  <item puntuacion="5" gramos="150">
+  <item puntuacion="5" gramos="150" tipo="CARNE_PROCESADA">
     <nombre lang="es">Cubitos de jamón serrano</nombre>
     <nombre lang="en">Serrano ham cubes</nombre>
   </item>
-  <item puntuacion="1" gramos="500">
+  <item puntuacion="1" gramos="500" tipo="DULCE">
     <nombre lang="es">Helado de vainilla</nombre>
     <nombre lang="en">Vanilla ice cream</nombre>
   </item>
-  <item puntuacion="5" gramos="200">
+  <item puntuacion="5" gramos="200" tipo="CARNE_PROCESADA">
     <nombre lang="es">Hueso de jamón</nombre>
     <nombre lang="en">Ham bone</nombre>
   </item>
-  <item puntuacion="5" gramos="300">
+  <item puntuacion="5" gramos="300" tipo="PESCADO_BLANCO">
     <nombre lang="es">Hueso de rape</nombre>
     <nombre lang="en">Monkfish bone</nombre>
   </item>
-  <item puntuacion="5" gramos="300">
+  <item puntuacion="5" gramos="300" tipo="CARNE_ROJA">
     <nombre lang="es">Hueso de ternera de rodilla</nombre>
     <nombre lang="en">Beef knee bone</nombre>
   </item>
-  <item puntuacion="5" gramos="100">
+  <item puntuacion="5" gramos="100" tipo="CARNE_PROCESADA">
     <nombre lang="es">Jamón</nombre>
     <nombre lang="en">Ham</nombre>
   </item>
-  <item puntuacion="5" gramos="100">
+  <item puntuacion="5" gramos="100" tipo="CARNE_PROCESADA">
     <nombre lang="es">Jamón cocido</nombre>
     <nombre lang="en">Cooked ham</nombre>
   </item>
-  <item puntuacion="5" gramos="100">
+  <item puntuacion="5" gramos="100" tipo="CARNE_PROCESADA">
     <nombre lang="es">Jamón serrano</nombre>
     <nombre lang="en">Serrano ham</nombre>
   </item>
-  <item puntuacion="5" gramos="500">
+  <item puntuacion="5" gramos="500" tipo="CARNE_PROCESADA">
     <nombre lang="es">Jamón serrano en una pieza</nombre>
     <nombre lang="en">Serrano ham (one piece)</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="BEBIDA">
     <nombre lang="es">Jerez dulce</nombre>
     <nombre lang="en">Sweet Sherry</nombre>
   </item>
-  <item puntuacion="5" gramos="500">
+  <item puntuacion="5" gramos="500" tipo="CARNE_PROCESADA">
     <nombre lang="es">Lacon</nombre>
     <nombre lang="en">Lacón ham</nombre>
   </item>
-  <item puntuacion="2" gramos="200">
+  <item puntuacion="2" gramos="200" tipo="CARNE_PROCESADA">
     <nombre lang="es">Longaniza</nombre>
     <nombre lang="en">Longaniza (sausage)</nombre>
   </item>
-  <item puntuacion="1" gramos="50">
+  <item puntuacion="1" gramos="50" tipo="DULCE">
     <nombre lang="es">Merengue</nombre>
     <nombre lang="en">Meringue</nombre>
   </item>
-  <item puntuacion="2" gramos="250">
+  <item puntuacion="2" gramos="250" tipo="DULCE">
     <nombre lang="es">Mermelada de fresa</nombre>
     <nombre lang="en">Strawberry jam</nombre>
   </item>
-  <item puntuacion="2" gramos="500">
+  <item puntuacion="2" gramos="500" tipo="DULCE">
     <nombre lang="es">Miel</nombre>
     <nombre lang="en">Honey</nombre>
   </item>
-  <item puntuacion="2" gramos="200">
+  <item puntuacion="2" gramos="200" tipo="CARNE_PROCESADA">
     <nombre lang="es">Morcilla</nombre>
     <nombre lang="en">Blood sausage</nombre>
   </item>
-  <item puntuacion="5" gramos="200">
+  <item puntuacion="5" gramos="200" tipo="SALSA">
     <nombre lang="es">Mostaza de Dijon</nombre>
     <nombre lang="en">Dijon mustard</nombre>
   </item>
-  <item puntuacion="5" gramos="100">
+  <item puntuacion="5" gramos="100" tipo="CARNE_PROCESADA">
     <nombre lang="es">Oreja de cerdo</nombre>
     <nombre lang="en">Pork ear</nombre>
   </item>
-  <item puntuacion="1" gramos="150">
+  <item puntuacion="1" gramos="150" tipo="CARNE_PROCESADA">
     <nombre lang="es">Panceta</nombre>
     <nombre lang="en">Pancetta</nombre>
   </item>
-  <item puntuacion="1" gramos="150">
+  <item puntuacion="1" gramos="150" tipo="CARNE_PROCESADA">
     <nombre lang="es">Panceta en cubos pequeños</nombre>
     <nombre lang="en">Diced pancetta</nombre>
   </item>
-  <item puntuacion="5" gramos="250">
+  <item puntuacion="5" gramos="250" tipo="LACTEO">
     <nombre lang="es">Parmesano</nombre>
     <nombre lang="en">Parmesan</nombre>
   </item>
-  <item puntuacion="5" gramos="250">
+  <item puntuacion="5" gramos="250" tipo="LACTEO">
     <nombre lang="es">Parmesano rallado</nombre>
     <nombre lang="en">Grated parmesan</nombre>
   </item>
-  <item puntuacion="5" gramos="100">
+  <item puntuacion="5" gramos="100" tipo="FRUTA">
     <nombre lang="es">Pasas</nombre>
     <nombre lang="en">Raisins</nombre>
   </item>
-  <item puntuacion="5" gramos="250">
+  <item puntuacion="5" gramos="250" tipo="LACTEO">
     <nombre lang="es">Pecorino Romano rallado</nombre>
     <nombre lang="en">Grated Pecorino Romano</nombre>
   </item>
-  <item puntuacion="3" gramos="100">
+  <item puntuacion="3" gramos="100" tipo="CARNE_PROCESADA">
     <nombre lang="es">Pepperoni</nombre>
     <nombre lang="en">Pepperoni</nombre>
   </item>
-  <item puntuacion="5" gramos="300">
+  <item puntuacion="5" gramos="300" tipo="SALSA">
     <nombre lang="es">Perrins</nombre>
     <nombre lang="en">Worcestershire sauce</nombre>
   </item>
-  <item puntuacion="5" gramos="150">
+  <item puntuacion="5" gramos="150" tipo="CARNE_PROCESADA">
     <nombre lang="es">Picadillo de jamón</nombre>
     <nombre lang="en">Minced ham</nombre>
   </item>
-  <item puntuacion="3" gramos="250">
+  <item puntuacion="3" gramos="250" tipo="LACTEO">
     <nombre lang="es">Queso Asturiano</nombre>
     <nombre lang="en">Asturian cheese</nombre>
   </item>
-  <item puntuacion="3" gramos="250">
+  <item puntuacion="3" gramos="250" tipo="LACTEO">
     <nombre lang="es">Queso cheddar rallado</nombre>
     <nombre lang="en">Grated cheddar cheese</nombre>
   </item>
-  <item puntuacion="3" gramos="250">
+  <item puntuacion="3" gramos="250" tipo="LACTEO">
     <nombre lang="es">Queso crema</nombre>
     <nombre lang="en">Cream cheese</nombre>
   </item>
-  <item puntuacion="3" gramos="250">
+  <item puntuacion="3" gramos="250" tipo="LACTEO">
     <nombre lang="es">Queso en polvo</nombre>
     <nombre lang="en">Powdered cheese</nombre>
   </item>
-  <item puntuacion="3" gramos="250">
+  <item puntuacion="3" gramos="250" tipo="LACTEO">
     <nombre lang="es">Queso feta</nombre>
     <nombre lang="en">Feta cheese</nombre>
   </item>
-  <item puntuacion="3" gramos="250">
+  <item puntuacion="3" gramos="250" tipo="LACTEO">
     <nombre lang="es">Queso gruyer rallado</nombre>
     <nombre lang="en">Grated Gruyère cheese</nombre>
   </item>
-  <item puntuacion="3" gramos="250">
+  <item puntuacion="3" gramos="250" tipo="LACTEO">
     <nombre lang="es">Queso manchego</nombre>
     <nombre lang="en">Manchego cheese</nombre>
   </item>
-  <item puntuacion="3" gramos="250">
+  <item puntuacion="3" gramos="250" tipo="LACTEO">
     <nombre lang="es">Queso parmesano</nombre>
     <nombre lang="en">Parmesan cheese</nombre>
   </item>
-  <item puntuacion="3" gramos="250">
+  <item puntuacion="3" gramos="250" tipo="LACTEO">
     <nombre lang="es">Queso rallado para gratinar</nombre>
     <nombre lang="en">Grated cheese for gratin</nombre>
   </item>
-  <item puntuacion="3" gramos="250">
+  <item puntuacion="3" gramos="250" tipo="LACTEO">
     <nombre lang="es">Queso rallado</nombre>
     <nombre lang="en">Grated cheese</nombre>
   </item>
-  <item puntuacion="3" gramos="250">
+  <item puntuacion="3" gramos="250" tipo="LACTEO">
     <nombre lang="es">Queso</nombre>
     <nombre lang="en">Cheese</nombre>
   </item>
-  <item puntuacion="3" gramos="300">
+  <item puntuacion="3" gramos="300" tipo="SALSA">
     <nombre lang="es">Salsa agridulce</nombre>
     <nombre lang="en">Sweet and sour sauce</nombre>
   </item>
-  <item puntuacion="3" gramos="300">
+  <item puntuacion="3" gramos="300" tipo="SALSA">
     <nombre lang="es">Salsa de curry</nombre>
     <nombre lang="en">Curry sauce</nombre>
   </item>
-  <item puntuacion="3" gramos="300">
+  <item puntuacion="3" gramos="300" tipo="SALSA">
     <nombre lang="es">Salsa de ostras</nombre>
     <nombre lang="en">Oyster sauce</nombre>
   </item>
-  <item puntuacion="3" gramos="300">
+  <item puntuacion="3" gramos="300" tipo="SALSA">
     <nombre lang="es">Salsa de soja</nombre>
     <nombre lang="en">Soy sauce</nombre>
   </item>
-  <item puntuacion="3" gramos="400">
+  <item puntuacion="3" gramos="400" tipo="SALSA">
     <nombre lang="es">Salsa de tomate</nombre>
     <nombre lang="en">Tomato sauce</nombre>
   </item>
-  <item puntuacion="3" gramos="300">
+  <item puntuacion="3" gramos="300" tipo="SALSA">
     <nombre lang="es">Salsa Perrins</nombre>
     <nombre lang="en">Worcestershire sauce (Perrins)</nombre>
   </item>
-  <item puntuacion="3" gramos="200">
+  <item puntuacion="3" gramos="200" tipo="SALSA">
     <nombre lang="es">Salsa Pesto</nombre>
     <nombre lang="en">Pesto sauce</nombre>
   </item>
-  <item puntuacion="3" gramos="300">
+  <item puntuacion="3" gramos="300" tipo="SALSA">
     <nombre lang="es">Salsa teriyaki</nombre>
     <nombre lang="en">Teriyaki sauce</nombre>
   </item>
-  <item puntuacion="5" gramos="500">
+  <item puntuacion="5" gramos="500" tipo="OTROS">
     <nombre lang="es">Sobras de cocido</nombre>
     <nombre lang="en">Stew leftovers</nombre>
   </item>
-  <item puntuacion="5" gramos="100">
+  <item puntuacion="5" gramos="100" tipo="DULCE">
     <nombre lang="es">Tableta chocolate negro</nombre>
     <nombre lang="en">Dark chocolate bar</nombre>
   </item>
-  <item puntuacion="-1" gramos="-1">
+  <item puntuacion="-1" gramos="-1" tipo="BEBIDA">
     <nombre lang="es">Vermú</nombre>
     <nombre lang="en">Vermouth</nombre>
   </item>
-  <item puntuacion="5" gramos="400">
+  <item puntuacion="5" gramos="400" tipo="SALSA">
     <nombre lang="es">Tomate frito</nombre>
     <nombre lang="en">Fried tomato sauce</nombre>
   </item>
-  <item puntuacion="5" gramos="1000">
+  <item puntuacion="5" gramos="1000" tipo="BEBIDA">
     <nombre lang="es">Zumo de limón</nombre>
     <nombre lang="en">Lemon juice</nombre>
   </item>
-  <item puntuacion="5" gramos="1000">
+  <item puntuacion="5" gramos="1000" tipo="BEBIDA">
     <nombre lang="es">Zumo de naranja</nombre>
     <nombre lang="en">Orange juice</nombre>
   </item>
-  <item puntuacion="0" gramos="1000">
+  <item puntuacion="0" gramos="1000" tipo="BEBIDA">
     <nombre lang="es">Fanta Limon</nombre>
     <nombre lang="en">Lemon Fanta</nombre>
   </item>

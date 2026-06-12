@@ -12,6 +12,7 @@ import com.david.recetapp.negocio.beans.Ingrediente;
 import com.david.recetapp.negocio.beans.Receta;
 import com.david.recetapp.negocio.beans.RecetaDia;
 import com.david.recetapp.negocio.beans.Temporada;
+import com.david.recetapp.negocio.beans.TipoIngrediente;
 
 import org.xmlpull.v1.XmlPullParser;
 import com.google.firebase.auth.FirebaseAuth;
@@ -47,6 +48,7 @@ public class RecetasSrv {
     private static Map<String, Integer> ingredientMapCache = null;
     public static Map<String, Integer> unitImportanceMapCache = null;
     public static Map<String, Integer> gramosMapCache = null;
+    private static Map<String, TipoIngrediente> tipoMapCache = null;
     private static Map<String, String> translationMapCache = null; // Key (any lang) -> Target name (current locale)
     private static final Object cacheLock = new Object();
 
@@ -179,12 +181,13 @@ public class RecetasSrv {
      */
     public static void inicializarMapas(Context context) {
         synchronized (cacheLock) {
-            if (ingredientMapCache != null && unitImportanceMapCache != null && gramosMapCache != null && translationMapCache != null) {
+            if (ingredientMapCache != null && unitImportanceMapCache != null && gramosMapCache != null && translationMapCache != null && tipoMapCache != null) {
                 return;
             }
 
             ingredientMapCache = new HashMap<>();
             gramosMapCache = new HashMap<>();
+            tipoMapCache = new HashMap<>();
             translationMapCache = new HashMap<>();
             String targetLang = Locale.getDefault().getLanguage();
 
@@ -194,6 +197,7 @@ public class RecetasSrv {
 
                 int currentPuntuacion = -2;
                 int currentGramos = -1;
+                TipoIngrediente currentTipo = null;
                 String currentTag = null;
                 List<String> currentNombres = new ArrayList<>();
                 String targetNombre = null;
@@ -206,8 +210,10 @@ public class RecetasSrv {
                             if ("item".equals(currentTag)) {
                                 String pStr = parser.getAttributeValue(null, "puntuacion");
                                 String gStr = parser.getAttributeValue(null, "gramos");
+                                String tStr = parser.getAttributeValue(null, "tipo");
                                 try { currentPuntuacion = Integer.parseInt(pStr); } catch (Exception ignored) { currentPuntuacion = -2; }
                                 try { currentGramos = Integer.parseInt(gStr); } catch (Exception ignored) { currentGramos = -1; }
+                                try { if (tStr != null) currentTipo = TipoIngrediente.valueOf(tStr); } catch (Exception ignored) { currentTipo = null; }
                                 currentNombres.clear();
                                 targetNombre = null;
                             } else if ("nombre".equals(currentTag)) {
@@ -238,6 +244,9 @@ public class RecetasSrv {
                                     String key = n.toLowerCase(Locale.getDefault());
                                     ingredientMapCache.put(key, currentPuntuacion);
                                     gramosMapCache.put(key, currentGramos);
+                                    if (currentTipo != null) {
+                                        tipoMapCache.put(key, currentTipo);
+                                    }
                                     if (targetNombre != null) {
                                         translationMapCache.put(key, targetNombre);
                                     }
@@ -245,6 +254,7 @@ public class RecetasSrv {
                             }
                             currentTag = null;
                             currentLangAttr = null;
+                            currentTipo = null;
                             break;
                     }
                     event = parser.next();
@@ -269,7 +279,7 @@ public class RecetasSrv {
     }
 
     private static void calcularPuntuacion(Receta receta) {
-        if (ingredientMapCache == null || unitImportanceMapCache == null || gramosMapCache == null) {
+        if (ingredientMapCache == null || unitImportanceMapCache == null || gramosMapCache == null || tipoMapCache == null) {
             Log.e(TAG, "❌ Mapas null, no se calcula");
             return;
         }
@@ -280,6 +290,7 @@ public class RecetasSrv {
             String nombre = ing.getNombre().toLowerCase(Locale.getDefault());
             Integer puntu = ingredientMapCache.get(nombre);
             ing.setPuntuacion(puntu != null ? puntu : -2);
+            ing.setTipo(tipoMapCache.get(nombre));
         }
 
         // 🚀 Agrupar por sustitución para elegir el mejor representante en el cálculo global
@@ -602,6 +613,7 @@ public class RecetasSrv {
             ingredientMapCache = null;
             unitImportanceMapCache = null;
             gramosMapCache = null;
+            tipoMapCache = null;
             translationMapCache = null;
         }
     }
