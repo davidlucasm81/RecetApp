@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import com.david.recetapp.R;
 import com.david.recetapp.negocio.beans.Day;
 import com.david.recetapp.negocio.beans.Ingrediente;
+import com.david.recetapp.negocio.beans.MomentoReceta;
 import com.david.recetapp.negocio.beans.Receta;
 import com.david.recetapp.negocio.beans.RecetaDia;
 import com.david.recetapp.negocio.beans.TipoReceta;
@@ -386,15 +387,22 @@ public class CalendarioSrv {
                                   List<ActualizacionFecha> actualizacionesPendientes,
                                   int numPersonas,
                                   int mes,
-                                  int anio) {
+                                  int anio,
+                                  MomentoReceta momentoRequerido) {
         final int MAX_TRIES = 12;
         int tries = 0;
         Receta receta;
 
         while (tries < MAX_TRIES && !cola.isEmpty()) {
-            receta = obtenerRecetaNoRepetida(cola, recetasUtilizadasRecientemente, dia, mes, anio);
+            receta = obtenerRecetaNoRepetida(cola, recetasUtilizadasRecientemente, dia, mes, anio, momentoRequerido);
             tries++;
-            if (receta == null) break;
+            if (receta == null) {
+                // Si pedimos un momento específico y no hay, intentamos sin filtro de momento
+                if (momentoRequerido != null) {
+                    receta = obtenerRecetaNoRepetida(cola, recetasUtilizadasRecientemente, dia, mes, anio, null);
+                }
+                if (receta == null) break;
+            }
 
             final String recetaId = receta.getId();
             boolean yaEnDia = dia.getRecetas().stream()
@@ -443,11 +451,20 @@ public class CalendarioSrv {
                                                   Set<Receta> recetasUtilizadasRecientemente,
                                                   Day dia,
                                                   int mes,
-                                                  int anio) {
+                                                  int anio,
+                                                  MomentoReceta momentoRequerido) {
         List<Receta> candidatos = new ArrayList<>();
         for (Receta receta : cola) {
             if (recetasUtilizadasRecientemente.contains(receta)) continue;
             if (recetaRepetidaEnProximosDias(receta, dia, mes, anio)) continue;
+
+            // Filtrado por momento si se requiere
+            if (momentoRequerido != null) {
+                MomentoReceta mr = receta.getMomentoReceta();
+                if (mr != null && mr != MomentoReceta.AMBOS && mr != momentoRequerido) {
+                    continue;
+                }
+            }
 
             boolean similar = false;
             if (dia.getRecetas() != null && !dia.getRecetas().isEmpty()) {
@@ -780,7 +797,12 @@ public class CalendarioSrv {
                                 if (dia.getRecetas() == null) dia.setRecetas(new ArrayList<>());
 
                                 for (int i = 0; i < numRecetas; i++) {
-                                    addReceta(cola, recetasUtilizadasRecientemente, dia, actualizacionesPendientes, numPersonas, mes, anio);
+                                    MomentoReceta momentoRequerido = null;
+                                    if (numRecetas >= 2) {
+                                        if (i == 0) momentoRequerido = MomentoReceta.COMIDA;
+                                        else if (i == 1) momentoRequerido = MomentoReceta.CENA;
+                                    }
+                                    addReceta(cola, recetasUtilizadasRecientemente, dia, actualizacionesPendientes, numPersonas, mes, anio, momentoRequerido);
                                 }
 
                                 limpiarRecetasUtilizadasRecientemente(recetasUtilizadasRecientemente, dia, mes, anio);

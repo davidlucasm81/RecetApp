@@ -57,7 +57,7 @@ public class CalendarioFragment extends Fragment {
     private Calendar calendarReal;
 
     private ImageButton btnBorrar;
-    private ImageButton btnActualizar;
+    private ImageButton btnGenerarMenu;
     private ImageButton btnPreviousMonth;
     private ImageButton btnNextMonth;
 
@@ -227,10 +227,10 @@ public class CalendarioFragment extends Fragment {
             });
         }
 
-        btnActualizar = rootView.findViewById(R.id.btnActualizar);
+        btnGenerarMenu = rootView.findViewById(R.id.btnActualizar);
 
-        if (btnActualizar != null) {
-            btnActualizar.setOnClickListener(v -> {
+        if (btnGenerarMenu != null) {
+            btnGenerarMenu.setOnClickListener(v -> {
                 if (isAdded() && !isLoading) {
                     if (!isViewingCurrentMonth()) {
                         UtilsSrv.notificacion(requireContext(), getString(R.string.solo_mes_actual), Toast.LENGTH_SHORT).show();
@@ -331,7 +331,7 @@ public class CalendarioFragment extends Fragment {
     private void updateManagementButtonsVisibility() {
         boolean isCurrent = isViewingCurrentMonth();
         if (btnBorrar != null) btnBorrar.setVisibility(isCurrent ? View.VISIBLE : View.GONE);
-        if (btnActualizar != null) btnActualizar.setVisibility(isCurrent ? View.VISIBLE : View.GONE);
+        if (btnGenerarMenu != null) btnGenerarMenu.setVisibility(isCurrent ? View.VISIBLE : View.GONE);
     }
 
     private boolean isViewingCurrentMonth() {
