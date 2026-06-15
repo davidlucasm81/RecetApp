@@ -25,5 +25,9 @@ public enum TipoIngrediente {
     BEBIDA,
     SALSA,
     DULCE,
-    OTROS
+    OTROS;
+
+    public long getMask() {
+        return 1L << this.ordinal();
+    }
 }

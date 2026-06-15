@@ -106,6 +106,8 @@ public class RecetasSrv {
         cargarListaRecetas(context, false, callback);
     }
 
+    private static final Map<String, CalendarioSrv.CachedRecetaData> recipeProcessingCache = new HashMap<>();
+
     public static void cargarListaRecetas(Context context, boolean forceServer, RecetasCallback callback) {
         if (checkNotUserId(callback)) return;
 
@@ -123,11 +125,15 @@ public class RecetasSrv {
                         inicializarMapas(context);
 
                         long inicio = System.currentTimeMillis();
-                        for (Receta receta : recetas) {
-                            calcularPuntuacion(receta);
+                        synchronized (recipeProcessingCache) {
+                            recipeProcessingCache.clear();
+                            for (Receta receta : recetas) {
+                                calcularPuntuacion(receta);
+                                recipeProcessingCache.put(receta.getId(), new CalendarioSrv.CachedRecetaData(receta));
+                            }
                         }
                         long duracion = System.currentTimeMillis() - inicio;
-                        Log.d(TAG, "✅ Puntuaciones calculadas: " + duracion + "ms");
+                        Log.d(TAG, "✅ Puntuaciones y cache de procesamiento calculados: " + duracion + "ms");
 
                         synchronized (recetasCache) {
                             recetasCache.clear();
@@ -603,6 +609,12 @@ public class RecetasSrv {
         if (translationMapCache == null || nombre == null) return nombre;
         String translated = translationMapCache.get(nombre.toLowerCase(Locale.getDefault()));
         return translated != null ? translated : nombre;
+    }
+
+    public static Map<String, CalendarioSrv.CachedRecetaData> getRecipeProcessingCache() {
+        synchronized (recipeProcessingCache) {
+            return new HashMap<>(recipeProcessingCache);
+        }
     }
 
     public static void limpiarCaches() {

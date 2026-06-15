@@ -49,7 +49,6 @@
                 android:background="@drawable/field_background"
                 android:hint="@string/texto_del_paso"
                 android:inputType="textMultiLine"
-                android:justificationMode="inter_word"
                 android:minHeight="40dp"
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="4dp"
