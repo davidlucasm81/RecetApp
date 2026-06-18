@@ -66,6 +66,8 @@
             android:name=".MainActivity"
             android:exported="false" />
         <activity android:name=".actividades.recetas.AddRecetaActivity" />
+        <activity android:name=".actividades.recetas.IAInputActivity" />
+        <activity android:name=".actividades.recetas.AnadirRecetaIAActivity" />
         <activity android:name=".actividades.recetas.EditarRecetaActivity" />
         <activity android:name=".actividades.ImportExportActivity" />
         <activity android:name=".actividades.DetalleDiaActivity" />

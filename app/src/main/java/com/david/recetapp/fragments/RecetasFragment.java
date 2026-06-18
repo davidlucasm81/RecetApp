@@ -60,6 +60,7 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
     private Runnable debounceRunnable;
     private View rootView;
     private FloatingActionButton fab;
+    private FloatingActionButton fabIA;
     private ProgressBar progressBar;
     private ActivityResultLauncher<Intent> importLauncher;
 
@@ -93,6 +94,12 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
         fab = rootView.findViewById(R.id.fabAddReceta);
         fab.setOnClickListener(v -> {
             Intent intent = new Intent(requireActivity(), AddRecetaActivity.class);
+            startActivity(intent);
+        });
+
+        fabIA = rootView.findViewById(R.id.fabAddRecetaIA);
+        fabIA.setOnClickListener(v -> {
+            Intent intent = new Intent(requireActivity(), com.david.recetapp.actividades.recetas.IAInputActivity.class);
             startActivity(intent);
         });
 
@@ -335,13 +342,16 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
     }
 
     private void actualizarFabSegunScroll() {
-        if (fab == null || expandableListView == null) return;
+        if (fab == null || fabIA == null || expandableListView == null) return;
 
         int total = expandableListView.getCount();
         if (total == 0) {
             fab.setAlpha(1f);
             fab.setEnabled(true);
             fab.setClickable(true);
+            fabIA.setAlpha(1f);
+            fabIA.setEnabled(true);
+            fabIA.setClickable(true);
             return;
         }
 
@@ -352,10 +362,16 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
             fab.setAlpha(0.35f);
             fab.setEnabled(false);
             fab.setClickable(false);
+            fabIA.setAlpha(0.35f);
+            fabIA.setEnabled(false);
+            fabIA.setClickable(false);
         } else {
             fab.setAlpha(1f);
             fab.setEnabled(true);
             fab.setClickable(true);
+            fabIA.setAlpha(1f);
+            fabIA.setEnabled(true);
+            fabIA.setClickable(true);
         }
     }
 
@@ -404,6 +420,7 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
         chipGroupTipoReceta = null;
         contadorTextView = null;
         fab = null;
+        fabIA = null;
         progressBar = null;
         autoCompleteAdapter = null;
         expandableListAdapter = null;

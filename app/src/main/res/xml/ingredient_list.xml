@@ -381,6 +381,10 @@
     <nombre lang="es">Sal gruesa</nombre>
     <nombre lang="en">Coarse salt</nombre>
   </item>
+  <item puntuacion="-1" gramos="5" tipo="ESPECIA">
+    <nombre lang="es">Sal fina</nombre>
+    <nombre lang="en">Fine salt</nombre>
+  </item>
   <item puntuacion="5" gramos="5" tipo="ESPECIA">
     <nombre lang="es">Pasta de ajo</nombre>
     <nombre lang="en">Garlic paste</nombre>
@@ -1215,6 +1219,10 @@
   </item>
   <item puntuacion="5" gramos="500" tipo="PASTA">
     <nombre lang="es">Espaguetis</nombre>
+    <nombre lang="en">Spaghetti</nombre>
+  </item>
+  <item puntuacion="5" gramos="500" tipo="PASTA">
+    <nombre lang="es">Espagueti</nombre>
     <nombre lang="en">Spaghetti</nombre>
   </item>
   <item puntuacion="5" gramos="500" tipo="PASTA">

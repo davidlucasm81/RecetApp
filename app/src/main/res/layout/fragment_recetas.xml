@@ -185,16 +185,35 @@
                 android:visibility="gone" />
         </LinearLayout>
 
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="16dp"
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabAddRecetaIA"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:contentDescription="@string/add_recipe_ia"
+            android:src="@drawable/ic_ia_receta"
+            app:backgroundTint="@color/colorPrimary"
+            app:fabSize="mini"
+            app:tint="@android:color/white" />
+
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fabAddReceta"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentEnd="true"
-            android:layout_margin="16dp"
             android:contentDescription="@string/add_recipe"
             android:src="@drawable/baseline_add_24"
             app:backgroundTint="@color/colorPrimary"
             app:tint="@android:color/white" />
+
+    </LinearLayout>
     </RelativeLayout>
 </ScrollView>

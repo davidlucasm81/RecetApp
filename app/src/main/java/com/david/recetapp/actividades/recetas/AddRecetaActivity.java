@@ -67,7 +67,7 @@ public class AddRecetaActivity extends RecetaBaseActivity {
         }
     }
 
-    private void initializeViews() {
+    protected void initializeViews() {
         editTextNombre = findViewById(R.id.editTextNombre);
         checkboxInvierno = findViewById(R.id.checkboxInvierno);
         checkboxVerano = findViewById(R.id.checkboxVerano);
@@ -98,7 +98,7 @@ public class AddRecetaActivity extends RecetaBaseActivity {
         alergenosSeleccionados = new ArrayList<>();
     }
 
-    private void setupIngredientesSection() {
+    protected void setupIngredientesSection() {
         AutoCompleteTextView spinner = findViewById(R.id.spinner_quantity_unit);
         CheckBox checkboxOpcional = findViewById(R.id.checkboxOpcional);
         setupIngredientes(RecetasSrv.getIngredientListStrings(this), spinner);
@@ -135,7 +135,7 @@ public class AddRecetaActivity extends RecetaBaseActivity {
         editTextCantidad.setText("1");
     }
 
-    private void setupPasosSection() {
+    protected void setupPasosSection() {
         linearLayoutListaPasos.setOnDragListener((v, event) -> {
             if (isDragging && event.getAction() == DragEvent.ACTION_DROP) {
                 ClipData.Item item = event.getClipData().getItemAt(0);
@@ -180,7 +180,7 @@ public class AddRecetaActivity extends RecetaBaseActivity {
         editTextMinutos.setText("0");
     }
 
-    private void setupAlergenosSection() {
+    protected void setupAlergenosSection() {
         String[] alergenosNombresArray = getResources().getStringArray(R.array.alergenos_conocidos_nombres);
 
         for (int i = 0; i < alergenosNombresArray.length; i++) {
@@ -190,7 +190,7 @@ public class AddRecetaActivity extends RecetaBaseActivity {
         mostrarAlergenos();
     }
 
-    private void setupCrearButton() {
+    protected void setupCrearButton() {
         AutoCompleteTextView spinnerTipo = findViewById(R.id.spinnerTipoReceta);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.tipos_receta, android.R.layout.simple_spinner_dropdown_item);

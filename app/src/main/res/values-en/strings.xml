@@ -1,5 +1,6 @@
 <resources>
     <string name="add_recipe">Add recipe</string>
+    <string name="add_recipe_ia">Add recipe with AI</string>
     <string name="Aniadir">Add</string>
     <string name="temporadas">Seasons</string>
     <string name="ingredientes">Ingredients</string>
@@ -114,6 +115,19 @@
     <string name="confirmar_borrar_calendario">Are you sure you want to clear and recreate the calendar?</string>
     <string name="calendario_recreado">Calendar recreated successfully</string>
     <string name="error_conexion_lenta">Slow connection. Could not load calendar.</string>
+
+    <!-- IA Recipe Strings -->
+    <string name="ia_titulo">Add Recipe with AI</string>
+    <string name="ia_descripcion_hint">Describe the recipe (e.g., Creamy baked cheesecake)</string>
+    <string name="ia_generar_prompt">Generate AI Prompt</string>
+    <string name="ia_copiar_prompt">Copy Prompt</string>
+    <string name="ia_pegar_resultado_hint">Paste the JSON returned by the AI here</string>
+    <string name="ia_procesar_resultado">Process Recipe</string>
+    <string name="ia_error_parseo">Error processing the AI JSON. Check the format.</string>
+    <string name="ia_prompt_template">Generate recipe for "%1$s". Units: %2$s. Allergens: %3$s. Ingredients: singular, initial capital.
+tipoReceta=PRINCIPAL|POSTRE|COCTEL|SIDE. momentoReceta=COMIDA|CENA|AMBOS. temporadas=INVIERNO|VERANO|OTONIO|PRIMAVERA.
+Only JSON:
+{"nombre":"","tipoReceta":"","momentoReceta":"","numPersonas":0,"temporadas":[],"alergenos":[],"ingredientes":[{"nombre":"","cantidad":"","tipoCantidad":"","opcional":false,"esSustitutoDe":null}],"pasos":[{"paso":"","tiempo":"HH:mm"}]}</string>
 
     <!-- Existing messages that might be missing -->
     <string name="error_crear_receta">Error creating recipe</string>
