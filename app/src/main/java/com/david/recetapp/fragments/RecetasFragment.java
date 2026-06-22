@@ -259,7 +259,8 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
 
             // Actualizar o crear el expandableListAdapter
             if (expandableListAdapter == null) {
-                expandableListAdapter = new RecetaExpandableListAdapter(requireContext(), recetas, expandableListView, this);
+                ViewGroup anchor = rootView.findViewById(R.id.youtube_anchor_container);
+                expandableListAdapter = new RecetaExpandableListAdapter(requireContext(), recetas, expandableListView, anchor, this);
                 expandableListView.setAdapter(expandableListAdapter);
             } else {
                 expandableListAdapter.updateData(recetas);
@@ -314,7 +315,8 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
                 if (!isAdded()) return;
 
                 if (expandableListAdapter == null) {
-                    expandableListAdapter = new RecetaExpandableListAdapter(requireContext(), copyList, expandableListView, RecetasFragment.this);
+                    ViewGroup anchor = rootView.findViewById(R.id.youtube_anchor_container);
+                    expandableListAdapter = new RecetaExpandableListAdapter(requireContext(), copyList, expandableListView, anchor, RecetasFragment.this);
                     expandableListView.setAdapter(expandableListAdapter);
                 } else {
                     expandableListAdapter.updateData(copyList);
@@ -423,6 +425,9 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
         fabIA = null;
         progressBar = null;
         autoCompleteAdapter = null;
+        if (expandableListAdapter != null) {
+            expandableListAdapter.release();
+        }
         expandableListAdapter = null;
     }
 

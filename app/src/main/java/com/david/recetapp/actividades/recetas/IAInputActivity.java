@@ -5,6 +5,8 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -33,6 +35,7 @@ public class IAInputActivity extends AppCompatActivity {
     private static final String TAG = "IAInputActivity";
 
     private EditText editTextDescIA;
+    private EditText editTextYoutubeIA;
     private Button btnGenerarPrompt;
     private Button btnCopiarPrompt;
     private EditText editTextJsonIA;
@@ -50,6 +53,7 @@ public class IAInputActivity extends AppCompatActivity {
 
     private void initializeViews() {
         editTextDescIA = findViewById(R.id.editTextDescIA);
+        editTextYoutubeIA = findViewById(R.id.editTextYoutubeIA);
         btnGenerarPrompt = findViewById(R.id.btnGenerarPrompt);
         btnCopiarPrompt = findViewById(R.id.btnCopiarPrompt);
         editTextJsonIA = findViewById(R.id.editTextJsonIA);
@@ -60,13 +64,37 @@ public class IAInputActivity extends AppCompatActivity {
         btnGenerarPrompt.setOnClickListener(v -> generarPrompt());
         btnCopiarPrompt.setOnClickListener(v -> copiarPrompt());
         btnProcesarIA.setOnClickListener(v -> procesarJSON());
+
+        editTextDescIA.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                editTextYoutubeIA.setEnabled(s.length() <= 0);
+            }
+            @Override public void afterTextChanged(Editable s) {}
+        });
+
+        editTextYoutubeIA.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                editTextDescIA.setEnabled(s.length() <= 0);
+            }
+            @Override public void afterTextChanged(Editable s) {}
+        });
     }
 
     private void generarPrompt() {
         String descripcion = editTextDescIA.getText().toString().trim();
-        if (descripcion.isEmpty()) {
-            UtilsSrv.notificacion(this, "Describe la receta primero", Toast.LENGTH_SHORT).show();
+        String youtubeUrl = editTextYoutubeIA.getText().toString().trim();
+        if (descripcion.isEmpty() && youtubeUrl.isEmpty()) {
+            UtilsSrv.notificacion(this, "Proporciona una descripción o un enlace de YouTube", Toast.LENGTH_SHORT).show();
             return;
+        }
+
+        String instruccion;
+        if (!youtubeUrl.isEmpty()) {
+            instruccion = "Extrae la receta detallada de este vídeo de YouTube: " + youtubeUrl;
+        } else {
+            instruccion = "Genera una receta detallada basada en esta descripción: " + descripcion;
         }
 
         String[] quantityUnits = getResources().getStringArray(R.array.quantity_units);
@@ -75,7 +103,7 @@ public class IAInputActivity extends AppCompatActivity {
         String[] alergenosArr = getResources().getStringArray(R.array.alergenos_conocidos_nombres);
         String alergenosStr = String.join(", ", alergenosArr);
 
-        generatedPrompt = getString(R.string.ia_prompt_template, descripcion, unidadesStr, alergenosStr);
+        generatedPrompt = getString(R.string.ia_prompt_template, instruccion, unidadesStr, alergenosStr);
         
         btnCopiarPrompt.setVisibility(View.VISIBLE);
         UtilsSrv.notificacion(this, "Prompt generado. Cópialo y úsalo en tu IA.", Toast.LENGTH_LONG).show();
@@ -90,13 +118,14 @@ public class IAInputActivity extends AppCompatActivity {
     }
 
     private void procesarJSON() {
-        String jsonInput = editTextJsonIA.getText().toString().trim();
-        if (jsonInput.isEmpty()) {
+        String rawJson = editTextJsonIA.getText().toString().trim();
+        if (rawJson.isEmpty()) {
             UtilsSrv.notificacion(this, "Pega el JSON primero", Toast.LENGTH_SHORT).show();
             return;
         }
 
         try {
+            String jsonInput = rawJson;
             if (jsonInput.startsWith("```json")) {
                 jsonInput = jsonInput.substring(7);
             }
@@ -122,6 +151,13 @@ public class IAInputActivity extends AppCompatActivity {
     private Receta parseReceta(JSONObject json) throws JSONException {
         Receta receta = new Receta();
         receta.setNombre(json.optString("nombre", ""));
+        
+        String urlFromJson = json.optString("youtubeUrl", "");
+        if (urlFromJson.isEmpty()) {
+            // Si el JSON no trae URL, usamos la que el usuario puso originalmente en el campo de arriba
+            urlFromJson = editTextYoutubeIA.getText().toString().trim();
+        }
+        receta.setYoutubeUrl(urlFromJson);
         
         String tipoStr = json.optString("tipoReceta", "PRINCIPAL").toUpperCase();
         try {

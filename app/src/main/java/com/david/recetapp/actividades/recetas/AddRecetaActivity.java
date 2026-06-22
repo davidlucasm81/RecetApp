@@ -88,6 +88,7 @@ public class AddRecetaActivity extends RecetaBaseActivity {
 
         spinnerMomentoReceta = findViewById(R.id.spinnerMomentoReceta);
         layoutMomentoReceta = findViewById(R.id.layoutMomentoReceta);
+        editTextYoutubeUrl = findViewById(R.id.editTextYoutubeUrl);
 
         if (progressBar != null) {
             progressBar.setVisibility(View.GONE);
@@ -269,6 +270,7 @@ public class AddRecetaActivity extends RecetaBaseActivity {
         receta.setShared(false);
         receta.setTipoReceta(TipoReceta.values()[tipoPos]);
         receta.setMomentoReceta(MomentoReceta.values()[momentPos]);
+        receta.setYoutubeUrl(editTextYoutubeUrl.getText().toString().trim());
 
         // Guardar receta con callback
         guardarReceta(receta);

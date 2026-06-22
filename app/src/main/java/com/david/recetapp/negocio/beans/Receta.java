@@ -29,6 +29,7 @@ public class Receta implements Parcelable {
     private double puntuacionDada;
     private String userId; // si lo usas
     private MomentoReceta momentoReceta;
+    private String youtubeUrl;
 
     // Constructor vacío requerido por Firestore
     public Receta() {
@@ -46,6 +47,7 @@ public class Receta implements Parcelable {
         puntuacionDada = -1;
         userId = "";
         momentoReceta = MomentoReceta.AMBOS;
+        youtubeUrl = "";
     }
 
     // Parcelable
@@ -75,6 +77,7 @@ public class Receta implements Parcelable {
         userId = in.readString();
         int momentoOrd = in.readInt();
         momentoReceta = (momentoOrd != -1) ? MomentoReceta.values()[momentoOrd] : MomentoReceta.AMBOS;
+        youtubeUrl = in.readString();
     }
 
     public static final Creator<Receta> CREATOR = new Creator<>() {
@@ -111,6 +114,7 @@ public class Receta implements Parcelable {
         dest.writeDouble(puntuacionDada);
         dest.writeString(userId);
         dest.writeInt(momentoReceta != null ? momentoReceta.ordinal() : -1);
+        dest.writeString(youtubeUrl);
     }
 
     @Override
@@ -166,6 +170,9 @@ public class Receta implements Parcelable {
 
     public MomentoReceta getMomentoReceta() { return momentoReceta; }
     public void setMomentoReceta(MomentoReceta momentoReceta) { this.momentoReceta = momentoReceta; }
+
+    public String getYoutubeUrl() { return youtubeUrl; }
+    public void setYoutubeUrl(String youtubeUrl) { this.youtubeUrl = youtubeUrl; }
 
     @Override
     public boolean equals(Object o) {

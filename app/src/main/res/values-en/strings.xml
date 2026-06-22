@@ -96,6 +96,9 @@
     <string name="minutos">Minutes</string>
     <string name="dia_inicio">Start day:</string>
     <string name="numero_personas">Number of people</string>
+    <string name="youtube_url">YouTube video link (optional)</string>
+    <string name="youtube_url_hint">https://www.youtube.com/watch?v=&#8230;</string>
+    <string name="ver_video_youtube">View recipe video</string>
     <string name="numero_recetas">Number of recipes per day</string>
     <string name="numero_personas_incorrecto">Wrong number of people</string>
     <string name="_0_recetas">0 recipes</string>
@@ -124,10 +127,10 @@
     <string name="ia_pegar_resultado_hint">Paste the JSON returned by the AI here</string>
     <string name="ia_procesar_resultado">Process Recipe</string>
     <string name="ia_error_parseo">Error processing the AI JSON. Check the format.</string>
-    <string name="ia_prompt_template">Generate recipe for "%1$s". Units: %2$s. Allergens: %3$s. Ingredients: singular, initial capital.
+    <string name="ia_prompt_template">Act as an expert chef. %1$s. Units: %2$s. Allergens: %3$s. Ingredients: singular, initial capital.
 tipoReceta=PRINCIPAL|POSTRE|COCTEL|SIDE. momentoReceta=COMIDA|CENA|AMBOS. temporadas=INVIERNO|VERANO|OTONIO|PRIMAVERA.
 Only JSON:
-{"nombre":"","tipoReceta":"","momentoReceta":"","numPersonas":0,"temporadas":[],"alergenos":[],"ingredientes":[{"nombre":"","cantidad":"","tipoCantidad":"","opcional":false,"esSustitutoDe":null}],"pasos":[{"paso":"","tiempo":"HH:mm"}]}</string>
+{\"nombre\":\"\",\"tipoReceta\":\"\",\"momentoReceta\":\"\",\"numPersonas\":0,\"temporadas\":[],\"alergenos\":[],\"ingredientes\":[{\"nombre\":\"\",\"cantidad\":\"\",\"tipoCantidad\":\"\",\"opcional\":false,\"esSustitutoDe\":null}],\"pasos\":[{\"paso\":\"\",\"tiempo\":\"HH:mm\"}],\"youtubeUrl\":\"\"}</string>
 
     <!-- Existing messages that might be missing -->
     <string name="error_crear_receta">Error creating recipe</string>

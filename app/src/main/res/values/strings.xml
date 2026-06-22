@@ -104,6 +104,9 @@
     <string name="dia_inicio">Día Inicial:</string>
     <string name="dia_fin">Día Fin:</string>
     <string name="numero_personas">Número de personas para la receta</string>
+    <string name="youtube_url">Enlace a vídeo de YouTube (opcional)</string>
+    <string name="youtube_url_hint">https://www.youtube.com/watch?v=&#8230;</string>
+    <string name="ver_video_youtube">Ver vídeo de la receta</string>
     <string name="numero_recetas">Número de recetas por día</string>
     <string name="numero_personas_incorrecto">Número de personas incorrecto</string>
     <string name="_0_recetas">0 recetas</string>
@@ -132,10 +135,10 @@
     <string name="ia_pegar_resultado_hint">Pega aquí el JSON devuelto por la IA</string>
     <string name="ia_procesar_resultado">Procesar Receta</string>
     <string name="ia_error_parseo">Error al procesar el JSON de la IA. Revisa el formato.</string>
-    <string name="ia_prompt_template">Genera receta de "%1$s". Unidades: %2$s. Alérgenos: %3$s. Ingredientes: singular, mayúscula inicial.
+    <string name="ia_prompt_template">Actúa como un experto cocinero. %1$s. Unidades: %2$s. Alérgenos: %3$s. Ingredientes: singular, mayúscula inicial.
 tipoReceta=PRINCIPAL|POSTRE|COCTEL|SIDE. momentoReceta=COMIDA|CENA|AMBOS. temporadas=INVIERNO|VERANO|OTONIO|PRIMAVERA.
 Solo JSON:
-{"nombre":"","tipoReceta":"","momentoReceta":"","numPersonas":0,"temporadas":[],"alergenos":[],"ingredientes":[{"nombre":"","cantidad":"","tipoCantidad":"","opcional":false,"esSustitutoDe":null}],"pasos":[{"paso":"","tiempo":"HH:mm"}]}</string>
+{\"nombre\":\"\",\"tipoReceta\":\"\",\"momentoReceta\":\"\",\"numPersonas\":0,\"temporadas\":[],\"alergenos\":[],\"ingredientes\":[{\"nombre\":\"\",\"cantidad\":\"\",\"tipoCantidad\":\"\",\"opcional\":false,\"esSustitutoDe\":null}],\"pasos\":[{\"paso\":\"\",\"tiempo\":\"HH:mm\"}],\"youtubeUrl\":\"\"}</string>
 
     <!-- Mensajes existentes que podrían faltar -->
     <string name="error_crear_receta">Error al crear la receta</string>

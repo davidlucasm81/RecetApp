@@ -131,6 +131,7 @@ public class EditarRecetaActivity extends RecetaBaseActivity {
 
         spinnerMomentoReceta = findViewById(R.id.spinnerMomentoReceta);
         layoutMomentoReceta = findViewById(R.id.layoutMomentoReceta);
+        editTextYoutubeUrl = findViewById(R.id.editTextYoutubeUrl);
 
         if (progressBar != null) {
             progressBar.setVisibility(View.GONE);
@@ -188,6 +189,7 @@ public class EditarRecetaActivity extends RecetaBaseActivity {
 
         temporadas = recetaActual.getTemporadas();
         numberPickerNumeroPersonas.setText(String.valueOf(recetaActual.getNumPersonas()));
+        editTextYoutubeUrl.setText(recetaActual.getYoutubeUrl());
 
         ingredientes = recetaActual.getIngredientes() != null ? new ArrayList<>(recetaActual.getIngredientes()) : new ArrayList<>();
         pasos = recetaActual.getPasos() != null ? new ArrayList<>(recetaActual.getPasos()) : new ArrayList<>();
@@ -388,6 +390,7 @@ public class EditarRecetaActivity extends RecetaBaseActivity {
         recetaActual.setShared(false);
         recetaActual.setTipoReceta(TipoReceta.values()[tipoPos]);
         recetaActual.setMomentoReceta(MomentoReceta.values()[momentPos]);
+        recetaActual.setYoutubeUrl(editTextYoutubeUrl.getText().toString().trim());
 
         // Guardar con callback
         editarRecetaConCallback(recetaActual);

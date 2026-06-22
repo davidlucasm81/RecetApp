@@ -5,13 +5,9 @@ import android.view.View;
 import android.widget.AutoCompleteTextView;
 
 import com.david.recetapp.R;
-import com.david.recetapp.negocio.beans.Ingrediente;
-import com.david.recetapp.negocio.beans.Paso;
 import com.david.recetapp.negocio.beans.Receta;
 import com.david.recetapp.negocio.beans.Temporada;
 import com.david.recetapp.negocio.beans.TipoReceta;
-
-import java.util.ArrayList;
 
 public class AnadirRecetaIAActivity extends AddRecetaActivity {
 
@@ -36,6 +32,10 @@ public class AnadirRecetaIAActivity extends AddRecetaActivity {
         editTextNombre.setText(receta.getNombre());
         numberPickerNumeroPersonas.setText(String.valueOf(receta.getNumPersonas()));
         estrellas.setRating(receta.getEstrellas());
+        
+        if (editTextYoutubeUrl != null) {
+            editTextYoutubeUrl.setText(receta.getYoutubeUrl());
+        }
 
         checkboxInvierno.setChecked(receta.getTemporadas().contains(Temporada.INVIERNO));
         checkboxVerano.setChecked(receta.getTemporadas().contains(Temporada.VERANO));

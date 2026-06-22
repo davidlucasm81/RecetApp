@@ -61,6 +61,7 @@ public abstract class RecetaBaseActivity extends AppCompatActivity {
     protected AutoCompleteTextView autoCompleteTextViewNombreIngrediente;
     protected AutoCompleteTextView autoCompleteSustitutoDe;
     protected EditText editTextCantidad;
+    protected EditText editTextYoutubeUrl;
     protected LinearLayout linearLayoutIngredientes;
     protected ArrayList<Ingrediente> ingredientes;
     protected LinearLayout linearLayoutListaPasos;
