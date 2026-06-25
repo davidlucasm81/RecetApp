@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 @SuppressWarnings("unused")
 @IgnoreExtraProperties
@@ -33,7 +32,6 @@ public class Receta implements Parcelable {
 
     // Constructor vacío requerido por Firestore
     public Receta() {
-        if (id == null) id = UUID.randomUUID().toString();
         nombre = "";
         temporadas = new ArrayList<>();
         ingredientes = new ArrayList<>();
@@ -124,7 +122,13 @@ public class Receta implements Parcelable {
 
     // Getters y Setters
     public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
+    public void setId(String id) {
+        if (this.id == null || this.id.isEmpty()) {
+            this.id = id;
+        } else if (!this.id.equals(id)) {
+            android.util.Log.w("Receta", "Intento de cambiar ID de " + this.id + " a " + id);
+        }
+    }
 
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }

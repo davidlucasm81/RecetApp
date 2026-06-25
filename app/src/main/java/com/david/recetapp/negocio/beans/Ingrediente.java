@@ -14,6 +14,8 @@ public class Ingrediente implements Parcelable {
     private boolean opcional;
     private String esSustitutoDe;
     private TipoIngrediente tipo;
+    private String recetaId;
+    private Receta recetaReferenciada;
 
     public Ingrediente(String nombre, String cantidad, String tipoCantidad, double puntuacion) {
         this(nombre, cantidad, tipoCantidad, puntuacion, false, null);
@@ -32,6 +34,28 @@ public class Ingrediente implements Parcelable {
         this.esSustitutoDe = esSustitutoDe;
     }
 
+    public Ingrediente(String nombre, String cantidad, String tipoCantidad, double puntuacion, boolean opcional, String esSustitutoDe, String recetaId) {
+        this.nombre = nombre;
+        this.cantidad = cantidad;
+        this.tipoCantidad = tipoCantidad;
+        this.puntuacion = puntuacion;
+        this.opcional = opcional;
+        this.esSustitutoDe = esSustitutoDe;
+        this.recetaId = recetaId;
+    }
+
+    public Ingrediente(Ingrediente other) {
+        this.nombre = other.nombre;
+        this.cantidad = other.cantidad;
+        this.tipoCantidad = other.tipoCantidad;
+        this.puntuacion = other.puntuacion;
+        this.opcional = other.opcional;
+        this.esSustitutoDe = other.esSustitutoDe;
+        this.tipo = other.tipo;
+        this.recetaId = other.recetaId;
+        this.recetaReferenciada = other.recetaReferenciada;
+    }
+
     protected Ingrediente(Parcel in) {
         nombre = in.readString();
         cantidad = in.readString();
@@ -43,6 +67,7 @@ public class Ingrediente implements Parcelable {
         if (tipoStr != null) {
             tipo = TipoIngrediente.valueOf(tipoStr);
         }
+        recetaId = in.readString();
     }
 
     public Ingrediente() {
@@ -76,6 +101,7 @@ public class Ingrediente implements Parcelable {
         dest.writeByte((byte) (opcional ? 1 : 0));
         dest.writeString(esSustitutoDe);
         dest.writeString(tipo != null ? tipo.name() : null);
+        dest.writeString(recetaId);
     }
 
     // getters and setters
@@ -104,6 +130,9 @@ public class Ingrediente implements Parcelable {
     }
 
     public double getPuntuacion() {
+        if (recetaId != null && !recetaId.isEmpty() && recetaReferenciada != null) {
+            return recetaReferenciada.getPuntuacionDada();
+        }
         return puntuacion;
     }
 
@@ -133,5 +162,17 @@ public class Ingrediente implements Parcelable {
 
     public void setTipo(TipoIngrediente tipo) {
         this.tipo = tipo;
+    }
+
+    public String getRecetaId() {
+        return recetaId;
+    }
+
+    public void setRecetaId(String recetaId) {
+        this.recetaId = recetaId;
+    }
+
+    public void setRecetaReferenciada(Receta recetaReferenciada) {
+        this.recetaReferenciada = recetaReferenciada;
     }
 }

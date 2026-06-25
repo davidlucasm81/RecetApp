@@ -8,37 +8,77 @@
     android:fitsSystemWindows="true"
     tools:context=".actividades.AddRecetaDiaActivity">
 
-    <FrameLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:orientation="vertical"
         android:padding="16dp">
 
-        <TextView
-            android:id="@+id/textViewEmpty"
+        <GridLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:text="@string/no_hay_recetas"
-            android:textColor="@color/colorGrisTextoFondo"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:visibility="gone" />
+            android:layout_height="wrap_content"
+            android:columnCount="2"
+            android:rowCount="1"
+            android:layout_marginBottom="8dp">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerViewRecetas"
+            <AutoCompleteTextView
+                android:id="@+id/autoCompleteTextViewRecetas"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_row="0"
+                android:layout_column="0"
+                android:layout_columnWeight="1"
+                android:completionThreshold="1"
+                android:hint="@string/buscar_recetas"
+                android:imeOptions="actionDone"
+                android:inputType="textAutoComplete"
+                android:minHeight="48dp" />
+
+            <ImageView
+                android:id="@+id/imageViewClearSearch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_row="0"
+                android:layout_column="1"
+                android:layout_gravity="center_vertical"
+                android:clickable="true"
+                android:focusable="true"
+                android:contentDescription="@string/borrar_busqueda"
+                android:src="@drawable/ic_baseline_delete_24" />
+        </GridLayout>
+
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clipToPadding="false"
-            android:paddingBottom="16dp"
-            tools:listitem="@layout/item_receta_button" />
+            android:layout_height="0dp"
+            android:layout_weight="1">
 
-        <ProgressBar
-            android:id="@+id/progressBar"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_gravity="center"
-            android:visibility="gone" />
+            <TextView
+                android:id="@+id/textViewEmpty"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:text="@string/no_hay_recetas"
+                android:textColor="@color/colorGrisTextoFondo"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
 
-    </FrameLayout>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerViewRecetas"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingBottom="16dp"
+                tools:listitem="@layout/item_receta_button" />
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="center"
+                android:visibility="gone" />
+
+        </FrameLayout>
+    </LinearLayout>
 
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

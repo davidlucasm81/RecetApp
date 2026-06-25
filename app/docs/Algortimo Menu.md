@@ -17,7 +17,7 @@ public static void addMenu(
     int numRecetas,           // Número de recetas a asignar por día
     int numPersonas,          // Número de personas (raciones/porciones)
     RellenarCallback callback // Callback asíncrono con resultado
-)
+);
 ```
 
 ---
@@ -83,12 +83,12 @@ Fomenta el aprovechamiento de productos frescos (ej. si ayer usaste medio pimien
 
 ## Resumen de Estado de Mejoras
 
- ID | Descripción breve | Estado |
----|---|---|
- M1–M16 | Mejoras de versiones anteriores | ✅ |
- M17+ | Cache Global de Pre-procesado | ✅ |
- M20 | Ventana deslizante (Estadísticas) | ✅ |
- M21 | Balance nutricional intradiario | ✅ |
- M22 | Optimización de bucle de reintentos | ✅ |
- M23 | Bitmasks de Tipos de Ingredientes | ✅ |
- M24 | Pre-particionado de Recetas | ✅ |
+| ID     | Descripción breve                   | Estado |
+|--------|-------------------------------------|--------|
+| M1–M16 | Mejoras de versiones anteriores     | ✅      |
+| M17+   | Cache Global de Pre-procesado       | ✅      |
+| M20    | Ventana deslizante (Estadísticas)   | ✅      |
+| M21    | Balance nutricional intradiario     | ✅      |
+| M22    | Optimización de bucle de reintentos | ✅      |
+| M23    | Bitmasks de Tipos de Ingredientes   | ✅      |
+| M24    | Pre-particionado de Recetas         | ✅      |

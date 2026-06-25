@@ -113,7 +113,7 @@ public class AddRecetaActivity extends RecetaBaseActivity {
             String esSustitutoDe = (autoCompleteSustitutoDe != null) ? autoCompleteSustitutoDe.getText().toString() : null;
 
             if (validarIngrediente(nombreIngrediente, cantidad, tipoCantidad)) {
-                agregarIngrediente(nombreIngrediente, cantidad, tipoCantidad, opcional, esSustitutoDe);
+                agregarIngrediente(nombreIngrediente, cantidad, tipoCantidad, opcional, esSustitutoDe, recetaIdSeleccionada);
                 limpiarCamposIngrediente();
                 checkboxOpcional.setChecked(false);
                 UtilsSrv.notificacion(this, getString(R.string.ingrediente_aniadido), Toast.LENGTH_SHORT).show();
@@ -134,6 +134,13 @@ public class AddRecetaActivity extends RecetaBaseActivity {
     private void limpiarCamposIngrediente() {
         autoCompleteTextViewNombreIngrediente.setText("");
         editTextCantidad.setText("1");
+        recetaIdSeleccionada = null;
+        if (btnLinkRecetaNueva != null) {
+            btnLinkRecetaNueva.clearColorFilter();
+            btnLinkRecetaNueva.setContentDescription(getString(R.string.vincular_receta));
+        }
+        autoCompleteTextViewNombreIngrediente.setFocusableInTouchMode(true);
+        autoCompleteTextViewNombreIngrediente.setFocusable(true);
     }
 
     protected void setupPasosSection() {
@@ -259,6 +266,7 @@ public class AddRecetaActivity extends RecetaBaseActivity {
 
         // Crear objeto receta
         Receta receta = new Receta();
+        receta.setId(java.util.UUID.randomUUID().toString());
         receta.setNombre(nombre);
         receta.setIngredientes(ingredientes);
         RecetasSrv.setPuntuacionDada(receta, this);

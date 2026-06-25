@@ -5,8 +5,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.InputType;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
+import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -52,7 +56,10 @@ public class AddRecetaDiaActivity extends AppCompatActivity {
     private TextView emptyView;
     private ProgressBar progressBar;
     private SwipeRefreshLayout swipeRefreshLayout; // Puede ser null
+    private AutoCompleteTextView searchView;
+    private ImageView clearSearchButton;
 
+    private List<Receta> fullRecipeList = new ArrayList<>();
     private final Calendar calendarComparar = Calendar.getInstance();
     private final Calendar calendarioIntervaloPrevio = Calendar.getInstance();
     private Date fechaElegida;
@@ -72,6 +79,7 @@ public class AddRecetaDiaActivity extends AppCompatActivity {
         initializeViews();
         setupRecyclerView();
         setupSwipeRefresh(); // Funciona aunque no exista el SwipeRefresh
+        setupSearch();
         initializeDates();
 
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
@@ -94,6 +102,46 @@ public class AddRecetaDiaActivity extends AppCompatActivity {
 
         // 🚀 Intentar encontrar SwipeRefreshLayout (puede no existir en layout original)
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
+
+        searchView = findViewById(R.id.autoCompleteTextViewRecetas);
+        clearSearchButton = findViewById(R.id.imageViewClearSearch);
+    }
+
+    private void setupSearch() {
+        if (searchView != null) {
+            searchView.addTextChangedListener(new TextWatcher() {
+                @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+                @Override public void afterTextChanged(Editable s) {
+                    filtrarRecetas(s.toString());
+                }
+            });
+        }
+
+        if (clearSearchButton != null) {
+            clearSearchButton.setOnClickListener(v -> {
+                if (searchView != null) {
+                    searchView.setText("");
+                }
+            });
+        }
+    }
+
+    private void filtrarRecetas(String query) {
+        if (fullRecipeList == null) return;
+        
+        String cleanQuery = query.toLowerCase().trim();
+        List<Receta> filteredList;
+        
+        if (cleanQuery.isEmpty()) {
+            filteredList = new ArrayList<>(fullRecipeList);
+        } else {
+            filteredList = fullRecipeList.stream()
+                    .filter(r -> r.getNombre().toLowerCase().contains(cleanQuery))
+                    .collect(Collectors.toList());
+        }
+        
+        updateUI(filteredList);
     }
 
     private void setupRecyclerView() {
@@ -159,7 +207,13 @@ public class AddRecetaDiaActivity extends AppCompatActivity {
                     public void onSuccess(java.util.List<Receta> listaRecetas) {
                         mainHandler.post(() -> {
                             hideLoading();
-                            updateUI(listaRecetas);
+                            fullRecipeList = listaRecetas != null ? listaRecetas : new ArrayList<>();
+                            String currentQuery = searchView != null ? searchView.getText().toString() : "";
+                            if (currentQuery.isEmpty()) {
+                                updateUI(fullRecipeList);
+                            } else {
+                                filtrarRecetas(currentQuery);
+                            }
                             isLoading = false;
                         });
                     }

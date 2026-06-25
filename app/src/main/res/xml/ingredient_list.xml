@@ -22,6 +22,10 @@
     <nombre lang="en">Oregano</nombre>
   </item>
   <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
+    <nombre lang="es">Orégano seco</nombre>
+    <nombre lang="en">Dried oregano</nombre>
+  </item>
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Tomillo</nombre>
     <nombre lang="en">Thyme</nombre>
   </item>
@@ -385,6 +389,10 @@
     <nombre lang="es">Sal fina</nombre>
     <nombre lang="en">Fine salt</nombre>
   </item>
+  <item puntuacion="-1" gramos="5" tipo="ESPECIA">
+    <nombre lang="es">Sal en escamas</nombre>
+    <nombre lang="en">Flaked salt</nombre>
+  </item>
   <item puntuacion="5" gramos="5" tipo="ESPECIA">
     <nombre lang="es">Pasta de ajo</nombre>
     <nombre lang="en">Garlic paste</nombre>
@@ -406,6 +414,10 @@
   <item puntuacion="10" gramos="150" tipo="VERDURA">
     <nombre lang="es">Tomate natural</nombre>
     <nombre lang="en">Natural tomato</nombre>
+  </item>
+  <item puntuacion="10" gramos="150" tipo="VERDURA">
+    <nombre lang="es">Tomate maduro</nombre>
+    <nombre lang="en">Ripe tomato</nombre>
   </item>
   <item puntuacion="10" gramos="220" tipo="VERDURA">
     <nombre lang="es">Tomate grande</nombre>
@@ -447,6 +459,10 @@
     <nombre lang="es">Pimiento verde</nombre>
     <nombre lang="en">Green pepper</nombre>
   </item>
+  <item puntuacion="10" gramos="120" tipo="VERDURA">
+    <nombre lang="es">Pimiento verde italiano</nombre>
+    <nombre lang="en">Italian green pepper</nombre>
+  </item>
   <item puntuacion="9" gramos="150" tipo="VERDURA">
     <nombre lang="es">Pimiento amarillo</nombre>
     <nombre lang="en">Yellow pepper</nombre>
@@ -469,6 +485,10 @@
   </item>
   <item puntuacion="-1" gramos="120" tipo="VERDURA">
     <nombre lang="es">Cebolla morada</nombre>
+    <nombre lang="en">Red onion</nombre>
+  </item>
+  <item puntuacion="-1" gramos="120" tipo="VERDURA">
+    <nombre lang="es">Cebolla roja</nombre>
     <nombre lang="en">Red onion</nombre>
   </item>
   <item puntuacion="9" gramos="120" tipo="VERDURA">
@@ -659,6 +679,10 @@
     <nombre lang="es">Pepinillo</nombre>
     <nombre lang="en">Pickle</nombre>
   </item>
+  <item puntuacion="6" gramos="15" tipo="VERDURA">
+    <nombre lang="es">Pepinillo en vinagre</nombre>
+    <nombre lang="en">Pickled cucumber</nombre>
+  </item>
   <item puntuacion="7" gramos="200" tipo="CEREAL">
     <nombre lang="es">Maíz</nombre>
     <nombre lang="en">Corn</nombre>
@@ -666,6 +690,10 @@
   <item puntuacion="7" gramos="400" tipo="VERDURA">
     <nombre lang="es">Pimiento rojo en lata</nombre>
     <nombre lang="en">Canned red pepper</nombre>
+  </item>
+  <item puntuacion="7" gramos="150" tipo="VERDURA">
+    <nombre lang="es">Pimiento morrón asado</nombre>
+    <nombre lang="en">Roasted bell pepper</nombre>
   </item>
   <item puntuacion="7" gramos="30" tipo="VERDURA">
     <nombre lang="es">Pimiento del piquillo</nombre>
@@ -704,6 +732,10 @@
   <item puntuacion="9" gramos="250" tipo="LEGUMBRE">
     <nombre lang="es">Guisante</nombre>
     <nombre lang="en">Pea</nombre>
+  </item>
+  <item puntuacion="8" gramos="250" tipo="LEGUMBRE">
+    <nombre lang="es">Guisante cocido</nombre>
+    <nombre lang="en">Cooked pea</nombre>
   </item>
   <item puntuacion="10" gramos="100" tipo="LEGUMBRE">
     <nombre lang="es">Guisante lágrima</nombre>
@@ -1496,8 +1528,16 @@
     <nombre lang="en">Black olives</nombre>
   </item>
   <item puntuacion="5" gramos="4" tipo="PROCESADO">
+    <nombre lang="es">Aceituna negra sin hueso</nombre>
+    <nombre lang="en">Pitted black olive</nombre>
+  </item>
+  <item puntuacion="5" gramos="4" tipo="PROCESADO">
     <nombre lang="es">Aceitunas verdes sin hueso</nombre>
     <nombre lang="en">Pitted green olives</nombre>
+  </item>
+  <item puntuacion="5" gramos="4" tipo="PROCESADO">
+    <nombre lang="es">Aceituna verde sin hueso</nombre>
+    <nombre lang="en">Pitted green olive</nombre>
   </item>
   <item puntuacion="5" gramos="100" tipo="PROCESADO">
     <nombre lang="es">Alcaparras</nombre>
@@ -1506,6 +1546,10 @@
   <item puntuacion="5" gramos="100" tipo="PESCADO_AZUL">
     <nombre lang="es">Atún en aceite</nombre>
     <nombre lang="en">Tuna in oil</nombre>
+  </item>
+  <item puntuacion="5" gramos="100" tipo="PESCADO_AZUL">
+    <nombre lang="es">Ventresca de atún en aceite de oliva</nombre>
+    <nombre lang="en">Tuna belly in olive oil</nombre>
   </item>
   <item puntuacion="5" gramos="100" tipo="DULCE">
     <nombre lang="es">Cacao en polvo</nombre>

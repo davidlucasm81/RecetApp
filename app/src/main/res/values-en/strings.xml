@@ -97,8 +97,6 @@
     <string name="dia_inicio">Start day:</string>
     <string name="numero_personas">Number of people</string>
     <string name="youtube_url">YouTube video link (optional)</string>
-    <string name="youtube_url_hint">https://www.youtube.com/watch?v=&#8230;</string>
-    <string name="ver_video_youtube">View recipe video</string>
     <string name="numero_recetas">Number of recipes per day</string>
     <string name="numero_personas_incorrecto">Wrong number of people</string>
     <string name="_0_recetas">0 recipes</string>
@@ -125,7 +123,6 @@
     <string name="ia_generar_prompt">Generate AI Prompt</string>
     <string name="ia_copiar_prompt">Copy Prompt</string>
     <string name="ia_pegar_resultado_hint">Paste the JSON returned by the AI here</string>
-    <string name="ia_procesar_resultado">Process Recipe</string>
     <string name="ia_error_parseo">Error processing the AI JSON. Check the format.</string>
     <string name="ia_prompt_template">Act as an expert chef. %1$s. Units: %2$s. Allergens: %3$s. Ingredients: singular, initial capital.
 tipoReceta=PRINCIPAL|POSTRE|COCTEL|SIDE. momentoReceta=COMIDA|CENA|AMBOS. temporadas=INVIERNO|VERANO|OTONIO|PRIMAVERA.
@@ -157,4 +154,10 @@ Only JSON:
         <item>@string/cena</item>
         <item>@string/ambos</item>
     </string-array>
+    <string name="vincular_receta">Link recipe</string>
+    <string name="desvincular_receta">Unlink recipe</string>
+    <string name="seleccionar_receta">Select recipe</string>
+    <string name="receta_vinculada">Linked recipe: %s</string>
+    <string name="error_receta_no_encontrada">Linked recipe not found</string>
+    <string name="error_receta_no_encontrada_dia">Linked recipe is not in today\'s menu</string>
 </resources>

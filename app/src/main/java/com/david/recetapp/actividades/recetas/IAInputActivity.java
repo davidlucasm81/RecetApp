@@ -150,6 +150,7 @@ public class IAInputActivity extends AppCompatActivity {
 
     private Receta parseReceta(JSONObject json) throws JSONException {
         Receta receta = new Receta();
+        receta.setId(java.util.UUID.randomUUID().toString());
         receta.setNombre(json.optString("nombre", ""));
         
         String urlFromJson = json.optString("youtubeUrl", "");

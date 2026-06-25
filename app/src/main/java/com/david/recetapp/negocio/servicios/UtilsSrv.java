@@ -180,15 +180,4 @@ public class UtilsSrv {
         return obtenerColumnaCalendario(diaDelMes, fechaActual.getMonthValue() - 1, fechaActual.getYear());
     }
 
-    public static String extraerVideoId(String url) {
-        if (url == null || url.trim().isEmpty()) return null;
-        String pattern = "^(?:https?://)?(?:www\\.|m\\.)?(?:youtube\\.com/(?:watch\\?\\S*v=|embed/|v/)|youtu\\.be/)([a-zA-Z0-9_-]{11})(?:\\S+)?$";
-        java.util.regex.Pattern compiledPattern = java.util.regex.Pattern.compile(pattern);
-        java.util.regex.Matcher matcher = compiledPattern.matcher(url.trim());
-        if (matcher.find()) {
-            return matcher.group(1);
-        }
-        return null;
-    }
-
 }

@@ -25,18 +25,36 @@
         android:paddingStart="4dp"
         tools:ignore="RtlSymmetry">
 
-        <EditText
-            android:id="@+id/editTextNombreIngrediente"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/field_background"
-            android:hint="@string/nombre_del_ingrediente"
-            android:inputType="text"
-            android:minHeight="48dp"
-            android:paddingHorizontal="12dp"
-            android:textSize="15sp"
-            android:textStyle="bold"
-            tools:ignore="Autofill" />
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/editTextNombreIngrediente"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/field_background"
+                android:hint="@string/nombre_del_ingrediente"
+                android:inputType="text"
+                android:minHeight="48dp"
+                android:paddingHorizontal="12dp"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                tools:ignore="Autofill" />
+
+            <ImageButton
+                android:id="@+id/btnLinkReceta"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="4dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/vincular_receta"
+                android:src="@drawable/ic_baseline_link_24"
+                app:tint="@color/colorIcono" />
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"

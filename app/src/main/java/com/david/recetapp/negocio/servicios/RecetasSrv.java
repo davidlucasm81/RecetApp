@@ -124,7 +124,11 @@ public class RecetasSrv {
                     try {
                         inicializarMapas(context);
 
-                        long inicio = System.currentTimeMillis();
+                        synchronized (recetasCache) {
+                            recetasCache.clear();
+                            recetasCache.addAll(recetas);
+                        }
+
                         synchronized (recipeProcessingCache) {
                             recipeProcessingCache.clear();
                             for (Receta receta : recetas) {
@@ -132,13 +136,7 @@ public class RecetasSrv {
                                 recipeProcessingCache.put(receta.getId(), new CalendarioSrv.CachedRecetaData(receta));
                             }
                         }
-                        long duracion = System.currentTimeMillis() - inicio;
-                        Log.d(TAG, "✅ Puntuaciones y cache de procesamiento calculados: " + duracion + "ms");
-
-                        synchronized (recetasCache) {
-                            recetasCache.clear();
-                            recetasCache.addAll(recetas);
-                        }
+                        Log.d(TAG, "✅ Puntuaciones y cache de procesamiento calculados");
 
                         // Notificar en el main thread
                         new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
@@ -285,18 +283,68 @@ public class RecetasSrv {
     }
 
     private static void calcularPuntuacion(Receta receta) {
+        calcularPuntuacion(receta, new ArrayList<>());
+    }
+
+    private static void calcularPuntuacion(Receta receta, List<String> stack) {
         if (ingredientMapCache == null || unitImportanceMapCache == null || gramosMapCache == null || tipoMapCache == null) {
             Log.e(TAG, "❌ Mapas null, no se calcula");
             return;
         }
 
+        if (stack.contains(receta.getId())) {
+            Log.w(TAG, "🔄 Ciclo detectado en puntuación: " + receta.getNombre());
+            return;
+        }
+        stack.add(receta.getId());
+
         Log.d(TAG, "🔢 Calculando: " + receta.getNombre());
 
         for (Ingrediente ing : receta.getIngredientes()) {
-            String nombre = ing.getNombre().toLowerCase(Locale.getDefault());
-            Integer puntu = ingredientMapCache.get(nombre);
-            ing.setPuntuacion(puntu != null ? puntu : -2);
-            ing.setTipo(tipoMapCache.get(nombre));
+            String rid = ing.getRecetaId();
+            if (rid != null && !rid.isEmpty()) {
+                if (stack.contains(rid)) {
+                    Log.w(TAG, "🔄 Ciclo evitado: " + receta.getNombre() + " -> " + rid);
+                    ing.setRecetaReferenciada(null);
+                    String nombre = ing.getNombre().toLowerCase(Locale.getDefault());
+                    Integer puntu = ingredientMapCache.get(nombre);
+                    ing.setPuntuacion(puntu != null ? puntu : -2);
+                    continue;
+                }
+
+                // Si tiene receta vinculada, buscarla y usar su puntuación
+                Receta vinculada = null;
+                synchronized (recetasCache) {
+                    for (Receta r : recetasCache) {
+                        if (Objects.equals(r.getId(), rid)) {
+                            vinculada = r;
+                            break;
+                        }
+                    }
+                }
+                if (vinculada != null) {
+                    // Asegurar que la vinculada tiene puntuación calculada (evitar infinitos por el stack)
+                    calcularPuntuacion(vinculada, new ArrayList<>(stack));
+                    ing.setRecetaReferenciada(vinculada);
+                } else {
+                    // Fallback a ingrediente normal si no se encuentra la receta en caché
+                    // Pero antes, intentar buscarla en el mapa de procesamiento global si está disponible
+                    CalendarioSrv.CachedRecetaData cached = recipeProcessingCache.get(rid);
+                    if (cached != null) {
+                        // Usar la puntuación de la caché de procesamiento
+                        ing.setPuntuacion(cached.puntuacionDada);
+                    } else {
+                        String nombre = ing.getNombre().toLowerCase(Locale.getDefault());
+                        Integer puntu = ingredientMapCache.get(nombre);
+                        ing.setPuntuacion(puntu != null ? puntu : -2);
+                    }
+                }
+            } else {
+                String nombre = ing.getNombre().toLowerCase(Locale.getDefault());
+                Integer puntu = ingredientMapCache.get(nombre);
+                ing.setPuntuacion(puntu != null ? puntu : -2);
+                ing.setTipo(tipoMapCache.get(nombre));
+            }
         }
 
         // 🚀 Agrupar por sustitución para elegir el mejor representante en el cálculo global
@@ -452,7 +500,7 @@ public class RecetasSrv {
         });
     }
 
-    public static void actualizarRecetaCalendario(Context context, String idReceta, int diaMes, boolean add) {
+    public static void actualizarRecetaCalendario(Context context, String idReceta, long timestamp, boolean add) {
         if (notHasUserId()) {
             Log.e(TAG, "❌ actualizarRecetaCalendario sin userId");
             return;
@@ -463,7 +511,7 @@ public class RecetasSrv {
                     .filter(r -> r.getId().equals(idReceta))
                     .findAny();
             if (opt.isPresent()) {
-                actualizarRecetaCalendarioDirect(opt.get(), diaMes, add);
+                actualizarRecetaCalendarioDirect(opt.get(), timestamp, add);
                 return;
             }
         }
@@ -475,7 +523,7 @@ public class RecetasSrv {
                         .filter(r -> r.getId().equals(idReceta))
                         .findAny();
 
-                opt.ifPresent(r -> actualizarRecetaCalendarioDirect(r, diaMes, add));
+                opt.ifPresent(r -> actualizarRecetaCalendarioDirect(r, timestamp, add));
             }
 
             @Override
@@ -519,6 +567,7 @@ public class RecetasSrv {
 
         List<Receta> lista = recetasTotales.stream()
                 .filter(r -> ids.contains(r.getId()))
+                .map(RecetasSrv::clonarReceta)
                 .collect(Collectors.toList());
 
         Map<String, Integer> personasMap = selectedDay.getRecetas().stream()
@@ -571,9 +620,7 @@ public class RecetasSrv {
                 }
                 
                 // Clonar para no modificar la receta original de la lista total
-                Ingrediente clon = new Ingrediente(seleccionado.getNombre(), seleccionado.getCantidad(), 
-                        seleccionado.getTipoCantidad(), seleccionado.getPuntuacion(), seleccionado.isOpcional(), 
-                        seleccionado.getEsSustitutoDe());
+                Ingrediente clon = new Ingrediente(seleccionado);
                 ingredientesFinales.add(clon);
             }
 
@@ -642,6 +689,26 @@ public class RecetasSrv {
                 }
             }
         }
+    }
+
+    private static Receta clonarReceta(Receta original) {
+        Receta clon = new Receta();
+        clon.setId(original.getId());
+        clon.setNombre(original.getNombre());
+        clon.setTemporadas(new ArrayList<>(original.getTemporadas()));
+        clon.setIngredientes(original.getIngredientes().stream().map(Ingrediente::new).collect(Collectors.toList()));
+        clon.setPasos(new ArrayList<>(original.getPasos())); // Paso no tiene constructor de copia pero no solemos escalarlo
+        clon.setAlergenos(new ArrayList<>(original.getAlergenos()));
+        clon.setEstrellas(original.getEstrellas());
+        clon.setNumPersonas(original.getNumPersonas());
+        clon.setFechaCalendario(original.getFechaCalendario());
+        clon.setShared(original.isShared());
+        clon.setTipoReceta(original.getTipoReceta());
+        clon.setPuntuacionDada(original.getPuntuacionDada());
+        clon.setUserId(original.getUserId());
+        clon.setMomentoReceta(original.getMomentoReceta());
+        clon.setYoutubeUrl(original.getYoutubeUrl());
+        return clon;
     }
 
     /**

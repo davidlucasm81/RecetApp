@@ -1,15 +1,17 @@
 package com.david.recetapp.adaptadores;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
+import android.text.TextPaint;
 import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
+import android.text.style.LeadingMarginSpan;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
 import android.view.LayoutInflater;
@@ -17,7 +19,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -26,6 +27,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 
 import com.david.recetapp.R;
 import com.david.recetapp.negocio.beans.Alergeno;
@@ -38,13 +40,11 @@ import com.david.recetapp.negocio.beans.TipoReceta;
 import com.david.recetapp.negocio.servicios.AlergenosSrv;
 import com.david.recetapp.negocio.servicios.CalendarioSrv;
 import com.david.recetapp.negocio.servicios.RecetasSrv;
-import com.david.recetapp.negocio.servicios.UtilsSrv;
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer;
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener;
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -53,30 +53,20 @@ import java.util.stream.Collectors;
 public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapter {
     private final Day selectedDay;
     private final Activity activity;
-    private final ViewGroup anchorContainer;
     private List<Receta> listaRecetas;
     private final ExpandableListView expandableListView;
     private final EmptyListListener emptyListListener;
     private final Handler mainHandler;
 
-    // Singleton del reproductor para toda la lista
-    private YouTubePlayerView sharedYouTubePlayerView;
-    private YouTubePlayer activePlayer;
-    private String currentVideoId;
-
     public RecetaExpandableListCalendarAdapter(Activity activity, Day selectedDay, 
-                                               ExpandableListView expandableListView, 
-                                               ViewGroup anchorContainer,
+                                               ExpandableListView expandableListView,
                                                EmptyListListener emptyListListener) {
         this.selectedDay = selectedDay;
         this.activity = activity;
-        this.anchorContainer = anchorContainer;
         this.expandableListView = expandableListView;
         this.emptyListListener = emptyListListener;
         this.listaRecetas = new ArrayList<>();
         this.mainHandler = new Handler(Looper.getMainLooper());
-
-        // Cargar recetas adaptadas
         cargarRecetasAdaptadas();
     }
 
@@ -85,21 +75,32 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
             @Override
             public void onSuccess(List<Receta> recetas) {
                 List<Receta> adaptadas = RecetasSrv.getRecetasAdaptadasCalendario(recetas, selectedDay);
-                // Ordenar por momento: COMIDA < AMBOS < CENA < Otros
                 adaptadas.sort((r1, r2) -> Integer.compare(getMomentoPriority(r1), getMomentoPriority(r2)));
                 listaRecetas = adaptadas;
-                mainHandler.post(() -> notifyDataSetChanged());
+                notifyDataSetChanged();
+                if (emptyListListener != null) {
+                    emptyListListener.reloadList(listaRecetas.size());
+                }
             }
-
             @Override
             public void onFailure(Exception e) {
                 listaRecetas = new ArrayList<>();
-                mainHandler.post(() -> {
-                    UtilsSrv.notificacion(activity, activity.getString(R.string.error_cargar_recetas), Toast.LENGTH_SHORT).show();
-                    notifyDataSetChanged();
-                });
+                Toast.makeText(activity, activity.getString(R.string.error_cargar_recetas), Toast.LENGTH_SHORT).show();
+                notifyDataSetChanged();
+                if (emptyListListener != null) {
+                    emptyListListener.reloadList(0);
+                }
             }
         });
+    }
+
+    private int getMomentoPriority(Receta r) {
+        if (r.getMomentoReceta() == null) return 99;
+        return switch (r.getMomentoReceta()) {
+            case COMIDA -> 1;
+            case AMBOS -> 2;
+            case CENA -> 3;
+        };
     }
 
     @Override
@@ -109,20 +110,18 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
 
     @Override
     public int getChildrenCount(int groupPosition) {
-        if (groupPosition >= listaRecetas.size()) return 0;
-        Receta receta = listaRecetas.get(groupPosition);
-        boolean hasYoutube = receta.getYoutubeUrl() != null && !receta.getYoutubeUrl().trim().isEmpty();
-        return hasYoutube ? 10 : 9;
+        return 9;
     }
 
     @Override
     public Object getGroup(int groupPosition) {
+        if (groupPosition < 0 || groupPosition >= listaRecetas.size()) return null;
         return listaRecetas.get(groupPosition);
     }
 
     @Override
     public Object getChild(int groupPosition, int childPosition) {
-        if (groupPosition >= listaRecetas.size()) return null;
+        if (groupPosition < 0 || groupPosition >= listaRecetas.size()) return null;
         Receta receta = listaRecetas.get(groupPosition);
         return switch (childPosition) {
             case 0 -> receta.getTemporadas();
@@ -134,19 +133,8 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
             case 6 -> receta.getFechaCalendario();
             case 7 -> receta.getPuntuacionDada();
             case 8 -> receta.getMomentoReceta();
-            case 9 -> receta.getYoutubeUrl();
             default -> null;
         };
-    }
-
-    @Override
-    public int getChildTypeCount() {
-        return 2; // 0: Normal, 1: YouTube
-    }
-
-    @Override
-    public int getChildType(int groupPosition, int childPosition) {
-        return (childPosition == 9) ? 1 : 0;
     }
 
     @Override
@@ -164,26 +152,44 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
         return true;
     }
 
+    private String getMomentoText(Receta receta) {
+        if (receta.getTipoReceta() != null && receta.getTipoReceta() != TipoReceta.PRINCIPAL) {
+            return switch (receta.getTipoReceta()) {
+                case POSTRE -> activity.getString(R.string.tipo_postre);
+                case COCTEL -> activity.getString(R.string.tipo_coctel);
+                case SIDE -> activity.getString(R.string.tipo_side);
+                default -> "-";
+            };
+        }
+        if (receta.getMomentoReceta() != null) {
+            return receta.getMomentoReceta() == MomentoReceta.AMBOS ? activity.getString(R.string.ambos) : receta.getMomentoReceta().name();
+        }
+        return "-";
+    }
+
     @Override
     public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
         View groupView = convertView;
         if (groupView == null) {
             LayoutInflater inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            groupView = inflater.inflate(R.layout.list_item_group, parent, false);
+            groupView = inflater.inflate(R.layout.list_item_group_calendar, parent, false);
+        }
+
+        if (groupPosition < 0 || groupPosition >= listaRecetas.size()) {
+            return groupView;
         }
 
         TextView txtTituloReceta = groupView.findViewById(R.id.txtNombreReceta);
+        ImageView warning = groupView.findViewById(R.id.warning);
+        ImageView iconoTipo = groupView.findViewById(R.id.imageViewTipoIcono);
+        TextView txtMomento = groupView.findViewById(R.id.txtMomento);
         ImageButton btnEliminar = groupView.findViewById(R.id.btnEliminar);
 
         Receta receta = listaRecetas.get(groupPosition);
-        txtTituloReceta.setText(receta.getNombre() != null ? receta.getNombre() : activity.getString(R.string.sin_nombre));
-
-        ImageView warning = groupView.findViewById(R.id.warning);
-        ImageView iconoTipo = groupView.findViewById(R.id.imageViewTipoIcono);
-        ImageView shared = groupView.findViewById(R.id.imageViewSharedIcono);
+        txtTituloReceta.setText(receta.getNombre());
+        txtMomento.setText(getMomentoText(receta));
 
         iconoTipo.setVisibility(receta.getTipoReceta() == TipoReceta.POSTRE ? View.VISIBLE : View.GONE);
-
         if (receta.getTipoReceta() == TipoReceta.COCTEL) {
             iconoTipo.setImageResource(R.drawable.ic_baseline_local_bar_24);
             iconoTipo.setVisibility(View.VISIBLE);
@@ -194,59 +200,39 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
             iconoTipo.setImageResource(R.drawable.postre_icono);
         }
 
-        shared.setVisibility(receta.isShared() ? View.VISIBLE : View.GONE);
-
         boolean hasBadScore = receta.getIngredientes() != null &&
                 receta.getIngredientes().stream().anyMatch(i -> i.getPuntuacion() < -1);
         boolean invalidPersons = receta.getNumPersonas() <= 0;
         warning.setVisibility((invalidPersons || hasBadScore) ? View.VISIBLE : View.GONE);
 
-        btnEliminar.setOnClickListener(vParam -> {
+        btnEliminar.setOnClickListener(v -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(activity);
             builder.setTitle(activity.getString(R.string.confirmacion))
                     .setMessage(activity.getString(R.string.alerta_eliminar, receta.getNombre()))
                     .setPositiveButton(activity.getString(R.string.aceptar), (dialog, which) -> {
-                        // Eliminar la receta del calendario y refrescar la pantalla
-                        // Buscar de forma segura la posición por ID antes de eliminar, ya que la lista
-                        // puede haber cambiado entre la creación de la vista y el click.
-                        String idToRemove = receta.getId();
-                        int indexToRemove = findIndexById(idToRemove);
-                        if (indexToRemove == -1) {
-                            // No encontramos la receta en la lista actual: informar y cancelar
-                            UtilsSrv.notificacion(activity, activity.getString(R.string.error_eliminar_receta), Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-                        Receta eliminada = listaRecetas.remove(indexToRemove);
-                        selectedDay.removeReceta(eliminada.getId());
+                        // Guardar fecha de calendario actual de la receta para comprobar si es la que borramos
+                        boolean esFechaActual = isEsFechaActual(receta);
 
+                        // Eliminar de selectedDay
+                        selectedDay.getRecetas().removeIf(rd -> rd.getIdReceta().equals(receta.getId()));
+                        
+                        // Actualizar en el servidor
                         CalendarioSrv.actualizarDia(activity, selectedDay.getMonth(), selectedDay.getYear(), selectedDay, new CalendarioSrv.SimpleCallback() {
                             @Override
                             public void onSuccess() {
-                                // Aquí no podemos actualizarFechaCalendario fácilmente sin el mes/año
-                                // Pero actualizarFechaCalendario ya busca el día más reciente
-                                CalendarioSrv.actualizarFechaCalendario(activity, eliminada.getId());
+                                if (esFechaActual) {
+                                    CalendarioSrv.actualizarFechaCalendario(activity, receta.getId(), selectedDay.getMonth(), selectedDay.getYear());
+                                }
                                 mainHandler.post(() -> {
-                                    if (listaRecetas.size() < 2) {
-                                        emptyListListener.onListSize();
+                                    cargarRecetasAdaptadas();
+                                    if (emptyListListener != null) {
+                                        emptyListListener.reloadList(selectedDay.getRecetas().size());
                                     }
-                                    if (listaRecetas.isEmpty()) {
-                                        emptyListListener.onListEmpty();
-                                    }
-                                    notifyDataSetChanged();
                                 });
                             }
-
                             @Override
                             public void onFailure(Exception e) {
-                                 // Restaurar la receta si falla (insertar en la misma posición si es posible)
-                                 int restoreIndex = Math.max(0, Math.min(indexToRemove, listaRecetas.size()));
-                                 listaRecetas.add(restoreIndex, eliminada);
-                                selectedDay.getRecetas().add(new com.david.recetapp.negocio.beans.RecetaDia(
-                                        eliminada.getId(), eliminada.getNumPersonas()));
-                                mainHandler.post(() -> {
-                                    UtilsSrv.notificacion(activity, activity.getString(R.string.error_eliminar_receta), Toast.LENGTH_SHORT).show();
-                                    notifyDataSetChanged();
-                                });
+                                mainHandler.post(() -> Toast.makeText(activity, activity.getString(R.string.error_eliminar_receta), Toast.LENGTH_SHORT).show());
                             }
                         });
                     })
@@ -254,385 +240,249 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
                     .show();
         });
 
-        ImageButton btnEditar = groupView.findViewById(R.id.btnEditar);
-        btnEditar.setVisibility(View.GONE);
-
-        txtTituloReceta.setOnClickListener(vParam -> {
+        groupView.setOnClickListener(v -> {
             if (expandableListView.isGroupExpanded(groupPosition)) {
                 expandableListView.collapseGroup(groupPosition);
             } else {
-                // Cerrar todos los grupos abiertos previamente
-                int groupCount = getGroupCount();
-                for (int i = 0; i < groupCount; i++) {
-                    if (i != groupPosition && expandableListView.isGroupExpanded(i)) {
-                        expandableListView.collapseGroup(i);
-                    }
-                }
                 expandableListView.expandGroup(groupPosition);
             }
         });
+
         return groupView;
+    }
+
+    private boolean isEsFechaActual(Receta receta) {
+        Date fechaReceta = receta.getFechaCalendario();
+        // Comparar solo Año/Mes/Día para evitar desajustes por zonas horarias/horas
+        boolean esFechaActual;
+        if (fechaReceta != null) {
+            Calendar calReceta = Calendar.getInstance();
+            calReceta.setTime(fechaReceta);
+            esFechaActual = calReceta.get(Calendar.YEAR) == selectedDay.getYear()
+                    && calReceta.get(Calendar.MONTH) == selectedDay.getMonth()
+                    && calReceta.get(Calendar.DAY_OF_MONTH) == selectedDay.getDayOfMonth();
+        } else {
+            esFechaActual = false;
+        }
+        return esFechaActual;
     }
 
     @Override
     public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
-        int type = getChildType(groupPosition, childPosition);
         View view = convertView;
-        
         if (view == null) {
             LayoutInflater inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            if (type == 1) {
-                view = inflater.inflate(R.layout.list_item_child_youtube, parent, false);
-            } else {
-                view = inflater.inflate(R.layout.list_item_child, parent, false);
-            }
+            view = inflater.inflate(R.layout.list_item_child, parent, false);
+        }
+
+        if (groupPosition < 0 || groupPosition >= listaRecetas.size()) {
+            return view;
         }
 
         TextView txtTitulo = view.findViewById(R.id.txtTitulo);
         TextView txtInformacion = view.findViewById(R.id.txtInformacion);
+        RatingBar ratingBar = view.findViewById(R.id.ratingBar);
+        LinearLayout iconosAlergenos = view.findViewById(R.id.iconosAlergenos);
+
         Receta receta = listaRecetas.get(groupPosition);
+        txtInformacion.setMovementMethod(null);
 
-        if (type == 0) {
-            // Layout normal
-            RatingBar ratingBar = view.findViewById(R.id.ratingBar);
-            ratingBar.setVisibility(View.GONE);
-            LinearLayout iconosAlergenos = view.findViewById(R.id.iconosAlergenos);
-            if (iconosAlergenos != null) iconosAlergenos.setVisibility(View.GONE);
-
-            switch (childPosition) {
-                case 0: // Temporadas
-                    txtInformacion.setVisibility(View.VISIBLE);
-                    txtTitulo.setText(R.string.temporadas);
-                    List<String> temporadas = (receta.getTemporadas() != null)
-                            ? receta.getTemporadas().stream().map(Temporada::getStringRes).map(activity::getString).collect(Collectors.toList())
-                            : new ArrayList<>();
-                    txtInformacion.setText(TextUtils.join(", ", temporadas));
-                    break;
-
-                case 1: // Número de personas
-                    txtInformacion.setVisibility(View.VISIBLE);
-                    txtTitulo.setText(R.string.numero_personas);
-                    txtInformacion.setText(String.valueOf(receta.getNumPersonas()));
-                    break;
-
-                case 2: // Ingredientes
-                    txtTitulo.setText(R.string.ingredientes);
-                    List<Ingrediente> ingredientes = receta.getIngredientes();
-                    if (ingredientes == null || ingredientes.isEmpty()) {
-                        txtInformacion.setText(R.string.sin_ingredientes);
-                    } else {
-                        StringBuilder sbIngredientes = new StringBuilder();
-
-                        // Agrupar por principal (mismo algoritmo que en el otro adapter)
-                        java.util.Map<String, java.util.List<Ingrediente>> grupos = new java.util.LinkedHashMap<>();
-                        java.util.List<Ingrediente> principales = new java.util.ArrayList<>();
-
-                        for (Ingrediente ing : ingredientes) {
-                            if (ing.getEsSustitutoDe() == null || ing.getEsSustitutoDe().isEmpty()) {
-                                principales.add(ing);
-                            }
+        switch (childPosition) {
+            case 0:
+                txtTitulo.setText(R.string.temporadas);
+                txtInformacion.setVisibility(View.VISIBLE);
+                List<String> temps = (receta.getTemporadas() != null)
+                        ? receta.getTemporadas().stream().map(Temporada::getStringRes).map(activity::getString).collect(Collectors.toList())
+                        : new ArrayList<>();
+                txtInformacion.setText(TextUtils.join(", ", temps));
+                break;
+            case 1:
+                txtTitulo.setText(R.string.numero_personas);
+                txtInformacion.setVisibility(View.VISIBLE);
+                txtInformacion.setText(String.valueOf(receta.getNumPersonas()));
+                break;
+            case 2:
+                txtTitulo.setText(R.string.ingredientes);
+                txtInformacion.setVisibility(View.VISIBLE);
+                List<Ingrediente> ingredients = receta.getIngredientes();
+                if (ingredients == null || ingredients.isEmpty()) {
+                    txtInformacion.setText(R.string.sin_ingredientes);
+                } else {
+                    SpannableStringBuilder sbIngredientes = new SpannableStringBuilder();
+                    java.util.Map<String, List<Ingrediente>> grupos = new java.util.LinkedHashMap<>();
+                    List<Ingrediente> principales = new ArrayList<>();
+                    for (Ingrediente ing : ingredients) {
+                        if (ing.getEsSustitutoDe() == null || ing.getEsSustitutoDe().isEmpty()) {
+                            principales.add(ing);
                         }
-                        for (Ingrediente principal : principales) {
-                            grupos.put(principal.getNombre(), new java.util.ArrayList<>());
+                    }
+                    for (Ingrediente principal : principales) grupos.put(principal.getNombre(), new ArrayList<>());
+                    for (Ingrediente ing : ingredients) {
+                        if (ing.getEsSustitutoDe() != null && !ing.getEsSustitutoDe().isEmpty()) {
+                            List<Ingrediente> susts = grupos.get(ing.getEsSustitutoDe());
+                            Objects.requireNonNullElse(susts, principales).add(ing);
                         }
-                        for (Ingrediente ing : ingredientes) {
-                            if (ing.getEsSustitutoDe() != null && !ing.getEsSustitutoDe().isEmpty()) {
-                                java.util.List<Ingrediente> susts = grupos.get(ing.getEsSustitutoDe());
-                                Objects.requireNonNullElse(susts, principales).add(ing);
-                            }
-                        }
-
-                        for (int i = 0; i < principales.size(); i++) {
-                            Ingrediente principal = principales.get(i);
-                            appendIngredienteInfo(sbIngredientes, principal, false);
-
-                            java.util.List<Ingrediente> sustitutos = grupos.get(principal.getNombre());
-                            if (sustitutos != null) {
-                                for (Ingrediente sust : sustitutos) {
-                                    sbIngredientes.append("\n");
-                                    appendIngredienteInfo(sbIngredientes, sust, true);
-                                }
-                            }
-
-                            if (i < principales.size() - 1) {
-                                sbIngredientes.append("\n\n");
-                            } else {
+                    }
+                    for (int i = 0; i < principales.size(); i++) {
+                        Ingrediente principal = principales.get(i);
+                        appendIngredienteInfo(sbIngredientes, principal, false);
+                        List<Ingrediente> sustitutos = grupos.get(principal.getNombre());
+                        if (sustitutos != null) {
+                            for (Ingrediente sust : sustitutos) {
                                 sbIngredientes.append("\n");
+                                appendIngredienteInfo(sbIngredientes, sust, true);
                             }
                         }
-                        String texto = sbIngredientes.length() != 0 ? sbIngredientes.toString().trim() : activity.getString(R.string.sin_ingredientes);
-                        txtInformacion.setText(texto);
+                        if (i < principales.size() - 1) sbIngredientes.append("\n\n");
+                        else sbIngredientes.append("\n");
                     }
-                    break;
-
-                case 3: // Pasos
-                    txtInformacion.setVisibility(View.VISIBLE);
-                    txtTitulo.setText(R.string.pasos);
-                    List<com.david.recetapp.negocio.beans.Paso> pasos = receta.getPasos();
-                    if (pasos == null || pasos.isEmpty()) {
-                        txtInformacion.setText(R.string.sin_pasos);
-                    } else {
-                        SpannableStringBuilder sbPasos = new SpannableStringBuilder();
-                        int totalPasos = pasos.size();
-                        int minutosTotales = 0;
-
-                        for (int i = 0; i < totalPasos; i++) {
-                            String tiempoReceta = pasos.get(i).getTiempo(); // HH:MM
-                            try {
-                                String[] tiempos = tiempoReceta.split(":");
-                                int h = Integer.parseInt(tiempos[0]);
-                                int m = Integer.parseInt(tiempos[1]);
-                                minutosTotales += m + 60 * h;
-                            } catch (Exception ignored) {}
-                        }
-
-                        int hTotal = minutosTotales / 60;
-                        int mTotal = minutosTotales % 60;
-                        String tiempoTotal = String.format(Locale.getDefault(), "%02d:%02d", hTotal, mTotal);
-
-                        SpannableStringBuilder sbResaltado = new SpannableStringBuilder(activity.getString(R.string.tiempo_total) + tiempoTotal);
-                        int startIndex = sbResaltado.length() - tiempoTotal.length();
-                        int endIndex = sbResaltado.length();
-                        sbResaltado.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), startIndex, endIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                        sbResaltado.setSpan(new UnderlineSpan(), 0, sbResaltado.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-                        sbPasos.append(sbResaltado);
-                        sbPasos.append("\n\n");
-
-                        for (int i = 0; i < totalPasos; i++) {
-                            String tiempo = pasos.get(i).getTiempo();
-                            String paso = pasos.get(i).getPaso();
-                            String pasoFormateado = "[" + (tiempo != null ? tiempo : "00:00") + "] " + (i + 1) + ") " + (paso != null ? paso : "");
-
-                            SpannableString spannablePaso = new SpannableString(pasoFormateado);
-                            int startPos = pasoFormateado.indexOf("[");
-                            int endPos = pasoFormateado.indexOf("]") + 1;
-                            if (startPos >= 0 && endPos > startPos) {
-                                spannablePaso.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), startPos, endPos, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
-                            }
-                            sbPasos.append(spannablePaso);
-                            if (i < totalPasos - 1) sbPasos.append("\n\n");
-                        }
-                        txtInformacion.setText(sbPasos);
-                    }
-                    break;
-
-                case 4: // Alergenos
-                    txtTitulo.setText(R.string.alergenos);
-                    txtInformacion.setVisibility(View.GONE);
-                    if (iconosAlergenos != null) {
-                        iconosAlergenos.setVisibility(View.VISIBLE);
-                        iconosAlergenos.removeAllViews();
-                        List<Alergeno> alergenos = receta.getAlergenos();
-                        if (alergenos == null || alergenos.isEmpty()) {
-                            TextView textView = new TextView(activity);
-                            textView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-                            textView.setText(R.string.sin_al_rgenos);
-                            iconosAlergenos.addView(textView);
-                        } else {
-                            for (Alergeno alergeno : alergenos) {
-                                ImageView imageView = new ImageView(activity);
-                                imageView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-                                imageView.setImageResource(AlergenosSrv.obtenerImagen(alergeno.getNumero()));
-                                iconosAlergenos.addView(imageView);
-                            }
-                        }
-                    }
-                    break;
-
-                case 5: // Estrellas
-                    txtTitulo.setText(R.string.estrellas);
-                    ratingBar.setVisibility(View.VISIBLE);
-                    ratingBar.setRating(receta.getEstrellas());
-                    txtInformacion.setVisibility(View.GONE);
-                    break;
-
-                case 6: // Fecha calendario
-                    txtInformacion.setVisibility(View.VISIBLE);
-                    txtTitulo.setText(R.string.ultima_fecha_calendario);
-                    if (receta.getFechaCalendario() != null) {
+                    if (sbIngredientes.length() != 0) {
+                        txtInformacion.setMovementMethod(LinkMovementMethod.getInstance());
+                        txtInformacion.setText(sbIngredientes);
+                    } else txtInformacion.setText(activity.getString(R.string.sin_ingredientes));
+                }
+                break;
+            case 3:
+                txtTitulo.setText(R.string.pasos);
+                txtInformacion.setVisibility(View.VISIBLE);
+                List<com.david.recetapp.negocio.beans.Paso> pasos = receta.getPasos();
+                if (pasos == null || pasos.isEmpty()) {
+                    txtInformacion.setText(R.string.sin_pasos);
+                } else {
+                    SpannableStringBuilder sbPasos = new SpannableStringBuilder();
+                    int minutosTotales = 0;
+                    for (com.david.recetapp.negocio.beans.Paso p : pasos) {
                         try {
-                            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-                            txtInformacion.setText(dateFormat.format(receta.getFechaCalendario()));
-                        } catch (Exception ex) {
-                            txtInformacion.setText("-");
-                        }
-                    } else {
-                        txtInformacion.setText("-");
+                            String[] t = p.getTiempo().split(":");
+                            minutosTotales += Integer.parseInt(t[1]) + 60 * Integer.parseInt(t[0]);
+                        } catch (Exception ignored) {}
                     }
-                    break;
-
-                case 7: // Puntuacion dada
-                    txtInformacion.setVisibility(View.VISIBLE);
-                    txtTitulo.setText(R.string.puntuacion_dada);
-                    txtInformacion.setText(String.valueOf(receta.getPuntuacionDada()));
-                    break;
-
-                case 8: // Momento de la receta
-                    txtTitulo.setText(R.string.momento_receta);
-                    if (receta.getTipoReceta() == TipoReceta.PRINCIPAL) {
-                        txtInformacion.setVisibility(View.VISIBLE);
-                        MomentoReceta mr = receta.getMomentoReceta();
-                        txtInformacion.setText(mr != null ? activity.getString(mr.getStringRes()) : activity.getString(R.string.ambos));
-                    } else {
-                        txtInformacion.setVisibility(View.GONE);
-                        txtTitulo.setText("");
+                    String tiempoTotal = String.format(Locale.getDefault(), "%02d:%02d", minutosTotales / 60, minutosTotales % 60);
+                    SpannableStringBuilder sbResaltado = new SpannableStringBuilder(activity.getString(R.string.tiempo_total) + tiempoTotal);
+                    sbResaltado.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), sbResaltado.length() - tiempoTotal.length(), sbResaltado.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    sbResaltado.setSpan(new UnderlineSpan(), 0, sbResaltado.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    sbPasos.append(sbResaltado).append("\n\n");
+                    for (int i = 0; i < pasos.size(); i++) {
+                        String s = "[" + (pasos.get(i).getTiempo() != null ? pasos.get(i).getTiempo() : "00:00") + "] " + (i + 1) + ") " + (pasos.get(i).getPaso() != null ? pasos.get(i).getPaso() : "");
+                        SpannableString sp = new SpannableString(s);
+                        int st = s.indexOf("[");
+                        int en = s.indexOf("]") + 1;
+                        if (st >= 0 && en > st) sp.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), st, en, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        sbPasos.append(sp);
+                        if (i < pasos.size() - 1) sbPasos.append("\n\n");
                     }
-                    break;
-            }
-        } else {
-            // Layout YouTube compartido
-            FrameLayout placeholder = view.findViewById(R.id.youtube_placeholder);
-            String youtubeUrl = receta.getYoutubeUrl();
-            boolean hasUrl = youtubeUrl != null && !youtubeUrl.trim().isEmpty();
-
-            if (!hasUrl) {
-                txtTitulo.setText("");
+                    txtInformacion.setText(sbPasos);
+                }
+                break;
+            case 4:
+                txtTitulo.setText(R.string.alergenos);
                 txtInformacion.setVisibility(View.GONE);
-                if (placeholder != null) placeholder.setVisibility(View.GONE);
-            } else {
-                txtTitulo.setText(R.string.ver_video_youtube);
-                txtInformacion.setVisibility(View.GONE);
-                
-                if (placeholder != null) {
-                    placeholder.setVisibility(View.VISIBLE);
-                    String videoId = UtilsSrv.extraerVideoId(youtubeUrl);
-                    
-                    if (videoId != null) {
-                        ensureSharedPlayerInitialized();
-                        
-                        // Mover el reproductor al contenedor actual
-                        ViewGroup currentParent = (ViewGroup) sharedYouTubePlayerView.getParent();
-                        if (currentParent != placeholder) {
-                            if (currentParent != null) currentParent.removeView(sharedYouTubePlayerView);
-                            placeholder.addView(sharedYouTubePlayerView);
-                        }
-
-                        // Solo cargar si el video es distinto
-                        if (!videoId.equals(currentVideoId)) {
-                            currentVideoId = videoId;
-                            if (activePlayer != null) {
-                                activePlayer.cueVideo(videoId, 0f);
-                            }
-                        }
-
-                        // Configurar el anclaje cuando la vista se desvincule
-                        placeholder.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
-                            @Override
-                            public void onViewAttachedToWindow(@NonNull View v) { }
-
-                            @Override
-                            public void onViewDetachedFromWindow(@NonNull View v) {
-                                if (sharedYouTubePlayerView != null && sharedYouTubePlayerView.getParent() == placeholder) {
-                                    placeholder.removeView(sharedYouTubePlayerView);
-                                    if (anchorContainer != null) {
-                                        anchorContainer.addView(sharedYouTubePlayerView);
-                                    }
-                                }
-                                placeholder.removeOnAttachStateChangeListener(this);
-                            }
-                        });
-                    } else {
-                        // Fallback: Si no podemos extraer el ID, intentamos abrir la URL
-                        if (sharedYouTubePlayerView != null && sharedYouTubePlayerView.getParent() == placeholder) {
-                            placeholder.removeView(sharedYouTubePlayerView);
-                        }
-                        txtInformacion.setVisibility(View.VISIBLE);
-                        txtInformacion.setText(youtubeUrl);
-                        txtInformacion.setOnClickListener(vLink -> {
-                            Intent intent = new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(youtubeUrl));
-                            activity.startActivity(intent);
-                        });
+                iconosAlergenos.setVisibility(View.VISIBLE);
+                iconosAlergenos.removeAllViews();
+                List<Alergeno> alergenos = receta.getAlergenos();
+                if (alergenos == null || alergenos.isEmpty()) {
+                    TextView tv = new TextView(activity);
+                    tv.setText(R.string.sin_al_rgenos);
+                    iconosAlergenos.addView(tv);
+                } else {
+                    for (Alergeno a : alergenos) {
+                        ImageView iv = new ImageView(activity);
+                        iv.setImageResource(AlergenosSrv.obtenerImagen(a.getNumero()));
+                        iconosAlergenos.addView(iv);
                     }
                 }
-            }
+                break;
+            case 5:
+                txtTitulo.setText(R.string.estrellas);
+                ratingBar.setVisibility(View.VISIBLE);
+                ratingBar.setRating(receta.getEstrellas());
+                txtInformacion.setVisibility(View.GONE);
+                break;
+            case 6:
+                txtTitulo.setText(R.string.ultima_fecha_calendario);
+                txtInformacion.setVisibility(View.VISIBLE);
+                if (receta.getFechaCalendario() != null) {
+                    txtInformacion.setText(new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(receta.getFechaCalendario()));
+                } else txtInformacion.setText("-");
+                break;
+            case 7:
+                txtTitulo.setText(R.string.puntuacion_dada);
+                txtInformacion.setVisibility(View.VISIBLE);
+                txtInformacion.setText(String.format(Locale.getDefault(), "%.1f", receta.getPuntuacionDada()));
+                break;
+            case 8:
+                txtTitulo.setText(R.string.momento_receta);
+                txtInformacion.setVisibility(View.VISIBLE);
+                txtInformacion.setText(getMomentoText(receta));
+                break;
         }
+
+        if (childPosition != 4) iconosAlergenos.setVisibility(View.GONE);
+        if (childPosition != 5) ratingBar.setVisibility(View.GONE);
 
         return view;
     }
 
-    private void ensureSharedPlayerInitialized() {
-        if (sharedYouTubePlayerView == null) {
-            sharedYouTubePlayerView = new YouTubePlayerView(activity);
-            sharedYouTubePlayerView.setLayoutParams(new FrameLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-            
-            sharedYouTubePlayerView.addYouTubePlayerListener(new AbstractYouTubePlayerListener() {
-                @Override
-                public void onReady(@NonNull YouTubePlayer youTubePlayer) {
-                    activePlayer = youTubePlayer;
-                    if (currentVideoId != null) {
-                        youTubePlayer.cueVideo(currentVideoId, 0f);
-                    }
-                }
-            });
-        }
-    }
-
-    public void release() {
-        if (sharedYouTubePlayerView != null) {
-            sharedYouTubePlayerView.release();
-            sharedYouTubePlayerView = null;
-            activePlayer = null;
-        }
-    }
-
-
-    @Override
-    public boolean isChildSelectable(int groupPosition, int childPosition) {
-        return false;
-    }
-
-    private int findIndexById(String id) {
-        if (id == null || listaRecetas == null) return -1;
-        for (int i = 0; i < listaRecetas.size(); i++) {
-            Receta r = listaRecetas.get(i);
-            if (r != null && id.equals(r.getId())) return i;
-        }
-        return -1;
-    }
-
-    private int getMomentoPriority(Receta r) {
-        if (r.getTipoReceta() != TipoReceta.PRINCIPAL) {
-            return 10 + r.getTipoReceta().ordinal();
-        }
-        MomentoReceta mr = r.getMomentoReceta();
-        if (mr == null) return 1; // Default to AMBOS
-        return switch (mr) {
-            case COMIDA -> 0;
-            case AMBOS -> 1;
-            case CENA -> 2;
-        };
-    }
-
-    private void appendIngredienteInfo(StringBuilder sb, Ingrediente ing, boolean isSustituto) {
-        String nombreMostrado = RecetasSrv.getNombreTraducido(ing.getNombre());
-        sb.append(isSustituto ? "  └ " : "- ")
+    private void appendIngredienteInfo(SpannableStringBuilder sb, Ingrediente ing, boolean isSustituto) {
+        String nombreTraducido = RecetasSrv.getNombreTraducido(ing.getNombre());
+        String nombreMostrado = (nombreTraducido != null) ? nombreTraducido : ing.getNombre();
+        String prefix = isSustituto ? "  └ " : "- ";
+        StringBuilder linea = new StringBuilder();
+        linea.append(prefix)
                 .append(ing.getCantidad() != null ? ing.getCantidad() : "")
                 .append(" ")
                 .append(ing.getTipoCantidad() != null ? ing.getTipoCantidad() : "")
                 .append(activity.getString(R.string.literal_de))
-                .append(nombreMostrado != null ? nombreMostrado : "");
+                .append(nombreMostrado);
 
-        if (ing.isOpcional()) {
-            sb.append(" (").append(activity.getString(R.string.opcional).toLowerCase(java.util.Locale.getDefault())).append(")");
+        if (ing.isOpcional()) linea.append(" (").append(activity.getString(R.string.opcional).toLowerCase(Locale.getDefault())).append(")");
+        if (isSustituto) linea.append(" (").append(activity.getString(R.string.sustituto_de).toLowerCase(Locale.getDefault())).append(" ").append(ing.getEsSustitutoDe()).append(")");
+        double p = ing.getPuntuacion();
+        if (p >= 0) linea.append(" (").append(activity.getString(R.string.score_label)).append(": ").append(String.format(Locale.getDefault(), "%.1f", p)).append(")");
+        else if (p < -1) linea.append(" (").append(activity.getString(R.string.score_no_encontrado)).append(")");
+
+        int start = sb.length();
+        sb.append(linea.toString());
+        int end = sb.length();
+
+        if (ing.getRecetaId() != null && !ing.getRecetaId().isEmpty()) {
+            int linkStart = start + prefix.length();
+            sb.setSpan(new ClickableSpan() {
+                @Override
+                public void onClick(@NonNull View widget) { navegarAReceta(ing.getRecetaId()); }
+                @Override
+                public void updateDrawState(@NonNull TextPaint ds) {
+                    super.updateDrawState(ds);
+                    ds.setUnderlineText(true);
+                    ds.setColor(activity.getResources().getColor(R.color.colorPrimary, activity.getTheme()));
+                }
+            }, linkStart, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
-
         if (isSustituto) {
-            sb.append(" (").append(activity.getString(R.string.sustituto_de).toLowerCase(java.util.Locale.getDefault()))
-                    .append(" ").append(ing.getEsSustitutoDe()).append(")");
-        }
-
-        double puntuacion = ing.getPuntuacion();
-        if (puntuacion >= 0) {
-            sb.append(" (").append(activity.getString(R.string.score_label)).append(": ").append(puntuacion).append(")");
-        } else if (puntuacion != -1) {
-            sb.append(" (").append(activity.getString(R.string.score_no_encontrado)).append(")");
+            TextView tmp = new TextView(activity);
+            float w = tmp.getPaint().measureText(prefix);
+            sb.setSpan(new LeadingMarginSpan.Standard(0, (int) Math.ceil(w)), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
     }
 
+    private void navegarAReceta(String recetaId) {
+        for (int i = 0; i < listaRecetas.size(); i++) {
+            if (listaRecetas.get(i).getId().equals(recetaId)) {
+                expandableListView.collapseGroup(i);
+                expandableListView.expandGroup(i);
+                expandableListView.setSelectedGroup(i);
+                return;
+            }
+        }
+        Toast.makeText(activity, activity.getString(R.string.error_receta_no_encontrada_dia), Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public boolean isChildSelectable(int groupPosition, int childPosition) {
+        return true;
+    }
+
     public interface EmptyListListener {
-        void onListEmpty();
-        void onListSize();
+        void reloadList(int count);
     }
 }

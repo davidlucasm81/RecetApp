@@ -68,14 +68,6 @@ public class Day implements Serializable {
         return recetas;
     }
 
-    public void setRecetas(List<RecetaDia> recetas) {
-        this.recetas = recetas;
-    }
-
-    public void removeReceta(String id) {
-        recetas.removeIf(r -> r.getIdReceta().equals(id));
-    }
-
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;

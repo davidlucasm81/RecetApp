@@ -105,8 +105,6 @@
     <string name="dia_fin">Día Fin:</string>
     <string name="numero_personas">Número de personas para la receta</string>
     <string name="youtube_url">Enlace a vídeo de YouTube (opcional)</string>
-    <string name="youtube_url_hint">https://www.youtube.com/watch?v=&#8230;</string>
-    <string name="ver_video_youtube">Ver vídeo de la receta</string>
     <string name="numero_recetas">Número de recetas por día</string>
     <string name="numero_personas_incorrecto">Número de personas incorrecto</string>
     <string name="_0_recetas">0 recetas</string>
@@ -129,11 +127,10 @@
 
     <!-- IA Recipe Strings -->
     <string name="ia_titulo">Añadir Receta con IA</string>
-    <string name="ia_descripcion_hint">Describe la receta (ej: Tarta de queso al horno muy cremosa)</string>
+    <string name="ia_descripcion_hint">Describe la receta (ej.: Tarta de queso al horno muy cremosa)</string>
     <string name="ia_generar_prompt">Generar Prompt para IA</string>
     <string name="ia_copiar_prompt">Copiar Prompt</string>
     <string name="ia_pegar_resultado_hint">Pega aquí el JSON devuelto por la IA</string>
-    <string name="ia_procesar_resultado">Procesar Receta</string>
     <string name="ia_error_parseo">Error al procesar el JSON de la IA. Revisa el formato.</string>
     <string name="ia_prompt_template">Actúa como un experto cocinero. %1$s. Unidades: %2$s. Alérgenos: %3$s. Ingredientes: singular, mayúscula inicial.
 tipoReceta=PRINCIPAL|POSTRE|COCTEL|SIDE. momentoReceta=COMIDA|CENA|AMBOS. temporadas=INVIERNO|VERANO|OTONIO|PRIMAVERA.
@@ -158,11 +155,17 @@ Solo JSON:
     <string name="siguiente">Siguiente</string>
     <string name="comida">Comida</string>
     <string name="cena">Cena</string>
-    <string name="ambos">Ambos</string>
+    <string name="ambos">Comida/Cena</string>
     <string name="momento_receta" tools:ignore="Typos">Momento</string>
     <string-array name="momentos_receta">
         <item>@string/comida</item>
         <item>@string/cena</item>
         <item>@string/ambos</item>
     </string-array>
+    <string name="vincular_receta">Vincular receta</string>
+    <string name="desvincular_receta">Receta desvinculada</string>
+    <string name="seleccionar_receta">Seleccionar receta</string>
+    <string name="receta_vinculada">Receta vinculada: %s</string>
+    <string name="error_receta_no_encontrada">No se ha encontrado la receta vinculada</string>
+    <string name="error_receta_no_encontrada_dia">La receta vinculada no está en el menú de hoy</string>
 </resources>

@@ -2,13 +2,15 @@ package com.david.recetapp.adaptadores;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
-import android.text.TextUtils;
+import android.text.TextPaint;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
+import android.text.style.LeadingMarginSpan;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
 import android.view.LayoutInflater;
@@ -27,57 +29,48 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 
 import com.david.recetapp.R;
-import com.david.recetapp.actividades.recetas.EditarRecetaActivity;
 import com.david.recetapp.negocio.beans.Alergeno;
 import com.david.recetapp.negocio.beans.Ingrediente;
-import com.david.recetapp.negocio.beans.MomentoReceta;
 import com.david.recetapp.negocio.beans.Receta;
-import com.david.recetapp.negocio.beans.TipoReceta;
 import com.david.recetapp.negocio.beans.Temporada;
+import com.david.recetapp.negocio.beans.TipoReceta;
 import com.david.recetapp.negocio.servicios.AlergenosSrv;
 import com.david.recetapp.negocio.servicios.RecetasSrv;
-import com.david.recetapp.negocio.servicios.UtilsSrv;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView;
 
-import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import android.text.style.LeadingMarginSpan;
+import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
-/**
- * Adapter optimizado: mantiene lista interna mutable y permite updateData(...) en el main thread.
- */
 public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
     private final Context context;
     private final ExpandableListView expandableListView;
     private final EmptyListListener emptyListListener;
     private final Handler mainHandler;
-    private final ViewGroup anchorContainer;
+    private OnNavigateToRecipeListener navigateListener;
 
-    // Singleton del reproductor para toda la lista
-    private YouTubePlayerView sharedYouTubePlayerView;
-    private YouTubePlayer activePlayer;
-    private String currentVideoId;
-
-    // Lista interna mutable
     private final List<Receta> listaRecetas;
 
+    public interface OnNavigateToRecipeListener {
+        void onNavigate(String recetaId);
+    }
+
+    public void setOnNavigateToRecipeListener(OnNavigateToRecipeListener listener) {
+        this.navigateListener = listener;
+    }
+
     public RecetaExpandableListAdapter(Context context, List<Receta> listaRecetas,
-                                       ExpandableListView expandableListView, 
-                                       ViewGroup anchorContainer,
+                                       ExpandableListView expandableListView,
                                        EmptyListListener emptyListListener) {
         this.context = context;
         this.expandableListView = expandableListView;
-        this.anchorContainer = anchorContainer;
         this.emptyListListener = emptyListListener;
         this.mainHandler = new Handler(Looper.getMainLooper());
-        // Copia defensiva para poder modificar la lista internamente
         this.listaRecetas = (listaRecetas != null) ? new ArrayList<>(listaRecetas) : new ArrayList<>();
     }
 
@@ -88,6 +81,7 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
 
     @Override
     public int getChildrenCount(int groupPosition) {
+        if (groupPosition < 0 || groupPosition >= listaRecetas.size()) return 0;
         Receta receta = listaRecetas.get(groupPosition);
         boolean hasYoutube = receta.getYoutubeUrl() != null && !receta.getYoutubeUrl().trim().isEmpty();
         return hasYoutube ? 10 : 9;
@@ -95,12 +89,13 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
 
     @Override
     public Object getGroup(int groupPosition) {
+        if (groupPosition < 0 || groupPosition >= listaRecetas.size()) return null;
         return listaRecetas.get(groupPosition);
     }
 
     @Override
     public Object getChild(int groupPosition, int childPosition) {
-        if (groupPosition >= listaRecetas.size()) return null;
+        if (groupPosition < 0 || groupPosition >= listaRecetas.size()) return null;
         Receta receta = listaRecetas.get(groupPosition);
         return switch (childPosition) {
             case 0 -> receta.getTemporadas();
@@ -129,7 +124,7 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
 
     @Override
     public int getChildTypeCount() {
-        return 2; // 0: Normal, 1: YouTube
+        return 2;
     }
 
     @Override
@@ -142,10 +137,6 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
         return true;
     }
 
-    // --------------------------
-    // VIEWS
-    // --------------------------
-
     @Override
     public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
         View groupView = convertView;
@@ -154,8 +145,11 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
             groupView = inflater.inflate(R.layout.list_item_group, parent, false);
         }
 
+        if (groupPosition < 0 || groupPosition >= listaRecetas.size()) return groupView;
+
         TextView txtTituloReceta = groupView.findViewById(R.id.txtNombreReceta);
         ImageButton btnEliminar = groupView.findViewById(R.id.btnEliminar);
+        ImageButton btnEditar = groupView.findViewById(R.id.btnEditar);
 
         Receta receta = listaRecetas.get(groupPosition);
         txtTituloReceta.setText(receta.getNombre() != null ? receta.getNombre() : context.getString(R.string.sin_nombre));
@@ -187,406 +181,265 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
             builder.setTitle(context.getString(R.string.confirmacion))
                     .setMessage(context.getString(R.string.alerta_eliminar, receta.getNombre()))
-                    .setPositiveButton(context.getString(R.string.aceptar), (dialog, which) -> {
-                        // Eliminar la receta del JSON y refrescar la pantalla
-                        RecetasSrv.eliminarReceta(groupPosition, listaRecetas, new RecetasSrv.SimpleCallback() {
-                            @Override
-                            public void onSuccess() {
-                                // siempre en main thread
-                                mainHandler.post(() -> {
-                                    if (emptyListListener != null) emptyListListener.reloadList(listaRecetas.size());
-                                    notifyDataSetChanged();
-                                });
-                            }
-
-                            @Override
-                            public void onFailure(Exception e) {
-                                mainHandler.post(() -> {
-                                    UtilsSrv.notificacion(context, context.getString(R.string.error_eliminar_receta), Toast.LENGTH_SHORT).show();
-                                    notifyDataSetChanged();
-                                });
-                            }
-                        });
-                    })
+                    .setPositiveButton(context.getString(R.string.aceptar), (dialog, which) -> RecetasSrv.eliminarReceta(groupPosition, listaRecetas, new RecetasSrv.SimpleCallback() {
+                        @Override
+                        public void onSuccess() {
+                            mainHandler.post(() -> {
+                                if (emptyListListener != null) emptyListListener.reloadList(listaRecetas.size());
+                                notifyDataSetChanged();
+                            });
+                        }
+                        @Override
+                        public void onFailure(Exception e) {
+                            mainHandler.post(() -> Toast.makeText(context, context.getString(R.string.error_eliminar_receta), Toast.LENGTH_SHORT).show());
+                        }
+                    }))
                     .setNegativeButton(context.getString(R.string.cancelar), null)
                     .show();
         });
 
-        ImageButton btnEditar = groupView.findViewById(R.id.btnEditar);
-        btnEditar.setOnClickListener(vParam -> {
-            editarReceta(groupPosition);
-            // La edición abrirá la actividad; si la actividad edita y vuelve, la lista se actualizará desde la Activity/Fragment que maneja los datos.
+        btnEditar.setOnClickListener(v -> {
+            android.content.Intent intent = new android.content.Intent(context, com.david.recetapp.actividades.recetas.EditarRecetaActivity.class);
+            intent.putExtra("position", groupPosition);
+            intent.putExtra("listaRecetas", (java.io.Serializable) listaRecetas);
+            context.startActivity(intent);
         });
 
-        txtTituloReceta.setOnClickListener(vParam -> {
+        groupView.setOnClickListener(v -> {
             if (expandableListView.isGroupExpanded(groupPosition)) {
                 expandableListView.collapseGroup(groupPosition);
             } else {
-                // Cerrar todos los grupos abiertos previamente
-                int groupCount = getGroupCount();
-                for (int i = 0; i < groupCount; i++) {
-                    if (i != groupPosition && expandableListView.isGroupExpanded(i)) {
-                        expandableListView.collapseGroup(i);
-                    }
-                }
                 expandableListView.expandGroup(groupPosition);
             }
         });
-        return groupView;
-    }
 
-    private void editarReceta(int position) {
-        Intent intent = new Intent(context, EditarRecetaActivity.class);
-        intent.putExtra("listaRecetas", (Serializable) listaRecetas);
-        intent.putExtra("position", position);
-        context.startActivity(intent);
+        return groupView;
     }
 
     @Override
     public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
-        int type = getChildType(groupPosition, childPosition);
-        View view = convertView;
-        
-        if (view == null) {
-            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            if (type == 1) {
-                view = inflater.inflate(R.layout.list_item_child_youtube, parent, false);
-            } else {
-                view = inflater.inflate(R.layout.list_item_child, parent, false);
-            }
+        if (groupPosition < 0 || groupPosition >= listaRecetas.size()) {
+            return (convertView != null) ? convertView : new View(context);
         }
 
-        TextView txtTitulo = view.findViewById(R.id.txtTitulo);
-        TextView txtInformacion = view.findViewById(R.id.txtInformacion);
+        if (getChildType(groupPosition, childPosition) == 1) {
+            return getYouTubeChildView(groupPosition, convertView, parent);
+        }
+
+        View childView = convertView;
+        if (childView == null || childView.findViewById(R.id.youtube_placeholder) != null) {
+            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            childView = inflater.inflate(R.layout.list_item_child, parent, false);
+        }
+
+        TextView txtTitulo = childView.findViewById(R.id.txtTitulo);
+        TextView txtInformacion = childView.findViewById(R.id.txtInformacion);
+        LinearLayout iconosAlergenos = childView.findViewById(R.id.iconosAlergenos);
+        RatingBar ratingBar = childView.findViewById(R.id.ratingBar);
+
         Receta receta = listaRecetas.get(groupPosition);
+        txtInformacion.setMovementMethod(null);
 
-        if (type == 0) {
-            // Layout normal
-            RatingBar ratingBar = view.findViewById(R.id.ratingBar);
-            ratingBar.setVisibility(View.GONE);
-            LinearLayout iconosAlergenos = view.findViewById(R.id.iconosAlergenos);
-            if (iconosAlergenos != null) iconosAlergenos.setVisibility(View.GONE);
+        switch (childPosition) {
+            case 0:
+                txtTitulo.setText(R.string.temporadas);
+                txtInformacion.setVisibility(View.VISIBLE);
+                List<Temporada> temps = receta.getTemporadas();
+                if (temps == null || temps.isEmpty()) {
+                    txtInformacion.setText("-");
+                } else {
+                    StringBuilder sb = new StringBuilder();
+                    for (int i = 0; i < temps.size(); i++) {
+                        sb.append(temps.get(i).name());
+                        if (i < temps.size() - 1) sb.append(", ");
+                    }
+                    txtInformacion.setText(sb.toString());
+                }
+                break;
+            case 1:
+                txtTitulo.setText(R.string.numero_personas);
+                txtInformacion.setVisibility(View.VISIBLE);
+                txtInformacion.setText(String.valueOf(receta.getNumPersonas()));
+                break;
+            case 2:
+                txtTitulo.setText(R.string.ingredientes);
+                txtInformacion.setVisibility(View.VISIBLE);
+                List<Ingrediente> ingredientes = receta.getIngredientes();
+                if (ingredientes == null || ingredientes.isEmpty()) {
+                    txtInformacion.setText(context.getString(R.string.sin_ingredientes));
+                } else {
+                    SpannableStringBuilder sbIngredientes = new SpannableStringBuilder();
+                    Map<String, List<Ingrediente>> grupos = new java.util.HashMap<>();
+                    List<Ingrediente> principales = new ArrayList<>();
 
-            switch (childPosition) {
-                case 0: // Temporadas
-                    txtInformacion.setVisibility(View.VISIBLE);
-                    txtTitulo.setText(R.string.temporadas);
-                    List<String> temporadas = (receta.getTemporadas() != null)
-                            ? receta.getTemporadas().stream().map(Temporada::getStringRes).map(context::getString).collect(Collectors.toList())
-                            : new ArrayList<>();
-                    txtInformacion.setText(TextUtils.join(", ", temporadas));
-                    break;
-
-                case 1: // Número de personas
-                    txtInformacion.setVisibility(View.VISIBLE);
-                    txtTitulo.setText(R.string.numero_personas);
-                    txtInformacion.setText(String.valueOf(receta.getNumPersonas()));
-                    break;
-
-                case 2: // Ingredientes
-                    txtInformacion.setVisibility(View.VISIBLE);
-                    txtTitulo.setText(R.string.ingredientes);
-                    List<Ingrediente> ingredientes = receta.getIngredientes();
-                    if (ingredientes == null || ingredientes.isEmpty()) {
-                        txtInformacion.setText(R.string.sin_ingredientes);
-                    } else {
-                        SpannableStringBuilder sbIngredientes = new SpannableStringBuilder();
-
-                        // Agrupar por principal
-                        java.util.Map<String, java.util.List<Ingrediente>> grupos = new java.util.LinkedHashMap<>();
-                        java.util.List<Ingrediente> principales = new java.util.ArrayList<>();
-
-                        for (Ingrediente ing : ingredientes) {
-                            if (ing.getEsSustitutoDe() == null || ing.getEsSustitutoDe().isEmpty()) {
-                                principales.add(ing);
-                            }
+                    for (Ingrediente ing : ingredientes) {
+                        if (ing.getEsSustitutoDe() == null || ing.getEsSustitutoDe().isEmpty()) {
+                            principales.add(ing);
                         }
+                    }
 
-                        for (Ingrediente principal : principales) {
-                            grupos.put(principal.getNombre(), new java.util.ArrayList<>());
+                    for (Ingrediente principal : principales) {
+                        grupos.put(principal.getNombre(), new java.util.ArrayList<>());
+                    }
+
+                    for (Ingrediente ing : ingredientes) {
+                        if (ing.getEsSustitutoDe() != null && !ing.getEsSustitutoDe().isEmpty()) {
+                            List<Ingrediente> susts = grupos.get(ing.getEsSustitutoDe());
+                            Objects.requireNonNullElse(susts, principales).add(ing);
                         }
+                    }
 
-                        for (Ingrediente ing : ingredientes) {
-                            if (ing.getEsSustitutoDe() != null && !ing.getEsSustitutoDe().isEmpty()) {
-                                java.util.List<Ingrediente> susts = grupos.get(ing.getEsSustitutoDe());
-                                // Huérfano
-                                Objects.requireNonNullElse(susts, principales).add(ing);
-                            }
-                        }
+                    for (int i = 0; i < principales.size(); i++) {
+                        Ingrediente principal = principales.get(i);
+                        appendIngredienteInfo(sbIngredientes, principal, false);
 
-                        for (int i = 0; i < principales.size(); i++) {
-                            Ingrediente principal = principales.get(i);
-                            appendIngredienteInfo(sbIngredientes, principal, false);
-
-                            java.util.List<Ingrediente> sustitutos = grupos.get(principal.getNombre());
-                            if (sustitutos != null) {
-                                for (Ingrediente sust : sustitutos) {
-                                    sbIngredientes.append("\n");
-                                    appendIngredienteInfo(sbIngredientes, sust, true);
-                                }
-                            }
-
-                            if (i < principales.size() - 1) {
-                                sbIngredientes.append("\n\n");
-                            } else {
+                        List<Ingrediente> sustitutos = grupos.get(principal.getNombre());
+                        if (sustitutos != null) {
+                            for (Ingrediente sust : sustitutos) {
                                 sbIngredientes.append("\n");
+                                appendIngredienteInfo(sbIngredientes, sust, true);
                             }
                         }
-                        // Si hay contenido, seteamos el Spannable (preserva spans). Si no, mostramos el texto "sin ingredientes".
-                        if (sbIngredientes.length() != 0) {
-                            txtInformacion.setText(sbIngredientes);
+
+                        if (i < principales.size() - 1) {
+                            sbIngredientes.append("\n\n");
                         } else {
-                            txtInformacion.setText(context.getString(R.string.sin_ingredientes));
+                            sbIngredientes.append("\n");
                         }
                     }
-                    break;
-
-                case 3: // Pasos + tiempo total
-                    txtInformacion.setVisibility(View.VISIBLE);
-                    txtTitulo.setText(R.string.pasos);
-                    List<com.david.recetapp.negocio.beans.Paso> pasos = receta.getPasos();
-                    if (pasos == null || pasos.isEmpty()) {
-                        txtInformacion.setText(R.string.sin_pasos);
+                    if (sbIngredientes.length() != 0) {
+                        txtInformacion.setMovementMethod(LinkMovementMethod.getInstance());
+                        txtInformacion.setText(sbIngredientes);
                     } else {
-                        SpannableStringBuilder sbPasos = new SpannableStringBuilder();
-                        int totalPasos = pasos.size();
-                        int minutosTotales = 0;
-
-                        for (int i = 0; i < totalPasos; i++) {
-                            String tiempoReceta = pasos.get(i).getTiempo(); // esperado "HH:MM"
-                            try {
-                                String[] tiempos = tiempoReceta.split(":");
-                                int horas = Integer.parseInt(tiempos[0]);
-                                int minutos = Integer.parseInt(tiempos[1]);
-                                minutosTotales += minutos + 60 * horas;
-                            } catch (Exception ex) {
-                                // Si el formato falla, ignoramos el tiempo de este paso
-                            }
-                        }
-
-                        int horasTot = minutosTotales / 60;
-                        int minutosTot = minutosTotales % 60;
-                        String tiempoTotal = String.format(Locale.getDefault(), "%02d:%02d", horasTot, minutosTot);
-
-                        SpannableStringBuilder sbResaltado = new SpannableStringBuilder(context.getString(R.string.tiempo_total) + tiempoTotal);
-                        int startIndex = sbResaltado.length() - tiempoTotal.length();
-                        int endIndex = sbResaltado.length();
-                        sbResaltado.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), startIndex, endIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                        sbResaltado.setSpan(new UnderlineSpan(), 0, sbResaltado.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-                        sbPasos.append(sbResaltado);
-                        sbPasos.append("\n\n");
-
-                        for (int i = 0; i < totalPasos; i++) {
-                            String tiempo = pasos.get(i).getTiempo();
-                            String paso = pasos.get(i).getPaso();
-                            String pasoFormateado = "[" + (tiempo != null ? tiempo : "00:00") + "] " + (i + 1) + ") " + (paso != null ? paso : "");
-                            SpannableString spannablePaso = new SpannableString(pasoFormateado);
-                            int startPos = pasoFormateado.indexOf("[");
-                            int endPos = pasoFormateado.indexOf("]") + 1;
-                            if (startPos >= 0 && endPos > startPos) {
-                                spannablePaso.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), startPos, endPos, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
-                            }
-                            sbPasos.append(spannablePaso);
-                            if (i < totalPasos - 1) sbPasos.append("\n\n");
-                        }
-
-                        txtInformacion.setText(sbPasos);
-                    }
-                    break;
-
-                case 4: // Alergenos (icons)
-                    txtTitulo.setText(R.string.alergenos);
-                    if (iconosAlergenos != null) {
-                        iconosAlergenos.setVisibility(View.VISIBLE);
-                        iconosAlergenos.removeAllViews();
-                        List<Alergeno> alergenos = receta.getAlergenos();
-                        if (alergenos == null || alergenos.isEmpty()) {
-                            TextView textView = new TextView(context);
-                            textView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-                            textView.setText(R.string.sin_al_rgenos);
-                            iconosAlergenos.addView(textView);
-                        } else {
-                            for (Alergeno alergeno : alergenos) {
-                                ImageView imageView = new ImageView(context);
-                                imageView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-                                imageView.setImageResource(AlergenosSrv.obtenerImagen(alergeno.getNumero()));
-                                iconosAlergenos.addView(imageView);
-                            }
-                        }
-                    }
-                    txtInformacion.setVisibility(View.GONE);
-                    break;
-
-                case 5: // Estrellas
-                    txtTitulo.setText(R.string.estrellas);
-                    ratingBar.setVisibility(View.VISIBLE);
-                    ratingBar.setRating(receta.getEstrellas());
-                    txtInformacion.setVisibility(View.GONE);
-                    break;
-
-                case 6: // Fecha calendario
-                    txtInformacion.setVisibility(View.VISIBLE);
-                    txtTitulo.setText(R.string.ultima_fecha_calendario);
-                    if (receta.getFechaCalendario() != null) {
-                        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-                        try {
-                            txtInformacion.setText(dateFormat.format(receta.getFechaCalendario()));
-                        } catch (Exception ex) {
-                            txtInformacion.setText("-");
-                        }
-                    } else {
-                        txtInformacion.setText("-");
-                    }
-                    break;
-
-                case 7: // Puntuacion dada
-                    txtInformacion.setVisibility(View.VISIBLE);
-                    txtTitulo.setText(R.string.puntuacion_dada);
-                    txtInformacion.setText(String.valueOf(receta.getPuntuacionDada()));
-                    break;
-
-                case 8: // Momento de la receta
-                    txtTitulo.setText(R.string.momento_receta);
-                    if (receta.getTipoReceta() == TipoReceta.PRINCIPAL) {
-                        txtInformacion.setVisibility(View.VISIBLE);
-                        MomentoReceta mr = receta.getMomentoReceta();
-                        txtInformacion.setText(mr != null ? context.getString(mr.getStringRes()) : context.getString(R.string.ambos));
-                    } else {
-                        txtInformacion.setVisibility(View.GONE);
-                        txtTitulo.setText(""); // Ocultar si no es principal
-                    }
-                    break;
-            }
-        } else {
-            // Layout YouTube compartido
-            FrameLayout placeholder = view.findViewById(R.id.youtube_placeholder);
-            String youtubeUrl = receta.getYoutubeUrl();
-            boolean hasUrl = youtubeUrl != null && !youtubeUrl.trim().isEmpty();
-
-            if (!hasUrl) {
-                txtTitulo.setText("");
-                txtInformacion.setVisibility(View.GONE);
-                if (placeholder != null) placeholder.setVisibility(View.GONE);
-            } else {
-                txtTitulo.setText(R.string.ver_video_youtube);
-                txtInformacion.setVisibility(View.GONE);
-                
-                if (placeholder != null) {
-                    placeholder.setVisibility(View.VISIBLE);
-                    String videoId = UtilsSrv.extraerVideoId(youtubeUrl);
-                    
-                    if (videoId != null) {
-                        ensureSharedPlayerInitialized();
-                        
-                        // Mover el reproductor al contenedor actual
-                        ViewGroup currentParent = (ViewGroup) sharedYouTubePlayerView.getParent();
-                        if (currentParent != placeholder) {
-                            if (currentParent != null) currentParent.removeView(sharedYouTubePlayerView);
-                            placeholder.addView(sharedYouTubePlayerView);
-                        }
-
-                        // Solo cargar si el video es distinto
-                        if (!videoId.equals(currentVideoId)) {
-                            currentVideoId = videoId;
-                            if (activePlayer != null) {
-                                activePlayer.cueVideo(videoId, 0f);
-                            }
-                        }
-
-                        // Configurar el anclaje cuando la vista se desvincule
-                        placeholder.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
-                            @Override
-                            public void onViewAttachedToWindow(@NonNull View v) { }
-
-                            @Override
-                            public void onViewDetachedFromWindow(@NonNull View v) {
-                                // Si se desvincula y el player sigue en este placeholder, lo movemos al anclaje
-                                if (sharedYouTubePlayerView != null && sharedYouTubePlayerView.getParent() == placeholder) {
-                                    placeholder.removeView(sharedYouTubePlayerView);
-                                    if (anchorContainer != null) {
-                                        anchorContainer.addView(sharedYouTubePlayerView);
-                                    }
-                                }
-                                placeholder.removeOnAttachStateChangeListener(this);
-                            }
-                        });
-                    } else {
-                        // Fallback: Si no podemos extraer el ID, intentamos abrir la URL
-                        if (sharedYouTubePlayerView != null && sharedYouTubePlayerView.getParent() == placeholder) {
-                            placeholder.removeView(sharedYouTubePlayerView);
-                        }
-                        txtInformacion.setVisibility(View.VISIBLE);
-                        txtInformacion.setText(youtubeUrl);
-                        txtInformacion.setOnClickListener(vLink -> {
-                            Intent intent = new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(youtubeUrl));
-                            context.startActivity(intent);
-                        });
+                        txtInformacion.setText(context.getString(R.string.sin_ingredientes));
                     }
                 }
-            }
+                break;
+            case 3:
+                txtInformacion.setVisibility(View.VISIBLE);
+                txtTitulo.setText(R.string.pasos);
+                List<com.david.recetapp.negocio.beans.Paso> pasos = receta.getPasos();
+                if (pasos == null || pasos.isEmpty()) {
+                    txtInformacion.setText(R.string.sin_pasos);
+                } else {
+                    SpannableStringBuilder sbPasos = new SpannableStringBuilder();
+                    int minutosTotales = 0;
+                    for (com.david.recetapp.negocio.beans.Paso p : pasos) {
+                        try {
+                            String[] tiempos = p.getTiempo().split(":");
+                            minutosTotales += Integer.parseInt(tiempos[1]) + 60 * Integer.parseInt(tiempos[0]);
+                        } catch (Exception ignored) {}
+                    }
+                    String tiempoTotal = String.format(Locale.getDefault(), "%02d:%02d", minutosTotales / 60, minutosTotales % 60);
+                    SpannableStringBuilder sbResaltado = new SpannableStringBuilder(context.getString(R.string.tiempo_total) + tiempoTotal);
+                    sbResaltado.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), sbResaltado.length() - tiempoTotal.length(), sbResaltado.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    sbResaltado.setSpan(new UnderlineSpan(), 0, sbResaltado.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    sbPasos.append(sbResaltado).append("\n\n");
+
+                    for (int i = 0; i < pasos.size(); i++) {
+                        String passoStr = "[" + (pasos.get(i).getTiempo() != null ? pasos.get(i).getTiempo() : "00:00") + "] " + (i + 1) + ") " + (pasos.get(i).getPaso() != null ? pasos.get(i).getPaso() : "");
+                        SpannableString sp = new SpannableString(passoStr);
+                        int startPos = passoStr.indexOf("[");
+                        int endPos = passoStr.indexOf("]") + 1;
+                        if (startPos >= 0 && endPos > startPos) sp.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), startPos, endPos, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        sbPasos.append(sp);
+                        if (i < pasos.size() - 1) sbPasos.append("\n\n");
+                    }
+                    txtInformacion.setText(sbPasos);
+                }
+                break;
+            case 4:
+                txtTitulo.setText(R.string.alergenos);
+                iconosAlergenos.setVisibility(View.VISIBLE);
+                iconosAlergenos.removeAllViews();
+                List<Alergeno> alergenos = receta.getAlergenos();
+                if (alergenos == null || alergenos.isEmpty()) {
+                    TextView tv = new TextView(context);
+                    tv.setText(R.string.sin_al_rgenos);
+                    iconosAlergenos.addView(tv);
+                } else {
+                    for (Alergeno a : alergenos) {
+                        ImageView iv = new ImageView(context);
+                        iv.setImageResource(AlergenosSrv.obtenerImagen(a.getNumero()));
+                        iconosAlergenos.addView(iv);
+                    }
+                }
+                txtInformacion.setVisibility(View.GONE);
+                break;
+            case 5:
+                txtTitulo.setText(R.string.estrellas);
+                ratingBar.setVisibility(View.VISIBLE);
+                ratingBar.setRating(receta.getEstrellas());
+                txtInformacion.setVisibility(View.GONE);
+                break;
+            case 6:
+                txtInformacion.setVisibility(View.VISIBLE);
+                txtTitulo.setText(R.string.ultima_fecha_calendario);
+                if (receta.getFechaCalendario() != null) {
+                    txtInformacion.setText(new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(receta.getFechaCalendario()));
+                } else {
+                    txtInformacion.setText("-");
+                }
+                break;
+            case 7:
+                txtInformacion.setVisibility(View.VISIBLE);
+                txtTitulo.setText(R.string.puntuacion_dada);
+                txtInformacion.setText(String.format(Locale.getDefault(), "%.1f", receta.getPuntuacionDada()));
+                break;
+            case 8:
+                txtTitulo.setText(R.string.momento_receta);
+                txtInformacion.setVisibility(View.VISIBLE);
+                txtInformacion.setText(receta.getMomentoReceta() != null ? receta.getMomentoReceta().name() : "-");
+                break;
         }
 
-        return view;
+        if (childPosition != 4) iconosAlergenos.setVisibility(View.GONE);
+        if (childPosition != 5) ratingBar.setVisibility(View.GONE);
+
+        return childView;
     }
 
-    private void ensureSharedPlayerInitialized() {
-        if (sharedYouTubePlayerView == null) {
-            sharedYouTubePlayerView = new YouTubePlayerView(context);
-            sharedYouTubePlayerView.setLayoutParams(new FrameLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-            
-            sharedYouTubePlayerView.addYouTubePlayerListener(new AbstractYouTubePlayerListener() {
+    private View getYouTubeChildView(int groupPosition, View convertView, ViewGroup parent) {
+        if (groupPosition < 0 || groupPosition >= listaRecetas.size()) {
+            return (convertView != null) ? convertView : new View(context);
+        }
+
+        View view = convertView;
+        if (view == null || view.findViewById(R.id.youtube_placeholder) == null) {
+            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            view = inflater.inflate(R.layout.list_item_child_youtube, parent, false);
+        }
+
+        FrameLayout placeholder = view.findViewById(R.id.youtube_placeholder);
+        placeholder.removeAllViews();
+        
+        YouTubePlayerView youTubePlayerView = new YouTubePlayerView(context);
+        placeholder.addView(youTubePlayerView);
+        
+        Receta receta = listaRecetas.get(groupPosition);
+        String videoId = extractVideoId(receta.getYoutubeUrl());
+
+        if (videoId != null) {
+            youTubePlayerView.addYouTubePlayerListener(new AbstractYouTubePlayerListener() {
                 @Override
                 public void onReady(@NonNull YouTubePlayer youTubePlayer) {
-                    activePlayer = youTubePlayer;
-                    if (currentVideoId != null) {
-                        youTubePlayer.cueVideo(currentVideoId, 0f);
-                    }
+                    youTubePlayer.cueVideo(videoId, 0);
                 }
             });
         }
+        return view;
     }
 
-    /**
-     * Libera los recursos del reproductor. Debe llamarse en el onDestroy del fragmento/actividad.
-     */
-    public void release() {
-        if (sharedYouTubePlayerView != null) {
-            sharedYouTubePlayerView.release();
-            sharedYouTubePlayerView = null;
-            activePlayer = null;
-        }
-    }
-
-    @Override
-    public boolean isChildSelectable(int groupPosition, int childPosition) {
-        return false;
-    }
-
-    // --------------------------
-    // MÉTODOS NUEVOS / ÚTILES
-    // --------------------------
-
-    /**
-     * Actualiza los datos del adapter de forma segura (siempre en el hilo principal).
-     * Llama a notifyDataSetChanged() y notifica al listener si existe.
-     */
-    public void updateData(final List<Receta> nuevas) {
-        mainHandler.post(() -> {
-            listaRecetas.clear();
-            if (nuevas != null && !nuevas.isEmpty()) {
-                listaRecetas.addAll(nuevas);
-            }
-            notifyDataSetChanged();
-            if (emptyListListener != null) {
-                emptyListListener.reloadList(listaRecetas.size());
-            }
-        });
+    private String extractVideoId(String url) {
+        if (url == null || url.isEmpty()) return null;
+        if (url.contains("v=")) return url.split("v=")[1].split("&")[0];
+        if (url.contains("youtu.be/")) return url.split("youtu.be/")[1].split("\\?")[0];
+        return null;
     }
 
     private void appendIngredienteInfo(SpannableStringBuilder sb, Ingrediente ing, boolean isSustituto) {
-        String nombreMostrado = RecetasSrv.getNombreTraducido(ing.getNombre());
+        String nombreTraducido = RecetasSrv.getNombreTraducido(ing.getNombre());
+        String nombreMostrado = (nombreTraducido != null) ? nombreTraducido : ing.getNombre();
 
         String prefix = isSustituto ? "  └ " : "- ";
         StringBuilder linea = new StringBuilder();
@@ -595,7 +448,7 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
                 .append(" ")
                 .append(ing.getTipoCantidad() != null ? ing.getTipoCantidad() : "")
                 .append(context.getString(R.string.literal_de))
-                .append(nombreMostrado != null ? nombreMostrado : "");
+                .append(nombreMostrado);
 
         if (ing.isOpcional()) {
             linea.append(" (").append(context.getString(R.string.opcional).toLowerCase(Locale.getDefault())).append(")");
@@ -608,8 +461,8 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
 
         double puntuacion = ing.getPuntuacion();
         if (puntuacion >= 0) {
-            linea.append(" (").append(context.getString(R.string.score_label)).append(": ").append(puntuacion).append(")");
-        } else if (puntuacion != -1) {
+            linea.append(" (").append(context.getString(R.string.score_label)).append(": ").append(String.format(Locale.getDefault(), "%.1f", puntuacion)).append(")");
+        } else if (puntuacion < -1) {
             linea.append(" (").append(context.getString(R.string.score_no_encontrado)).append(")");
         }
 
@@ -617,14 +470,61 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
         sb.append(linea.toString());
         int end = sb.length();
 
-        // Si es sustituto aplicamos un LeadingMarginSpan para que las líneas partidas visualmente mantengan la sangría
+        if (ing.getRecetaId() != null && !ing.getRecetaId().isEmpty()) {
+            int linkStart = start + prefix.length();
+            sb.setSpan(new ClickableSpan() {
+                @Override
+                public void onClick(@NonNull View widget) {
+                    navegarAReceta(ing.getRecetaId());
+                }
+                @Override
+                public void updateDrawState(@NonNull TextPaint ds) {
+                    super.updateDrawState(ds);
+                    ds.setUnderlineText(true);
+                    ds.setColor(context.getResources().getColor(R.color.colorPrimary, context.getTheme()));
+                }
+            }, linkStart, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+
         if (isSustituto) {
-            // Medimos el ancho del prefijo para usarlo como sangría
             TextView tmp = new TextView(context);
             float prefixWidth = tmp.getPaint().measureText(prefix);
-            int indentPx = (int) Math.ceil(prefixWidth);
-            sb.setSpan(new LeadingMarginSpan.Standard(0, indentPx), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            sb.setSpan(new LeadingMarginSpan.Standard(0, (int) Math.ceil(prefixWidth)), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
+    }
+
+    private void navegarAReceta(String recetaId) {
+        // Buscar en la lista actual (la que está viendo el usuario, que puede estar filtrada)
+        for (int i = 0; i < listaRecetas.size(); i++) {
+            if (listaRecetas.get(i).getId().equals(recetaId)) {
+                expandableListView.collapseGroup(i);
+                expandableListView.expandGroup(i);
+                expandableListView.setSelectedGroup(i);
+                return;
+            }
+        }
+        
+        // Si no está en la lista actual (por filtros), pedir al fragment que limpie filtros y navegue
+        if (navigateListener != null) {
+            navigateListener.onNavigate(recetaId);
+            return;
+        }
+
+        Toast.makeText(context, context.getString(R.string.error_receta_no_encontrada), Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public boolean isChildSelectable(int groupPosition, int childPosition) {
+        return true;
+    }
+
+    public void updateData(List<Receta> nuevas) {
+        mainHandler.post(() -> {
+            listaRecetas.clear();
+            if (nuevas != null) listaRecetas.addAll(nuevas);
+            notifyDataSetChanged();
+            if (emptyListListener != null) emptyListListener.reloadList(listaRecetas.size());
+        });
     }
 
     public interface EmptyListListener {

@@ -201,6 +201,15 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
 
         expandableListView.setOnGroupExpandListener(groupPosition ->
                 mainHandler.post(RecetasFragment.this::actualizarFabSegunScroll));
+
+        expandableListView.setOnGroupClickListener((parent, v, groupPosition, id) -> {
+            if (expandableListView.isGroupExpanded(groupPosition)) {
+                expandableListView.collapseGroup(groupPosition);
+            } else {
+                expandableListView.expandGroup(groupPosition);
+            }
+            return true;
+        });
     }
 
     private void loadRecetas() {
@@ -259,8 +268,30 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
 
             // Actualizar o crear el expandableListAdapter
             if (expandableListAdapter == null) {
-                ViewGroup anchor = rootView.findViewById(R.id.youtube_anchor_container);
-                expandableListAdapter = new RecetaExpandableListAdapter(requireContext(), recetas, expandableListView, anchor, this);
+                rootView.findViewById(R.id.youtube_anchor_container);
+                expandableListAdapter = new RecetaExpandableListAdapter(requireContext(), recetas, expandableListView, this);
+                expandableListAdapter.setOnNavigateToRecipeListener(recetaId -> {
+                    // Limpiar filtros
+                    autoCompleteTextViewRecetas.setText("");
+                    chipGroupTipoReceta.check(R.id.chipTodos);
+                    // Forzar recarga de lista completa
+                    filtrarYActualizarLista("");
+                    
+                    // Esperar a que se actualice la UI y navegar
+                    mainHandler.postDelayed(() -> {
+                        if (expandableListAdapter != null) {
+                            for (int i = 0; i < expandableListAdapter.getGroupCount(); i++) {
+                                Receta r = (Receta) expandableListAdapter.getGroup(i);
+                                if (r.getId().equals(recetaId)) {
+                                    expandableListView.collapseGroup(i);
+                                    expandableListView.expandGroup(i);
+                                    expandableListView.setSelectedGroup(i);
+                                    return;
+                                }
+                            }
+                        }
+                    }, 600); // 600 ms para dar tiempo a filtrarYActualizarLista
+                });
                 expandableListView.setAdapter(expandableListAdapter);
             } else {
                 expandableListAdapter.updateData(recetas);
@@ -315,8 +346,8 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
                 if (!isAdded()) return;
 
                 if (expandableListAdapter == null) {
-                    ViewGroup anchor = rootView.findViewById(R.id.youtube_anchor_container);
-                    expandableListAdapter = new RecetaExpandableListAdapter(requireContext(), copyList, expandableListView, anchor, RecetasFragment.this);
+                    rootView.findViewById(R.id.youtube_anchor_container);
+                    expandableListAdapter = new RecetaExpandableListAdapter(requireContext(), copyList, expandableListView, RecetasFragment.this);
                     expandableListView.setAdapter(expandableListAdapter);
                 } else {
                     expandableListAdapter.updateData(copyList);
@@ -425,9 +456,6 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
         fabIA = null;
         progressBar = null;
         autoCompleteAdapter = null;
-        if (expandableListAdapter != null) {
-            expandableListAdapter.release();
-        }
         expandableListAdapter = null;
     }
 

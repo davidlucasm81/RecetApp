@@ -347,14 +347,13 @@ public class CalendarioSrv {
         firebaseManager.applyLocalDayUpdate(mes, anio, day);
     }
 
-    public static void actualizarFechaCalendario(Activity activity, String idReceta) {
+    public static void actualizarFechaCalendario(Activity activity, String idReceta, int mes, int anio) {
         if (notHasUserId()) {
             Log.e(TAG, "❌ actualizarFechaCalendario sin userId — operación ignorada");
             return;
         }
 
-        Calendar now = Calendar.getInstance();
-        obtenerCalendario(activity, now.get(Calendar.MONTH), now.get(Calendar.YEAR), new CalendarioCallback() {
+        obtenerCalendario(activity, mes, anio, new CalendarioCallback() {
             private boolean alreadyExecuted = false;
 
             @Override
@@ -362,18 +361,20 @@ public class CalendarioSrv {
                 if (alreadyExecuted) return;
                 alreadyExecuted = true;
 
-                Optional<Day> dia = dias.stream()
-                        .sorted((d1, d2) -> d2.getDayOfMonth() - d1.getDayOfMonth())
+                Optional<Day> lastOccurrence = dias.stream()
                         .filter(d -> d.getRecetas().stream()
                                 .map(RecetaDia::getIdReceta)
                                 .anyMatch(dr -> dr.equals(idReceta)))
-                        .findFirst();
+                        .max(Comparator.comparingInt(Day::getDayOfMonth));
 
-                if (dia.isPresent()) {
+                if (lastOccurrence.isPresent()) {
+                    Calendar cal = Calendar.getInstance();
+                    cal.set(anio, mes, lastOccurrence.get().getDayOfMonth(), 0, 0, 0);
+                    cal.set(Calendar.MILLISECOND, 0);
                     RecetasSrv.actualizarRecetaCalendario(activity, idReceta,
-                            dia.get().getDayOfMonth(), false);
+                            cal.getTimeInMillis(), false);
                 } else {
-                    RecetasSrv.actualizarRecetaCalendario(activity, idReceta, -1, false);
+                    RecetasSrv.actualizarRecetaCalendario(activity, idReceta, 0, false);
                 }
             }
 
@@ -1312,6 +1313,7 @@ public class CalendarioSrv {
      * M17: Estructura para optimizar el acceso a datos de recetas durante la generación.
      */
     public static class CachedRecetaData {
+        final double puntuacionDada;
         final long tiposMask;
         final java.util.Set<String> ingredientesSignificativos = new java.util.HashSet<>();
         final double healthNorm;
@@ -1335,6 +1337,7 @@ public class CalendarioSrv {
                 TipoIngrediente.PROCESADO.getMask();
 
         CachedRecetaData(Receta r) {
+            this.puntuacionDada = r.getPuntuacionDada();
             long mask = 0;
             if (r.getIngredientes() != null) {
                 for (Ingrediente i : r.getIngredientes()) {

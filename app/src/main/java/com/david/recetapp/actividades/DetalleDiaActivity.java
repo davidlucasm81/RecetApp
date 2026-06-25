@@ -3,7 +3,6 @@ package com.david.recetapp.actividades;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ExpandableListView;
 import android.widget.ProgressBar;
@@ -34,7 +33,6 @@ public class DetalleDiaActivity extends AppCompatActivity
     private ProgressBar progressBar;
     private Day selectedDay;
     private ActivityResultLauncher<Intent> addRecetaLauncher;
-    private RecetaExpandableListCalendarAdapter adapter;
 
 
     @Override
@@ -224,14 +222,13 @@ public class DetalleDiaActivity extends AppCompatActivity
                 (listaRecetas == null || listaRecetas.isEmpty()) ? View.VISIBLE : View.GONE
         );
 
-        ViewGroup anchor = findViewById(R.id.youtube_anchor_container);
-        adapter = new RecetaExpandableListCalendarAdapter(
-                        this,
-                        selectedDay,
-                        expandableListView,
-                        anchor,
-                        this
-                );
+        findViewById(R.id.youtube_anchor_container);
+        RecetaExpandableListCalendarAdapter adapter = new RecetaExpandableListCalendarAdapter(
+                this,
+                selectedDay,
+                expandableListView,
+                this
+        );
         expandableListView.setAdapter(adapter);
 
         expandableListView.setOnGroupClickListener((parent, v, groupPosition, id) -> {
@@ -247,21 +244,8 @@ public class DetalleDiaActivity extends AppCompatActivity
     }
 
     @Override
-    public void onListEmpty() {
-        textViewEmpty.setVisibility(View.VISIBLE);
+    public void reloadList(int count) {
+        textViewEmpty.setVisibility(count == 0 ? View.VISIBLE : View.GONE);
         addReceta.setVisibility(View.VISIBLE);
-    }
-
-    @Override
-    public void onListSize() {
-        addReceta.setVisibility(View.VISIBLE);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (adapter != null) {
-            adapter.release();
-        }
     }
 }

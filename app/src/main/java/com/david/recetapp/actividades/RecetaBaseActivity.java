@@ -18,12 +18,14 @@ import android.widget.GridLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.RatingBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
 
@@ -31,6 +33,7 @@ import com.david.recetapp.R;
 import com.david.recetapp.negocio.beans.Alergeno;
 import com.david.recetapp.negocio.beans.Ingrediente;
 import com.david.recetapp.negocio.beans.Paso;
+import com.david.recetapp.negocio.beans.Receta;
 import com.david.recetapp.negocio.beans.Temporada;
 import com.david.recetapp.negocio.servicios.AlergenosSrv;
 import com.david.recetapp.negocio.servicios.RecetasSrv;
@@ -46,6 +49,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public abstract class RecetaBaseActivity extends AppCompatActivity {
     protected static final Pattern patternIngredient = Pattern.compile("^(.+)\\s(-?\\d+)$");
@@ -73,6 +77,8 @@ public abstract class RecetaBaseActivity extends AppCompatActivity {
     protected RatingBar estrellas;
     protected Map<String, Integer> ingredientMap;
     protected boolean isDragging = false;
+    protected String recetaIdSeleccionada = null;
+    protected ImageButton btnLinkRecetaNueva;
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
@@ -86,6 +92,22 @@ public abstract class RecetaBaseActivity extends AppCompatActivity {
         autoCompleteSustitutoDe = findViewById(R.id.spinnerSustitutoDe);
         editTextCantidad = findViewById(R.id.editTextCantidad);
         linearLayoutIngredientes = findViewById(R.id.linearLayoutIngredientes);
+        btnLinkRecetaNueva = findViewById(R.id.btnLinkRecetaNueva);
+
+        if (btnLinkRecetaNueva != null) {
+            btnLinkRecetaNueva.setOnClickListener(v -> {
+                if (recetaIdSeleccionada != null) {
+                    // Desvincular
+                    recetaIdSeleccionada = null;
+                    btnLinkRecetaNueva.clearColorFilter();
+                    btnLinkRecetaNueva.setContentDescription(getString(R.string.vincular_receta));
+                    autoCompleteTextViewNombreIngrediente.setFocusableInTouchMode(true);
+                    autoCompleteTextViewNombreIngrediente.setFocusable(true);
+                } else {
+                    mostrarDialogoSeleccionRecetaFiltrado(null, btnLinkRecetaNueva, autoCompleteTextViewNombreIngrediente);
+                }
+            });
+        }
 
         String[] ingredientNames = new String[ingredientList.length];
         for (int i = 0; i < ingredientList.length; i++) {
@@ -130,7 +152,7 @@ public abstract class RecetaBaseActivity extends AppCompatActivity {
         autoCompleteSustitutoDe.setAdapter(adapter);
     }
 
-    protected void agregarIngrediente(String nombre, String numero, String tipoCantidad, boolean opcional, String esSustitutoDe) {
+    protected void agregarIngrediente(String nombre, String numero, String tipoCantidad, boolean opcional, String esSustitutoDe, String recetaId) {
         Integer puntuacion = ingredientMap.getOrDefault(nombre.toLowerCase(Locale.getDefault()), -2);
         if (puntuacion == null) {
             puntuacion = -2;
@@ -138,6 +160,17 @@ public abstract class RecetaBaseActivity extends AppCompatActivity {
         if (getString(R.string.ninguno).equals(esSustitutoDe)) esSustitutoDe = null;
 
         Ingrediente ingrediente = new Ingrediente(nombre, numero, tipoCantidad, puntuacion, opcional, esSustitutoDe);
+        if (recetaId != null) {
+            ingrediente.setRecetaId(recetaId);
+            // Buscar la receta vinculada para obtener su puntuación
+            for (Receta r : RecetasSrv.getRecetas()) {
+                if (r.getId().equals(recetaId)) {
+                    ingrediente.setRecetaReferenciada(r);
+                    ingrediente.setPuntuacion(r.getPuntuacionDada());
+                    break;
+                }
+            }
+        }
         ingredientes.add(ingrediente);
         mostrarIngredientes();
         actualizarSpinnersSustitutos();
@@ -207,6 +240,55 @@ public abstract class RecetaBaseActivity extends AppCompatActivity {
         Spinner spinnerCantidad = ingredienteView.findViewById(R.id.spinner_quantity_unit);
         CheckBox checkboxOpcional = ingredienteView.findViewById(R.id.checkboxOpcional);
         Spinner spinnerSustituto = ingredienteView.findViewById(R.id.spinnerSustitutoDe);
+        ImageButton btnLinkReceta = ingredienteView.findViewById(R.id.btnLinkReceta);
+
+        if (ingrediente.getRecetaId() != null && !ingrediente.getRecetaId().isEmpty()) {
+            btnLinkReceta.setColorFilter(getResources().getColor(R.color.colorPrimary, getTheme()));
+            btnLinkReceta.setContentDescription(getString(R.string.desvincular_receta));
+        } else {
+            btnLinkReceta.clearColorFilter();
+            btnLinkReceta.setContentDescription(getString(R.string.vincular_receta));
+        }
+
+        btnLinkReceta.setOnClickListener(v -> {
+            if (ingrediente.getRecetaId() != null && !ingrediente.getRecetaId().isEmpty()) {
+                // Desvincular
+                ingrediente.setRecetaId(null);
+                ingrediente.setRecetaReferenciada(null);
+                // Resetear puntuación al desvincular basándonos en el mapa estático
+                Integer puntuBase = ingredientMap.get(ingrediente.getNombre().toLowerCase(Locale.getDefault()));
+                ingrediente.setPuntuacion(puntuBase != null ? puntuBase : -2);
+                
+                btnLinkReceta.clearColorFilter();
+                btnLinkReceta.setContentDescription(getString(R.string.vincular_receta));
+                editTextNombre.setFocusableInTouchMode(true);
+                editTextNombre.setFocusable(true);
+                UtilsSrv.notificacion(this, getString(R.string.desvincular_receta), Toast.LENGTH_SHORT).show();
+                mostrarIngredientes(); // Refrescar para ver el cambio de puntuación
+            } else {
+                // Vincular
+                mostrarDialogoSeleccionRecetaFiltrado(ingrediente, btnLinkReceta, editTextNombre);
+            }
+        });
+
+        if (ingrediente.getRecetaId() != null && !ingrediente.getRecetaId().isEmpty()) {
+            // Buscar la receta vinculada para obtener su puntuación actualizada
+            String rid = ingrediente.getRecetaId();
+            for (Receta r : RecetasSrv.getRecetas()) {
+                if (r.getId().equals(rid)) {
+                    ingrediente.setRecetaReferenciada(r);
+                    break;
+                }
+            }
+        }
+
+        // Hacer el nombre solo lectura si está vinculado
+        editTextNombre.setFocusableInTouchMode(ingrediente.getRecetaId() == null || ingrediente.getRecetaId().isEmpty());
+        editTextNombre.setFocusable(ingrediente.getRecetaId() == null || ingrediente.getRecetaId().isEmpty());
+
+        // Hacer el nombre solo lectura si está vinculado
+        editTextNombre.setFocusableInTouchMode(ingrediente.getRecetaId() == null || ingrediente.getRecetaId().isEmpty());
+        editTextNombre.setFocusable(ingrediente.getRecetaId() == null || ingrediente.getRecetaId().isEmpty());
 
         List<String> opcionesTipoCantidad = Arrays.asList(getResources().getStringArray(R.array.quantity_units));
         ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, opcionesTipoCantidad);
@@ -290,6 +372,75 @@ public abstract class RecetaBaseActivity extends AppCompatActivity {
             UtilsSrv.notificacion(RecetaBaseActivity.this, getString(R.string.ingrediente_eliminado), Toast.LENGTH_SHORT).show();
         });
         return ingredienteView;
+    }
+
+    private void mostrarDialogoSeleccionRecetaFiltrado(Ingrediente ingrediente, ImageButton btnLink, EditText editTextNombre) {
+        List<Receta> todasRecetas = RecetasSrv.getRecetas();
+        // Filtrar la receta actual si estamos editando para evitar autorreferencias triviales
+        String nombreRecetaActual = (this.editTextNombre != null) ? this.editTextNombre.getText().toString() : "";
+        List<Receta> opciones = todasRecetas.stream()
+                .filter(r -> !r.getNombre().equalsIgnoreCase(nombreRecetaActual))
+                .sorted((r1, r2) -> r1.getNombre().compareToIgnoreCase(r2.getNombre()))
+                .toList();
+
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_seleccionar_receta, null);
+        EditText filterInput = dialogView.findViewById(R.id.editTextFiltrarReceta);
+        ListView listView = dialogView.findViewById(R.id.listViewRecetas);
+
+        final List<Receta> listDisplay = new ArrayList<>(opciones);
+        final ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_list_item_1,
+                listDisplay.stream().map(Receta::getNombre).collect(Collectors.toList()));
+        listView.setAdapter(adapter);
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(R.string.seleccionar_receta)
+                .setView(dialogView)
+                .setNegativeButton(R.string.cancelar, null)
+                .create();
+
+        filterInput.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String query = s.toString().toLowerCase(Locale.getDefault());
+                listDisplay.clear();
+                listDisplay.addAll(opciones.stream()
+                        .filter(r -> r.getNombre().toLowerCase(Locale.getDefault()).contains(query))
+                        .toList());
+                adapter.clear();
+                adapter.addAll(listDisplay.stream().map(Receta::getNombre).collect(Collectors.toList()));
+                adapter.notifyDataSetChanged();
+            }
+            @Override public void afterTextChanged(Editable s) {}
+        });
+
+        listView.setOnItemClickListener((parent, view, which, id) -> {
+            Receta seleccionada = listDisplay.get(which);
+            if (ingrediente != null) {
+                ingrediente.setRecetaId(seleccionada.getId());
+                ingrediente.setRecetaReferenciada(seleccionada);
+                ingrediente.setNombre(seleccionada.getNombre());
+                ingrediente.setPuntuacion(seleccionada.getPuntuacionDada());
+                editTextNombre.setText(seleccionada.getNombre());
+                editTextNombre.setFocusableInTouchMode(false);
+                editTextNombre.setFocusable(false);
+                btnLink.setColorFilter(getResources().getColor(R.color.colorPrimary, getTheme()));
+                btnLink.setContentDescription(getString(R.string.desvincular_receta));
+                mostrarIngredientes();
+            } else {
+                // Caso nueva receta vinculada antes de añadir el ingrediente
+                recetaIdSeleccionada = seleccionada.getId();
+                editTextNombre.setText(seleccionada.getNombre());
+                editTextNombre.setFocusableInTouchMode(false);
+                editTextNombre.setFocusable(false);
+                btnLink.setColorFilter(getResources().getColor(R.color.colorPrimary, getTheme()));
+                btnLink.setContentDescription(getString(R.string.desvincular_receta));
+            }
+            UtilsSrv.notificacion(this, getString(R.string.receta_vinculada, seleccionada.getNombre()), Toast.LENGTH_SHORT).show();
+            dialog.dismiss();
+        });
+
+        dialog.show();
     }
 
     protected void mostrarAlergenos() {

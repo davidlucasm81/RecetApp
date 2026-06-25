@@ -13,6 +13,7 @@ public enum MomentoReceta {
         this.stringRes = stringRes;
     }
 
+    @SuppressWarnings("unused")
     public int getStringRes() {
         return stringRes;
     }

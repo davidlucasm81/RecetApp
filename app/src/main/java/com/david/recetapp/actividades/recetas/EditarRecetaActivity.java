@@ -247,7 +247,7 @@ public class EditarRecetaActivity extends RecetaBaseActivity {
             String esSustitutoDe = (autoCompleteSustitutoDe != null) ? autoCompleteSustitutoDe.getText().toString() : null;
 
             if (validarIngrediente(nombreIngrediente, cantidad, tipoCantidad)) {
-                agregarIngrediente(nombreIngrediente, cantidad, tipoCantidad, opcional, esSustitutoDe);
+                agregarIngrediente(nombreIngrediente, cantidad, tipoCantidad, opcional, esSustitutoDe, recetaIdSeleccionada);
                 limpiarCamposIngrediente();
                 checkboxOpcional.setChecked(false);
                 UtilsSrv.notificacion(this, getString(R.string.ingrediente_aniadido), Toast.LENGTH_SHORT).show();
@@ -271,6 +271,13 @@ public class EditarRecetaActivity extends RecetaBaseActivity {
     private void limpiarCamposIngrediente() {
         autoCompleteTextViewNombreIngrediente.setText("");
         editTextCantidad.setText("1");
+        recetaIdSeleccionada = null;
+        if (btnLinkRecetaNueva != null) {
+            btnLinkRecetaNueva.clearColorFilter();
+            btnLinkRecetaNueva.setContentDescription(getString(R.string.vincular_receta));
+        }
+        autoCompleteTextViewNombreIngrediente.setFocusableInTouchMode(true);
+        autoCompleteTextViewNombreIngrediente.setFocusable(true);
     }
 
     private void setupPasosSection() {
@@ -495,13 +502,23 @@ public class EditarRecetaActivity extends RecetaBaseActivity {
     }
 
     @Override
-    protected void agregarIngrediente(String nombre, String numero, String tipoCantidad, boolean opcional, String esSustitutoDe) {
+    protected void agregarIngrediente(String nombre, String numero, String tipoCantidad, boolean opcional, String esSustitutoDe, String recetaId) {
         if (getString(R.string.ninguno).equals(esSustitutoDe)) esSustitutoDe = null;
         Integer puntuacion = ingredientMap.getOrDefault(nombre.toLowerCase(Locale.getDefault()), -2);
         if (puntuacion == null) puntuacion = -2;
         
         Ingrediente ingrediente = new Ingrediente(nombre, numero, tipoCantidad,
                 puntuacion, opcional, esSustitutoDe);
+        if (recetaId != null) {
+            ingrediente.setRecetaId(recetaId);
+            for (Receta r : RecetasSrv.getRecetas()) {
+                if (r.getId().equals(recetaId)) {
+                    ingrediente.setRecetaReferenciada(r);
+                    ingrediente.setPuntuacion(r.getPuntuacionDada());
+                    break;
+                }
+            }
+        }
         ingredientes.add(ingrediente);
         mostrarIngredientes();
         actualizarSpinnersSustitutos();
