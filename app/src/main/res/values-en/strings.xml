@@ -97,6 +97,7 @@
     <string name="dia_inicio">Start day:</string>
     <string name="numero_personas">Number of people</string>
     <string name="youtube_url">YouTube video link (optional)</string>
+    <string name="video">Video</string>
     <string name="numero_recetas">Number of recipes per day</string>
     <string name="numero_personas_incorrecto">Wrong number of people</string>
     <string name="_0_recetas">0 recipes</string>

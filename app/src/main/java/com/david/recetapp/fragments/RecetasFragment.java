@@ -268,8 +268,8 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
 
             // Actualizar o crear el expandableListAdapter
             if (expandableListAdapter == null) {
-                rootView.findViewById(R.id.youtube_anchor_container);
-                expandableListAdapter = new RecetaExpandableListAdapter(requireContext(), recetas, expandableListView, this);
+                ViewGroup anchor = rootView.findViewById(R.id.youtube_anchor_container);
+                expandableListAdapter = new RecetaExpandableListAdapter(requireContext(), recetas, expandableListView, anchor, this);
                 expandableListAdapter.setOnNavigateToRecipeListener(recetaId -> {
                     // Limpiar filtros
                     autoCompleteTextViewRecetas.setText("");
@@ -346,8 +346,8 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
                 if (!isAdded()) return;
 
                 if (expandableListAdapter == null) {
-                    rootView.findViewById(R.id.youtube_anchor_container);
-                    expandableListAdapter = new RecetaExpandableListAdapter(requireContext(), copyList, expandableListView, RecetasFragment.this);
+                    ViewGroup anchor = rootView.findViewById(R.id.youtube_anchor_container);
+                    expandableListAdapter = new RecetaExpandableListAdapter(requireContext(), copyList, expandableListView, anchor, RecetasFragment.this);
                     expandableListView.setAdapter(expandableListAdapter);
                 } else {
                     expandableListAdapter.updateData(copyList);
@@ -433,6 +433,9 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        if (expandableListAdapter != null) {
+            expandableListAdapter.release();
+        }
         if (debounceHandler != null && debounceRunnable != null) {
             debounceHandler.removeCallbacks(debounceRunnable);
         }

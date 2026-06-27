@@ -105,6 +105,8 @@
     <string name="dia_fin">Día Fin:</string>
     <string name="numero_personas">Número de personas para la receta</string>
     <string name="youtube_url">Enlace a vídeo de YouTube (opcional)</string>
+    <string name="video">Vídeo</string>
+    <string name="ver_video_youtube">Ver vídeo de YouTube</string>
     <string name="numero_recetas">Número de recetas por día</string>
     <string name="numero_personas_incorrecto">Número de personas incorrecto</string>
     <string name="_0_recetas">0 recetas</string>

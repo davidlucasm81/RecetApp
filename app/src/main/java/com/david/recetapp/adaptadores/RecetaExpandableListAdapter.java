@@ -2,12 +2,14 @@ package com.david.recetapp.adaptadores;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.TextPaint;
+import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.LeadingMarginSpan;
@@ -29,6 +31,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 
 import com.david.recetapp.R;
+import com.david.recetapp.actividades.recetas.EditarRecetaActivity;
 import com.david.recetapp.negocio.beans.Alergeno;
 import com.david.recetapp.negocio.beans.Ingrediente;
 import com.david.recetapp.negocio.beans.Receta;
@@ -36,23 +39,32 @@ import com.david.recetapp.negocio.beans.Temporada;
 import com.david.recetapp.negocio.beans.TipoReceta;
 import com.david.recetapp.negocio.servicios.AlergenosSrv;
 import com.david.recetapp.negocio.servicios.RecetasSrv;
+import com.david.recetapp.negocio.servicios.UtilsSrv;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener;
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
     private final Context context;
     private final ExpandableListView expandableListView;
     private final EmptyListListener emptyListListener;
     private final Handler mainHandler;
+    private final ViewGroup anchorContainer;
     private OnNavigateToRecipeListener navigateListener;
+
+    // Singleton del reproductor para toda la lista
+    private YouTubePlayerView sharedYouTubePlayerView;
+    private YouTubePlayer activePlayer;
+    private String currentVideoId;
 
     private final List<Receta> listaRecetas;
 
@@ -66,9 +78,11 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
 
     public RecetaExpandableListAdapter(Context context, List<Receta> listaRecetas,
                                        ExpandableListView expandableListView,
+                                       ViewGroup anchorContainer,
                                        EmptyListListener emptyListListener) {
         this.context = context;
         this.expandableListView = expandableListView;
+        this.anchorContainer = anchorContainer;
         this.emptyListListener = emptyListListener;
         this.mainHandler = new Handler(Looper.getMainLooper());
         this.listaRecetas = (listaRecetas != null) ? new ArrayList<>(listaRecetas) : new ArrayList<>();
@@ -199,9 +213,9 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
         });
 
         btnEditar.setOnClickListener(v -> {
-            android.content.Intent intent = new android.content.Intent(context, com.david.recetapp.actividades.recetas.EditarRecetaActivity.class);
+            Intent intent = new Intent(context, EditarRecetaActivity.class);
             intent.putExtra("position", groupPosition);
-            intent.putExtra("listaRecetas", (java.io.Serializable) listaRecetas);
+            intent.putExtra("listaRecetas", (Serializable) listaRecetas);
             context.startActivity(intent);
         });
 
@@ -209,6 +223,13 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
             if (expandableListView.isGroupExpanded(groupPosition)) {
                 expandableListView.collapseGroup(groupPosition);
             } else {
+                // Cerrar todos los grupos abiertos previamente para optimizar el player compartido
+                int groupCount = getGroupCount();
+                for (int i = 0; i < groupCount; i++) {
+                    if (i != groupPosition && expandableListView.isGroupExpanded(i)) {
+                        expandableListView.collapseGroup(i);
+                    }
+                }
                 expandableListView.expandGroup(groupPosition);
             }
         });
@@ -218,11 +239,12 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
 
     @Override
     public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
+        int type = getChildType(groupPosition, childPosition);
         if (groupPosition < 0 || groupPosition >= listaRecetas.size()) {
             return (convertView != null) ? convertView : new View(context);
         }
 
-        if (getChildType(groupPosition, childPosition) == 1) {
+        if (type == 1) {
             return getYouTubeChildView(groupPosition, convertView, parent);
         }
 
@@ -244,17 +266,10 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
             case 0:
                 txtTitulo.setText(R.string.temporadas);
                 txtInformacion.setVisibility(View.VISIBLE);
-                List<Temporada> temps = receta.getTemporadas();
-                if (temps == null || temps.isEmpty()) {
-                    txtInformacion.setText("-");
-                } else {
-                    StringBuilder sb = new StringBuilder();
-                    for (int i = 0; i < temps.size(); i++) {
-                        sb.append(temps.get(i).name());
-                        if (i < temps.size() - 1) sb.append(", ");
-                    }
-                    txtInformacion.setText(sb.toString());
-                }
+                List<String> temps = (receta.getTemporadas() != null)
+                        ? receta.getTemporadas().stream().map(Temporada::getStringRes).map(context::getString).collect(Collectors.toList())
+                        : new ArrayList<>();
+                txtInformacion.setText(TextUtils.join(", ", temps));
                 break;
             case 1:
                 txtTitulo.setText(R.string.numero_personas);
@@ -389,7 +404,12 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
             case 8:
                 txtTitulo.setText(R.string.momento_receta);
                 txtInformacion.setVisibility(View.VISIBLE);
-                txtInformacion.setText(receta.getMomentoReceta() != null ? receta.getMomentoReceta().name() : "-");
+                if (receta.getTipoReceta() == TipoReceta.PRINCIPAL) {
+                    txtInformacion.setText(receta.getMomentoReceta() != null ? context.getString(receta.getMomentoReceta().getStringRes()) : context.getString(R.string.ambos));
+                } else {
+                    txtInformacion.setVisibility(View.GONE);
+                    txtTitulo.setText("");
+                }
                 break;
         }
 
@@ -411,30 +431,101 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
         }
 
         FrameLayout placeholder = view.findViewById(R.id.youtube_placeholder);
-        placeholder.removeAllViews();
-        
-        YouTubePlayerView youTubePlayerView = new YouTubePlayerView(context);
-        placeholder.addView(youTubePlayerView);
+        TextView txtTitulo = view.findViewById(R.id.txtTitulo);
+        TextView txtInformacion = view.findViewById(R.id.txtInformacion);
         
         Receta receta = listaRecetas.get(groupPosition);
-        String videoId = extractVideoId(receta.getYoutubeUrl());
+        String youtubeUrl = receta.getYoutubeUrl();
+        boolean hasUrl = youtubeUrl != null && !youtubeUrl.trim().isEmpty();
 
-        if (videoId != null) {
-            youTubePlayerView.addYouTubePlayerListener(new AbstractYouTubePlayerListener() {
-                @Override
-                public void onReady(@NonNull YouTubePlayer youTubePlayer) {
-                    youTubePlayer.cueVideo(videoId, 0);
+        if (!hasUrl) {
+            txtTitulo.setText("");
+            txtInformacion.setVisibility(View.GONE);
+            if (placeholder != null) placeholder.setVisibility(View.GONE);
+        } else {
+            txtTitulo.setText(R.string.ver_video_youtube);
+            txtInformacion.setVisibility(View.GONE);
+            
+            if (placeholder != null) {
+                placeholder.setVisibility(View.VISIBLE);
+                String videoId = UtilsSrv.extraerVideoId(youtubeUrl);
+                
+                if (videoId != null) {
+                    ensureSharedPlayerInitialized();
+                    
+                    // Mover el reproductor al contenedor actual
+                    ViewGroup currentParent = (ViewGroup) sharedYouTubePlayerView.getParent();
+                    if (currentParent != placeholder) {
+                        if (currentParent != null) currentParent.removeView(sharedYouTubePlayerView);
+                        placeholder.addView(sharedYouTubePlayerView);
+                    }
+
+                    // Solo cargar si el video es distinto
+                    if (!videoId.equals(currentVideoId)) {
+                        currentVideoId = videoId;
+                        if (activePlayer != null) {
+                            activePlayer.cueVideo(videoId, 0f);
+                        }
+                    }
+
+                    // Configurar el anclaje cuando la vista se desvincule
+                    placeholder.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+                        @Override
+                        public void onViewAttachedToWindow(@NonNull View v) { }
+
+                        @Override
+                        public void onViewDetachedFromWindow(@NonNull View v) {
+                            // Si se desvincula y el player sigue en este placeholder, lo movemos al anclaje
+                            if (sharedYouTubePlayerView != null && sharedYouTubePlayerView.getParent() == placeholder) {
+                                placeholder.removeView(sharedYouTubePlayerView);
+                                if (anchorContainer != null) {
+                                    anchorContainer.addView(sharedYouTubePlayerView);
+                                }
+                            }
+                            placeholder.removeOnAttachStateChangeListener(this);
+                        }
+                    });
+                } else {
+                    // Fallback: Si no podemos extraer el ID, intentamos abrir la URL
+                    if (sharedYouTubePlayerView != null && sharedYouTubePlayerView.getParent() == placeholder) {
+                        placeholder.removeView(sharedYouTubePlayerView);
+                    }
+                    txtInformacion.setVisibility(View.VISIBLE);
+                    txtInformacion.setText(youtubeUrl);
+                    txtInformacion.setOnClickListener(vLink -> {
+                        Intent intent = new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(youtubeUrl));
+                        context.startActivity(intent);
+                    });
                 }
-            });
+            }
         }
         return view;
     }
 
-    private String extractVideoId(String url) {
-        if (url == null || url.isEmpty()) return null;
-        if (url.contains("v=")) return url.split("v=")[1].split("&")[0];
-        if (url.contains("youtu.be/")) return url.split("youtu.be/")[1].split("\\?")[0];
-        return null;
+    private void ensureSharedPlayerInitialized() {
+        if (sharedYouTubePlayerView == null) {
+            sharedYouTubePlayerView = new YouTubePlayerView(context);
+            sharedYouTubePlayerView.setLayoutParams(new FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            
+            sharedYouTubePlayerView.addYouTubePlayerListener(new AbstractYouTubePlayerListener() {
+                @Override
+                public void onReady(@NonNull YouTubePlayer youTubePlayer) {
+                    activePlayer = youTubePlayer;
+                    if (currentVideoId != null) {
+                        youTubePlayer.cueVideo(currentVideoId, 0f);
+                    }
+                }
+            });
+        }
+    }
+
+    public void release() {
+        if (sharedYouTubePlayerView != null) {
+            sharedYouTubePlayerView.release();
+            sharedYouTubePlayerView = null;
+            activePlayer = null;
+        }
     }
 
     private void appendIngredienteInfo(SpannableStringBuilder sb, Ingrediente ing, boolean isSustituto) {

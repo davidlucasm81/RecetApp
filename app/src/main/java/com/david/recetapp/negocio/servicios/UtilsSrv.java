@@ -180,4 +180,11 @@ public class UtilsSrv {
         return obtenerColumnaCalendario(diaDelMes, fechaActual.getMonthValue() - 1, fechaActual.getYear());
     }
 
+    public static String extraerVideoId(String url) {
+        if (url == null || url.isEmpty()) return null;
+        if (url.contains("v=")) return url.split("v=")[1].split("&")[0];
+        if (url.contains("youtu.be/")) return url.split("youtu.be/")[1].split("\\?")[0];
+        return null;
+    }
+
 }

@@ -33,6 +33,7 @@ public class DetalleDiaActivity extends AppCompatActivity
     private ProgressBar progressBar;
     private Day selectedDay;
     private ActivityResultLauncher<Intent> addRecetaLauncher;
+    private RecetaExpandableListCalendarAdapter adapter;
 
 
     @Override
@@ -223,10 +224,15 @@ public class DetalleDiaActivity extends AppCompatActivity
         );
 
         findViewById(R.id.youtube_anchor_container);
-        RecetaExpandableListCalendarAdapter adapter = new RecetaExpandableListCalendarAdapter(
+        if (adapter != null) {
+            adapter.release();
+        }
+        android.view.ViewGroup anchor = findViewById(R.id.youtube_anchor_container);
+        adapter = new RecetaExpandableListCalendarAdapter(
                 this,
                 selectedDay,
                 expandableListView,
+                anchor,
                 this
         );
         expandableListView.setAdapter(adapter);
@@ -241,6 +247,14 @@ public class DetalleDiaActivity extends AppCompatActivity
         });
 
         progressBar.setVisibility(View.GONE);
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (adapter != null) {
+            adapter.release();
+        }
+        super.onDestroy();
     }
 
     @Override

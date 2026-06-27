@@ -2,6 +2,7 @@ package com.david.recetapp.adaptadores;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.Spannable;
@@ -19,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -40,6 +42,10 @@ import com.david.recetapp.negocio.beans.TipoReceta;
 import com.david.recetapp.negocio.servicios.AlergenosSrv;
 import com.david.recetapp.negocio.servicios.CalendarioSrv;
 import com.david.recetapp.negocio.servicios.RecetasSrv;
+import com.david.recetapp.negocio.servicios.UtilsSrv;
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer;
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener;
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -57,13 +63,21 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
     private final ExpandableListView expandableListView;
     private final EmptyListListener emptyListListener;
     private final Handler mainHandler;
+    private final ViewGroup anchorContainer;
+
+    // Singleton del reproductor para toda la lista
+    private YouTubePlayerView sharedYouTubePlayerView;
+    private YouTubePlayer activePlayer;
+    private String currentVideoId;
 
     public RecetaExpandableListCalendarAdapter(Activity activity, Day selectedDay, 
                                                ExpandableListView expandableListView,
+                                               ViewGroup anchorContainer,
                                                EmptyListListener emptyListListener) {
         this.selectedDay = selectedDay;
         this.activity = activity;
         this.expandableListView = expandableListView;
+        this.anchorContainer = anchorContainer;
         this.emptyListListener = emptyListListener;
         this.listaRecetas = new ArrayList<>();
         this.mainHandler = new Handler(Looper.getMainLooper());
@@ -110,7 +124,10 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
 
     @Override
     public int getChildrenCount(int groupPosition) {
-        return 9;
+        if (groupPosition < 0 || groupPosition >= listaRecetas.size()) return 0;
+        Receta receta = listaRecetas.get(groupPosition);
+        boolean hasYoutube = receta.getYoutubeUrl() != null && !receta.getYoutubeUrl().trim().isEmpty();
+        return hasYoutube ? 10 : 9;
     }
 
     @Override
@@ -133,6 +150,7 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
             case 6 -> receta.getFechaCalendario();
             case 7 -> receta.getPuntuacionDada();
             case 8 -> receta.getMomentoReceta();
+            case 9 -> receta.getYoutubeUrl();
             default -> null;
         };
     }
@@ -145,6 +163,16 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
     @Override
     public long getChildId(int groupPosition, int childPosition) {
         return ((long) groupPosition << 32) | (childPosition & 0xffffffffL);
+    }
+
+    @Override
+    public int getChildTypeCount() {
+        return 2;
+    }
+
+    @Override
+    public int getChildType(int groupPosition, int childPosition) {
+        return (childPosition == 9) ? 1 : 0;
     }
 
     @Override
@@ -244,6 +272,13 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
             if (expandableListView.isGroupExpanded(groupPosition)) {
                 expandableListView.collapseGroup(groupPosition);
             } else {
+                // Cerrar otros grupos para optimizar el player compartido
+                int count = getGroupCount();
+                for (int i = 0; i < count; i++) {
+                    if (i != groupPosition && expandableListView.isGroupExpanded(i)) {
+                        expandableListView.collapseGroup(i);
+                    }
+                }
                 expandableListView.expandGroup(groupPosition);
             }
         });
@@ -269,14 +304,19 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
 
     @Override
     public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
-        View view = convertView;
-        if (view == null) {
-            LayoutInflater inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            view = inflater.inflate(R.layout.list_item_child, parent, false);
+        int type = getChildType(groupPosition, childPosition);
+        if (groupPosition < 0 || groupPosition >= listaRecetas.size()) {
+            return (convertView != null) ? convertView : new View(activity);
         }
 
-        if (groupPosition < 0 || groupPosition >= listaRecetas.size()) {
-            return view;
+        if (type == 1) {
+            return getYouTubeChildView(groupPosition, convertView, parent);
+        }
+
+        View view = convertView;
+        if (view == null || view.findViewById(R.id.youtube_placeholder) != null) {
+            LayoutInflater inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            view = inflater.inflate(R.layout.list_item_child, parent, false);
         }
 
         TextView txtTitulo = view.findViewById(R.id.txtTitulo);
@@ -421,6 +461,105 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
         if (childPosition != 5) ratingBar.setVisibility(View.GONE);
 
         return view;
+    }
+
+    private View getYouTubeChildView(int groupPosition, View convertView, ViewGroup parent) {
+        if (groupPosition < 0 || groupPosition >= listaRecetas.size()) {
+            return (convertView != null) ? convertView : new View(activity);
+        }
+
+        View view = convertView;
+        if (view == null || view.findViewById(R.id.youtube_placeholder) == null) {
+            LayoutInflater inflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            view = inflater.inflate(R.layout.list_item_child_youtube, parent, false);
+        }
+
+        FrameLayout placeholder = view.findViewById(R.id.youtube_placeholder);
+        TextView txtTitulo = view.findViewById(R.id.txtTitulo);
+        TextView txtInformacion = view.findViewById(R.id.txtInformacion);
+        
+        Receta receta = listaRecetas.get(groupPosition);
+        String youtubeUrl = receta.getYoutubeUrl();
+        boolean hasUrl = youtubeUrl != null && !youtubeUrl.trim().isEmpty();
+
+        if (!hasUrl) {
+            txtTitulo.setText("");
+            txtInformacion.setVisibility(View.GONE);
+            if (placeholder != null) placeholder.setVisibility(View.GONE);
+        } else {
+            txtTitulo.setText(R.string.ver_video_youtube);
+            txtInformacion.setVisibility(View.GONE);
+            
+            if (placeholder != null) {
+                placeholder.setVisibility(View.VISIBLE);
+                String videoId = UtilsSrv.extraerVideoId(youtubeUrl);
+                
+                if (videoId != null) {
+                    ensureSharedPlayerInitialized();
+                    
+                    ViewGroup currentParent = (ViewGroup) sharedYouTubePlayerView.getParent();
+                    if (currentParent != placeholder) {
+                        if (currentParent != null) currentParent.removeView(sharedYouTubePlayerView);
+                        placeholder.addView(sharedYouTubePlayerView);
+                    }
+
+                    if (!videoId.equals(currentVideoId)) {
+                        currentVideoId = videoId;
+                        if (activePlayer != null) {
+                            activePlayer.cueVideo(videoId, 0f);
+                        }
+                    }
+
+                    placeholder.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+                        @Override
+                        public void onViewAttachedToWindow(@NonNull View v) { }
+                        @Override
+                        public void onViewDetachedFromWindow(@NonNull View v) {
+                            if (sharedYouTubePlayerView != null && sharedYouTubePlayerView.getParent() == placeholder) {
+                                placeholder.removeView(sharedYouTubePlayerView);
+                                if (anchorContainer != null) anchorContainer.addView(sharedYouTubePlayerView);
+                            }
+                            placeholder.removeOnAttachStateChangeListener(this);
+                        }
+                    });
+                } else {
+                    if (sharedYouTubePlayerView != null && sharedYouTubePlayerView.getParent() == placeholder) {
+                        placeholder.removeView(sharedYouTubePlayerView);
+                    }
+                    txtInformacion.setVisibility(View.VISIBLE);
+                    txtInformacion.setText(youtubeUrl);
+                    txtInformacion.setOnClickListener(v -> {
+                        Intent intent = new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(youtubeUrl));
+                        activity.startActivity(intent);
+                    });
+                }
+            }
+        }
+        return view;
+    }
+
+    private void ensureSharedPlayerInitialized() {
+        if (sharedYouTubePlayerView == null) {
+            sharedYouTubePlayerView = new YouTubePlayerView(activity);
+            sharedYouTubePlayerView.setLayoutParams(new FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            
+            sharedYouTubePlayerView.addYouTubePlayerListener(new AbstractYouTubePlayerListener() {
+                @Override
+                public void onReady(@NonNull YouTubePlayer youTubePlayer) {
+                    activePlayer = youTubePlayer;
+                    if (currentVideoId != null) youTubePlayer.cueVideo(currentVideoId, 0f);
+                }
+            });
+        }
+    }
+
+    public void release() {
+        if (sharedYouTubePlayerView != null) {
+            sharedYouTubePlayerView.release();
+            sharedYouTubePlayerView = null;
+            activePlayer = null;
+        }
     }
 
     private void appendIngredienteInfo(SpannableStringBuilder sb, Ingrediente ing, boolean isSustituto) {
