@@ -155,6 +155,13 @@
                         android:layout_height="wrap_content"
                         android:text="@string/tipo_side" />
 
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipUnknownScores"
+                        style="@style/Widget.MaterialComponents.Chip.Choice"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/unknown_scores" />
+
                 </com.google.android.material.chip.ChipGroup>
             </HorizontalScrollView>
 

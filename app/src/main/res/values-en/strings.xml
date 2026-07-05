@@ -65,6 +65,7 @@
     <string name="importar_exportar">Import / Export</string>
     <string name="exportar">Export</string>
     <string name="buscar_todos">Search all</string>
+    <string name="unknown_scores">Unknown Scores</string>
     <string name="seleccionar_tipo">Select Type</string>
     <string-array name="tipos_receta">
         <item>@string/tipo_principal</item>

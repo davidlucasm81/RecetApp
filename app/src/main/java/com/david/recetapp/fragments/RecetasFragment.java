@@ -332,6 +332,10 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
                     if (checkedChipId == R.id.chipPostres) return r.getTipoReceta() != TipoReceta.POSTRE;
                     if (checkedChipId == R.id.chipCocteles) return r.getTipoReceta() != TipoReceta.COCTEL;
                     if (checkedChipId == R.id.chipSides) return r.getTipoReceta() != TipoReceta.SIDE;
+                    if (checkedChipId == R.id.chipUnknownScores) {
+                        return r.getIngredientes() == null ||
+                                r.getIngredientes().stream().noneMatch(i -> i.getPuntuacion() == -2);
+                    }
                     return false;
                 });
             }
