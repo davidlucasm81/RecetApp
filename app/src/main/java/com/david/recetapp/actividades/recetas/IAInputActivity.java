@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.david.recetapp.R;
@@ -125,16 +126,7 @@ public class IAInputActivity extends AppCompatActivity {
         }
 
         try {
-            String jsonInput = rawJson;
-            if (jsonInput.startsWith("```json")) {
-                jsonInput = jsonInput.substring(7);
-            }
-            if (jsonInput.endsWith("```")) {
-                jsonInput = jsonInput.substring(0, jsonInput.length() - 3);
-            }
-            jsonInput = jsonInput.trim();
-
-            JSONObject json = new JSONObject(jsonInput);
+            JSONObject json = getJsonObject(rawJson);
             Receta receta = parseReceta(json);
             
             Intent intent = new Intent(this, AnadirRecetaIAActivity.class);
@@ -146,6 +138,22 @@ public class IAInputActivity extends AppCompatActivity {
             Log.e(TAG, "Error parseando JSON", e);
             UtilsSrv.notificacion(this, getString(R.string.ia_error_parseo), Toast.LENGTH_LONG).show();
         }
+    }
+
+    @NonNull
+    private static JSONObject getJsonObject(String rawJson) throws JSONException {
+        String jsonInput = rawJson;
+
+        // Robust extraction of JSON object: find first { and last }
+        int firstBrace = jsonInput.indexOf('{');
+        int lastBrace = jsonInput.lastIndexOf('}');
+
+        if (firstBrace != -1 && lastBrace != -1 && lastBrace > firstBrace) {
+            jsonInput = jsonInput.substring(firstBrace, lastBrace + 1);
+        }
+        jsonInput = jsonInput.trim();
+
+        return new JSONObject(jsonInput);
     }
 
     private Receta parseReceta(JSONObject json) throws JSONException {
