@@ -5,8 +5,6 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -65,22 +63,6 @@ public class IAInputActivity extends AppCompatActivity {
         btnGenerarPrompt.setOnClickListener(v -> generarPrompt());
         btnCopiarPrompt.setOnClickListener(v -> copiarPrompt());
         btnProcesarIA.setOnClickListener(v -> procesarJSON());
-
-        editTextDescIA.addTextChangedListener(new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
-                editTextYoutubeIA.setEnabled(s.length() <= 0);
-            }
-            @Override public void afterTextChanged(Editable s) {}
-        });
-
-        editTextYoutubeIA.addTextChangedListener(new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
-                editTextDescIA.setEnabled(s.length() <= 0);
-            }
-            @Override public void afterTextChanged(Editable s) {}
-        });
     }
 
     private void generarPrompt() {
@@ -92,7 +74,9 @@ public class IAInputActivity extends AppCompatActivity {
         }
 
         String instruccion;
-        if (!youtubeUrl.isEmpty()) {
+        if (!descripcion.isEmpty() && !youtubeUrl.isEmpty()) {
+            instruccion = "Extrae la receta de este vídeo de YouTube: " + youtubeUrl + " y ten en cuenta esta descripción adicional: " + descripcion;
+        } else if (!youtubeUrl.isEmpty()) {
             instruccion = "Extrae la receta detallada de este vídeo de YouTube: " + youtubeUrl;
         } else {
             instruccion = "Genera una receta detallada basada en esta descripción: " + descripcion;
