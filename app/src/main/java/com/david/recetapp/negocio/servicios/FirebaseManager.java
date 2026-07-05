@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import com.david.recetapp.negocio.beans.Day;
 import com.david.recetapp.negocio.beans.Receta;
 import com.david.recetapp.negocio.beans.TipoReceta;
+import com.david.recetapp.negocio.beans.IngredienteUsuario;
 import com.david.recetapp.negocio.beans.RecetaDia;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -36,6 +37,7 @@ public class FirebaseManager {
     private static final String TAG = "FirebaseManager";
     private static final String COLLECTION_RECETAS = "recetas";
     private static final String COLLECTION_CALENDARIO = "calendario";
+    private static final String COLLECTION_INGREDIENTES_USUARIO = "ingredientes_usuario";
 
     // Límites para prevenir abusos
     private static final int MAX_RECETAS_POR_USUARIO = 1000;
@@ -137,6 +139,11 @@ public class FirebaseManager {
 
     public interface CalendarioCallback {
         void onSuccess(List<Day> days);
+        void onFailure(Exception e);
+    }
+
+    public interface CustomIngredientsCallback {
+        void onSuccess(List<IngredienteUsuario> ingredients);
         void onFailure(Exception e);
     }
 
@@ -285,6 +292,46 @@ public class FirebaseManager {
     }
 
     // ==================== RESTO DE MÉTODOS (sin cambios) ====================
+
+    public void cargarIngredientesUsuario(CustomIngredientsCallback callback) {
+        String uid = getEffectiveUserId();
+        if (uid.isEmpty()) {
+            callback.onFailure(new Exception("User ID empty"));
+            return;
+        }
+
+        db.collection(COLLECTION_INGREDIENTES_USUARIO)
+                .whereEqualTo("userId", uid)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<IngredienteUsuario> list = new ArrayList<>();
+                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                        IngredienteUsuario ing = doc.toObject(IngredienteUsuario.class);
+                        list.add(ing);
+                    }
+                    callback.onSuccess(list);
+                })
+                .addOnFailureListener(callback::onFailure);
+    }
+
+    public void guardarIngredienteUsuario(IngredienteUsuario ingrediente, SimpleCallback callback) {
+        String uid = getEffectiveUserId();
+        if (uid.isEmpty()) {
+            callback.onFailure(new Exception("User ID empty"));
+            return;
+        }
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("nombre", ingrediente.getNombre());
+        map.put("puntuacion", ingrediente.getPuntuacion());
+        map.put("userId", uid);
+
+        db.collection(COLLECTION_INGREDIENTES_USUARIO)
+                .document(uid + "_" + ingrediente.getNombre().toLowerCase().trim())
+                .set(map)
+                .addOnSuccessListener(aVoid -> callback.onSuccess())
+                .addOnFailureListener(callback::onFailure);
+    }
 
     public void addReceta(Receta receta, SimpleCallback callback) {
         if (!validarReceta(receta)) {

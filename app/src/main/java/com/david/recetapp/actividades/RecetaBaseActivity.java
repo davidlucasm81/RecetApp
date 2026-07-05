@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import com.google.android.material.chip.Chip;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.GridLayout;
@@ -56,16 +57,18 @@ public abstract class RecetaBaseActivity extends AppCompatActivity {
     protected static final String KEY_INGREDIENTES = "ingredientes";
     protected static final String KEY_PASOS = "pasos";
     protected EditText editTextNombre;
-    protected CheckBox checkboxInvierno;
-    protected CheckBox checkboxVerano;
-    protected CheckBox checkboxOtonio;
-    protected CheckBox checkboxPrimavera;
+    protected Chip chipInvierno;
+    protected Chip chipVerano;
+    protected Chip chipOtonio;
+    protected Chip chipPrimavera;
     protected List<Temporada> temporadas;
     protected EditText numberPickerNumeroPersonas;
     protected AutoCompleteTextView autoCompleteTextViewNombreIngrediente;
     protected AutoCompleteTextView autoCompleteSustitutoDe;
     protected EditText editTextCantidad;
     protected EditText editTextYoutubeUrl;
+    protected EditText editTextPuntuacionIngrediente;
+    protected View layoutPuntuacionIngrediente;
     protected LinearLayout linearLayoutIngredientes;
     protected ArrayList<Ingrediente> ingredientes;
     protected LinearLayout linearLayoutListaPasos;
@@ -121,6 +124,28 @@ public abstract class RecetaBaseActivity extends AppCompatActivity {
         }
         ArrayAdapter<String> adapterIngrediente = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, ingredientNames);
         autoCompleteTextViewNombreIngrediente.setAdapter(adapterIngrediente);
+
+        autoCompleteTextViewNombreIngrediente.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                String nombre = s.toString().trim().toLowerCase(Locale.getDefault());
+                if (nombre.isEmpty()) {
+                    if (layoutPuntuacionIngrediente != null) layoutPuntuacionIngrediente.setVisibility(View.GONE);
+                    return;
+                }
+                boolean existe = ingredientMap.containsKey(nombre);
+                if (layoutPuntuacionIngrediente != null) {
+                    layoutPuntuacionIngrediente.setVisibility(existe ? View.GONE : View.VISIBLE);
+                }
+            }
+        });
+
         ingredientMap = new HashMap<>();
         for (String s : ingredientList) {
             Matcher m = patternIngredient.matcher(s.trim());
@@ -154,8 +179,23 @@ public abstract class RecetaBaseActivity extends AppCompatActivity {
 
     protected void agregarIngrediente(String nombre, String numero, String tipoCantidad, boolean opcional, String esSustitutoDe, String recetaId) {
         Integer puntuacion = ingredientMap.getOrDefault(nombre.toLowerCase(Locale.getDefault()), -2);
-        if (puntuacion == null) {
-            puntuacion = -2;
+        if (puntuacion == null || puntuacion == -2) {
+            // Si es un ingrediente nuevo, intentamos leer la puntuación del campo
+            if (editTextPuntuacionIngrediente != null && layoutPuntuacionIngrediente != null && layoutPuntuacionIngrediente.getVisibility() == View.VISIBLE) {
+                try {
+                    puntuacion = Integer.parseInt(editTextPuntuacionIngrediente.getText().toString());
+                    // Persistir el nuevo ingrediente
+                    RecetasSrv.addCustomIngredient(nombre, puntuacion);
+                    // Añadirlo al mapa local para que no vuelva a pedir la puntuación en esta sesión
+                    ingredientMap.put(nombre.toLowerCase(Locale.getDefault()), puntuacion);
+                    // Actualizar el adaptador del AutoComplete
+                    actualizarAdaptadorIngredientes();
+                } catch (NumberFormatException e) {
+                    puntuacion = -2;
+                }
+            } else {
+                puntuacion = -2;
+            }
         }
         if (getString(R.string.ninguno).equals(esSustitutoDe)) esSustitutoDe = null;
 
@@ -174,6 +214,22 @@ public abstract class RecetaBaseActivity extends AppCompatActivity {
         ingredientes.add(ingrediente);
         mostrarIngredientes();
         actualizarSpinnersSustitutos();
+    }
+
+    private void actualizarAdaptadorIngredientes() {
+        String[] ingredientList = RecetasSrv.getIngredientListStrings(this);
+        String[] ingredientNames = new String[ingredientList.length];
+        for (int i = 0; i < ingredientList.length; i++) {
+            String entry = ingredientList[i].trim();
+            Matcher matcher = patternIngredient.matcher(entry);
+            if (matcher.matches()) {
+                ingredientNames[i] = matcher.group(1);
+            } else {
+                ingredientNames[i] = entry;
+            }
+        }
+        ArrayAdapter<String> adapterIngrediente = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, ingredientNames);
+        autoCompleteTextViewNombreIngrediente.setAdapter(adapterIngrediente);
     }
 
     protected void mostrarIngredientes() {

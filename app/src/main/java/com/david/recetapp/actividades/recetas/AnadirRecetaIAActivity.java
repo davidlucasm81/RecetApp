@@ -37,10 +37,10 @@ public class AnadirRecetaIAActivity extends AddRecetaActivity {
             editTextYoutubeUrl.setText(receta.getYoutubeUrl());
         }
 
-        checkboxInvierno.setChecked(receta.getTemporadas().contains(Temporada.INVIERNO));
-        checkboxVerano.setChecked(receta.getTemporadas().contains(Temporada.VERANO));
-        checkboxOtonio.setChecked(receta.getTemporadas().contains(Temporada.OTONIO));
-        checkboxPrimavera.setChecked(receta.getTemporadas().contains(Temporada.PRIMAVERA));
+        chipInvierno.setChecked(receta.getTemporadas().contains(Temporada.INVIERNO));
+        chipVerano.setChecked(receta.getTemporadas().contains(Temporada.VERANO));
+        chipOtonio.setChecked(receta.getTemporadas().contains(Temporada.OTONIO));
+        chipPrimavera.setChecked(receta.getTemporadas().contains(Temporada.PRIMAVERA));
 
         AutoCompleteTextView spinnerTipo = findViewById(R.id.spinnerTipoReceta);
         String[] tiposArr = getResources().getStringArray(R.array.tipos_receta);

@@ -114,10 +114,10 @@ public class EditarRecetaActivity extends RecetaBaseActivity {
 
     private void initializeViews() {
         editTextNombre = findViewById(R.id.editTextNombre);
-        checkboxInvierno = findViewById(R.id.checkboxInvierno);
-        checkboxVerano = findViewById(R.id.checkboxVerano);
-        checkboxOtonio = findViewById(R.id.checkboxOtonio);
-        checkboxPrimavera = findViewById(R.id.checkboxPrimavera);
+        chipInvierno = findViewById(R.id.chipInvierno);
+        chipVerano = findViewById(R.id.chipVerano);
+        chipOtonio = findViewById(R.id.chipOtonio);
+        chipPrimavera = findViewById(R.id.chipPrimavera);
         numberPickerNumeroPersonas = findViewById(R.id.numeroPersonas);
         autoCompleteTextViewNombreIngrediente = findViewById(R.id.autoCompleteTextViewNombreIngrediente);
         editTextCantidad = findViewById(R.id.editTextCantidad);
@@ -132,6 +132,8 @@ public class EditarRecetaActivity extends RecetaBaseActivity {
         spinnerMomentoReceta = findViewById(R.id.spinnerMomentoReceta);
         layoutMomentoReceta = findViewById(R.id.layoutMomentoReceta);
         editTextYoutubeUrl = findViewById(R.id.editTextYoutubeUrl);
+        editTextPuntuacionIngrediente = findViewById(R.id.editTextPuntuacionIngrediente);
+        layoutPuntuacionIngrediente = findViewById(R.id.layoutPuntuacionIngrediente);
 
         if (progressBar != null) {
             progressBar.setVisibility(View.GONE);
@@ -182,10 +184,10 @@ public class EditarRecetaActivity extends RecetaBaseActivity {
 
         editTextNombre.setText(recetaActual.getNombre());
 
-        checkboxInvierno.setChecked(recetaActual.getTemporadas().contains(Temporada.INVIERNO));
-        checkboxVerano.setChecked(recetaActual.getTemporadas().contains(Temporada.VERANO));
-        checkboxOtonio.setChecked(recetaActual.getTemporadas().contains(Temporada.OTONIO));
-        checkboxPrimavera.setChecked(recetaActual.getTemporadas().contains(Temporada.PRIMAVERA));
+        chipInvierno.setChecked(recetaActual.getTemporadas().contains(Temporada.INVIERNO));
+        chipVerano.setChecked(recetaActual.getTemporadas().contains(Temporada.VERANO));
+        chipOtonio.setChecked(recetaActual.getTemporadas().contains(Temporada.OTONIO));
+        chipPrimavera.setChecked(recetaActual.getTemporadas().contains(Temporada.PRIMAVERA));
 
         temporadas = recetaActual.getTemporadas();
         numberPickerNumeroPersonas.setText(String.valueOf(recetaActual.getNumPersonas()));
@@ -380,10 +382,10 @@ public class EditarRecetaActivity extends RecetaBaseActivity {
 
         // Actualizar temporadas
         temporadas.clear();
-        if (checkboxInvierno.isChecked()) temporadas.add(Temporada.INVIERNO);
-        if (checkboxVerano.isChecked()) temporadas.add(Temporada.VERANO);
-        if (checkboxOtonio.isChecked()) temporadas.add(Temporada.OTONIO);
-        if (checkboxPrimavera.isChecked()) temporadas.add(Temporada.PRIMAVERA);
+        if (chipInvierno.isChecked()) temporadas.add(Temporada.INVIERNO);
+        if (chipVerano.isChecked()) temporadas.add(Temporada.VERANO);
+        if (chipOtonio.isChecked()) temporadas.add(Temporada.OTONIO);
+        if (chipPrimavera.isChecked()) temporadas.add(Temporada.PRIMAVERA);
 
         // Actualizar receta
         recetaActual.setNombre(nombre);
@@ -404,10 +406,10 @@ public class EditarRecetaActivity extends RecetaBaseActivity {
     }
 
     private boolean validarTemporadas() {
-        return checkboxInvierno.isChecked()
-                || checkboxVerano.isChecked()
-                || checkboxOtonio.isChecked()
-                || checkboxPrimavera.isChecked();
+        return chipInvierno.isChecked()
+                || chipVerano.isChecked()
+                || chipOtonio.isChecked()
+                || chipPrimavera.isChecked();
     }
 
     private void editarRecetaConCallback(Receta receta) {

@@ -10,6 +10,7 @@ import com.david.recetapp.R;
 import com.david.recetapp.negocio.beans.Day;
 import com.david.recetapp.negocio.beans.Ingrediente;
 import com.david.recetapp.negocio.beans.Receta;
+import com.david.recetapp.negocio.beans.IngredienteUsuario;
 import com.david.recetapp.negocio.beans.RecetaDia;
 import com.david.recetapp.negocio.beans.Temporada;
 import com.david.recetapp.negocio.beans.TipoIngrediente;
@@ -50,6 +51,7 @@ public class RecetasSrv {
     public static Map<String, Integer> gramosMapCache = null;
     private static Map<String, TipoIngrediente> tipoMapCache = null;
     private static Map<String, String> translationMapCache = null; // Key (any lang) -> Target name (current locale)
+    private static Map<String, Integer> customIngredientsMapCache = new HashMap<>();
     private static final Object cacheLock = new Object();
 
     // 🚀 ExecutorService para procesamiento en background
@@ -650,6 +652,36 @@ public class RecetasSrv {
             currentUserId = userId;
         }
         firebaseManager.setUserId(userId);
+        
+        customIngredientsMapCache.clear();
+        firebaseManager.cargarIngredientesUsuario(new FirebaseManager.CustomIngredientsCallback() {
+            @Override
+            public void onSuccess(List<IngredienteUsuario> ingredients) {
+                for (IngredienteUsuario ing : ingredients) {
+                    customIngredientsMapCache.put(ing.getNombre().toLowerCase(), ing.getPuntuacion());
+                }
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Log.e(TAG, "Error cargando ingredientes de usuario", e);
+            }
+        });
+    }
+
+    public static void addCustomIngredient(String nombre, int puntuacion) {
+        customIngredientsMapCache.put(nombre.toLowerCase(), puntuacion);
+        firebaseManager.guardarIngredienteUsuario(new IngredienteUsuario(nombre, puntuacion), new FirebaseManager.SimpleCallback() {
+            @Override
+            public void onSuccess() {
+                Log.d(TAG, "Ingrediente de usuario guardado: " + nombre);
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Log.e(TAG, "Error guardando ingrediente de usuario", e);
+            }
+        });
     }
 
     public static String getNombreTraducido(String nombre) {
@@ -716,6 +748,12 @@ public class RecetasSrv {
      */
     public static String[] getIngredientListStrings(Context context) {
         List<String> list = new ArrayList<>();
+        
+        // Añadir ingredientes de usuario primero
+        for (Map.Entry<String, Integer> entry : customIngredientsMapCache.entrySet()) {
+            list.add(entry.getKey().substring(0, 1).toUpperCase() + entry.getKey().substring(1) + " " + entry.getValue());
+        }
+
         String targetLang = Locale.getDefault().getLanguage(); // "es" o "en"
 
         try {
