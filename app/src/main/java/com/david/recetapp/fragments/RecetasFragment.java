@@ -392,10 +392,12 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
             return;
         }
 
+        int firstVisible = expandableListView.getFirstVisiblePosition();
         int lastVisible = expandableListView.getLastVisiblePosition();
         boolean atBottom = lastVisible >= total - 1;
+        boolean atTop = firstVisible == 0;
 
-        if (atBottom) {
+        if (atBottom && !atTop) {
             fab.setAlpha(0.35f);
             fab.setEnabled(false);
             fab.setClickable(false);
