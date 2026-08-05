@@ -178,6 +178,19 @@ public class Receta implements Parcelable {
     public String getYoutubeUrl() { return youtubeUrl; }
     public void setYoutubeUrl(String youtubeUrl) { this.youtubeUrl = youtubeUrl; }
 
+    public int getTiempoTotalMinutos() {
+        if (pasos == null || pasos.isEmpty()) return 0;
+        int total = 0;
+        for (Paso p : pasos) {
+            String t = p.getTiempo();
+            if (t != null && t.matches("^\\d{2}:\\d{2}$")) {
+                String[] parts = t.split(":");
+                total += Integer.parseInt(parts[0]) * 60 + Integer.parseInt(parts[1]);
+            }
+        }
+        return total;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -77,6 +77,10 @@ public class CalendarioSrv {
         void onFailure(@SuppressWarnings("unused") Exception e);
     }
 
+    public interface RellenarLazyCallback extends RellenarCallback {
+        // Just for clarity if needed, but RellenarCallback is enough
+    }
+
     // ——— Helpers de validación de userId ———
 
     /**
@@ -405,7 +409,8 @@ public class CalendarioSrv {
                                   Map<String, Date> fechasTemporales,
                                   Map<String, CachedRecetaData> cacheData,
                                   Map<LocalDate, Set<String>> ingredientesPorDia,
-                                  WindowStats windowStats) {
+                                  WindowStats windowStats,
+                                  boolean lazyMode) {
         final int MAX_TRIES = 12;
         int tries = 0;
         Receta receta;
@@ -446,7 +451,7 @@ public class CalendarioSrv {
             for (int limite : fallbackLimites) {
                 receta = obtenerRecetaNoRepetida(candidatosPreFiltrados, dia, momentoRequerido,
                         windowStats, dailyStats, ingredientesActivosDia, limite, fechasTemporales, 
-                        cacheData, ingredientesPorDia, fechaActual);
+                        cacheData, ingredientesPorDia, fechaActual, lazyMode);
                 if (receta != null) break;
             }
             
@@ -532,7 +537,8 @@ public class CalendarioSrv {
                                                   Map<String, Date> fechasTemporales,
                                                   Map<String, CachedRecetaData> cacheData,
                                                   Map<LocalDate, Set<String>> ingredientesPorDia,
-                                                  LocalDate fechaActual) {
+                                                  LocalDate fechaActual,
+                                                  boolean lazyMode) {
         List<Receta> candidatos = new ArrayList<>();
         long epochDiaActual = fechaActual.toEpochDay();
         
@@ -614,6 +620,18 @@ public class CalendarioSrv {
             if (momentoRequerido == MomentoReceta.CENA) {
                 if (cd.isDensa) score *= 0.75;
                 else score *= 1.25;
+            }
+            
+            // --- LÓGICA MODO VAGO ---
+            if (lazyMode) {
+                int t = cd.tiempoTotal;
+                if (t > 0) {
+                    if (t <= 20) score *= 3.5;
+                    else if (t <= 40) score *= 2.0;
+                    else if (t > 60) score *= 0.1;
+                }
+                // Priorizar sano también en modo vago
+                if (cd.healthNorm > 0.7) score *= 1.3;
             }
             
             // M19 Avanzado: Sinergia con decaimiento temporal (Aprovechar frescos recientes)
@@ -896,6 +914,15 @@ public class CalendarioSrv {
      */
     public static void addMenu(final Context context, final int mes, final int anio, final int diaInicio, final int diaFin,
                                final boolean forzarPasados, final int numRecetas, final int numPersonas, final RellenarCallback callback) {
+        addMenu(context, mes, anio, diaInicio, diaFin, forzarPasados, numRecetas, numPersonas, false, callback);
+    }
+
+    /**
+     * Rellena un rango de días añadiendo recetas con opción de Modo Vago.
+     */
+    public static void addMenu(final Context context, final int mes, final int anio, final int diaInicio, final int diaFin,
+                               final boolean forzarPasados, final int numRecetas, final int numPersonas, 
+                               final boolean lazyMode, final RellenarCallback callback) {
         if (!checkUserId(callback)) return;
 
         CompletableFuture<List<Day>> calendarFuture = new CompletableFuture<>();
@@ -1097,7 +1124,7 @@ public class CalendarioSrv {
                                     addReceta(listaAUsar, recetasUtilizadasRecientemente, dia, actualizacionesPendientes, 
                                             numPersonas, mes, anio, momentoRequerido, asignacionesPrincipales, 
                                             asignacionesDiarias, ingredientesActivosDia, fechasTemporales,
-                                            cacheData, ingredientesPorDia, windowStats);
+                                            cacheData, ingredientesPorDia, windowStats, lazyMode);
                                 }
 
                                 limpiarRecetasUtilizadasRecientemente(recetasUtilizadasRecientemente, dia, mes, anio);
@@ -1320,6 +1347,7 @@ public class CalendarioSrv {
         final double starsNorm;
         final boolean isDensa;
         final boolean isPesada;
+        final int tiempoTotal;
 
         // Máscaras pre-calculadas para tipos frecuentes
         private static final long MASK_PESADA = 
@@ -1362,6 +1390,7 @@ public class CalendarioSrv {
 
             // Pre-calcular flags de densidad
             this.isPesada = (mask & MASK_PESADA) != 0;
+            this.tiempoTotal = r.getTiempoTotalMinutos();
             
             boolean densaPorIngredientes = (mask & MASK_DENSA) != 0;
             if (h > 0.7) this.isDensa = false;

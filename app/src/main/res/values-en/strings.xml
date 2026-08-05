@@ -90,6 +90,8 @@
     <string name="actualizar_recetas">Update recipes</string>
     <string name="lista_compra">Shopping list</string>
     <string name="seleccionar_dias">Select days</string>
+    <string name="seleccionar_dias_vago">Generate menu (Lazy Mode)</string>
+    <string name="seleccionar_dias_sano">Generate menu (Healthy Mode)</string>
     <string name="selecciona_dias">Select days range:</string>
     <string name="cantidad">Quantity</string>
     <string name="unidad">Unit</string>
@@ -118,6 +120,9 @@
     <string name="confirmar_borrar_calendario">Are you sure you want to clear and recreate the calendar?</string>
     <string name="calendario_recreado">Calendar recreated successfully</string>
     <string name="error_conexion_lenta">Slow connection. Could not load calendar.</string>
+    <string name="modo_vago">Lazy Mode</string>
+    <string name="generar_modo_vago">Generate menu (Lazy Mode)</string>
+    <string name="desc_modo_vago">Prioritize quick and healthy recipes</string>
 
     <!-- IA Recipe Strings -->
     <string name="ia_titulo">Add Recipe with AI</string>

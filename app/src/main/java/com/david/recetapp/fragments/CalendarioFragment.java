@@ -57,6 +57,7 @@ public class CalendarioFragment extends Fragment {
     private Calendar calendarReal;
 
     private ImageButton btnBorrar;
+    private ImageButton btnModoVago;
     private ImageButton btnGenerarMenu;
     private ImageButton btnPreviousMonth;
     private ImageButton btnNextMonth;
@@ -229,6 +230,19 @@ public class CalendarioFragment extends Fragment {
 
         btnGenerarMenu = rootView.findViewById(R.id.btnActualizar);
 
+        btnModoVago = rootView.findViewById(R.id.btnModoVago);
+        if (btnModoVago != null) {
+            btnModoVago.setOnClickListener(v -> {
+                if (isAdded() && !isLoading) {
+                    if (!isViewingCurrentMonth()) {
+                        UtilsSrv.notificacion(requireContext(), getString(R.string.solo_mes_actual), Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    showRefillDialog(true);
+                }
+            });
+        }
+
         if (btnGenerarMenu != null) {
             btnGenerarMenu.setOnClickListener(v -> {
                 if (isAdded() && !isLoading) {
@@ -236,53 +250,7 @@ public class CalendarioFragment extends Fragment {
                         UtilsSrv.notificacion(requireContext(), getString(R.string.solo_mes_actual), Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    LayoutInflater inflaterDialog = LayoutInflater.from(getContext());
-                    View dialogView = inflaterDialog.inflate(R.layout.dialog_calendar_refill, null);
-
-                    NumberPicker numberPickerInicio = dialogView.findViewById(R.id.numberPickerInicio);
-                    NumberPicker numberPickerFin = dialogView.findViewById(R.id.numberPickerFin);
-                    NumberPicker numberPickerRecetas = dialogView.findViewById(R.id.numberPickerRecetas);
-
-                    // Configurar los NumberPickers (permitir seleccionar un único día)
-                    int maxDay = calendarViewing.getActualMaximum(Calendar.DAY_OF_MONTH);
-                    numberPickerInicio.setMinValue(1);
-                    numberPickerInicio.setMaxValue(maxDay);
-                    numberPickerFin.setMinValue(1);
-                    numberPickerFin.setMaxValue(maxDay);
-
-                    // Configurar NumberPicker de recetas (ej.: de 1 a 5 recetas por día)
-                    numberPickerRecetas.setMinValue(1);
-                    numberPickerRecetas.setMaxValue(5);
-                    numberPickerRecetas.setValue(2); // Valor por defecto anterior
-
-                    // Ajustes dinámicos: permitir rango inclusive (inicio <= fin)
-                    numberPickerInicio.setOnValueChangedListener((picker, oldVal, newVal) -> {
-                        if (newVal > numberPickerFin.getValue()) numberPickerFin.setValue(newVal);
-                        numberPickerFin.setMinValue(newVal);
-                    });
-                    numberPickerFin.setOnValueChangedListener((picker, oldVal, newVal) -> {
-                        if (newVal < numberPickerInicio.getValue()) numberPickerInicio.setValue(newVal);
-                        numberPickerInicio.setMaxValue(newVal);
-                    });
-
-                    AlertDialog alert = new AlertDialog.Builder(requireContext(), R.style.CustomAlertDialog)
-                            .setTitle(getString(R.string.seleccionar_dias))
-                            .setView(dialogView)
-                            .setPositiveButton(getString(R.string.aceptar), (dialog, which) ->
-                                    showPeopleDialog(numberPickerInicio.getValue(), numberPickerFin.getValue(), numberPickerRecetas.getValue()))
-                            .setNegativeButton(getString(R.string.cancelar), null)
-                            .create();
-
-                    alert.setOnShowListener(dialogInterface -> {
-                        Button positiveButton = alert.getButton(AlertDialog.BUTTON_POSITIVE);
-                        Button negativeButton = alert.getButton(AlertDialog.BUTTON_NEGATIVE);
-                        if (isAdded()) {
-                            positiveButton.setTextColor(ContextCompat.getColor(requireContext(), R.color.colorPrimary));
-                            negativeButton.setTextColor(ContextCompat.getColor(requireContext(), R.color.colorPrimary));
-                        }
-                    });
-
-                    alert.show();
+                    showRefillDialog(false);
                 }
             });
         }
@@ -331,7 +299,64 @@ public class CalendarioFragment extends Fragment {
     private void updateManagementButtonsVisibility() {
         boolean isCurrent = isViewingCurrentMonth();
         if (btnBorrar != null) btnBorrar.setVisibility(isCurrent ? View.VISIBLE : View.GONE);
+        if (btnModoVago != null) btnModoVago.setVisibility(isCurrent ? View.VISIBLE : View.GONE);
         if (btnGenerarMenu != null) btnGenerarMenu.setVisibility(isCurrent ? View.VISIBLE : View.GONE);
+    }
+
+    private void showRefillDialog(boolean defaultLazy) {
+        LayoutInflater inflaterDialog = LayoutInflater.from(getContext());
+        View dialogView = inflaterDialog.inflate(R.layout.dialog_calendar_refill, null);
+
+        NumberPicker numberPickerInicio = dialogView.findViewById(R.id.numberPickerInicio);
+        NumberPicker numberPickerFin = dialogView.findViewById(R.id.numberPickerFin);
+        NumberPicker numberPickerRecetas = dialogView.findViewById(R.id.numberPickerRecetas);
+        android.widget.CheckBox checkBoxLazy = dialogView.findViewById(R.id.checkBoxLazyMode);
+
+        if (checkBoxLazy != null) {
+            checkBoxLazy.setChecked(defaultLazy);
+        }
+
+        // Configurar los NumberPickers (permitir seleccionar un único día)
+        int maxDay = calendarViewing.getActualMaximum(Calendar.DAY_OF_MONTH);
+        numberPickerInicio.setMinValue(1);
+        numberPickerInicio.setMaxValue(maxDay);
+        numberPickerFin.setMinValue(1);
+        numberPickerFin.setMaxValue(maxDay);
+
+        // Configurar NumberPicker de recetas (ej.: de 1 a 5 recetas por día)
+        numberPickerRecetas.setMinValue(1);
+        numberPickerRecetas.setMaxValue(5);
+        numberPickerRecetas.setValue(2); // Valor por defecto anterior
+
+        // Ajustes dinámicos: permitir rango inclusive (inicio <= fin)
+        numberPickerInicio.setOnValueChangedListener((picker, oldVal, newVal) -> {
+            if (newVal > numberPickerFin.getValue()) numberPickerFin.setValue(newVal);
+            numberPickerFin.setMinValue(newVal);
+        });
+        numberPickerFin.setOnValueChangedListener((picker, oldVal, newVal) -> {
+            if (newVal < numberPickerInicio.getValue()) numberPickerInicio.setValue(newVal);
+            numberPickerInicio.setMaxValue(newVal);
+        });
+
+        AlertDialog alert = new AlertDialog.Builder(requireContext(), R.style.CustomAlertDialog)
+                .setTitle(defaultLazy ? getString(R.string.seleccionar_dias_vago) : getString(R.string.seleccionar_dias_sano))
+                .setView(dialogView)
+                .setPositiveButton(getString(R.string.aceptar), (dialog, which) ->
+                        showPeopleDialog(numberPickerInicio.getValue(), numberPickerFin.getValue(), 
+                                numberPickerRecetas.getValue(), checkBoxLazy != null && checkBoxLazy.isChecked()))
+                .setNegativeButton(getString(R.string.cancelar), null)
+                .create();
+
+        alert.setOnShowListener(dialogInterface -> {
+            Button positiveButton = alert.getButton(AlertDialog.BUTTON_POSITIVE);
+            Button negativeButton = alert.getButton(AlertDialog.BUTTON_NEGATIVE);
+            if (isAdded()) {
+                positiveButton.setTextColor(ContextCompat.getColor(requireContext(), R.color.colorPrimary));
+                negativeButton.setTextColor(ContextCompat.getColor(requireContext(), R.color.colorPrimary));
+            }
+        });
+
+        alert.show();
     }
 
     private boolean isViewingCurrentMonth() {
@@ -452,7 +477,7 @@ public class CalendarioFragment extends Fragment {
         });
     }
 
-    private void showPeopleDialog(int diaInicio, int diaFin, int numRecetas) {
+    private void showPeopleDialog(int diaInicio, int diaFin, int numRecetas, boolean lazyMode) {
         if (!isAdded()) return;
 
         android.widget.EditText editText = new android.widget.EditText(requireContext());
@@ -474,7 +499,7 @@ public class CalendarioFragment extends Fragment {
                         try {
                             int numPersonas = Integer.parseInt(input);
                             if (numPersonas >= 1) {
-                                rellenarDias(diaInicio, diaFin, numRecetas, numPersonas);
+                                rellenarDias(diaInicio, diaFin, numRecetas, numPersonas, lazyMode);
                             } else {
                                 UtilsSrv.notificacion(requireContext(), getString(R.string.numero_personas_incorrecto), Toast.LENGTH_LONG).show();
                             }
@@ -501,7 +526,7 @@ public class CalendarioFragment extends Fragment {
     /**
      * 🚀 Oculta todos los indicadores de carga
      */
-    private void rellenarDias(int diaInicio, int diaFin, int numRecetas, int numPersonas) {
+    private void rellenarDias(int diaInicio, int diaFin, int numRecetas, int numPersonas, boolean lazyMode) {
         if (isLoading) return;
         isLoading = true;
         final int requestId = ++currentRequestId;
@@ -526,7 +551,7 @@ public class CalendarioFragment extends Fragment {
         int mes = calendarViewing.get(Calendar.MONTH);
         int anio = calendarViewing.get(Calendar.YEAR);
 
-        CalendarioSrv.addMenu(requireContext(), mes, anio, diaInicio, diaFin, true, numRecetas, numPersonas, new CalendarioSrv.RellenarCallback() {
+        CalendarioSrv.addMenu(requireContext(), mes, anio, diaInicio, diaFin, true, numRecetas, numPersonas, lazyMode, new CalendarioSrv.RellenarCallback() {
             @Override
             public void onSuccess(List<Day> updatedCalendar) {
                 mainHandler.post(() -> {

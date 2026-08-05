@@ -93,6 +93,8 @@
     <string name="lista_compra">Lista de la compra</string>
     <string name="warning" translatable="false">Warning</string>
     <string name="seleccionar_dias">Seleccionar días</string>
+    <string name="seleccionar_dias_vago">Generar menú (Modo Vago)</string>
+    <string name="seleccionar_dias_sano">Generar menú (Modo Sano)</string>
     <string name="selecciona_dias">Selecciona los días del mes:</string>
     <string name="cantidad">Cantidad</string>
     <string name="unidad">Unidad</string>
@@ -127,6 +129,9 @@
     <string name="confirmar_borrar_calendario">¿Está seguro de que desea borrar y recrear el calendario?</string>
     <string name="calendario_recreado">Calendario recreado correctamente</string>
     <string name="error_conexion_lenta">La conexión es lenta. No se ha podido cargar el calendario.</string>
+    <string name="modo_vago">Modo Vago</string>
+    <string name="generar_modo_vago">Generar menú (Modo Vago)</string>
+    <string name="desc_modo_vago">Prioriza recetas rápidas y saludables</string>
 
     <!-- IA Recipe Strings -->
     <string name="ia_titulo">Añadir Receta con IA</string>

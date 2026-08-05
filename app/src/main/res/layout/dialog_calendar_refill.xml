@@ -81,4 +81,13 @@
             android:layout_height="match_parent"
             android:background="@drawable/number_picker_background" />
     </LinearLayout>
+
+    <CheckBox
+        android:id="@+id/checkBoxLazyMode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/modo_vago"
+        android:textColor="@color/colorIcono"
+        android:textSize="16sp" />
 </LinearLayout>
