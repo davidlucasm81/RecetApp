@@ -97,6 +97,7 @@ public class UtilsSrv {
         // Añadir el diseño personalizado
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
         params.gravity = Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM; // Centrar horizontalmente, posición inferior
+        params.setMargins(0, 0, 0, dpToPx(context, 80)); // Margen inferior para evitar superposición con el menú de Android
         layout.setLayoutParams(params);
 
         ((Snackbar.SnackbarLayout) snackbarView).addView(layout);
