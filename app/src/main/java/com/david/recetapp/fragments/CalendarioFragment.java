@@ -168,12 +168,18 @@ public class CalendarioFragment extends Fragment {
                                     }
                                 }, 8000);
 
-                                // Resetear fechaCalendario de todas las recetas a null (Date(0) tratado como null)
+                                // Resetear fechaCalendario de solo las recetas del mes borrado a null (Date(0) tratado como null)
                                 RecetasSrv.cargarListaRecetas(requireContext(), new RecetasSrv.RecetasCallback() {
                                     @Override
                                     public void onSuccess(List<Receta> recetas) {
+                                        Calendar calReceta = Calendar.getInstance();
                                         for (Receta r : recetas) {
-                                            RecetasSrv.actualizarRecetaCalendarioDirect(r, 0, false);
+                                            if (r.getFechaCalendario() != null) {
+                                                calReceta.setTime(r.getFechaCalendario());
+                                                if (isSameMonth(calReceta, calendarViewing)) {
+                                                    RecetasSrv.actualizarRecetaCalendarioDirect(r, 0, false);
+                                                }
+                                            }
                                         }
                                     }
 
