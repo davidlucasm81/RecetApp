@@ -133,8 +133,9 @@
     <string name="ia_error_parseo">Error processing the AI JSON. Check the format.</string>
     <string name="ia_prompt_template">Act as an expert chef. %1$s. Units: %2$s. Allergens: %3$s. Ingredients: singular, initial capital.
 tipoReceta=PRINCIPAL|POSTRE|COCTEL|SIDE. momentoReceta=COMIDA|CENA|AMBOS. temporadas=INVIERNO|VERANO|OTONIO|PRIMAVERA.
+Important: For each ingredient, estimate a health "puntuacion" from 0 to 10 based on the Mediterranean Diet (fruits/veggies/fish=10, red meats/sugars=0).
 Only JSON:
-{\"nombre\":\"\",\"tipoReceta\":\"\",\"momentoReceta\":\"\",\"numPersonas\":0,\"temporadas\":[],\"alergenos\":[],\"ingredientes\":[{\"nombre\":\"\",\"cantidad\":\"\",\"tipoCantidad\":\"\",\"opcional\":false,\"esSustitutoDe\":null}],\"pasos\":[{\"paso\":\"\",\"tiempo\":\"HH:mm\"}],\"youtubeUrl\":\"\"}</string>
+{\"nombre\":\"\",\"tipoReceta\":\"\",\"momentoReceta\":\"\",\"numPersonas\":0,\"temporadas\":[],\"alergenos\":[],\"ingredientes\":[{\"nombre\":\"\",\"cantidad\":\"\",\"tipoCantidad\":\"\",\"puntuacion\":-2,\"opcional\":false,\"esSustitutoDe\":null}],\"pasos\":[{\"paso\":\"\",\"tiempo\":\"HH:mm\"}],\"youtubeUrl\":\"\"}</string>
 
     <!-- Existing messages that might be missing -->
     <string name="error_crear_receta">Error creating recipe</string>

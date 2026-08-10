@@ -202,7 +202,7 @@ public class IAInputActivity extends AppCompatActivity {
                         ingJson.optString("nombre", ""),
                         ingJson.optString("cantidad", "1"),
                         ingJson.optString("tipoCantidad", "unidad"),
-                        -2,
+                        ingJson.optDouble("puntuacion", -2),
                         ingJson.optBoolean("opcional", false),
                         sustituto
                 ));

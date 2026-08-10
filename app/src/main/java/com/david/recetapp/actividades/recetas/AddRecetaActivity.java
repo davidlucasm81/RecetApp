@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.DragEvent;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -271,6 +272,18 @@ public class AddRecetaActivity extends RecetaBaseActivity {
         receta.setId(java.util.UUID.randomUUID().toString());
         receta.setNombre(nombre);
         receta.setIngredientes(ingredientes);
+
+        // Guardar ingredientes nuevos en la base de datos del usuario
+        for (Ingrediente ing : ingredientes) {
+            String ingNombre = ing.getNombre();
+            if (ingNombre != null && !ingNombre.isEmpty()) {
+                if (!RecetasSrv.isIngredienteConocido(ingNombre) && ing.getPuntuacion() != -2) {
+                    Log.d("AddRecetaActivity", "🆕 Guardando nuevo ingrediente de IA: " + ingNombre + " (" + ing.getPuntuacion() + ")");
+                    RecetasSrv.addCustomIngredient(ingNombre, (int) ing.getPuntuacion());
+                }
+            }
+        }
+
         RecetasSrv.setPuntuacionDada(receta, this);
         receta.setPasos(pasos);
         receta.setTemporadas(temporadas);

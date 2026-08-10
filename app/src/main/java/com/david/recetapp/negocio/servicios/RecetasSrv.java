@@ -337,13 +337,13 @@ public class RecetasSrv {
                         ing.setPuntuacion(cached.puntuacionDada);
                     } else {
                         String nombre = ing.getNombre().toLowerCase(Locale.getDefault());
-                        Integer puntu = ingredientMapCache.get(nombre);
+                        Integer puntu = getScoreFromCaches(nombre);
                         ing.setPuntuacion(puntu != null ? puntu : -2);
                     }
                 }
             } else {
                 String nombre = ing.getNombre().toLowerCase(Locale.getDefault());
-                Integer puntu = ingredientMapCache.get(nombre);
+                Integer puntu = getScoreFromCaches(nombre);
                 ing.setPuntuacion(puntu != null ? puntu : -2);
                 ing.setTipo(tipoMapCache.get(nombre));
             }
@@ -682,6 +682,23 @@ public class RecetasSrv {
                 Log.e(TAG, "Error guardando ingrediente de usuario", e);
             }
         });
+    }
+
+    private static Integer getScoreFromCaches(String nombre) {
+        if (nombre == null) return null;
+        String key = nombre.toLowerCase(Locale.getDefault());
+        // Prioridad: 1. Custom, 2. Estático
+        if (customIngredientsMapCache.containsKey(key)) {
+            return customIngredientsMapCache.get(key);
+        }
+        if (ingredientMapCache != null && ingredientMapCache.containsKey(key)) {
+            return ingredientMapCache.get(key);
+        }
+        return null;
+    }
+
+    public static boolean isIngredienteConocido(String nombre) {
+        return getScoreFromCaches(nombre) != null;
     }
 
     public static String getNombreTraducido(String nombre) {

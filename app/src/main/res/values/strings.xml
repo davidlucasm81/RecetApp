@@ -142,8 +142,9 @@
     <string name="ia_error_parseo">Error al procesar el JSON de la IA. Revisa el formato.</string>
     <string name="ia_prompt_template">Actúa como un experto cocinero. %1$s. Unidades: %2$s. Alérgenos: %3$s. Ingredientes: singular, mayúscula inicial.
 tipoReceta=PRINCIPAL|POSTRE|COCTEL|SIDE. momentoReceta=COMIDA|CENA|AMBOS. temporadas=INVIERNO|VERANO|OTONIO|PRIMAVERA.
+Importante: Para cada ingrediente, estima una "puntuacion" de salud del 0 al 10 basada en la Dieta Mediterránea (frutas/verduras/pescado=10, carnes rojas/azúcares=0).
 Solo JSON:
-{\"nombre\":\"\",\"tipoReceta\":\"\",\"momentoReceta\":\"\",\"numPersonas\":0,\"temporadas\":[],\"alergenos\":[],\"ingredientes\":[{\"nombre\":\"\",\"cantidad\":\"\",\"tipoCantidad\":\"\",\"opcional\":false,\"esSustitutoDe\":null}],\"pasos\":[{\"paso\":\"\",\"tiempo\":\"HH:mm\"}],\"youtubeUrl\":\"\"}</string>
+{\"nombre\":\"\",\"tipoReceta\":\"\",\"momentoReceta\":\"\",\"numPersonas\":0,\"temporadas\":[],\"alergenos\":[],\"ingredientes\":[{\"nombre\":\"\",\"cantidad\":\"\",\"tipoCantidad\":\"\",\"puntuacion\":-2,\"opcional\":false,\"esSustitutoDe\":null}],\"pasos\":[{\"paso\":\"\",\"tiempo\":\"HH:mm\"}],\"youtubeUrl\":\"\"}</string>
 
     <!-- Mensajes existentes que podrían faltar -->
     <string name="error_crear_receta">Error al crear la receta</string>
