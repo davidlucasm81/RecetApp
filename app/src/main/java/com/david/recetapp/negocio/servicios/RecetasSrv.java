@@ -670,7 +670,16 @@ public class RecetasSrv {
     }
 
     public static void addCustomIngredient(String nombre, int puntuacion) {
-        customIngredientsMapCache.put(nombre.toLowerCase(), puntuacion);
+        if (nombre == null || nombre.isEmpty()) return;
+        String key = nombre.toLowerCase();
+        
+        // No permitir sobreescribir ingredientes oficiales si ya existen en el mapa estático
+        if (ingredientMapCache != null && ingredientMapCache.containsKey(key) && ingredientMapCache.get(key) != -2) {
+            Log.d(TAG, "No se sobreescribe ingrediente oficial: " + nombre);
+            return;
+        }
+
+        customIngredientsMapCache.put(key, puntuacion);
         firebaseManager.guardarIngredienteUsuario(new IngredienteUsuario(nombre, puntuacion), new FirebaseManager.SimpleCallback() {
             @Override
             public void onSuccess() {
@@ -684,7 +693,7 @@ public class RecetasSrv {
         });
     }
 
-    private static Integer getScoreFromCaches(String nombre) {
+    public static Integer getScoreFromCaches(String nombre) {
         if (nombre == null) return null;
         String key = nombre.toLowerCase(Locale.getDefault());
         // Prioridad: 1. Custom, 2. Estático
@@ -695,6 +704,16 @@ public class RecetasSrv {
             return ingredientMapCache.get(key);
         }
         return null;
+    }
+
+    public static Map<String, Integer> getCustomIngredientsMap() {
+        return new HashMap<>(customIngredientsMapCache);
+    }
+
+    public static boolean isIngredienteOficial(String nombre) {
+        if (nombre == null) return false;
+        String key = nombre.toLowerCase(Locale.getDefault());
+        return ingredientMapCache != null && ingredientMapCache.containsKey(key) && ingredientMapCache.get(key) != -2;
     }
 
     public static boolean isIngredienteConocido(String nombre) {

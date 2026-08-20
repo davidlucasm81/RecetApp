@@ -155,6 +155,15 @@ public abstract class RecetaBaseActivity extends AppCompatActivity {
                 ingredientMap.put(Objects.requireNonNull(m.group(1)).toLowerCase(Locale.getDefault()), Integer.parseInt(Objects.requireNonNull(m.group(2))));
             }
         }
+        
+        // Cargar también ingredientes personalizados del usuario para evitar pedirlos de nuevo
+        Map<String, Integer> customIngs = RecetasSrv.getCustomIngredientsMap();
+        if (customIngs != null) {
+            for (Map.Entry<String, Integer> entry : customIngs.entrySet()) {
+                ingredientMap.put(entry.getKey().toLowerCase(Locale.getDefault()), entry.getValue());
+            }
+        }
+        
         ingredientes = new ArrayList<>();
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, getResources().getStringArray(R.array.quantity_units));
         spinner.setAdapter(adapter);
@@ -180,18 +189,31 @@ public abstract class RecetaBaseActivity extends AppCompatActivity {
     }
 
     protected void agregarIngrediente(String nombre, String numero, String tipoCantidad, boolean opcional, String esSustitutoDe, String recetaId) {
-        Integer puntuacion = ingredientMap.getOrDefault(nombre.toLowerCase(Locale.getDefault()), -2);
+        Integer puntuacion = ingredientMap.get(nombre.toLowerCase(Locale.getDefault()));
+        if (puntuacion == null) {
+            // Intentar buscar en el servicio por si se añadió en otra actividad
+            if (RecetasSrv.isIngredienteConocido(nombre)) {
+                puntuacion = RecetasSrv.getScoreFromCaches(nombre);
+                if (puntuacion != null) {
+                    ingredientMap.put(nombre.toLowerCase(Locale.getDefault()), puntuacion);
+                }
+            }
+        }
+
         if (puntuacion == null || puntuacion == -2) {
             // Si es un ingrediente nuevo, intentamos leer la puntuación del campo
             if (editTextPuntuacionIngrediente != null && layoutPuntuacionIngrediente != null && layoutPuntuacionIngrediente.getVisibility() == View.VISIBLE) {
                 try {
-                    puntuacion = Integer.parseInt(editTextPuntuacionIngrediente.getText().toString());
-                    // Persistir el nuevo ingrediente
-                    RecetasSrv.addCustomIngredient(nombre, puntuacion);
-                    // Añadirlo al mapa local para que no vuelva a pedir la puntuación en esta sesión
-                    ingredientMap.put(nombre.toLowerCase(Locale.getDefault()), puntuacion);
-                    // Actualizar el adaptador del AutoComplete
-                    actualizarAdaptadorIngredientes();
+                    String puntStr = editTextPuntuacionIngrediente.getText().toString();
+                    puntuacion = Integer.parseInt(puntStr);
+                    // Persistir el nuevo ingrediente si no es el valor por defecto -1
+                    if (puntuacion != -1) {
+                        RecetasSrv.addCustomIngredient(nombre, puntuacion);
+                        // Añadirlo al mapa local
+                        ingredientMap.put(nombre.toLowerCase(Locale.getDefault()), puntuacion);
+                        // Actualizar el adaptador del AutoComplete
+                        actualizarAdaptadorIngredientes();
+                    }
                 } catch (NumberFormatException e) {
                     puntuacion = -2;
                 }
@@ -299,6 +321,41 @@ public abstract class RecetaBaseActivity extends AppCompatActivity {
         CheckBox checkboxOpcional = ingredienteView.findViewById(R.id.checkboxOpcional);
         Spinner spinnerSustituto = ingredienteView.findViewById(R.id.spinnerSustitutoDe);
         ImageButton btnLinkReceta = ingredienteView.findViewById(R.id.btnLinkReceta);
+        View layoutPuntuacion = ingredienteView.findViewById(R.id.layoutPuntuacionIngredienteItem);
+        EditText editTextPuntuacion = ingredienteView.findViewById(R.id.editTextPuntuacionIngredienteItem);
+
+        // Lógica de puntuación para ingredientes custom
+        if (ingrediente.getRecetaId() == null || ingrediente.getRecetaId().isEmpty()) {
+            String nombreKey = ingrediente.getNombre().toLowerCase(Locale.getDefault());
+            boolean isOfficial = RecetasSrv.isIngredienteOficial(nombreKey);
+            
+            if (!isOfficial) {
+                if (layoutPuntuacion != null) layoutPuntuacion.setVisibility(View.VISIBLE);
+                if (editTextPuntuacion != null) {
+                    editTextPuntuacion.setText(String.valueOf((int) ingrediente.getPuntuacion()));
+                    editTextPuntuacion.addTextChangedListener(new TextWatcher() {
+                        @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                        @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+                        @Override public void afterTextChanged(Editable s) {
+                            try {
+                                double newPunt = Double.parseDouble(s.toString());
+                                ingrediente.setPuntuacion(newPunt);
+                            } catch (Exception ignored) {}
+                        }
+                    });
+                    // Sincronizar con el global al perder foco
+                    editTextPuntuacion.setOnFocusChangeListener((v, hasFocus) -> {
+                        if (!hasFocus) {
+                            RecetasSrv.addCustomIngredient(ingrediente.getNombre(), (int) ingrediente.getPuntuacion());
+                        }
+                    });
+                }
+            } else {
+                if (layoutPuntuacion != null) layoutPuntuacion.setVisibility(View.GONE);
+            }
+        } else {
+            if (layoutPuntuacion != null) layoutPuntuacion.setVisibility(View.GONE);
+        }
 
         if (ingrediente.getRecetaId() != null && !ingrediente.getRecetaId().isEmpty()) {
             btnLinkReceta.setColorFilter(getResources().getColor(R.color.colorPrimary, getTheme()));

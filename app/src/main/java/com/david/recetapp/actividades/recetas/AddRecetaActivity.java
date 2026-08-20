@@ -277,8 +277,9 @@ public class AddRecetaActivity extends RecetaBaseActivity {
         for (Ingrediente ing : ingredientes) {
             String ingNombre = ing.getNombre();
             if (ingNombre != null && !ingNombre.isEmpty()) {
-                if (!RecetasSrv.isIngredienteConocido(ingNombre) && ing.getPuntuacion() != -2) {
-                    Log.d("AddRecetaActivity", "🆕 Guardando nuevo ingrediente de IA: " + ingNombre + " (" + ing.getPuntuacion() + ")");
+                // Ahora usamos -1 como valor neutro/desconocido
+                if (!RecetasSrv.isIngredienteOficial(ingNombre) && ing.getPuntuacion() != -1 && ing.getPuntuacion() != -2) {
+                    Log.d("AddRecetaActivity", "🆕 Guardando nuevo ingrediente o modificado: " + ingNombre + " (" + ing.getPuntuacion() + ")");
                     RecetasSrv.addCustomIngredient(ingNombre, (int) ing.getPuntuacion());
                 }
             }

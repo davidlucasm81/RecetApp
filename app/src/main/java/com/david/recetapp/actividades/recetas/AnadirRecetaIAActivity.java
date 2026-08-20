@@ -5,9 +5,11 @@ import android.view.View;
 import android.widget.AutoCompleteTextView;
 
 import com.david.recetapp.R;
+import com.david.recetapp.negocio.beans.Ingrediente;
 import com.david.recetapp.negocio.beans.Receta;
 import com.david.recetapp.negocio.beans.Temporada;
 import com.david.recetapp.negocio.beans.TipoReceta;
+import com.david.recetapp.negocio.servicios.RecetasSrv;
 
 public class AnadirRecetaIAActivity extends AddRecetaActivity {
 
@@ -60,6 +62,21 @@ public class AnadirRecetaIAActivity extends AddRecetaActivity {
         }
 
         if (receta.getIngredientes() != null) {
+            for (Ingrediente ing : receta.getIngredientes()) {
+                String nombre = ing.getNombre();
+                if (nombre != null) {
+                    // Si el ingrediente es conocido, usamos su puntuación oficial/custom en lugar de la de la IA (a menos que sea -2)
+                    if (RecetasSrv.isIngredienteConocido(nombre)) {
+                        Integer punt = RecetasSrv.getScoreFromCaches(nombre);
+                        if (punt != null) {
+                            ing.setPuntuacion(punt);
+                        }
+                    } else if (ing.getPuntuacion() == -2 || ing.getPuntuacion() == 0) {
+                        // Si la IA no dio puntuación o dio 0 por error, marcamos como -1 para revisión
+                        ing.setPuntuacion(-1);
+                    }
+                }
+            }
             ingredientes.addAll(receta.getIngredientes());
             mostrarIngredientes();
             actualizarSpinnersSustitutos();

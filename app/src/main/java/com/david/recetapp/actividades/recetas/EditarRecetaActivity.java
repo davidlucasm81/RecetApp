@@ -389,6 +389,17 @@ public class EditarRecetaActivity extends RecetaBaseActivity {
         // Actualizar receta
         recetaActual.setNombre(nombre);
         recetaActual.setIngredientes(ingredientes);
+
+        // Guardar ingredientes nuevos o modificados en la base de datos del usuario
+        for (Ingrediente ing : ingredientes) {
+            String ingNombre = ing.getNombre();
+            if (ingNombre != null && !ingNombre.isEmpty()) {
+                if (!RecetasSrv.isIngredienteOficial(ingNombre) && ing.getPuntuacion() != -1 && ing.getPuntuacion() != -2) {
+                    RecetasSrv.addCustomIngredient(ingNombre, (int) ing.getPuntuacion());
+                }
+            }
+        }
+
         RecetasSrv.setPuntuacionDada(recetaActual, this);
         recetaActual.setPasos(pasos);
         recetaActual.setTemporadas(temporadas);

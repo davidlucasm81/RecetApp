@@ -64,6 +64,10 @@
     <nombre lang="es">Eneldo</nombre>
     <nombre lang="en">Dill</nombre>
   </item>
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
+    <nombre lang="es">Eneldo fresco</nombre>
+    <nombre lang="en">Fresh dill</nombre>
+  </item>
   <item puntuacion="-1" gramos="5" tipo="ESPECIA">
     <nombre lang="es">Guindilla</nombre>
     <nombre lang="en">Chili pepper</nombre>
@@ -103,6 +107,10 @@
   <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Romero</nombre>
     <nombre lang="en">Rosemary</nombre>
+  </item>
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
+    <nombre lang="es">Romero fresco</nombre>
+    <nombre lang="en">Fresh rosemary</nombre>
   </item>
   <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Manzanilla</nombre>
@@ -341,6 +349,10 @@
     <nombre lang="en">Wine vinegar</nombre>
   </item>
   <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
+    <nombre lang="es">Vinagre de vino tinto</nombre>
+    <nombre lang="en">Red wine vinegar</nombre>
+  </item>
+  <item puntuacion="-1" gramos="-1" tipo="ESPECIA">
     <nombre lang="es">Vinagre balsámico</nombre>
     <nombre lang="en">Balsamic vinegar</nombre>
   </item>
@@ -363,6 +375,10 @@
   <item puntuacion="-1" gramos="-1" tipo="BEBIDA">
     <nombre lang="es">Café</nombre>
     <nombre lang="en">Coffee</nombre>
+  </item>
+  <item puntuacion="-1" gramos="-1" tipo="BEBIDA">
+    <nombre lang="es">Café espresso</nombre>
+    <nombre lang="en">Espresso coffee</nombre>
   </item>
   <item puntuacion="-1" gramos="-1" tipo="BEBIDA">
     <nombre lang="es">Agua</nombre>
@@ -558,6 +574,10 @@
     <nombre lang="es">Cebollino</nombre>
     <nombre lang="en">Chives</nombre>
   </item>
+  <item puntuacion="10" gramos="2" tipo="VERDURA">
+    <nombre lang="es">Cebollino fresco</nombre>
+    <nombre lang="en">Fresh chives</nombre>
+  </item>
   <item puntuacion="7" gramos="5" tipo="VERDURA">
     <nombre lang="es">Ajo</nombre>
     <nombre lang="en">Garlic</nombre>
@@ -733,6 +753,10 @@
   <item puntuacion="7" gramos="200" tipo="CEREAL">
     <nombre lang="es">Maíz</nombre>
     <nombre lang="en">Corn</nombre>
+  </item>
+  <item puntuacion="7" gramos="140" tipo="CEREAL">
+    <nombre lang="es">Maíz dulce</nombre>
+    <nombre lang="en">Sweet corn</nombre>
   </item>
   <item puntuacion="7" gramos="400" tipo="VERDURA">
     <nombre lang="es">Pimiento rojo en lata</nombre>
@@ -1138,9 +1162,17 @@
     <nombre lang="es">Cerdo</nombre>
     <nombre lang="en">Pork</nombre>
   </item>
+  <item puntuacion="4" gramos="200" tipo="CARNE_ROJA">
+    <nombre lang="es">Chuleta de cerdo</nombre>
+    <nombre lang="en">Pork chop</nombre>
+  </item>
   <item puntuacion="7" gramos="1000" tipo="CARNE_BLANCA">
     <nombre lang="es">Lomo de cerdo</nombre>
     <nombre lang="en">Pork loin</nombre>
+  </item>
+  <item puntuacion="7" gramos="100" tipo="CARNE_BLANCA">
+    <nombre lang="es">Filete de lomo de cerdo</nombre>
+    <nombre lang="en">Pork loin steak</nombre>
   </item>
   <item puntuacion="7" gramos="400" tipo="CARNE_BLANCA">
     <nombre lang="es">Solomillo de cerdo</nombre>
@@ -1153,6 +1185,10 @@
   <item puntuacion="7" gramos="100" tipo="CARNE_ROJA">
     <nombre lang="es">Chuletas de cordero</nombre>
     <nombre lang="en">Lamb chops</nombre>
+  </item>
+  <item puntuacion="3" gramos="50" tipo="CARNE_ROJA">
+    <nombre lang="es">Chuletilla de cordero</nombre>
+    <nombre lang="en">Lamb rib chop</nombre>
   </item>
   <item puntuacion="8" gramos="150" tipo="CARNE_ROJA">
     <nombre lang="es">Venado</nombre>
@@ -1224,6 +1260,10 @@
     <nombre lang="es">Filete de bacalao</nombre>
     <nombre lang="en">Cod fillet</nombre>
   </item>
+  <item puntuacion="10" gramos="150" tipo="PESCADO_BLANCO">
+    <nombre lang="es">Filete de pescado blanco</nombre>
+    <nombre lang="en">White fish fillet</nombre>
+  </item>
   <item puntuacion="9" gramos="200" tipo="PESCADO_BLANCO">
     <nombre lang="es">Lomo de bacalao desalado</nombre>
     <nombre lang="en">Desalted cod loin</nombre>
@@ -1232,6 +1272,10 @@
     <nombre lang="es">Merluza</nombre>
     <nombre lang="en">Hake</nombre>
   </item>
+  <item puntuacion="9" gramos="150" tipo="PESCADO_BLANCO">
+    <nombre lang="es">Lomo de merluza</nombre>
+    <nombre lang="en">Hake loin</nombre>
+  </item>
   <item puntuacion="9" gramos="200" tipo="PESCADO_BLANCO">
     <nombre lang="es">Pescadilla</nombre>
     <nombre lang="en">Whiting</nombre>
@@ -1239,6 +1283,10 @@
   <item puntuacion="10" gramos="150" tipo="PESCADO_AZUL">
     <nombre lang="es">Salmón</nombre>
     <nombre lang="en">Salmon</nombre>
+  </item>
+  <item puntuacion="10" gramos="150" tipo="PESCADO_AZUL">
+    <nombre lang="es">Lomo de salmón</nombre>
+    <nombre lang="en">Salmon loin</nombre>
   </item>
   <item puntuacion="9" gramos="150" tipo="PESCADO_AZUL">
     <nombre lang="es">Atún</nombre>
@@ -1499,6 +1547,14 @@
   <item puntuacion="3" gramos="250" tipo="CEREAL">
     <nombre lang="es">Pan</nombre>
     <nombre lang="en">Bread</nombre>
+  </item>
+  <item puntuacion="3" gramos="50" tipo="CEREAL">
+    <nombre lang="es">Pan rústico duro</nombre>
+    <nombre lang="en">Hard rustic bread</nombre>
+  </item>
+  <item puntuacion="2" gramos="30" tipo="CEREAL">
+    <nombre lang="es">Pan de molde</nombre>
+    <nombre lang="en">Sliced bread</nombre>
   </item>
   <item puntuacion="2" gramos="1" tipo="CEREAL">
     <nombre lang="es">Picatostes</nombre>
@@ -1767,6 +1823,10 @@
     <nombre lang="en">Black olives</nombre>
   </item>
   <item puntuacion="5" gramos="4" tipo="PROCESADO">
+    <nombre lang="es">Aceituna negra</nombre>
+    <nombre lang="en">Black olive</nombre>
+  </item>
+  <item puntuacion="5" gramos="4" tipo="PROCESADO">
     <nombre lang="es">Aceituna negra sin hueso</nombre>
     <nombre lang="en">Pitted black olive</nombre>
   </item>
@@ -1825,6 +1885,14 @@
   <item puntuacion="0" gramos="-1" tipo="BEBIDA">
     <nombre lang="es">Ron Blanco</nombre>
     <nombre lang="en">White rum</nombre>
+  </item>
+  <item puntuacion="0" gramos="-1" tipo="BEBIDA">
+    <nombre lang="es">Vodka</nombre>
+    <nombre lang="en">Vodka</nombre>
+  </item>
+  <item puntuacion="0" gramos="-1" tipo="BEBIDA">
+    <nombre lang="es">Licor de cafe</nombre>
+    <nombre lang="en">Coffee liqueur</nombre>
   </item>
   <item puntuacion="5" gramos="10" tipo="VERDURA">
     <nombre lang="es">Chile rojo</nombre>
@@ -2013,6 +2081,14 @@
   <item puntuacion="3" gramos="250" tipo="LACTEO">
     <nombre lang="es">Queso</nombre>
     <nombre lang="en">Cheese</nombre>
+  </item>
+  <item puntuacion="4" gramos="20" tipo="LACTEO">
+    <nombre lang="es">Queso de cabra</nombre>
+    <nombre lang="en">Goat cheese</nombre>
+  </item>
+  <item puntuacion="3" gramos="20" tipo="LACTEO">
+    <nombre lang="es">Queso para fundir</nombre>
+    <nombre lang="en">Melting cheese</nombre>
   </item>
   <item puntuacion="3" gramos="300" tipo="SALSA">
     <nombre lang="es">Salsa agridulce</nombre>

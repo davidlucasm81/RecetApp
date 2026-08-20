@@ -117,6 +117,36 @@
                 android:layout_weight="1"
                 android:background="@drawable/field_background"
                 android:minHeight="28dp" />
+
+            <LinearLayout
+                android:id="@+id/layoutPuntuacionIngredienteItem"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/score_label"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+
+                <EditText
+                    android:id="@+id/editTextPuntuacionIngredienteItem"
+                    android:layout_width="40dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:background="@drawable/field_background"
+                    android:gravity="center"
+                    android:inputType="number"
+                    android:minHeight="28dp"
+                    android:textSize="11sp"
+                    tools:ignore="Autofill,LabelFor" />
+            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>
