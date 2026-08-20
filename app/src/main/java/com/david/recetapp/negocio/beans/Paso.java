@@ -6,8 +6,10 @@ import android.os.Parcelable;
 import com.david.recetapp.negocio.servicios.UtilsSrv;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 
+import java.io.Serializable;
+
 @IgnoreExtraProperties
-public class Paso implements Parcelable {
+public class Paso implements Parcelable, Serializable {
     public static final Creator<Paso> CREATOR = new Creator<>() {
         @Override
         public Paso createFromParcel(Parcel in) {

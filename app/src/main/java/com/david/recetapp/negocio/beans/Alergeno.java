@@ -5,10 +5,11 @@ import android.os.Parcelable;
 
 import com.google.firebase.firestore.IgnoreExtraProperties;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 @IgnoreExtraProperties
-public class Alergeno implements Parcelable {
+public class Alergeno implements Parcelable, Serializable {
     private String nombre;
     private int numero;
 

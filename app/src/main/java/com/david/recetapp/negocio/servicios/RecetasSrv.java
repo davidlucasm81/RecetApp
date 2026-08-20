@@ -768,7 +768,10 @@ public class RecetasSrv {
         
         // Añadir ingredientes de usuario primero
         for (Map.Entry<String, Integer> entry : customIngredientsMapCache.entrySet()) {
-            list.add(entry.getKey().substring(0, 1).toUpperCase() + entry.getKey().substring(1) + " " + entry.getValue());
+            if (entry.getKey() != null && !entry.getKey().isEmpty()) {
+                String capitalized = entry.getKey().substring(0, 1).toUpperCase() + entry.getKey().substring(1);
+                list.add(capitalized + " " + entry.getValue());
+            }
         }
 
         String targetLang = Locale.getDefault().getLanguage(); // "es" o "en"

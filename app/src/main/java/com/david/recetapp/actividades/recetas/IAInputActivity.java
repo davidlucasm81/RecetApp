@@ -27,6 +27,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -114,7 +115,7 @@ public class IAInputActivity extends AppCompatActivity {
             Receta receta = parseReceta(json);
             
             Intent intent = new Intent(this, AnadirRecetaIAActivity.class);
-            intent.putExtra("receta_ia", receta);
+            intent.putExtra("receta_ia", (Serializable) receta);
             startActivity(intent);
             finish();
             

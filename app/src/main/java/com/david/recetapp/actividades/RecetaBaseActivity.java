@@ -3,6 +3,8 @@ package com.david.recetapp.actividades;
 import android.content.ClipData;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -350,7 +352,9 @@ public abstract class RecetaBaseActivity extends AppCompatActivity {
         ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, opcionesTipoCantidad);
         spinnerCantidad.setAdapter(spinnerAdapter);
         int selectedTypeIndex = opcionesTipoCantidad.indexOf(ingrediente.getTipoCantidad());
-        spinnerCantidad.setSelection(selectedTypeIndex);
+        if (selectedTypeIndex >= 0) {
+            spinnerCantidad.setSelection(selectedTypeIndex);
+        }
         checkboxOpcional.setChecked(ingrediente.isOpcional());
 
         // Configurar spinner sustituto
@@ -367,8 +371,8 @@ public abstract class RecetaBaseActivity extends AppCompatActivity {
         if (sustIndex < 0) sustIndex = 0;
         spinnerSustituto.setSelection(sustIndex);
 
-        editTextNombre.setText(RecetasSrv.getNombreTraducido(ingrediente.getNombre()));
-        editTextCantidad.setText(String.valueOf(ingrediente.getCantidad()));
+        editTextNombre.setText(RecetasSrv.getNombreTraducido(ingrediente.getNombre() != null ? ingrediente.getNombre() : ""));
+        editTextCantidad.setText(ingrediente.getCantidad() != null ? ingrediente.getCantidad() : "");
         editTextNombre.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
             @Override public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -380,8 +384,10 @@ public abstract class RecetaBaseActivity extends AppCompatActivity {
         });
         editTextNombre.setOnFocusChangeListener((v, hasFocus) -> {
             if (!hasFocus) {
-                actualizarSpinnersSustitutos();
-                mostrarIngredientes();
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    actualizarSpinnersSustitutos();
+                    mostrarIngredientes();
+                });
             }
         });
 
@@ -412,8 +418,10 @@ public abstract class RecetaBaseActivity extends AppCompatActivity {
                 
                 if (!Objects.equals(oldSust, newSust)) {
                     ingrediente.setEsSustitutoDe(newSust);
-                    actualizarSpinnersSustitutos();
-                    mostrarIngredientes();
+                    new Handler(Looper.getMainLooper()).post(() -> {
+                        actualizarSpinnersSustitutos();
+                        mostrarIngredientes();
+                    });
                 }
             }
             @Override public void onNothingSelected(AdapterView<?> parent) {}

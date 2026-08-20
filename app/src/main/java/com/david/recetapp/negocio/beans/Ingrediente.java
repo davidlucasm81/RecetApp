@@ -5,11 +5,13 @@ import android.os.Parcelable;
 
 import com.google.firebase.firestore.IgnoreExtraProperties;
 
+import java.io.Serializable;
+
 @IgnoreExtraProperties
-public class Ingrediente implements Parcelable {
-    private String nombre;
-    private String cantidad;
-    private String tipoCantidad;
+public class Ingrediente implements Parcelable, Serializable {
+    private String nombre = "";
+    private String cantidad = "1";
+    private String tipoCantidad = "unidad";
     private double puntuacion;
     private boolean opcional;
     private String esSustitutoDe;

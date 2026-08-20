@@ -53,7 +53,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class EditarRecetaActivity extends RecetaBaseActivity {
-    private static final Pattern patternIngredient = Pattern.compile("^(.+)\\s(-?\\d+)$");
     private static final String KEY_INGREDIENTES = "ingredientes";
     private static final String KEY_PASOS = "pasos";
 

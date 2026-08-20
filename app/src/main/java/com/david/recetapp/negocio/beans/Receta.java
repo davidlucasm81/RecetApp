@@ -5,6 +5,7 @@ import android.os.Parcelable;
 
 import com.google.firebase.firestore.IgnoreExtraProperties;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -12,7 +13,7 @@ import java.util.Objects;
 
 @SuppressWarnings("unused")
 @IgnoreExtraProperties
-public class Receta implements Parcelable {
+public class Receta implements Parcelable, Serializable {
 
     private String id;
     private String nombre;
