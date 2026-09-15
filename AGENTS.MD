@@ -339,6 +339,7 @@ La aplicación espera un objeto JSON con la siguiente estructura y tipos de dato
     - **`MASK_CARNE_ROJA`**: Bits 7, 8 (Roja + Procesada).
     - **`MASK_PESCADO`**: Bits 9, 10, 11 (Blanco + Azul + Marisco).
     - **`MASK_PASTA_ARROZ`**: Bits 13, 15 (Cereal + Pasta).
+    - **`MASK_PROTEINA`**: Carne Roja/Procesada + Blanca + Pescado + Huevo + Legumbre.
     - **`MASK_PESADA`**: `MASK_CARNE_ROJA` + `PASTA` + `LEGUMBRE`.
     > [!NOTE]
     > Es intencional que `PASTA` y `LEGUMBRE` formen parte de `MASK_PESADA` (Balance Diario) a la vez que tienen sus propios límites en la **Fase 5: Frecuencia Semanal**. Esto asegura que, aunque no se superen los máximos semanales, no se concentren estos platos en el mismo día.
@@ -353,14 +354,16 @@ La aplicación espera un objeto JSON con la siguiente estructura y tipos de dato
         - En otros casos, depende de la presencia de ingredientes en `MASK_DENSA`.
 
     ### Pesos en la Ruleta Ponderada
-    El algoritmo selecciona recetas basándose en una puntuación dinámica que modifica el peso base ($Salud + Estrellas$):
+    El algoritmo selecciona recetas basándose en una puntuación dinámica que modifica el peso base ($Salud^2$):
+    - **Prioridad de Salud**: Se utiliza `Math.pow(healthNorm, 2)` para que las recetas más sanas tengan una probabilidad exponencialmente mayor de salir.
 
     | Condición | Modificador | Objetivo Nutricional |
     | :--- | :--- | :--- |
     | **Falta Legumbre** (<2/sem) | `x 3.0` | Fomentar consumo de fibra y proteína vegetal. |
     | **Falta Pescado** (<3/sem) | `x 3.0` | Priorizar Omega-3 y grasas saludables. |
-    | **Exceso Carne Blanca** (>=3/sem) | `x 0.5` | Evitar la sobre-dependencia del pollo/pavo. |
-    | **Exceso Huevos** (>=2/sem) | `x 0.5` | Limitar ingesta semanal según recomendaciones. |
+    | **Exceso Carne Blanca** (>=3/sem) | `x 0.2` | Limitar pollo/pavo a favor de otras proteínas. |
+    | **Exceso Carne Roja** (>=1/sem) | `x 0.1` | Penalización fuerte si se supera el límite crítico. |
+    | **Exceso Huevos** (>=2/sem) | `x 0.2` | Limitar ingesta semanal según recomendaciones. |
     | **Falta Verdura hoy** (<1) | `x 2.0` | Forzar la presencia de vegetales en el menú diario. |
     | **Cena Densa** | `x 0.75` | Penalizar platos pesados antes de dormir. |
     | **Cena Ligera** | `x 1.25` | Favorecer digestiones fáciles nocturnas. |
@@ -368,18 +371,23 @@ La aplicación espera un objeto JSON con la siguiente estructura y tipos de dato
     | **Sinergia Temporal** | `Bonus` | Aprovechar ingredientes frescos usados en días previos. |
 
     #### Filtros Críticos (Hard Constraints)
-    El algoritmo aplica un pipeline de filtrado jerárquico. Una receta solo llega a la fase de puntuación (pesos) si supera todas estas validaciones en orden:
+    El algoritmo aplica un pipeline de filtrado jerárquico. Una receta solo llega a la fase de puntuación (pesos) si supera todas estas validaciones en orden (con relajación progresiva en 3 niveles):
 
     1.  **Temporada y Tipo (Pre-filtro)**: La receta debe ser del tipo adecuado (`PRINCIPAL` para comida/cena) y pertenecer a la temporada del mes.
-    2.  **Momento (MomentoReceta)**: Filtro por `MomentoReceta` (Comida/Cena). Si no hay candidatos, este es el primer filtro que se relaja.
+    2.  **Momento (MomentoReceta)**: Filtro por `MomentoReceta` (Comida/Cena).
     3.  **Recencia de Sesión**: Evita repetir recetas que ya han sido asignadas en la misma ejecución del "Rellenar" (memoria volátil).
-    4.  **Recencia Histórica (Relajación Progresiva)**: Se comprueba la última vez que se cocinó. El límite empieza en **14 días** y baja progresivamente (10, 7, 3, 0) si no hay candidatos.
+    4.  **Recencia Histórica (Relajación Progresiva)**: Se comprueba la última vez que se cocinó. El límite empieza en **14 días** y baja progresivamente (10, 7, 3, 0).
     5.  **Frecuencia Semanal (Ventana Deslizante)**:
-        - Máximo 1 carne roja/procesada por semana.
-        - Máximo 2 legumbres por semana.
-        - Máximo 2 pasta/arroz por semana.
-    6.  **Variedad (Similitud)**: Máximo **1 ingrediente significativo** compartido con otras recetas del mismo día.
-    7.  **Balance Diario (Intradiario)**:
+        - Máximo **1** carne roja/procesada por semana.
+        - Máximo **2** legumbres por semana.
+        - Máximo **2** pasta/arroz por semana.
+        - Máximo **3** carne blanca por semana.
+        - Máximo **2** huevos por semana.
+    6.  **Variedad de Proteína**:
+        - Prohibido repetir el mismo tipo de proteína principal (definida en `MASK_PROTEINA`) en el mismo día.
+        - Prohibido repetir proteína respecto al día anterior (Consecutiva).
+    7.  **Variedad de Ingredientes (Similitud)**: Máximo **1 ingrediente significativo** compartido con otras recetas del mismo día.
+    8.  **Balance Diario (Intradiario)**:
         - No permitir dos platos "pesados" (`isPesada`) el mismo día.
         - **Conflictos Directos**: Prohibido combinar Pasta y Legumbre en el mismo día.
 - **Carga de Ingredientes**: Los ingredientes se cargan desde un XML estático (`ingredient_list.xml`) para estandarizar puntuaciones y traducciones, complementado con el mapa de ingredientes del usuario.

@@ -403,7 +403,6 @@ public class CalendarioSrv {
                                   int mes,
                                   int anio,
                                   MomentoReceta momentoRequerido,
-                                  Map<LocalDate, Receta> asignacionesPrincipales,
                                   Map<LocalDate, List<Receta>> asignacionesDiarias,
                                   Set<String> ingredientesActivosDia,
                                   Map<String, Date> fechasTemporales,
@@ -416,19 +415,17 @@ public class CalendarioSrv {
         Receta receta;
         LocalDate fechaActual = getLocalDate(dia.getDayOfMonth(), mes, anio);
 
-        // M15: Fallback progresivo adaptativo según tamaño del catálogo
+        // Fallback progresivo adaptativo según tamaño del catálogo
         int limiteBase = Math.min(LIMITE_DIAS, lista.size() / 2);
         int[] fallbackLimites = {limiteBase, limiteBase * 3 / 4, limiteBase / 2, 3, 0};
 
-        // M18: Recalcular estadísticas antes del bucle de reintentos (Optimización)
+        // Recalcular estadísticas antes del bucle de reintentos
         DailyStats dailyStats = getDailyStats(fechaActual, asignacionesDiarias);
         
         while (tries < MAX_TRIES && !lista.isEmpty()) {
-            // M12: Pre-filtrado antes de ruleta para eficiencia
             List<Receta> candidatosPreFiltrados = lista.stream()
                     .filter(r -> !recetasUtilizadasRecientemente.contains(r))
                     .filter(r -> {
-                        // Filtro de momento si se requiere
                         if (momentoRequerido != null) {
                             MomentoReceta mr = r.getMomentoReceta();
                             return mr == null || mr == MomentoReceta.AMBOS || mr == momentoRequerido;
@@ -438,7 +435,6 @@ public class CalendarioSrv {
                     .collect(Collectors.toList());
 
             if (candidatosPreFiltrados.isEmpty() && momentoRequerido != null) {
-                // Reintentar sin filtro de momento si no hay candidatos
                 candidatosPreFiltrados = lista.stream()
                         .filter(r -> !recetasUtilizadasRecientemente.contains(r))
                         .collect(Collectors.toList());
@@ -446,17 +442,20 @@ public class CalendarioSrv {
             
             if (candidatosPreFiltrados.isEmpty()) break;
 
-            // M22: Optimización de búsqueda de candidatos (llamar a obtenerRecetaNoRepetida una sola vez con el mejor límite posible)
             receta = null;
-            for (int limite : fallbackLimites) {
-                receta = obtenerRecetaNoRepetida(candidatosPreFiltrados, dia, momentoRequerido,
-                        windowStats, dailyStats, ingredientesActivosDia, limite, fechasTemporales, 
-                        cacheData, ingredientesPorDia, fechaActual, lazyMode);
+            // Pipeline de relajación progresiva
+            for (int relaxation = 0; relaxation <= 2; relaxation++) {
+                for (int limite : fallbackLimites) {
+                    receta = obtenerRecetaNoRepetida(candidatosPreFiltrados, dia, momentoRequerido,
+                            windowStats, dailyStats, ingredientesActivosDia, limite, fechasTemporales, 
+                            cacheData, ingredientesPorDia, fechaActual, asignacionesDiarias, relaxation, lazyMode);
+                    if (receta != null) break;
+                }
                 if (receta != null) break;
             }
             
             tries++;
-            if (receta == null) break; // Definitivamente no hay candidatos en esta lista
+            if (receta == null) break;
 
             final String recetaId = receta.getId();
             boolean yaEnDia = dia.getRecetas().stream()
@@ -470,22 +469,18 @@ public class CalendarioSrv {
             cal.set(Calendar.MILLISECOND, 0);
             Date proposedDate = cal.getTime();
 
-            // M8: Usar fechasTemporales
             Date fechaEf = fechasTemporales.getOrDefault(recetaId, receta.getFechaCalendario());
             if (fechaEf == null || proposedDate.after(fechaEf)) {
                 fechasTemporales.put(recetaId, proposedDate);
                 actualizacionesPendientes.add(new ActualizacionFecha(recetaId, dia.getDayOfMonth()));
             }
 
-            // M4: Actualización inmediata
             recetasUtilizadasRecientemente.add(receta);
             if (momentoRequerido == MomentoReceta.COMIDA || momentoRequerido == MomentoReceta.CENA) {
-                asignacionesPrincipales.put(fechaActual, receta);
-                updateWindowStats(windowStats, receta, cacheData); // Actualización incremental
+                updateWindowStats(windowStats, receta, cacheData);
             }
             asignacionesDiarias.computeIfAbsent(fechaActual, k -> new ArrayList<>()).add(receta);
             
-            // M6: Actualizar ingredientes activos del día
             CachedRecetaData cd = cacheData.get(recetaId);
             if (cd != null) {
                 ingredientesActivosDia.addAll(cd.ingredientesSignificativos);
@@ -496,7 +491,6 @@ public class CalendarioSrv {
             int personasToSet = (numPersonas > 0) ? numPersonas : receta.getNumPersonas();
             if (personasToSet <= 0) personasToSet = 2;
 
-            // 🚀 Auto-seleccionar mejores sustitutos para rellenado automático
             Map<String, String> elegidos = new HashMap<>();
             Map<String, List<Ingrediente>> grupos = new HashMap<>();
             for (Ingrediente ing : receta.getIngredientes()) {
@@ -538,15 +532,32 @@ public class CalendarioSrv {
                                                   Map<String, CachedRecetaData> cacheData,
                                                   Map<LocalDate, Set<String>> ingredientesPorDia,
                                                   LocalDate fechaActual,
+                                                  Map<LocalDate, List<Receta>> asignacionesDiarias,
+                                                  int relaxationLevel,
                                                   boolean lazyMode) {
         List<Receta> candidatos = new ArrayList<>();
         long epochDiaActual = fechaActual.toEpochDay();
+        
+        // Obtener proteínas de ayer y de hoy para evitar repeticiones
+        long proteinasAyer = 0;
+        List<Receta> ayer = asignacionesDiarias.get(fechaActual.minusDays(1));
+        if (ayer != null) {
+            for (Receta r : ayer) {
+                CachedRecetaData cd = cacheData.get(r.getId());
+                if (cd != null) proteinasAyer |= (cd.tiposMask & WindowStats.MASK_PROTEINA);
+            }
+        }
+        
+        long proteinasHoy = 0;
+        for (RecetaDia rd : dia.getRecetas()) {
+            CachedRecetaData cd = cacheData.get(rd.getIdReceta());
+            if (cd != null) proteinasHoy |= (cd.tiposMask & WindowStats.MASK_PROTEINA);
+        }
         
         for (Receta receta : candidatosPreFiltrados) {
             CachedRecetaData cd = cacheData.get(receta.getId());
             if (cd == null) continue;
 
-            // M8: Comprobar fecha con fechasTemporales (Optimizado con epochDay)
             Date fechaEf = fechasTemporales.getOrDefault(receta.getId(), receta.getFechaCalendario());
             if (fechaEf != null) {
                 long epochFechaEf = fechaEf.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate().toEpochDay();
@@ -554,21 +565,30 @@ public class CalendarioSrv {
             }
 
             // M9: Ventana de frecuencia con Bitmasks (Velocidad O(1))
-            if (windowStats != null) {
+            if (windowStats != null && relaxationLevel < 2) {
                 if (windowStats.carneRoja >= 1 && (cd.tiposMask & WindowStats.MASK_CARNE_ROJA) != 0) continue;
                 if (windowStats.legumbres >= 2 && cd.hasTipo(TipoIngrediente.LEGUMBRE)) continue;
                 if (windowStats.pastaArroz >= 2 && (cd.tiposMask & WindowStats.MASK_PASTA_ARROZ) != 0) continue;
+                if (windowStats.carneBlanca >= 3 && cd.hasTipo(TipoIngrediente.CARNE_BLANCA)) continue;
+                if (windowStats.huevos >= 2 && cd.hasTipo(TipoIngrediente.HUEVO)) continue;
             }
 
-            // M6: Similitud con ingredientes activos del día
-            if (!ingredientesActivosDia.isEmpty()) {
+            // Variedad de proteínas (Consecutivas y Diarias)
+            if (relaxationLevel == 0) {
+                long proteinasReceta = (cd.tiposMask & WindowStats.MASK_PROTEINA);
+                if (proteinasReceta != 0) {
+                    if ((proteinasReceta & proteinasHoy) != 0) continue;
+                    if ((proteinasReceta & proteinasAyer) != 0) continue;
+                }
+            }
+
+            if (relaxationLevel < 2 && !ingredientesActivosDia.isEmpty()) {
                 long coincidencias = cd.ingredientesSignificativos.stream()
                         .filter(ingredientesActivosDia::contains)
                         .count();
                 if (coincidencias >= 2) continue;
             }
 
-            // M21: Balance Nutricional Intradiario con Bitmasks
             if (cd.isPesada && !ingredientesActivosDia.isEmpty()) {
                 boolean hayPesadoEnDia = dia.getRecetas().stream().anyMatch(rd -> {
                     CachedRecetaData ecd = cacheData.get(rd.getIdReceta());
@@ -577,7 +597,6 @@ public class CalendarioSrv {
                 if (hayPesadoEnDia) continue;
             }
             
-            // Regla específica: Pasta + Legumbre NO el mismo día (Bitmasks)
             if ((cd.hasAnyTipo(TipoIngrediente.PASTA.getMask() | TipoIngrediente.LEGUMBRE.getMask())) && !ingredientesActivosDia.isEmpty()) {
                 boolean hayConflicto = dia.getRecetas().stream().anyMatch(rd -> {
                     CachedRecetaData ecd = cacheData.get(rd.getIdReceta());
@@ -596,33 +615,34 @@ public class CalendarioSrv {
         for (int i = 0; i < candidatos.size(); i++) {
             Receta r = candidatos.get(i);
             CachedRecetaData cd = cacheData.get(r.getId());
-            
-            // Score base: Salud + Estrellas (Preponderado)
             assert cd != null;
-            double score = cd.healthNorm;
+
+            // Salud Prioridad Cuadrática
+            double score = Math.pow(cd.healthNorm, 2);
+            
             if (Math.abs(cd.healthNorm - 0.7) < 0.2) { 
-                score += cd.starsNorm * 0.2;
+                score += cd.starsNorm * 0.1;
             }
 
-            // Modificadores de dieta mediterránea
             if (windowStats != null) {
                 if (windowStats.legumbres < 2 && cd.hasTipo(TipoIngrediente.LEGUMBRE)) score *= 3.0;
                 if (windowStats.pescado < 3 && (cd.tiposMask & WindowStats.MASK_PESCADO) != 0) score *= 3.0;
-                if (windowStats.carneBlanca >= 3 && cd.hasTipo(TipoIngrediente.CARNE_BLANCA)) score *= 0.5;
-                if (windowStats.huevos >= 2 && cd.hasTipo(TipoIngrediente.HUEVO)) score *= 0.5;
+                
+                // Penalizaciones más fuertes por exceso
+                if (windowStats.carneBlanca >= 3 && cd.hasTipo(TipoIngrediente.CARNE_BLANCA)) score *= 0.2;
+                if (windowStats.huevos >= 2 && cd.hasTipo(TipoIngrediente.HUEVO)) score *= 0.2;
+                if (windowStats.carneRoja >= 1 && (cd.tiposMask & WindowStats.MASK_CARNE_ROJA) != 0) score *= 0.1;
             }
             
             if (dailyStats != null && dailyStats.verduras < 1 && cd.hasTipo(TipoIngrediente.VERDURA)) {
                 score *= 2.0;
             }
 
-            // Ligereza de cena (Uso de pre-calculado isDensa)
             if (momentoRequerido == MomentoReceta.CENA) {
                 if (cd.isDensa) score *= 0.75;
                 else score *= 1.25;
             }
             
-            // --- LÓGICA MODO VAGO ---
             if (lazyMode) {
                 int t = cd.tiempoTotal;
                 if (t > 0) {
@@ -630,11 +650,9 @@ public class CalendarioSrv {
                     else if (t <= 40) score *= 2.0;
                     else if (t > 60) score *= 0.1;
                 }
-                // Priorizar sano también en modo vago
                 if (cd.healthNorm > 0.7) score *= 1.3;
             }
             
-            // M19 Avanzado: Sinergia con decaimiento temporal (Aprovechar frescos recientes)
             for (int d = 1; d <= 7; d++) {
                 Set<String> ingAnteriores = ingredientesPorDia.get(fechaActual.minusDays(d));
                 if (ingAnteriores != null && !ingAnteriores.isEmpty()) {
@@ -642,7 +660,6 @@ public class CalendarioSrv {
                             .filter(ingAnteriores::contains)
                             .count();
                     if (sinergias > 0) {
-                        // Decaimiento: 1.0 (ayer) -> 0.4 (hace una semana)
                         double factorTemporal = 1.0 - (d - 1) * 0.1;
                         double bonusBase = (cd.hasAnyTipo(TipoIngrediente.VERDURA.getMask() | TipoIngrediente.LACTEO.getMask())) ? 0.15 : 0.05;
                         score *= (1.0 + (Math.min(2, sinergias) * bonusBase * factorTemporal));
@@ -651,7 +668,7 @@ public class CalendarioSrv {
             }
 
             double noise = 0.05 * RANDOM.nextDouble();
-            double w = Math.max(0.1, score + noise);
+            double w = Math.max(0.01, score + noise);
             weights[i] = w;
             totalWeight += w;
         }
@@ -680,6 +697,7 @@ public class CalendarioSrv {
         static final long MASK_CARNE_ROJA = TipoIngrediente.CARNE_ROJA.getMask() | TipoIngrediente.CARNE_PROCESADA.getMask();
         static final long MASK_PESCADO = TipoIngrediente.PESCADO_BLANCO.getMask() | TipoIngrediente.PESCADO_AZUL.getMask() | TipoIngrediente.MARISCO.getMask();
         static final long MASK_PASTA_ARROZ = TipoIngrediente.PASTA.getMask() | TipoIngrediente.CEREAL.getMask();
+        static final long MASK_PROTEINA = MASK_CARNE_ROJA | MASK_PESCADO | TipoIngrediente.CARNE_BLANCA.getMask() | TipoIngrediente.HUEVO.getMask() | TipoIngrediente.LEGUMBRE.getMask() | TipoIngrediente.PROTEINA_VEGETAL.getMask();
     }
 
     private static class DailyStats {
@@ -690,27 +708,31 @@ public class CalendarioSrv {
         return java.time.LocalDate.of(year, month + 1, day);
     }
 
-    private static void subtractWindowStats(WindowStats stats, Receta r, Map<String, CachedRecetaData> cacheData) {
-        if (stats == null || r == null) return;
-        CachedRecetaData cd = cacheData.get(r.getId());
-        if (cd == null) return;
-        
-        if ((cd.tiposMask & WindowStats.MASK_CARNE_ROJA) != 0) stats.carneRoja = Math.max(0, stats.carneRoja - 1);
-        if (cd.hasTipo(TipoIngrediente.CARNE_BLANCA)) stats.carneBlanca = Math.max(0, stats.carneBlanca - 1);
-        if ((cd.tiposMask & WindowStats.MASK_PESCADO) != 0) stats.pescado = Math.max(0, stats.pescado - 1);
-        if (cd.hasTipo(TipoIngrediente.LEGUMBRE)) stats.legumbres = Math.max(0, stats.legumbres - 1);
-        if (cd.hasTipo(TipoIngrediente.HUEVO)) stats.huevos = Math.max(0, stats.huevos - 1);
-        if ((cd.tiposMask & WindowStats.MASK_PASTA_ARROZ) != 0) stats.pastaArroz = Math.max(0, stats.pastaArroz - 1);
+    private static void subtractWindowStats(WindowStats stats, List<Receta> recetas, Map<String, CachedRecetaData> cacheData) {
+        if (stats == null || recetas == null) return;
+        for (Receta r : recetas) {
+            CachedRecetaData cd = cacheData.get(r.getId());
+            if (cd == null) continue;
+            
+            if ((cd.tiposMask & WindowStats.MASK_CARNE_ROJA) != 0) stats.carneRoja = Math.max(0, stats.carneRoja - 1);
+            if (cd.hasTipo(TipoIngrediente.CARNE_BLANCA)) stats.carneBlanca = Math.max(0, stats.carneBlanca - 1);
+            if ((cd.tiposMask & WindowStats.MASK_PESCADO) != 0) stats.pescado = Math.max(0, stats.pescado - 1);
+            if (cd.hasTipo(TipoIngrediente.LEGUMBRE)) stats.legumbres = Math.max(0, stats.legumbres - 1);
+            if (cd.hasTipo(TipoIngrediente.HUEVO)) stats.huevos = Math.max(0, stats.huevos - 1);
+            if ((cd.tiposMask & WindowStats.MASK_PASTA_ARROZ) != 0) stats.pastaArroz = Math.max(0, stats.pastaArroz - 1);
+        }
     }
 
-    private static WindowStats getWindowStats(java.time.LocalDate date, Map<java.time.LocalDate, Receta> asignaciones, Map<String, CachedRecetaData> cacheData) {
+    private static WindowStats getWindowStats(java.time.LocalDate date, Map<java.time.LocalDate, List<Receta>> asignaciones, Map<String, CachedRecetaData> cacheData) {
         WindowStats stats = new WindowStats();
         // Ventana de 7 días (el día actual y los 6 anteriores)
         for (int i = 0; i < 7; i++) {
             java.time.LocalDate d = date.minusDays(i);
-            Receta r = asignaciones.get(d);
-            if (r != null) {
-                updateWindowStats(stats, r, cacheData);
+            List<Receta> recetas = asignaciones.get(d);
+            if (recetas != null) {
+                for (Receta r : recetas) {
+                    updateWindowStats(stats, r, cacheData);
+                }
             }
         }
         return stats;
@@ -1034,7 +1056,6 @@ public class CalendarioSrv {
                         Map<String, Date> fechasTemporales = new HashMap<>(); // M8: Proteger mutación
 
                         // Estructuras para seguimiento de estadísticas
-                        Map<LocalDate, Receta> asignacionesPrincipales = new HashMap<>();
                         Map<LocalDate, List<Receta>> asignacionesDiarias = new HashMap<>();
                         
                         // M19: Rastreo de ingredientes en la ventana actual para sinergia
@@ -1061,9 +1082,6 @@ public class CalendarioSrv {
                                     Receta r = mapRecetas.get(diaParaStat.getRecetas().get(j).getIdReceta());
                                     if (r != null) {
                                         recetasDelDia.add(r);
-                                        if (j == 0 || j == 1) { // COMIDA o CENA aproximado
-                                            asignacionesPrincipales.put(fecha, r);
-                                        }
                                         if (enVentanaReciente) {
                                             recetasUtilizadasRecientemente.add(r);
                                         }
@@ -1082,7 +1100,7 @@ public class CalendarioSrv {
 
                         // M20: Estadísticas Incrementales (Ventana Deslizante)
                         // Inicializar ventana de estadísticas para el primer día del rango
-                        WindowStats windowStats = getWindowStats(inicioRango, asignacionesPrincipales, cacheData);
+                        WindowStats windowStats = getWindowStats(inicioRango, asignacionesDiarias, cacheData);
 
                         for (Day dia : calendario) {
                             if (dia.getDayOfMonth() >= diaInicio && dia.getDayOfMonth() <= diaFin) {
@@ -1093,7 +1111,7 @@ public class CalendarioSrv {
 
                                 // Actualizar ventana deslizante: restar el día que sale (hace 7 días) y sumar el que ya está (si hubiera)
                                 LocalDate fechaActual = getLocalDate(dia.getDayOfMonth(), mes, anio);
-                                subtractWindowStats(windowStats, asignacionesPrincipales.get(fechaActual.minusDays(7)), cacheData);
+                                subtractWindowStats(windowStats, asignacionesDiarias.get(fechaActual.minusDays(7)), cacheData);
 
                                 Set<String> ingredientesActivosDia = new HashSet<>(); // M6: Caché ingredientes
 
@@ -1122,7 +1140,7 @@ public class CalendarioSrv {
                                     }
                                     
                                     addReceta(listaAUsar, recetasUtilizadasRecientemente, dia, actualizacionesPendientes, 
-                                            numPersonas, mes, anio, momentoRequerido, asignacionesPrincipales, 
+                                            numPersonas, mes, anio, momentoRequerido, 
                                             asignacionesDiarias, ingredientesActivosDia, fechasTemporales,
                                             cacheData, ingredientesPorDia, windowStats, lazyMode);
                                 }
