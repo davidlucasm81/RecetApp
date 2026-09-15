@@ -6,6 +6,7 @@
     <color name="colorGrisTextoFondo">#A0A0A0</color>
     <color name="estrellas">#27A727</color>
     <color name="colorPrimary">#FF5722</color>
+    <color name="orange">#FF9800</color>
 
     <!-- Fondos para tipos de recetas (Light Mode: Pasteles) -->
     <color name="bg_reciente">#FFFDE7</color>    <!-- Amarillo muy claro -->

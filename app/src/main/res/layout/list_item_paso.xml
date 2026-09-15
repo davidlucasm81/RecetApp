@@ -44,41 +44,31 @@
             android:orientation="vertical"
             android:paddingHorizontal="8dp">
 
-            <com.google.android.material.textfield.TextInputLayout
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editTextPaso"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:hintEnabled="false">
+                android:background="@drawable/field_background"
+                android:hint="@string/texto_del_paso"
+                android:inputType="textMultiLine"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="8dp"
+                android:textSize="15sp"
+                tools:ignore="Autofill" />
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/editTextPaso"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@android:color/transparent"
-                    android:hint="@string/texto_del_paso"
-                    android:inputType="textMultiLine"
-                    android:paddingVertical="8dp"
-                    android:textSize="15sp"
-                    tools:ignore="Autofill" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="wrap_content"
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editTextTiempo"
+                android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
+                android:background="@drawable/field_background"
                 android:hint="@string/tiempo"
-                app:hintTextAppearance="@style/TextAppearance.MaterialComponents.Caption">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/editTextTiempo"
-                    android:layout_width="100dp"
-                    android:layout_height="wrap_content"
-                    android:background="@android:color/transparent"
-                    android:inputType="text"
-                    android:paddingVertical="4dp"
-                    android:textColor="?attr/colorPrimary"
-                    android:textSize="12sp"
-                    tools:ignore="Autofill" />
-            </com.google.android.material.textfield.TextInputLayout>
+                android:inputType="text"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="6dp"
+                android:textColor="?attr/colorPrimary"
+                android:textSize="12sp"
+                tools:ignore="Autofill" />
         </LinearLayout>
 
         <ImageButton

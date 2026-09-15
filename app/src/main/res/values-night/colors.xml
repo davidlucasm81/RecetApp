@@ -5,6 +5,7 @@
     <color name="colorGrisTextoFondo">#D0D0D0</color>
     <color name="estrellas">#00AA00</color>
     <color name="colorPrimary">#FF5722</color>
+    <color name="orange">#FF9800</color>
 
     <!-- Fondos para tipos de recetas (Dark Mode: Tonos profundos) -->
     <color name="bg_reciente">#3E3B20</color>    <!-- Ámbar oscuro/noche -->

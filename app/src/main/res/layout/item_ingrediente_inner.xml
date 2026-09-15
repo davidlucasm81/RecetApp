@@ -4,8 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginVertical="4dp"
-    android:background="@drawable/field_background"
-    android:elevation="1dp"
     android:gravity="center_vertical"
     android:orientation="horizontal"
     android:padding="8dp">
@@ -33,24 +31,19 @@
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <com.google.android.material.textfield.TextInputLayout
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editTextNombreIngrediente"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                app:hintEnabled="false">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/editTextNombreIngrediente"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@android:color/transparent"
-                    android:hint="@string/nombre_del_ingrediente"
-                    android:inputType="text"
-                    android:paddingVertical="8dp"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    tools:ignore="Autofill" />
-            </com.google.android.material.textfield.TextInputLayout>
+                android:background="@drawable/field_background"
+                android:hint="@string/nombre_del_ingrediente"
+                android:inputType="text"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="8dp"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:ignore="Autofill" />
 
             <ImageButton
                 android:id="@+id/btnLinkReceta"
@@ -71,21 +64,18 @@
             android:orientation="horizontal"
             android:baselineAligned="false">
 
-            <com.google.android.material.textfield.TextInputLayout
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editTextCantidad"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:hint="@string/cantidad">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/editTextCantidad"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="text"
-                    android:paddingVertical="8dp"
-                    android:textSize="14sp"
-                    tools:ignore="Autofill" />
-            </com.google.android.material.textfield.TextInputLayout>
+                android:background="@drawable/field_background"
+                android:hint="@string/cantidad"
+                android:inputType="text"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="8dp"
+                android:textSize="14sp"
+                tools:ignore="Autofill" />
 
             <Spinner
                 android:id="@+id/spinner_quantity_unit"
@@ -138,21 +128,17 @@
                 android:visibility="gone"
                 tools:visibility="visible">
 
-                <com.google.android.material.textfield.TextInputLayout
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/editTextPuntuacionIngredienteItem"
                     android:layout_width="60dp"
                     android:layout_height="wrap_content"
-                    android:hint="@string/score_label">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/editTextPuntuacionIngredienteItem"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:inputType="number"
-                        android:paddingVertical="8dp"
-                        android:textSize="12sp"
-                        tools:ignore="Autofill" />
-                </com.google.android.material.textfield.TextInputLayout>
+                    android:background="@drawable/field_background"
+                    android:gravity="center"
+                    android:hint="@string/score_label"
+                    android:inputType="number"
+                    android:paddingVertical="8dp"
+                    android:textSize="12sp"
+                    tools:ignore="Autofill" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

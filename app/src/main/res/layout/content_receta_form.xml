@@ -172,15 +172,6 @@
                 android:elevation="0dp"
                 android:layout_marginBottom="8dp">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/agregar_ingrediente"
-                    android:textStyle="bold"
-                    android:textSize="14sp"
-                    android:layout_marginBottom="8dp"
-                    android:textColor="?attr/colorPrimary"/>
-
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -306,7 +297,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
                     android:text="@string/agregar_ingrediente"
-                    app:icon="@drawable/baseline_add_24"/>
+                    app:icon="@drawable/baseline_add_24"
+                    app:backgroundTint="@color/colorPrimary"/>
 
             </LinearLayout>
 
@@ -411,12 +403,14 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnAgregarPaso"
-                    style="@style/Widget.MaterialComponents.Button.TextButton"
-                    android:layout_width="wrap_content"
+                    style="@style/Widget.MaterialComponents.Button.Icon"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_marginTop="8dp"
-                    android:text="@string/agregar_paso" />
+                    android:text="@string/agregar_paso"
+                    app:icon="@drawable/baseline_add_24"
+                    app:backgroundTint="@color/colorPrimary"/>
             </LinearLayout>
 
             <View
