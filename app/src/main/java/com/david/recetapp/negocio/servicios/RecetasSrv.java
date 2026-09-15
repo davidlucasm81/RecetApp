@@ -17,6 +17,7 @@ import com.david.recetapp.negocio.beans.TipoIngrediente;
 
 import org.xmlpull.v1.XmlPullParser;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.gson.Gson;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -838,6 +839,10 @@ public class RecetasSrv {
             Log.e(TAG, "Error parseando ingredient_list para actividades", e);
         }
         return list.toArray(new String[0]);
+    }
+
+    public static String recetaToJson(Receta receta) {
+        return new Gson().toJson(receta);
     }
 
 }

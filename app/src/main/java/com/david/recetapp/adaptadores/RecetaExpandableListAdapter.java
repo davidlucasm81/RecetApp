@@ -234,6 +234,13 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
             }
         });
 
+        groupView.setOnLongClickListener(v -> {
+            String json = RecetasSrv.recetaToJson(receta);
+            UtilsSrv.copiarAlPortapapeles(context, "Receta", json);
+            UtilsSrv.notificacion(context, context.getString(R.string.receta_copiada, receta.getNombre()), Toast.LENGTH_SHORT).show();
+            return true;
+        });
+
         return groupView;
     }
 

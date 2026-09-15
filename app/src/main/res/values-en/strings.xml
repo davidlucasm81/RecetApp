@@ -112,6 +112,7 @@
     <string name="importando_todas_recetas">Importing all recipes…</string>
     <!-- Error messages -->
     <string name="error_cargar_recetas">Error loading recipes</string>
+    <string name="receta_copiada">Recipe \'%1$s\' copied to clipboard</string>
     <string name="error_eliminar_receta">Error deleting recipe</string>
     <string name="error_actualizar_calendario">Error updating calendar</string>
     <string name="error_cargar_calendario">Error loading calendar</string>

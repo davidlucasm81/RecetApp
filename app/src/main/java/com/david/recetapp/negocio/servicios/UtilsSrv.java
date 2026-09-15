@@ -2,6 +2,8 @@ package com.david.recetapp.negocio.servicios;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
@@ -186,6 +188,14 @@ public class UtilsSrv {
         if (url.contains("v=")) return url.split("v=")[1].split("&")[0];
         if (url.contains("youtu.be/")) return url.split("youtu.be/")[1].split("\\?")[0];
         return null;
+    }
+
+    public static void copiarAlPortapapeles(Context context, String label, String text) {
+        ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clip = ClipData.newPlainText(label, text);
+        if (clipboard != null) {
+            clipboard.setPrimaryClip(clip);
+        }
     }
 
 }

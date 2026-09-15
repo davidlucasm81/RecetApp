@@ -323,6 +323,7 @@ public abstract class RecetaBaseActivity extends AppCompatActivity {
         ImageButton btnLinkReceta = ingredienteView.findViewById(R.id.btnLinkReceta);
         View layoutPuntuacion = ingredienteView.findViewById(R.id.layoutPuntuacionIngredienteItem);
         EditText editTextPuntuacion = ingredienteView.findViewById(R.id.editTextPuntuacionIngredienteItem);
+        ImageView imgDragHandle = ingredienteView.findViewById(R.id.imgDragHandle);
 
         // Lógica de puntuación para ingredientes custom
         if (ingrediente.getRecetaId() == null || ingrediente.getRecetaId().isEmpty()) {
@@ -396,10 +397,6 @@ public abstract class RecetaBaseActivity extends AppCompatActivity {
                 }
             }
         }
-
-        // Hacer el nombre solo lectura si está vinculado
-        editTextNombre.setFocusableInTouchMode(ingrediente.getRecetaId() == null || ingrediente.getRecetaId().isEmpty());
-        editTextNombre.setFocusable(ingrediente.getRecetaId() == null || ingrediente.getRecetaId().isEmpty());
 
         // Hacer el nombre solo lectura si está vinculado
         editTextNombre.setFocusableInTouchMode(ingrediente.getRecetaId() == null || ingrediente.getRecetaId().isEmpty());

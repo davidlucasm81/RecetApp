@@ -121,6 +121,7 @@
     <string name="importando_todas_recetas">Importando todas las recetas…</string>
     <!-- Mensajes de error -->
     <string name="error_cargar_recetas">Error al cargar las recetas</string>
+    <string name="receta_copiada">Receta \'%1$s\' copiada al portapapeles</string>
     <string name="error_eliminar_receta">Error al eliminar la receta</string>
     <string name="error_actualizar_calendario">Error al actualizar el calendario</string>
     <string name="error_cargar_calendario">Error al cargar el calendario</string>
