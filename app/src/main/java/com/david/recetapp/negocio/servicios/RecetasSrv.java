@@ -351,20 +351,36 @@ public class RecetasSrv {
         }
 
         // 🚀 Agrupar por sustitución para elegir el mejor representante en el cálculo global
-        Map<String, Ingrediente> mejoresRepresentantes = new HashMap<>();
-        for (Ingrediente ing : receta.getIngredientes()) {
-            String key = (ing.getEsSustitutoDe() != null && !ing.getEsSustitutoDe().isEmpty())
-                    ? ing.getEsSustitutoDe().toLowerCase(Locale.getDefault())
-                    : ing.getNombre().toLowerCase(Locale.getDefault());
+        List<Ingrediente> mejoresRepresentantes = new ArrayList<>();
+        Map<String, List<Ingrediente>> sustitutosPorPrincipalCalcular = new HashMap<>();
 
-            Ingrediente actualMejor = mejoresRepresentantes.get(key);
-            if (actualMejor == null || ing.getPuntuacion() > actualMejor.getPuntuacion()) {
-                mejoresRepresentantes.put(key, ing);
+        for (Ingrediente ing : receta.getIngredientes()) {
+            String sustDe = ing.getEsSustitutoDe();
+            if (sustDe != null && !sustDe.trim().isEmpty() && !sustDe.trim().equalsIgnoreCase(ing.getNombre().trim())) {
+                sustitutosPorPrincipalCalcular.computeIfAbsent(sustDe.trim().toLowerCase(Locale.getDefault()), k -> new ArrayList<>()).add(ing);
+            }
+        }
+
+        for (Ingrediente ing : receta.getIngredientes()) {
+            String sustDe = ing.getEsSustitutoDe();
+            boolean esSustitutoValido = (sustDe != null && !sustDe.trim().isEmpty() && !sustDe.trim().equalsIgnoreCase(ing.getNombre().trim()));
+
+            if (!esSustitutoValido) {
+                List<Ingrediente> sustitutos = sustitutosPorPrincipalCalcular.get(ing.getNombre().trim().toLowerCase(Locale.getDefault()));
+                Ingrediente mejor = ing;
+                if (sustitutos != null && !sustitutos.isEmpty()) {
+                    for (Ingrediente sust : sustitutos) {
+                        if (sust.getPuntuacion() > mejor.getPuntuacion()) {
+                            mejor = sust;
+                        }
+                    }
+                }
+                mejoresRepresentantes.add(mejor);
             }
         }
 
         double cantidadTotal = 0;
-        for (Ingrediente ing : mejoresRepresentantes.values()) {
+        for (Ingrediente ing : mejoresRepresentantes) {
             if (ing.getPuntuacion() >= 0 && !ing.isOpcional()) {
                 double cantidad = UtilsSrv.convertirNumero(ing.getCantidad());
                 cantidadTotal += cantidad * getImportancia(ing);
@@ -377,7 +393,7 @@ public class RecetasSrv {
         }
 
         double puntuacionTotal = 0;
-        for (Ingrediente ing : mejoresRepresentantes.values()) {
+        for (Ingrediente ing : mejoresRepresentantes) {
             if (ing.getPuntuacion() >= 0 && !ing.isOpcional()) {
                 double cantidad = UtilsSrv.convertirNumero(ing.getCantidad());
                 double peso = (cantidad * getImportancia(ing)) / cantidadTotal;
@@ -594,37 +610,75 @@ public class RecetasSrv {
                     .map(RecetaDia::getIngredientesElegidos)
                     .orElse(new HashMap<>());
 
-            // Agrupar ingredientes originales por su "principal"
-            Map<String, List<Ingrediente>> grupos = new HashMap<>();
+            // Separar sustitutos y agruparlos por el ingrediente principal al que sustituyen
+            Map<String, List<Ingrediente>> sustitutosPorPrincipal = new HashMap<>();
             for (Ingrediente ing : r.getIngredientes()) {
-                String key = (ing.getEsSustitutoDe() != null && !ing.getEsSustitutoDe().isEmpty())
-                        ? ing.getEsSustitutoDe()
-                        : ing.getNombre();
-                grupos.computeIfAbsent(key, k -> new ArrayList<>()).add(ing);
+                String sustDe = ing.getEsSustitutoDe();
+                if (sustDe != null && !sustDe.trim().isEmpty() && !sustDe.trim().equalsIgnoreCase(ing.getNombre().trim())) {
+                    sustitutosPorPrincipal.computeIfAbsent(sustDe.trim().toLowerCase(Locale.getDefault()), k -> new ArrayList<>()).add(ing);
+                }
             }
 
-            for (Map.Entry<String, List<Ingrediente>> entry : grupos.entrySet()) {
-                String principal = entry.getKey();
-                List<Ingrediente> opciones = entry.getValue();
-                String elegido = elegidos.get(principal);
+            // Procesar los ingredientes principales
+            for (Ingrediente ing : r.getIngredientes()) {
+                String sustDe = ing.getEsSustitutoDe();
+                boolean esSustitutoValido = (sustDe != null && !sustDe.trim().isEmpty() && !sustDe.trim().equalsIgnoreCase(ing.getNombre().trim()));
 
-                Ingrediente seleccionado;
-                if (elegido != null) {
-                    seleccionado = opciones.stream()
-                            .filter(o -> o.getNombre().equals(elegido))
-                            .findFirst()
-                            .orElse(opciones.get(0)); // Fallback al primero del grupo
-                } else {
-                    // Si no hay elección explícita, buscar el que NO sea sustituto (el principal)
-                    seleccionado = opciones.stream()
-                            .filter(o -> o.getEsSustitutoDe() == null || o.getEsSustitutoDe().isEmpty())
-                            .findFirst()
-                            .orElse(opciones.get(0));
+                if (!esSustitutoValido) {
+                    String nombreIng = ing.getNombre().trim();
+                    List<Ingrediente> sustitutos = sustitutosPorPrincipal.get(nombreIng.toLowerCase(Locale.getDefault()));
+
+                    String elegido = null;
+                    for (Map.Entry<String, String> entry : elegidos.entrySet()) {
+                        if (entry.getKey().trim().equalsIgnoreCase(nombreIng)) {
+                            elegido = entry.getValue();
+                            break;
+                        }
+                    }
+
+                    Ingrediente seleccionado = ing;
+                    if (elegido != null && sustitutos != null && !sustitutos.isEmpty()) {
+                        for (Ingrediente sust : sustitutos) {
+                            if (sust.getNombre().trim().equalsIgnoreCase(elegido.trim())) {
+                                seleccionado = sust;
+                                break;
+                            }
+                        }
+                    }
+
+                    Ingrediente clon = new Ingrediente(seleccionado);
+                    ingredientesFinales.add(clon);
                 }
-                
-                // Clonar para no modificar la receta original de la lista total
-                Ingrediente clon = new Ingrediente(seleccionado);
-                ingredientesFinales.add(clon);
+            }
+
+            // Procesar sustitutos huérfanos (si existen en la receta sin ingrediente principal)
+            for (Map.Entry<String, List<Ingrediente>> entry : sustitutosPorPrincipal.entrySet()) {
+                String principalKey = entry.getKey();
+                boolean principalExiste = r.getIngredientes().stream()
+                        .anyMatch(i -> (i.getEsSustitutoDe() == null || i.getEsSustitutoDe().trim().isEmpty() || i.getEsSustitutoDe().trim().equalsIgnoreCase(i.getNombre().trim()))
+                                && i.getNombre().trim().toLowerCase(Locale.getDefault()).equals(principalKey));
+
+                if (!principalExiste) {
+                    List<Ingrediente> sustitutos = entry.getValue();
+                    String elegido = null;
+                    for (Map.Entry<String, String> elegEntry : elegidos.entrySet()) {
+                        if (elegEntry.getKey().trim().toLowerCase(Locale.getDefault()).equals(principalKey)) {
+                            elegido = elegEntry.getValue();
+                            break;
+                        }
+                    }
+
+                    Ingrediente seleccionado = sustitutos.get(0);
+                    if (elegido != null) {
+                        for (Ingrediente sust : sustitutos) {
+                            if (sust.getNombre().trim().equalsIgnoreCase(elegido.trim())) {
+                                seleccionado = sust;
+                                break;
+                            }
+                        }
+                    }
+                    ingredientesFinales.add(new Ingrediente(seleccionado));
+                }
             }
 
             r.setIngredientes(ingredientesFinales);

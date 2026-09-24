@@ -274,18 +274,59 @@ public class AddRecetaDiaActivity extends AppCompatActivity {
     }
 
     private void checkSubstitutions(Receta receta) {
-        // Agrupar ingredientes por su "principal"
-        Map<String, List<Ingrediente>> grupos = new HashMap<>();
-        for (Ingrediente ing : receta.getIngredientes()) {
-            String key = (ing.getEsSustitutoDe() != null && !ing.getEsSustitutoDe().isEmpty())
-                    ? ing.getEsSustitutoDe() : ing.getNombre();
-            grupos.computeIfAbsent(key, k -> new ArrayList<>()).add(ing);
+        if (receta == null || receta.getIngredientes() == null || receta.getIngredientes().isEmpty()) {
+            showNumberTextDialog(receta, new HashMap<>());
+            return;
         }
 
-        // Filtrar solo grupos que tengan más de una opción
-        List<Map.Entry<String, List<Ingrediente>>> gruposConSustitutos = grupos.entrySet().stream()
-                .filter(e -> e.getValue().size() > 1)
-                .collect(Collectors.toList());
+        // Agrupar sustitutos por el ingrediente principal al que hacen referencia
+        Map<String, List<Ingrediente>> gruposSustitutos = new HashMap<>();
+
+        for (Ingrediente ing : receta.getIngredientes()) {
+            String sustDe = ing.getEsSustitutoDe();
+            if (sustDe != null && !sustDe.trim().isEmpty() && !sustDe.trim().equalsIgnoreCase(ing.getNombre().trim())) {
+                String matchKey = null;
+                for (String k : gruposSustitutos.keySet()) {
+                    if (k.equalsIgnoreCase(sustDe.trim())) {
+                        matchKey = k;
+                        break;
+                    }
+                }
+                if (matchKey == null) {
+                    matchKey = sustDe.trim();
+                }
+                gruposSustitutos.computeIfAbsent(matchKey, k -> new ArrayList<>()).add(ing);
+            }
+        }
+
+        if (gruposSustitutos.isEmpty()) {
+            showNumberTextDialog(receta, new HashMap<>());
+            return;
+        }
+
+        List<Map.Entry<String, List<Ingrediente>>> gruposConSustitutos = new ArrayList<>();
+
+        for (Map.Entry<String, List<Ingrediente>> entry : gruposSustitutos.entrySet()) {
+            String principalName = entry.getKey();
+            List<Ingrediente> sustitutos = entry.getValue();
+
+            // Buscar el ingrediente principal correspondiente en la receta
+            Ingrediente principalIng = receta.getIngredientes().stream()
+                    .filter(i -> (i.getEsSustitutoDe() == null || i.getEsSustitutoDe().trim().isEmpty() || i.getEsSustitutoDe().trim().equalsIgnoreCase(i.getNombre().trim()))
+                            && i.getNombre().trim().equalsIgnoreCase(principalName))
+                    .findFirst()
+                    .orElse(null);
+
+            List<Ingrediente> opciones = new ArrayList<>();
+            if (principalIng != null) {
+                opciones.add(principalIng);
+            }
+            opciones.addAll(sustitutos);
+
+            if (opciones.size() > 1) {
+                gruposConSustitutos.add(new java.util.AbstractMap.SimpleEntry<>(principalName, opciones));
+            }
+        }
 
         if (gruposConSustitutos.isEmpty()) {
             showNumberTextDialog(receta, new HashMap<>());

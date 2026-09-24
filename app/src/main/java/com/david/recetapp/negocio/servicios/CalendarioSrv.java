@@ -492,16 +492,31 @@ public class CalendarioSrv {
             if (personasToSet <= 0) personasToSet = 2;
 
             Map<String, String> elegidos = new HashMap<>();
-            Map<String, List<Ingrediente>> grupos = new HashMap<>();
-            for (Ingrediente ing : receta.getIngredientes()) {
-                String key = (ing.getEsSustitutoDe() != null && !ing.getEsSustitutoDe().isEmpty())
-                        ? ing.getEsSustitutoDe() : ing.getNombre();
-                grupos.computeIfAbsent(key, k -> new ArrayList<>()).add(ing);
-            }
+            if (receta.getIngredientes() != null) {
+                Map<String, List<Ingrediente>> sustitutosPorPrincipal = new HashMap<>();
+                for (Ingrediente ing : receta.getIngredientes()) {
+                    String sustDe = ing.getEsSustitutoDe();
+                    if (sustDe != null && !sustDe.trim().isEmpty() && !sustDe.trim().equalsIgnoreCase(ing.getNombre().trim())) {
+                        sustitutosPorPrincipal.computeIfAbsent(sustDe.trim().toLowerCase(java.util.Locale.getDefault()), k -> new ArrayList<>()).add(ing);
+                    }
+                }
 
-            for (Map.Entry<String, List<Ingrediente>> entry : grupos.entrySet()) {
-                entry.getValue().stream()
-                        .max(Comparator.comparingDouble(Ingrediente::getPuntuacion)).ifPresent(mejor -> elegidos.put(entry.getKey(), mejor.getNombre()));
+                for (Ingrediente ing : receta.getIngredientes()) {
+                    String sustDe = ing.getEsSustitutoDe();
+                    boolean esSustitutoValido = (sustDe != null && !sustDe.trim().isEmpty() && !sustDe.trim().equalsIgnoreCase(ing.getNombre().trim()));
+                    if (!esSustitutoValido) {
+                        List<Ingrediente> sustitutos = sustitutosPorPrincipal.get(ing.getNombre().trim().toLowerCase(java.util.Locale.getDefault()));
+                        if (sustitutos != null && !sustitutos.isEmpty()) {
+                            Ingrediente mejor = ing;
+                            for (Ingrediente sust : sustitutos) {
+                                if (sust.getPuntuacion() > mejor.getPuntuacion()) {
+                                    mejor = sust;
+                                }
+                            }
+                            elegidos.put(ing.getNombre(), mejor.getNombre());
+                        }
+                    }
+                }
             }
 
             dia.getRecetas().add(new RecetaDia(recetaId, personasToSet, elegidos));

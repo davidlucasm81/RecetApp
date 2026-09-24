@@ -50,7 +50,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
@@ -291,23 +290,32 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
                     txtInformacion.setText(context.getString(R.string.sin_ingredientes));
                 } else {
                     SpannableStringBuilder sbIngredientes = new SpannableStringBuilder();
-                    Map<String, List<Ingrediente>> grupos = new java.util.HashMap<>();
+                    Map<Ingrediente, List<Ingrediente>> grupos = new java.util.IdentityHashMap<>();
                     List<Ingrediente> principales = new ArrayList<>();
 
                     for (Ingrediente ing : ingredientes) {
-                        if (ing.getEsSustitutoDe() == null || ing.getEsSustitutoDe().isEmpty()) {
+                        String sustDe = ing.getEsSustitutoDe();
+                        boolean esSustitutoValido = (sustDe != null && !sustDe.trim().isEmpty() && !sustDe.trim().equalsIgnoreCase(ing.getNombre().trim()));
+                        if (!esSustitutoValido) {
                             principales.add(ing);
+                            grupos.put(ing, new ArrayList<>());
                         }
                     }
 
-                    for (Ingrediente principal : principales) {
-                        grupos.put(principal.getNombre(), new java.util.ArrayList<>());
-                    }
-
                     for (Ingrediente ing : ingredientes) {
-                        if (ing.getEsSustitutoDe() != null && !ing.getEsSustitutoDe().isEmpty()) {
-                            List<Ingrediente> susts = grupos.get(ing.getEsSustitutoDe());
-                            Objects.requireNonNullElse(susts, principales).add(ing);
+                        String sustDe = ing.getEsSustitutoDe();
+                        boolean esSustitutoValido = (sustDe != null && !sustDe.trim().isEmpty() && !sustDe.trim().equalsIgnoreCase(ing.getNombre().trim()));
+                        if (esSustitutoValido) {
+                            Ingrediente principalMatch = principales.stream()
+                                    .filter(p -> p.getNombre().trim().equalsIgnoreCase(sustDe.trim()))
+                                    .findFirst()
+                                    .orElse(null);
+                            if (principalMatch != null) {
+                                List<Ingrediente> susts = grupos.computeIfAbsent(principalMatch, k -> new ArrayList<>());
+                                susts.add(ing);
+                            } else {
+                                principales.add(ing);
+                            }
                         }
                     }
 
@@ -315,7 +323,7 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
                         Ingrediente principal = principales.get(i);
                         appendIngredienteInfo(sbIngredientes, principal, false);
 
-                        List<Ingrediente> sustitutos = grupos.get(principal.getNombre());
+                        List<Ingrediente> sustitutos = grupos.get(principal);
                         if (sustitutos != null) {
                             for (Ingrediente sust : sustitutos) {
                                 sbIngredientes.append("\n");
