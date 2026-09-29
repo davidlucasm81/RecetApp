@@ -12,7 +12,6 @@ import com.david.recetapp.negocio.beans.Ingrediente;
 import com.david.recetapp.negocio.beans.Receta;
 import com.david.recetapp.negocio.beans.IngredienteUsuario;
 import com.david.recetapp.negocio.beans.RecetaDia;
-import com.david.recetapp.negocio.beans.Temporada;
 import com.david.recetapp.negocio.beans.TipoIngrediente;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -495,16 +494,12 @@ public class RecetasSrv {
         cargarListaRecetas(context, new RecetasCallback() {
             @Override
             public void onSuccess(List<Receta> todas) {
-                // Usar la temporada del día destino, no la de hoy
-                LocalDate date = LocalDate.of(targetDay.getYear(), targetDay.getMonth() + 1, targetDay.getDayOfMonth());
-                Temporada temporada = UtilsSrv.getTemporadaFecha(date);
-                
                 Set<String> seleccionadas = targetDay.getRecetas().stream()
                         .map(RecetaDia::getIdReceta)
                         .collect(Collectors.toSet());
 
                 List<Receta> filtradas = todas.stream()
-                        .filter(r -> !seleccionadas.contains(r.getId()) && r.getTemporadas().contains(temporada))
+                        .filter(r -> !seleccionadas.contains(r.getId()))
                         .sorted(Comparator.comparing(Receta::getPuntuacionDada, Comparator.reverseOrder())
                                 .thenComparing(Receta::getEstrellas, Comparator.reverseOrder()))
                         .toList();

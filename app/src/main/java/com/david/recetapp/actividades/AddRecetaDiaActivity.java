@@ -29,11 +29,14 @@ import com.david.recetapp.negocio.beans.Day;
 import com.david.recetapp.negocio.beans.Ingrediente;
 import com.david.recetapp.negocio.beans.Receta;
 import com.david.recetapp.negocio.beans.RecetaDia;
+import com.david.recetapp.negocio.beans.Temporada;
 import com.david.recetapp.negocio.servicios.CalendarioSrv;
 import com.david.recetapp.negocio.servicios.RecetasSrv;
 import com.david.recetapp.negocio.servicios.UtilsSrv;
+import com.google.android.material.chip.ChipGroup;
 
 import java.lang.ref.WeakReference;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -58,6 +61,8 @@ public class AddRecetaDiaActivity extends AppCompatActivity {
     private SwipeRefreshLayout swipeRefreshLayout; // Puede ser null
     private AutoCompleteTextView searchView;
     private ImageView clearSearchButton;
+    private ChipGroup chipGroupTemporada;
+    private Temporada targetTemporada;
 
     private List<Receta> fullRecipeList = new ArrayList<>();
     private final Calendar calendarComparar = Calendar.getInstance();
@@ -81,6 +86,7 @@ public class AddRecetaDiaActivity extends AppCompatActivity {
         setupSwipeRefresh(); // Funciona aunque no exista el SwipeRefresh
         setupSearch();
         initializeDates();
+        setupFilterChips();
 
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
@@ -105,6 +111,7 @@ public class AddRecetaDiaActivity extends AppCompatActivity {
 
         searchView = findViewById(R.id.autoCompleteTextViewRecetas);
         clearSearchButton = findViewById(R.id.imageViewClearSearch);
+        chipGroupTemporada = findViewById(R.id.chipGroupTemporada);
     }
 
     private void setupSearch() {
@@ -127,20 +134,59 @@ public class AddRecetaDiaActivity extends AppCompatActivity {
         }
     }
 
+    private void setupFilterChips() {
+        if (chipGroupTemporada != null) {
+            preselectTargetSeasonChip();
+
+            chipGroupTemporada.setOnCheckedStateChangeListener((group, checkedIds) -> {
+                String query = searchView != null ? searchView.getText().toString() : "";
+                filtrarRecetas(query);
+            });
+        }
+    }
+
+    private void preselectTargetSeasonChip() {
+        if (chipGroupTemporada == null || targetTemporada == null) return;
+
+        int chipId = switch (targetTemporada) {
+            case PRIMAVERA -> R.id.chipPrimavera;
+            case VERANO -> R.id.chipVerano;
+            case OTONIO -> R.id.chipOtonio;
+            case INVIERNO -> R.id.chipInvierno;
+        };
+        chipGroupTemporada.check(chipId);
+    }
+
+    private Temporada getSelectedSeasonFromChips() {
+        if (chipGroupTemporada == null) return null;
+
+        int checkedId = chipGroupTemporada.getCheckedChipId();
+        if (checkedId == R.id.chipPrimavera) {
+            return Temporada.PRIMAVERA;
+        } else if (checkedId == R.id.chipVerano) {
+            return Temporada.VERANO;
+        } else if (checkedId == R.id.chipOtonio) {
+            return Temporada.OTONIO;
+        } else if (checkedId == R.id.chipInvierno) {
+            return Temporada.INVIERNO;
+        }
+        return null; // chipTodasTemporadas o ninguno seleccionado
+    }
+
     private void filtrarRecetas(String query) {
         if (fullRecipeList == null) return;
-        
+
         String cleanQuery = query.toLowerCase().trim();
-        List<Receta> filteredList;
-        
-        if (cleanQuery.isEmpty()) {
-            filteredList = new ArrayList<>(fullRecipeList);
-        } else {
-            filteredList = fullRecipeList.stream()
-                    .filter(r -> r.getNombre().toLowerCase().contains(cleanQuery))
-                    .collect(Collectors.toList());
-        }
-        
+        Temporada selectedSeason = getSelectedSeasonFromChips();
+
+        List<Receta> filteredList = fullRecipeList.stream()
+                .filter(r -> {
+                    boolean matchesQuery = cleanQuery.isEmpty() || (r.getNombre() != null && r.getNombre().toLowerCase().contains(cleanQuery));
+                    boolean matchesSeason = (selectedSeason == null) || (r.getTemporadas() != null && r.getTemporadas().contains(selectedSeason));
+                    return matchesQuery && matchesSeason;
+                })
+                .collect(Collectors.toList());
+
         updateUI(filteredList);
     }
 
@@ -185,6 +231,11 @@ public class AddRecetaDiaActivity extends AppCompatActivity {
         calendarioIntervaloPrevio.setTime(fechaElegida);
         calendarioIntervaloPrevio.add(Calendar.MONTH, -1);
         fechaIntervaloPrevio = calendarioIntervaloPrevio.getTime();
+
+        if (selectedDay != null) {
+            LocalDate localDate = LocalDate.of(selectedDay.getYear(), selectedDay.getMonth() + 1, selectedDay.getDayOfMonth());
+            targetTemporada = UtilsSrv.getTemporadaFecha(localDate);
+        }
     }
 
     /**
@@ -209,11 +260,7 @@ public class AddRecetaDiaActivity extends AppCompatActivity {
                             hideLoading();
                             fullRecipeList = listaRecetas != null ? listaRecetas : new ArrayList<>();
                             String currentQuery = searchView != null ? searchView.getText().toString() : "";
-                            if (currentQuery.isEmpty()) {
-                                updateUI(fullRecipeList);
-                            } else {
-                                filtrarRecetas(currentQuery);
-                            }
+                            filtrarRecetas(currentQuery);
                             isLoading = false;
                         });
                     }
