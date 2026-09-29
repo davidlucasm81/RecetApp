@@ -77,6 +77,18 @@ public class MainActivity extends AppCompatActivity {
         });
 
         btnLogout.setOnClickListener(v -> confirmarLogout());
+
+        // Cargar recetas y verificar valoraciones pendientes de días pasados
+        RecetasSrv.cargarListaRecetas(this, new RecetasSrv.RecetasCallback() {
+            @Override
+            public void onSuccess(java.util.List<com.david.recetapp.negocio.beans.Receta> recetas) {
+                verificarRecetasPendientesValoracion();
+            }
+            @Override
+            public void onFailure(Exception e) {
+                verificarRecetasPendientesValoracion();
+            }
+        });
     }
 
     private void confirmarLogout() {
@@ -114,5 +126,104 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.btnCalendario).setEnabled(true);
         findViewById(R.id.btnListaCompra).setEnabled(true);
         botonSeleccionado.setEnabled(false);
+    }
+
+    private void verificarRecetasPendientesValoracion() {
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) return;
+        
+        java.time.LocalDate hoy = java.time.LocalDate.now();
+        java.time.LocalDate hace30Dias = hoy.minusDays(30);
+        
+        new Thread(() -> {
+            try {
+                java.util.List<com.david.recetapp.negocio.beans.Day> diasPasados = CalendarioSrv.getDiasEnRangoSync(hace30Dias, hoy.minusDays(1));
+                if (diasPasados == null || diasPasados.isEmpty()) return;
+
+                java.util.List<com.david.recetapp.negocio.beans.Receta> todasRecetas = RecetasSrv.getRecetas();
+                if (todasRecetas == null || todasRecetas.isEmpty()) return;
+
+                java.util.Map<String, com.david.recetapp.negocio.beans.Receta> recetaMap = new java.util.HashMap<>();
+                for (com.david.recetapp.negocio.beans.Receta r : todasRecetas) {
+                    if (r.getId() != null) recetaMap.put(r.getId(), r);
+                }
+
+                android.content.SharedPreferences prefs = getSharedPreferences("RecetappPrefs", MODE_PRIVATE);
+                long currentTime = System.currentTimeMillis();
+
+                for (com.david.recetapp.negocio.beans.Day d : diasPasados) {
+                    if (d.getRecetas() == null) continue;
+                    java.time.LocalDate fechaDia = CalendarioSrv.getLocalDate(d.getDayOfMonth(), d.getMonth(), d.getYear());
+                    
+                    for (com.david.recetapp.negocio.beans.RecetaDia rd : d.getRecetas()) {
+                        com.david.recetapp.negocio.beans.Receta receta = recetaMap.get(rd.getIdReceta());
+                        if (receta == null) continue;
+                        
+                        if (receta.getEstrellas() >= 0f) continue;
+
+                        String dateStr = d.getYear() + "_" + d.getMonth() + "_" + d.getDayOfMonth();
+                        String dismissedKey = "dismissed_" + receta.getId() + "_" + dateStr;
+                        String postponedKey = "postponed_" + receta.getId() + "_" + dateStr;
+
+                        if (prefs.getBoolean(dismissedKey, false)) continue;
+                        long postponedUntil = prefs.getLong(postponedKey, 0L);
+                        if (currentTime < postponedUntil) continue;
+
+                        runOnUiThread(() -> mostrarDialogoValoracionPendiente(receta, fechaDia));
+                        return;
+                    }
+                }
+            } catch (Exception e) {
+                android.util.Log.e("MainActivity", "Error verificando recetas pendientes de valoración", e);
+            }
+        }).start();
+    }
+
+    private void mostrarDialogoValoracionPendiente(com.david.recetapp.negocio.beans.Receta receta, java.time.LocalDate fecha) {
+        android.widget.RatingBar ratingBar = new android.widget.RatingBar(this);
+        ratingBar.setNumStars(5);
+        ratingBar.setStepSize(0.5f);
+        int pad = (int) (16 * getResources().getDisplayMetrics().density);
+        ratingBar.setPadding(pad, pad, pad, pad);
+        
+        android.widget.LinearLayout container = new android.widget.LinearLayout(this);
+        container.setOrientation(android.widget.LinearLayout.VERTICAL);
+        container.setGravity(android.view.Gravity.CENTER_HORIZONTAL);
+        
+        android.widget.TextView tv = new android.widget.TextView(this);
+        tv.setText(getString(R.string.valorar_receta_mensaje, receta.getNombre(), fecha.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"))));
+        tv.setPadding(pad, pad, pad, pad);
+        tv.setTextSize(16f);
+        
+        container.addView(tv);
+        container.addView(ratingBar);
+
+        String dateStr = fecha.getYear() + "_" + (fecha.getMonthValue() - 1) + "_" + fecha.getDayOfMonth();
+        android.content.SharedPreferences prefs = getSharedPreferences("RecetappPrefs", MODE_PRIVATE);
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.valorar_receta_titulo)
+                .setView(container)
+                .setPositiveButton(R.string.aceptar, (dialog, which) -> {
+                    float rating = ratingBar.getRating();
+                    if (rating > 0f) {
+                        receta.setEstrellas(rating);
+                        RecetasSrv.editarReceta(receta, new RecetasSrv.SimpleCallback() {
+                            @Override public void onSuccess() {
+                                com.david.recetapp.negocio.servicios.UtilsSrv.notificacion(MainActivity.this, getString(R.string.receta_editada), android.widget.Toast.LENGTH_SHORT);
+                            }
+                            @Override public void onFailure(Exception e) {
+                                com.david.recetapp.negocio.servicios.UtilsSrv.notificacion(MainActivity.this, getString(R.string.error_editar_receta), android.widget.Toast.LENGTH_SHORT);
+                            }
+                        });
+                    }
+                })
+                .setNeutralButton(R.string.puntuar_mas_tarde, (dialog, which) -> {
+                    long tomorrow = System.currentTimeMillis() + (24L * 60 * 60 * 1000);
+                    prefs.edit().putLong("postponed_" + receta.getId() + "_" + dateStr, tomorrow).apply();
+                })
+                .setNegativeButton(R.string.no_poner_puntuacion, (dialog, which) -> {
+                    prefs.edit().putBoolean("dismissed_" + receta.getId() + "_" + dateStr, true).apply();
+                })
+                .show();
     }
 }

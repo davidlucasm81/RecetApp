@@ -164,7 +164,7 @@ public class IAInputActivity extends AppCompatActivity {
         } catch (IllegalArgumentException ignored) {}
 
         receta.setNumPersonas(json.optInt("numPersonas", 4));
-        receta.setEstrellas(0f);
+        receta.setEstrellas(-1f);
 
         JSONArray temps = json.optJSONArray("temporadas");
         List<Temporada> temporadas = new ArrayList<>();

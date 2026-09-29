@@ -94,7 +94,7 @@
     <string name="warning" translatable="false">Warning</string>
     <string name="seleccionar_dias">Seleccionar días</string>
     <string name="seleccionar_dias_vago">Generar menú (Modo Vago)</string>
-    <string name="seleccionar_dias_sano">Generar menú (Modo Sano)</string>
+    <string name="seleccionar_dias_sano">Generar menú</string>
     <string name="selecciona_dias">Selecciona los días del mes:</string>
     <string name="cantidad">Cantidad</string>
     <string name="unidad">Unidad</string>
@@ -181,4 +181,9 @@ Solo JSON:
     <string name="receta_vinculada">Receta vinculada: %s</string>
     <string name="error_receta_no_encontrada">No se ha encontrado la receta vinculada</string>
     <string name="error_receta_no_encontrada_dia">La receta vinculada no está en el menú de hoy</string>
+    <string name="valorar_receta_titulo">Valora tu receta</string>
+    <string name="valorar_receta_mensaje">Cocinaste \'%1$s\' el %2$s. ¿Qué puntuación le das?</string>
+    <string name="puntuar_mas_tarde">Puntuar más tarde</string>
+    <string name="no_poner_puntuacion">No poner puntuación</string>
+    <string name="quitar_puntuacion">Quitar puntuación</string>
 </resources>

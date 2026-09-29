@@ -38,7 +38,7 @@ public class Receta implements Parcelable, Serializable {
         ingredientes = new ArrayList<>();
         pasos = new ArrayList<>();
         alergenos = new ArrayList<>();
-        estrellas = 0f;
+        estrellas = -1f;
         numPersonas = -1;
         fechaCalendario = null;
         shared = false;

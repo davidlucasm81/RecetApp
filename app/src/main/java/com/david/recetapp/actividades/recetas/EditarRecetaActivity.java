@@ -125,6 +125,14 @@ public class EditarRecetaActivity extends RecetaBaseActivity {
         linearLayoutListaPasos = findViewById(R.id.linearLayoutListaPasos);
         gridLayout = findViewById(R.id.gridLayoutAlergenos);
         estrellas = findViewById(R.id.estrellas);
+        android.widget.Button btnQuitarEstrellas = findViewById(R.id.btnQuitarEstrellas);
+        if (btnQuitarEstrellas != null) {
+            btnQuitarEstrellas.setOnClickListener(v -> {
+                if (estrellas != null) {
+                    estrellas.setRating(0f);
+                }
+            });
+        }
         btnGuardar = findViewById(R.id.btnCrear);
         progressBar = findViewById(R.id.progressBar);
 
@@ -196,7 +204,7 @@ public class EditarRecetaActivity extends RecetaBaseActivity {
         pasos = recetaActual.getPasos() != null ? new ArrayList<>(recetaActual.getPasos()) : new ArrayList<>();
         alergenosSeleccionados = recetaActual.getAlergenos() != null ? new ArrayList<>(recetaActual.getAlergenos()) : new ArrayList<>();
 
-        estrellas.setRating(recetaActual.getEstrellas());
+        estrellas.setRating(recetaActual.getEstrellas() >= 0f ? recetaActual.getEstrellas() : 0f);
     }
 
     private void setupIngredientesSection() {
@@ -404,7 +412,8 @@ public class EditarRecetaActivity extends RecetaBaseActivity {
         recetaActual.setPasos(pasos);
         recetaActual.setTemporadas(temporadas);
         recetaActual.setNumPersonas(Integer.parseInt(numberPickerNumeroPersonas.getText().toString()));
-        recetaActual.setEstrellas(estrellas.getRating());
+        float rating = estrellas.getRating();
+        recetaActual.setEstrellas(rating > 0f ? rating : -1f);
         recetaActual.setAlergenos(alergenosSeleccionados);
         recetaActual.setShared(false);
         recetaActual.setTipoReceta(TipoReceta.values()[tipoPos]);

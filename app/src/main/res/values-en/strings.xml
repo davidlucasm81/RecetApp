@@ -91,7 +91,7 @@
     <string name="lista_compra">Shopping list</string>
     <string name="seleccionar_dias">Select days</string>
     <string name="seleccionar_dias_vago">Generate menu (Lazy Mode)</string>
-    <string name="seleccionar_dias_sano">Generate menu (Healthy Mode)</string>
+    <string name="seleccionar_dias_sano">Generate menu</string>
     <string name="selecciona_dias">Select days range:</string>
     <string name="cantidad">Quantity</string>
     <string name="unidad">Unit</string>
@@ -172,4 +172,9 @@ Only JSON:
     <string name="receta_vinculada">Linked recipe: %s</string>
     <string name="error_receta_no_encontrada">Linked recipe not found</string>
     <string name="error_receta_no_encontrada_dia">Linked recipe is not in today\'s menu</string>
+    <string name="valorar_receta_titulo">Rate your recipe</string>
+    <string name="valorar_receta_mensaje">You cooked \'%1$s\' on %2$s. What rating do you give it?</string>
+    <string name="puntuar_mas_tarde">Rate later</string>
+    <string name="no_poner_puntuacion">No rating</string>
+    <string name="quitar_puntuacion">Remove rating</string>
 </resources>

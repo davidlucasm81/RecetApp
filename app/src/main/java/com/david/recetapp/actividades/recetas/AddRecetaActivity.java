@@ -83,6 +83,14 @@ public class AddRecetaActivity extends RecetaBaseActivity {
         gridLayout = findViewById(R.id.gridLayoutAlergenos);
         linearLayoutListaPasos = findViewById(R.id.linearLayoutListaPasos);
         estrellas = findViewById(R.id.estrellas);
+        android.widget.Button btnQuitarEstrellas = findViewById(R.id.btnQuitarEstrellas);
+        if (btnQuitarEstrellas != null) {
+            btnQuitarEstrellas.setOnClickListener(v -> {
+                if (estrellas != null) {
+                    estrellas.setRating(0f);
+                }
+            });
+        }
 
         btnCrear = findViewById(R.id.btnCrear);
         progressBar = findViewById(R.id.progressBar);
@@ -289,7 +297,8 @@ public class AddRecetaActivity extends RecetaBaseActivity {
         receta.setPasos(pasos);
         receta.setTemporadas(temporadas);
         receta.setNumPersonas(Integer.parseInt(numberPickerNumeroPersonas.getText().toString()));
-        receta.setEstrellas(estrellas.getRating());
+        float rating = estrellas.getRating();
+        receta.setEstrellas(rating > 0f ? rating : -1f);
         receta.setAlergenos(alergenosSeleccionados);
         receta.setShared(false);
         receta.setTipoReceta(TipoReceta.values()[tipoPos]);

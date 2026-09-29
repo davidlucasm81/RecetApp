@@ -458,7 +458,7 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
             case 5:
                 txtTitulo.setText(R.string.estrellas);
                 ratingBar.setVisibility(View.VISIBLE);
-                ratingBar.setRating(receta.getEstrellas());
+                ratingBar.setRating(receta.getEstrellas() >= 0f ? receta.getEstrellas() : 0f);
                 txtInformacion.setVisibility(View.GONE);
                 break;
             case 6:

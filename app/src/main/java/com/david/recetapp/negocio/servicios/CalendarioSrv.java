@@ -719,7 +719,7 @@ public class CalendarioSrv {
         int verduras = 0;
     }
 
-    private static java.time.LocalDate getLocalDate(int day, int month, int year) {
+    public static java.time.LocalDate getLocalDate(int day, int month, int year) {
         return java.time.LocalDate.of(year, month + 1, day);
     }
 
@@ -1445,7 +1445,7 @@ public class CalendarioSrv {
      * Obtiene los días en un rango de fechas de forma síncrona (bloqueante).
      * Útil para llamadas desde hilos de fondo.
      */
-    private static List<Day> getDiasEnRangoSync(LocalDate inicio, LocalDate fin) {
+    public static List<Day> getDiasEnRangoSync(LocalDate inicio, LocalDate fin) {
         List<Day> result = new ArrayList<>();
         if (inicio.isAfter(fin)) return result;
 
