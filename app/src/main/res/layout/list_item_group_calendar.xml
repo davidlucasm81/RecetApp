@@ -3,12 +3,14 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:baselineAligned="false"
+    android:gravity="center_vertical"
     android:orientation="horizontal"
     android:padding="8dp">
 
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
         android:layout_weight="1"
         android:orientation="vertical"
         android:paddingStart="30dp"
@@ -18,6 +20,8 @@
             android:id="@+id/txtNombreReceta"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="2"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textStyle="bold"
             android:focusable="false"
@@ -33,7 +37,8 @@
 
     <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
         android:gravity="center"
         android:orientation="horizontal">
 

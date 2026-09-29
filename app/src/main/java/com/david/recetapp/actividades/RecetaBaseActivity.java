@@ -508,7 +508,18 @@ public abstract class RecetaBaseActivity extends AppCompatActivity {
         final List<Receta> listDisplay = new ArrayList<>(opciones);
         final ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_list_item_1,
-                listDisplay.stream().map(Receta::getNombre).collect(Collectors.toList()));
+                listDisplay.stream().map(Receta::getNombre).collect(Collectors.toList())) {
+            @NonNull
+            @Override
+            public View getView(int position, View convertView, @NonNull ViewGroup parent) {
+                View view = super.getView(position, convertView, parent);
+                if (view instanceof TextView tv) {
+                    tv.setMaxLines(2);
+                    tv.setEllipsize(android.text.TextUtils.TruncateAt.END);
+                }
+                return view;
+            }
+        };
         listView.setAdapter(adapter);
 
         AlertDialog dialog = new AlertDialog.Builder(this)
