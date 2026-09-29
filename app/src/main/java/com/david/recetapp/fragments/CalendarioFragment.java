@@ -57,7 +57,6 @@ public class CalendarioFragment extends Fragment {
     private Calendar calendarReal;
 
     private ImageButton btnBorrar;
-    private ImageButton btnModoVago;
     private ImageButton btnGenerarMenu;
     private ImageButton btnPreviousMonth;
     private ImageButton btnNextMonth;
@@ -232,19 +231,10 @@ public class CalendarioFragment extends Fragment {
 
         btnGenerarMenu = rootView.findViewById(R.id.btnActualizar);
 
-        btnModoVago = rootView.findViewById(R.id.btnModoVago);
-        if (btnModoVago != null) {
-            btnModoVago.setOnClickListener(v -> {
-                if (isAdded() && !isLoading) {
-                    showRefillDialog(true);
-                }
-            });
-        }
-
         if (btnGenerarMenu != null) {
             btnGenerarMenu.setOnClickListener(v -> {
                 if (isAdded() && !isLoading) {
-                    showRefillDialog(false);
+                    showRefillDialog();
                 }
             });
         }
@@ -292,11 +282,10 @@ public class CalendarioFragment extends Fragment {
 
     private void updateManagementButtonsVisibility() {
         if (btnBorrar != null) btnBorrar.setVisibility(View.VISIBLE);
-        if (btnModoVago != null) btnModoVago.setVisibility(View.VISIBLE);
         if (btnGenerarMenu != null) btnGenerarMenu.setVisibility(View.VISIBLE);
     }
 
-    private void showRefillDialog(boolean defaultLazy) {
+    private void showRefillDialog() {
         LayoutInflater inflaterDialog = LayoutInflater.from(getContext());
         View dialogView = inflaterDialog.inflate(R.layout.dialog_calendar_refill, null);
 
@@ -306,7 +295,7 @@ public class CalendarioFragment extends Fragment {
         android.widget.CheckBox checkBoxLazy = dialogView.findViewById(R.id.checkBoxLazyMode);
 
         if (checkBoxLazy != null) {
-            checkBoxLazy.setChecked(defaultLazy);
+            checkBoxLazy.setChecked(false);
         }
 
         final java.time.LocalDate[] startDate = { isViewingCurrentMonth() ? java.time.LocalDate.now() : java.time.LocalDate.of(calendarViewing.get(Calendar.YEAR), calendarViewing.get(Calendar.MONTH) + 1, 1) };
@@ -345,7 +334,7 @@ public class CalendarioFragment extends Fragment {
         numberPickerRecetas.setValue(2);
 
         AlertDialog alert = new AlertDialog.Builder(requireContext(), R.style.CustomAlertDialog)
-                .setTitle(defaultLazy ? getString(R.string.seleccionar_dias_vago) : getString(R.string.seleccionar_dias_sano))
+                .setTitle(getString(R.string.seleccionar_dias_sano))
                 .setView(dialogView)
                 .setPositiveButton(getString(R.string.aceptar), null)
                 .setNegativeButton(getString(R.string.cancelar), null)
