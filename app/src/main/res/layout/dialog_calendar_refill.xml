@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -17,7 +18,7 @@
         android:layout_marginBottom="16dp"
         android:gravity="center" />
 
-    <!-- Contenedor Día de Inicio -->
+    <!-- Contenedor Fecha de Inicio -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -27,19 +28,22 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/dia_inicio"
+            android:text="@string/fecha_inicio"
             android:textSize="16sp"
             android:textColor="@color/colorIcono"
             android:layout_marginBottom="8dp" />
 
-        <NumberPicker
-            android:id="@+id/numberPickerInicio"
+        <Button
+            android:id="@+id/btnFechaInicio"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/number_picker_background" />
+            android:layout_height="wrap_content"
+            android:text="29/09/2026"
+            style="?attr/materialButtonOutlinedStyle"
+            android:textColor="@color/colorIcono"
+            tools:ignore="HardcodedText" />
     </LinearLayout>
 
-    <!-- Contenedor Día de Fin -->
+    <!-- Contenedor Fecha de Fin -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -49,16 +53,19 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/dia_fin"
+            android:text="@string/fecha_fin"
             android:textSize="16sp"
             android:textColor="@color/colorIcono"
             android:layout_marginBottom="8dp" />
 
-        <NumberPicker
-            android:id="@+id/numberPickerFin"
+        <Button
+            android:id="@+id/btnFechaFin"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/number_picker_background" />
+            android:layout_height="wrap_content"
+            android:text="05/10/2026"
+            style="?attr/materialButtonOutlinedStyle"
+            android:textColor="@color/colorIcono"
+            tools:ignore="HardcodedText" />
     </LinearLayout>
 
     <!-- Contenedor Número de Recetas -->
@@ -78,7 +85,7 @@
         <NumberPicker
             android:id="@+id/numberPickerRecetas"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:background="@drawable/number_picker_background" />
     </LinearLayout>
 

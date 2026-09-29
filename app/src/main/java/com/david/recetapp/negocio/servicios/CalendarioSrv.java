@@ -810,140 +810,186 @@ public class CalendarioSrv {
      */
     public static void getListaCompra(Context context, int mes, int anio, int diaInicio, int diaFin,
                                       ListaCompraCallback callback) {
+        try {
+            LocalDate startDate = LocalDate.of(anio, mes + 1, diaInicio);
+            LocalDate endDate = LocalDate.of(anio, mes + 1, diaFin);
+            getListaCompra(context, startDate, endDate, callback);
+        } catch (Exception e) {
+            callback.onFailure(e);
+        }
+    }
+
+    /**
+     * 🚀 VERSIÓN OPTIMIZADA - Usa caché de recetas y soporta rangos multimes
+     */
+    public static void getListaCompra(Context context, LocalDate startDate, LocalDate endDate,
+                                      ListaCompraCallback callback) {
         if (!checkUserId(callback)) return;
+        if (startDate.isAfter(endDate)) {
+            LocalDate temp = startDate;
+            startDate = endDate;
+            endDate = temp;
+        }
 
-        obtenerCalendario(context, mes, anio, new CalendarioCallback() {
-            private boolean alreadyExecuted = false;
+        List<java.time.YearMonth> months = new ArrayList<>();
+        java.time.YearMonth current = java.time.YearMonth.from(startDate);
+        java.time.YearMonth endMonth = java.time.YearMonth.from(endDate);
+        while (!current.isAfter(endMonth)) {
+            months.add(current);
+            current = current.plusMonths(1);
+        }
 
-            @Override
-            public void onSuccess(List<Day> calendario) {
-                if (alreadyExecuted) return;
-                alreadyExecuted = true;
+        List<CompletableFuture<List<Day>>> futures = new ArrayList<>();
+        for (java.time.YearMonth ym : months) {
+            CompletableFuture<List<Day>> cf = new CompletableFuture<>();
+            obtenerCalendario(context, ym.getMonthValue() - 1, ym.getYear(), new CalendarioCallback() {
+                @Override public void onSuccess(List<Day> res) { cf.complete(res != null ? res : new ArrayList<>()); }
+                @Override public void onFailure(Exception e) { cf.completeExceptionally(e); }
+            });
+            futures.add(cf);
+        }
 
-                RecetasSrv.cargarListaRecetas(context, new RecetasSrv.RecetasCallback() {
-                    @Override
-                    public void onSuccess(List<Receta> listaRecetas) {
-                        Log.d(TAG, "🚀 Generando lista de compra para " + (diaFin - diaInicio + 1) + " días");
-                        try {
-                            RecetasSrv.inicializarMapas(context);
-                            Map<String, ConcurrentHashMap<String, BigDecimal>> resultado = new ConcurrentHashMap<>();
-                            Map<String, String> nombresDisplay = new ConcurrentHashMap<>();
+        CompletableFuture<List<Receta>> recipesFuture = new CompletableFuture<>();
+        RecetasSrv.cargarListaRecetas(context, new RecetasSrv.RecetasCallback() {
+            @Override public void onSuccess(List<Receta> r) { recipesFuture.complete(r); }
+            @Override public void onFailure(Exception e) { recipesFuture.completeExceptionally(e); }
+        });
 
-                            calendario.parallelStream()
-                                    .filter(dia -> dia.getDayOfMonth() >= diaInicio &&
-                                            dia.getDayOfMonth() <= diaFin)
-                                    .flatMap(d -> {
-                                        List<Receta> adaptadas = RecetasSrv.getRecetasAdaptadasCalendario(listaRecetas, d);
-                                        Log.d(TAG, "📅 Día " + d.getDayOfMonth() + ": " + adaptadas.size() + " recetas");
-                                        return adaptadas.stream();
-                                    })
-                                    .flatMap(receta -> receta.getIngredientes().stream())
-                                    .forEach(ingrediente -> {
-                                        String nombreOriginal = ingrediente.getNombre();
-                                        if (nombreOriginal == null || nombreOriginal.trim().isEmpty()) return;
+        List<CompletableFuture<?>> allFutures = new ArrayList<>(futures);
+        allFutures.add(recipesFuture);
 
-                                        String nombreNormalizado = nombreOriginal.trim().toLowerCase(java.util.Locale.getDefault());
-                                        nombresDisplay.putIfAbsent(nombreNormalizado, nombreOriginal.trim());
+        LocalDate finalStartDate = startDate;
+        LocalDate finalEndDate = endDate;
 
-                                        String tipoCantidad = ingrediente.getTipoCantidad() != null ? ingrediente.getTipoCantidad() : "";
-                                        BigDecimal cantidad = BigDecimal.valueOf(
-                                                UtilsSrv.convertirNumero(ingrediente.getCantidad()));
+        CompletableFuture.allOf(allFutures.toArray(new CompletableFuture[0]))
+                .orTimeout(10, java.util.concurrent.TimeUnit.SECONDS)
+                .whenComplete((v, ex) -> {
+                    if (ex != null) {
+                        new android.os.Handler(android.os.Looper.getMainLooper()).post(() ->
+                                callback.onFailure(ex instanceof Exception ? (Exception) ex : new Exception(ex))
+                        );
+                        return;
+                    }
+                    try {
+                        List<Day> allDays = new ArrayList<>();
+                        for (int i = 0; i < futures.size(); i++) {
+                            java.time.YearMonth ym = months.get(i);
+                            List<Day> monthDays = futures.get(i).get();
+                            for (Day d : monthDays) {
+                                d.setMonth(ym.getMonthValue() - 1);
+                                d.setYear(ym.getYear());
+                            }
+                            allDays.addAll(monthDays);
+                        }
+                        List<Receta> listaRecetas = recipesFuture.get();
 
-                                        resultado.computeIfAbsent(nombreNormalizado, k -> new ConcurrentHashMap<>())
-                                                .merge(tipoCantidad, cantidad, BigDecimal::add);
-                                    });
+                        RecetasSrv.inicializarMapas(context);
+                        Map<String, ConcurrentHashMap<String, BigDecimal>> resultado = new ConcurrentHashMap<>();
+                        Map<String, String> nombresDisplay = new ConcurrentHashMap<>();
 
-                            Log.d(TAG, "📦 Consolidando unidades para " + resultado.size() + " ingredientes únicos");
-
-                            resultado.forEach((nombreNorm, mapUnidades) -> {
-                                if (mapUnidades.size() > 1) {
-                                    BigDecimal totalGramos = BigDecimal.ZERO;
-                                    boolean convertidaAlguna = false;
-
-                                    for (Map.Entry<String, BigDecimal> entry : mapUnidades.entrySet()) {
-                                        String unidad = entry.getKey();
-                                        BigDecimal cant = entry.getValue();
-
-                                        BigDecimal gramos = convertirAGramos(nombreNorm, unidad, cant);
-                                        if (gramos != null) {
-                                            totalGramos = totalGramos.add(gramos);
-                                            convertidaAlguna = true;
-                                        }
+                        allDays.parallelStream()
+                                .filter(dia -> {
+                                    try {
+                                        LocalDate dDate = LocalDate.of(dia.getYear(), dia.getMonth() + 1, dia.getDayOfMonth());
+                                        return !dDate.isBefore(finalStartDate) && !dDate.isAfter(finalEndDate);
+                                    } catch (Exception e) {
+                                        return false;
                                     }
+                                })
+                                .flatMap(d -> {
+                                    List<Receta> adaptadas = RecetasSrv.getRecetasAdaptadasCalendario(listaRecetas, d);
+                                    return adaptadas.stream();
+                                })
+                                .flatMap(receta -> receta.getIngredientes().stream())
+                                .forEach(ingrediente -> {
+                                    String nombreOriginal = ingrediente.getNombre();
+                                    if (nombreOriginal == null || nombreOriginal.trim().isEmpty()) return;
 
-                                    if (convertidaAlguna) {
-                                        mapUnidades.clear();
-                                        mapUnidades.put("g", totalGramos);
+                                    String nombreNormalizado = nombreOriginal.trim().toLowerCase(java.util.Locale.getDefault());
+                                    nombresDisplay.putIfAbsent(nombreNormalizado, nombreOriginal.trim());
+
+                                    String tipoCantidad = ingrediente.getTipoCantidad() != null ? ingrediente.getTipoCantidad() : "";
+                                    BigDecimal cantidad = BigDecimal.valueOf(
+                                            UtilsSrv.convertirNumero(ingrediente.getCantidad()));
+
+                                    resultado.computeIfAbsent(nombreNormalizado, k -> new ConcurrentHashMap<>())
+                                            .merge(tipoCantidad, cantidad, BigDecimal::add);
+                                });
+
+                        resultado.forEach((nombreNorm, mapUnidades) -> {
+                            if (mapUnidades.size() > 1) {
+                                BigDecimal totalGramos = BigDecimal.ZERO;
+                                boolean convertidaAlguna = false;
+
+                                for (Map.Entry<String, BigDecimal> entry : mapUnidades.entrySet()) {
+                                    String unidad = entry.getKey();
+                                    BigDecimal cant = entry.getValue();
+
+                                    BigDecimal gramos = convertirAGramosStatic(nombreNorm, unidad, cant);
+                                    if (gramos != null) {
+                                        totalGramos = totalGramos.add(gramos);
+                                        convertidaAlguna = true;
                                     }
                                 }
-                            });
 
-                            StringBuilder listaCompra = new StringBuilder();
-                            resultado.keySet().stream()
-                                    .sorted()
-                                    .forEach(nombreNorm -> {
-                                        String display = nombresDisplay.get(nombreNorm);
-                                        if (display != null && !display.isEmpty()) {
-                                            display = Character.toUpperCase(display.charAt(0)) + display.substring(1);
-                                        }
-
-                                        ConcurrentHashMap<String, BigDecimal> unidades = resultado.get(nombreNorm);
-                                        if (unidades != null) {
-                                            String finalDisplay = display;
-                                            unidades.forEach((tipoCantidad, cantidad) -> {
-                                                String cantStr = cantidad.stripTrailingZeros().toPlainString();
-                                                listaCompra.append(cantStr)
-                                                        .append(" ")
-                                                        .append(tipoCantidad)
-                                                        .append(" ")
-                                                        .append(finalDisplay)
-                                                        .append("\n");
-                                            });
-                                        }
-                                    });
-
-                            Log.d(TAG, "✅ Lista de compra generada exitosamente");
-                            callback.onSuccess(listaCompra.toString());
-
-                        } catch (Exception e) {
-                            Log.e(TAG, "❌ Error fatal generando lista de compra", e);
-                            callback.onFailure(e);
-                        }
-                    }
-
-                    private BigDecimal convertirAGramos(String nombre, String unidad, BigDecimal cantidad) {
-                        if ("g".equalsIgnoreCase(unidad)) return cantidad;
-                        if ("kg".equalsIgnoreCase(unidad)) return cantidad.multiply(new BigDecimal("1000"));
-                        if ("ml".equalsIgnoreCase(unidad)) return cantidad;
-                        if ("l".equalsIgnoreCase(unidad)) return cantidad.multiply(new BigDecimal("1000"));
-
-                        if ("unidad".equalsIgnoreCase(unidad)) {
-                            Integer gPorUnidad = RecetasSrv.gramosMapCache.get(nombre.toLowerCase(java.util.Locale.getDefault()));
-                            if (gPorUnidad != null && gPorUnidad > 0) {
-                                return cantidad.multiply(new BigDecimal(gPorUnidad));
+                                if (convertidaAlguna) {
+                                    mapUnidades.clear();
+                                    mapUnidades.put("g", totalGramos);
+                                }
                             }
-                        }
+                        });
 
-                        Integer importancia = RecetasSrv.unitImportanceMapCache.get(unidad);
-                        if (importancia != null && importancia > 0) {
-                            return cantidad.multiply(new BigDecimal(importancia));
-                        }
+                        StringBuilder listaCompra = new StringBuilder();
+                        resultado.keySet().stream()
+                                .sorted()
+                                .forEach(nombreNorm -> {
+                                    String display = nombresDisplay.get(nombreNorm);
+                                    if (display != null && !display.isEmpty()) {
+                                        display = Character.toUpperCase(display.charAt(0)) + display.substring(1);
+                                    }
 
-                        return null;
-                    }
+                                    ConcurrentHashMap<String, BigDecimal> unidades = resultado.get(nombreNorm);
+                                    if (unidades != null) {
+                                        String finalDisplay = display;
+                                        unidades.forEach((tipoCantidad, cantidad) -> {
+                                            String cantStr = cantidad.stripTrailingZeros().toPlainString();
+                                            listaCompra.append(cantStr)
+                                                    .append(" ")
+                                                    .append(tipoCantidad)
+                                                    .append(" ")
+                                                    .append(finalDisplay)
+                                                    .append("\n");
+                                        });
+                                    }
+                                });
 
-                    @Override
-                    public void onFailure(Exception e) {
-                        callback.onFailure(e);
+                        new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> callback.onSuccess(listaCompra.toString()));
+
+                    } catch (Exception e) {
+                        new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> callback.onFailure(e));
                     }
                 });
-            }
+    }
 
-            @Override
-            public void onFailure(Exception e) {
-                callback.onFailure(e);
+    private static BigDecimal convertirAGramosStatic(String nombre, String unidad, BigDecimal cantidad) {
+        if ("g".equalsIgnoreCase(unidad)) return cantidad;
+        if ("kg".equalsIgnoreCase(unidad)) return cantidad.multiply(new BigDecimal("1000"));
+        if ("ml".equalsIgnoreCase(unidad)) return cantidad;
+        if ("l".equalsIgnoreCase(unidad)) return cantidad.multiply(new BigDecimal("1000"));
+
+        if ("unidad".equalsIgnoreCase(unidad)) {
+            Integer gPorUnidad = RecetasSrv.gramosMapCache.get(nombre.toLowerCase(java.util.Locale.getDefault()));
+            if (gPorUnidad != null && gPorUnidad > 0) {
+                return cantidad.multiply(new BigDecimal(gPorUnidad));
             }
-        });
+        }
+
+        Integer importancia = RecetasSrv.unitImportanceMapCache.get(unidad);
+        if (importancia != null && importancia > 0) {
+            return cantidad.multiply(new BigDecimal(importancia));
+        }
+
+        return null;
     }
 
     /**
@@ -960,6 +1006,75 @@ public class CalendarioSrv {
     public static void addMenu(final Context context, final int mes, final int anio, final int diaInicio, final int diaFin,
                                final boolean forzarPasados, final int numRecetas, final int numPersonas, 
                                final boolean lazyMode, final RellenarCallback callback) {
+        try {
+            LocalDate startDate = LocalDate.of(anio, mes + 1, diaInicio);
+            LocalDate endDate = LocalDate.of(anio, mes + 1, diaFin);
+            addMenu(context, startDate, endDate, forzarPasados, numRecetas, numPersonas, lazyMode, callback);
+        } catch (Exception e) {
+            callback.onFailure(e);
+        }
+    }
+
+    public static void addMenu(Context context, LocalDate startDate, LocalDate endDate,
+                               boolean forzarPasados, int numRecetas, int numPersonas, boolean lazyMode,
+                               RellenarCallback callback) {
+        if (!checkUserId(callback)) return;
+        if (startDate.isAfter(endDate)) {
+            LocalDate temp = startDate;
+            startDate = endDate;
+            endDate = temp;
+        }
+
+        List<Segment> segments = new ArrayList<>();
+        LocalDate current = startDate;
+        while (!current.isAfter(endDate)) {
+            int mes = current.getMonthValue() - 1;
+            int anio = current.getYear();
+            int diaInicio = (current.equals(startDate)) ? current.getDayOfMonth() : 1;
+            int diaFin = (java.time.YearMonth.from(current).equals(java.time.YearMonth.from(endDate))) ? endDate.getDayOfMonth() : current.lengthOfMonth();
+            segments.add(new Segment(mes, anio, diaInicio, diaFin));
+            current = current.plusMonths(1).withDayOfMonth(1);
+        }
+
+        executeSegmentsSequentially(context, segments, 0, forzarPasados, numRecetas, numPersonas, lazyMode, callback);
+    }
+
+    private static class Segment {
+        int mes, anio, diaInicio, diaFin;
+        Segment(int mes, int anio, int diaInicio, int diaFin) {
+            this.mes = mes; this.anio = anio; this.diaInicio = diaInicio; this.diaFin = diaFin;
+        }
+    }
+
+    private static void executeSegmentsSequentially(Context context, List<Segment> segments, int index,
+                                                    boolean forzarPasados, int numRecetas, int numPersonas,
+                                                    boolean lazyMode, RellenarCallback callback) {
+        if (index >= segments.size()) {
+            Segment last = segments.get(segments.size() - 1);
+            obtenerCalendario(context, last.mes, last.anio, new CalendarioCallback() {
+                @Override public void onSuccess(List<Day> days) {
+                    new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> callback.onSuccess(days));
+                }
+                @Override public void onFailure(Exception e) {
+                    new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> callback.onFailure(e));
+                }
+            });
+            return;
+        }
+        Segment seg = segments.get(index);
+        addMenuInternal(context, seg.mes, seg.anio, seg.diaInicio, seg.diaFin, forzarPasados, numRecetas, numPersonas, lazyMode, new RellenarCallback() {
+            @Override public void onSuccess(List<Day> days) {
+                executeSegmentsSequentially(context, segments, index + 1, forzarPasados, numRecetas, numPersonas, lazyMode, callback);
+            }
+            @Override public void onFailure(Exception e) {
+                new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> callback.onFailure(e));
+            }
+        });
+    }
+
+    private static void addMenuInternal(final Context context, final int mes, final int anio, final int diaInicio, final int diaFin,
+                                        final boolean forzarPasados, final int numRecetas, final int numPersonas, 
+                                        final boolean lazyMode, final RellenarCallback callback) {
         if (!checkUserId(callback)) return;
 
         CompletableFuture<List<Day>> calendarFuture = new CompletableFuture<>();

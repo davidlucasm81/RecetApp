@@ -148,6 +148,9 @@ Only JSON:
 
     <string name="login_con_google">Sign in with Google</string>
     <string name="desc_google_sign_in">Sign in with Google button</string>
+    <string name="fecha_inicio">Start date:</string>
+    <string name="fecha_fin">End date:</string>
+    <string name="error_rango_fechas_invalido">The end date must be after or equal to the start date</string>
     <string name="cerrar_sesion">Sign out</string>
     <string name="confirmar_cerrar_sesion">Are you sure you want to sign out?</string>
     <string name="error_login">Login failed. Please try again.</string>

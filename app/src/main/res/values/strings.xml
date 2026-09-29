@@ -161,6 +161,9 @@ Solo JSON:
     <string name="confirmar_cerrar_sesion">¿Seguro que quieres cerrar sesión?</string>
     <string name="error_login">Error al iniciar sesión. Inténtalo de nuevo.</string>
     <string name="solo_mes_actual">Esta operación solo está permitida en el mes actual</string>
+    <string name="fecha_inicio">Fecha de inicio:</string>
+    <string name="fecha_fin">Fecha de fin:</string>
+    <string name="error_rango_fechas_invalido">La fecha de fin debe ser posterior o igual a la de inicio</string>
     <string name="anterior">Anterior</string>
     <string name="siguiente">Siguiente</string>
     <string name="comida">Comida</string>

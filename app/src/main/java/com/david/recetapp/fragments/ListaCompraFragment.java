@@ -13,7 +13,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.NumberPicker;
 import android.widget.Toast;
 
 import java.util.Calendar;
@@ -81,25 +80,44 @@ public class ListaCompraFragment extends Fragment {
         LayoutInflater inflaterDialog = LayoutInflater.from(getContext());
         View dialogView = inflaterDialog.inflate(R.layout.dialog_date_range_picker, null);
 
-        NumberPicker numberPickerInicio = dialogView.findViewById(R.id.numberPickerInicio);
-        NumberPicker numberPickerFin = dialogView.findViewById(R.id.numberPickerFin);
+        Button btnFechaInicio = dialogView.findViewById(R.id.btnFechaInicio);
+        Button btnFechaFin = dialogView.findViewById(R.id.btnFechaFin);
 
-        // Configurar los NumberPickers
-        numberPickerInicio.setMinValue(1);
-        numberPickerInicio.setMaxValue(31);
-        numberPickerFin.setMinValue(1);
-        numberPickerFin.setMaxValue(31);
+        final java.time.LocalDate[] startDate = { java.time.LocalDate.now() };
+        final java.time.LocalDate[] endDate = { startDate[0].plusDays(6) };
 
-        // Establecer listeners para ajustar dinámicamente el rango
-        numberPickerInicio.setOnValueChangedListener((picker, oldVal, newVal) -> numberPickerFin.setMinValue(newVal + 1));
+        Runnable updateButtonTexts = () -> {
+            btnFechaInicio.setText(String.format(java.util.Locale.getDefault(), "%02d/%02d/%d", startDate[0].getDayOfMonth(), startDate[0].getMonthValue(), startDate[0].getYear()));
+            btnFechaFin.setText(String.format(java.util.Locale.getDefault(), "%02d/%02d/%d", endDate[0].getDayOfMonth(), endDate[0].getMonthValue(), endDate[0].getYear()));
+        };
+        updateButtonTexts.run();
 
-        numberPickerFin.setOnValueChangedListener((picker, oldVal, newVal) -> numberPickerInicio.setMaxValue(newVal - 1));
+        btnFechaInicio.setOnClickListener(v -> {
+            android.app.DatePickerDialog dpd = new android.app.DatePickerDialog(requireContext(), (view, year, month, dayOfMonth) -> {
+                startDate[0] = java.time.LocalDate.of(year, month + 1, dayOfMonth);
+                if (startDate[0].isAfter(endDate[0])) {
+                    endDate[0] = startDate[0];
+                }
+                updateButtonTexts.run();
+            }, startDate[0].getYear(), startDate[0].getMonthValue() - 1, startDate[0].getDayOfMonth());
+            dpd.show();
+        });
+
+        btnFechaFin.setOnClickListener(v -> {
+            android.app.DatePickerDialog dpd = new android.app.DatePickerDialog(requireContext(), (view, year, month, dayOfMonth) -> {
+                endDate[0] = java.time.LocalDate.of(year, month + 1, dayOfMonth);
+                if (endDate[0].isBefore(startDate[0])) {
+                    startDate[0] = endDate[0];
+                }
+                updateButtonTexts.run();
+            }, endDate[0].getYear(), endDate[0].getMonthValue() - 1, endDate[0].getDayOfMonth());
+            dpd.show();
+        });
 
         AlertDialog alert = new AlertDialog.Builder(getContext(), R.style.CustomAlertDialog)
                 .setTitle(getString(R.string.seleccionar_dias))
                 .setView(dialogView)
-                .setPositiveButton(getString(R.string.aceptar), (dialog, which) ->
-                        generarListaCompra(numberPickerInicio.getValue(), numberPickerFin.getValue()))
+                .setPositiveButton(getString(R.string.aceptar), null)
                 .setNegativeButton(getString(R.string.cancelar), null)
                 .create();
 
@@ -110,16 +128,23 @@ public class ListaCompraFragment extends Fragment {
                 positiveButton.setTextColor(ContextCompat.getColor(requireContext(), R.color.colorPrimary));
                 negativeButton.setTextColor(ContextCompat.getColor(requireContext(), R.color.colorPrimary));
             }
+            positiveButton.setOnClickListener(v -> {
+                if (startDate[0].isAfter(endDate[0])) {
+                    UtilsSrv.notificacion(requireContext(), getString(R.string.error_rango_fechas_invalido), Toast.LENGTH_LONG).show();
+                    return;
+                }
+                alert.dismiss();
+                generarListaCompra(startDate[0], endDate[0]);
+            });
         });
 
         alert.show();
     }
 
-    private void generarListaCompra(int diaInicio, int diaFin) {
+    private void generarListaCompra(java.time.LocalDate startDate, java.time.LocalDate endDate) {
         handler.removeCallbacksAndMessages(null);
 
-        Calendar now = Calendar.getInstance();
-        CalendarioSrv.getListaCompra(getContext(), now.get(Calendar.MONTH), now.get(Calendar.YEAR), diaInicio, diaFin, new CalendarioSrv.ListaCompraCallback() {
+        CalendarioSrv.getListaCompra(getContext(), startDate, endDate, new CalendarioSrv.ListaCompraCallback() {
             @Override
             public void onSuccess(String listaCompra) {
                 if (!isAdded()) return;
