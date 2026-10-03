@@ -1,202 +1,202 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true"
     tools:context=".fragments.RecetasFragment">
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:ignore="ScrollViewSize">
+        android:orientation="vertical"
+        android:padding="16dp">
 
+        <!-- Header: título + contador + botón importar -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:orientation="horizontal"
+            android:baselineAligned="false"
+            tools:ignore="RtlSymmetry">
 
-            <!-- Header: título + contador + botón importar -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:baselineAligned="false"
-                tools:ignore="RtlSymmetry">
-
-                <!-- Título: ocupa el espacio restante -->
-                <TextView
-                    android:id="@+id/textViewTituloRecetas"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_gravity="start"
-                    android:padding="8dp"
-                    android:text="@string/recetas"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
-
-                <!-- Contador de recetas (nuevo) -->
-                <TextView
-                    android:id="@+id/textViewContadorRecetas"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:padding="8dp"
-                    android:text="@string/_0_recetas"
-                    android:textSize="14sp"
-                    android:textStyle="normal" />
-
-                <!-- Contenedor para el botón importar (queda a la derecha) -->
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:gravity="center|end"
-                    android:orientation="horizontal"
-                    android:baselineAligned="false">
-
-                    <ImageButton
-                        android:id="@+id/btnImportar"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
-                        android:layout_marginStart="8dp"
-                        android:layout_marginEnd="8dp"
-                        android:background="@drawable/boton_redondo"
-                        android:contentDescription="@string/importar"
-                        android:src="@drawable/importar_icon"
-                        tools:ignore="TextContrastCheck,ImageContrastCheck,TouchTargetSizeCheck" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <!-- resto del layout (sin cambios salvo indent) -->
-            <GridLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:columnCount="2"
-                android:padding="16dp"
-                android:rowCount="1">
-
-                <AutoCompleteTextView
-                    android:id="@+id/autoCompleteTextViewRecetas"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_row="0"
-                    android:layout_column="0"
-                    android:layout_columnWeight="1"
-                    android:completionThreshold="1"
-                    android:dropDownAnchor="@id/autoCompleteTextViewRecetas"
-                    android:hint="@string/buscar_recetas"
-                    android:imeActionLabel="Done"
-                    android:imeOptions="actionDone"
-                    android:inputType="textAutoComplete"
-                    android:minHeight="48dp"
-                    tools:ignore="VisualLintTextFieldSize" />
-
-                <ImageView
-                    android:id="@+id/imageViewClearSearch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_row="0"
-                    android:layout_column="1"
-                    android:layout_gravity="center_vertical"
-                    android:clickable="true"
-                    android:contentDescription="@string/borrar_busqueda"
-                    android:src="@drawable/ic_baseline_delete_24"
-                    tools:ignore="TouchTargetSizeCheck" />
-            </GridLayout>
-
-            <HorizontalScrollView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:scrollbars="none"
-                android:layout_marginTop="8dp">
-
-                <com.google.android.material.chip.ChipGroup
-                    android:id="@+id/chipGroupTipoReceta"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:singleSelection="true"
-                    app:selectionRequired="false">
-
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/chipTodos"
-                        style="@style/Widget.MaterialComponents.Chip.Choice"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/buscar_todos"
-                        android:checked="true" />
-
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/chipPrincipales"
-                        style="@style/Widget.MaterialComponents.Chip.Choice"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/tipo_principal" />
-
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/chipPostres"
-                        style="@style/Widget.MaterialComponents.Chip.Choice"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/tipo_postre" />
-
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/chipCocteles"
-                        style="@style/Widget.MaterialComponents.Chip.Choice"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/tipo_coctel" />
-
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/chipSides"
-                        style="@style/Widget.MaterialComponents.Chip.Choice"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/tipo_side" />
-
-                    <com.google.android.material.chip.Chip
-                        android:id="@+id/chipUnknownScores"
-                        style="@style/Widget.MaterialComponents.Chip.Choice"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/unknown_scores" />
-
-                </com.google.android.material.chip.ChipGroup>
-            </HorizontalScrollView>
-
+            <!-- Título: ocupa el espacio restante -->
             <TextView
-                android:id="@+id/textViewEmpty"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:text="@string/no_hay_recetas"
-                android:textColor="@color/colorGrisTextoFondo"
+                android:id="@+id/textViewTituloRecetas"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_gravity="start"
+                android:padding="8dp"
+                android:text="@string/recetas"
                 android:textSize="20sp"
-                android:textStyle="bold"
-                android:visibility="gone" />
+                android:textStyle="bold" />
 
-            <ExpandableListView
-                android:id="@+id/expandableListView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:divider="@color/dividerColor"
-                android:dividerHeight="1dp"
-                android:visibility="visible" />
-
-            <ProgressBar
-                android:id="@+id/progressBar"
+            <!-- Contador de recetas -->
+            <TextView
+                android:id="@+id/textViewContadorRecetas"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:visibility="gone" />
+                android:layout_gravity="center_vertical"
+                android:padding="8dp"
+                android:text="@string/_0_recetas"
+                android:textSize="14sp"
+                android:textStyle="normal" />
 
-            <FrameLayout
-                android:id="@+id/youtube_anchor_container"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:visibility="gone" />
+            <!-- Contenedor para el botón importar -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center|end"
+                android:orientation="horizontal"
+                android:baselineAligned="false">
+
+                <ImageButton
+                    android:id="@+id/btnImportar"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/boton_redondo"
+                    android:contentDescription="@string/importar"
+                    android:src="@drawable/importar_icon"
+                    tools:ignore="TextContrastCheck,ImageContrastCheck,TouchTargetSizeCheck" />
+            </LinearLayout>
         </LinearLayout>
+
+        <!-- Búsqueda -->
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:columnCount="2"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:rowCount="1">
+
+            <AutoCompleteTextView
+                android:id="@+id/autoCompleteTextViewRecetas"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_row="0"
+                android:layout_column="0"
+                android:layout_columnWeight="1"
+                android:completionThreshold="1"
+                android:dropDownAnchor="@id/autoCompleteTextViewRecetas"
+                android:hint="@string/buscar_recetas"
+                android:imeActionLabel="Done"
+                android:imeOptions="actionDone"
+                android:inputType="textAutoComplete"
+                android:minHeight="48dp"
+                tools:ignore="VisualLintTextFieldSize" />
+
+            <ImageView
+                android:id="@+id/imageViewClearSearch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_row="0"
+                android:layout_column="1"
+                android:layout_gravity="center_vertical"
+                android:clickable="true"
+                android:contentDescription="@string/borrar_busqueda"
+                android:src="@drawable/ic_baseline_delete_24"
+                tools:ignore="TouchTargetSizeCheck" />
+        </GridLayout>
+
+        <!-- Chips -->
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="8dp">
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chipGroupTipoReceta"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:singleSelection="true"
+                app:selectionRequired="false">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipTodos"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/buscar_todos"
+                    android:checked="true" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipPrincipales"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/tipo_principal" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipPostres"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/tipo_postre" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipCocteles"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/tipo_coctel" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipSides"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/tipo_side" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipUnknownScores"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/unknown_scores" />
+
+            </com.google.android.material.chip.ChipGroup>
+        </HorizontalScrollView>
+
+        <TextView
+            android:id="@+id/textViewEmpty"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/no_hay_recetas"
+            android:textColor="@color/colorGrisTextoFondo"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
+        <ExpandableListView
+            android:id="@+id/expandableListView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:divider="@color/dividerColor"
+            android:dividerHeight="1dp"
+            android:visibility="visible" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone" />
+
+        <FrameLayout
+            android:id="@+id/youtube_anchor_container"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="gone" />
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -228,5 +228,4 @@
             app:tint="@android:color/white" />
 
     </LinearLayout>
-    </RelativeLayout>
-</ScrollView>
+</RelativeLayout>
