@@ -177,4 +177,12 @@ Only JSON:
     <string name="puntuar_mas_tarde">Rate later</string>
     <string name="no_poner_puntuacion">No rating</string>
     <string name="quitar_puntuacion">Remove rating</string>
+    <string name="copiar_lista_compra">Copy list</string>
+    <string name="cortar_lista_compra">Cut list</string>
+    <string name="compartir_lista_compra">Share list</string>
+    <string name="borrar_lista_compra">Clear list</string>
+    <string name="lista_compra_copiada">Shopping list copied to clipboard</string>
+    <string name="lista_compra_cortada">Shopping list cut to clipboard</string>
+    <string name="lista_compra_vacia">Shopping list is empty</string>
+    <string name="confirmar_borrar_lista_compra">Are you sure you want to clear the shopping list?</string>
 </resources>

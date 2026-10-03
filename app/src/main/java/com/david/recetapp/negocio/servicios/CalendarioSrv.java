@@ -953,12 +953,11 @@ public class CalendarioSrv {
                                         String finalDisplay = display;
                                         unidades.forEach((tipoCantidad, cantidad) -> {
                                             String cantStr = cantidad.stripTrailingZeros().toPlainString();
-                                            listaCompra.append(cantStr)
-                                                    .append(" ")
-                                                    .append(tipoCantidad)
-                                                    .append(" ")
-                                                    .append(finalDisplay)
-                                                    .append("\n");
+                                            listaCompra.append(cantStr);
+                                            if (tipoCantidad != null && !tipoCantidad.trim().isEmpty()) {
+                                                listaCompra.append(" ").append(tipoCantidad.trim());
+                                            }
+                                            listaCompra.append(" ").append(finalDisplay).append("\n");
                                         });
                                     }
                                 });

@@ -186,4 +186,12 @@ Solo JSON:
     <string name="puntuar_mas_tarde">Puntuar más tarde</string>
     <string name="no_poner_puntuacion">No poner puntuación</string>
     <string name="quitar_puntuacion">Quitar puntuación</string>
+    <string name="copiar_lista_compra">Copiar lista</string>
+    <string name="cortar_lista_compra">Cortar lista</string>
+    <string name="compartir_lista_compra">Compartir lista</string>
+    <string name="borrar_lista_compra">Borrar lista</string>
+    <string name="lista_compra_copiada">Lista de la compra copiada al portapapeles</string>
+    <string name="lista_compra_cortada">Lista de la compra cortada al portapapeles</string>
+    <string name="lista_compra_vacia">La lista de la compra está vacía</string>
+    <string name="confirmar_borrar_lista_compra">¿Está seguro de que desea borrar la lista de la compra?</string>
 </resources>

@@ -49,7 +49,16 @@ public class ListaCompraFragment extends Fragment {
         String savedText = prefs.getString(TEXT_KEY, "");
         editText.setText(savedText);
 
+        ImageButton btnCopiar = rootView.findViewById(R.id.btnCopiar);
+        ImageButton btnCortar = rootView.findViewById(R.id.btnCortar);
+        ImageButton btnCompartir = rootView.findViewById(R.id.btnCompartir);
+        ImageButton btnBorrar = rootView.findViewById(R.id.btnBorrar);
         ImageButton btnActualizar = rootView.findViewById(R.id.btnActualizar);
+
+        btnCopiar.setOnClickListener(v -> copiarLista());
+        btnCortar.setOnClickListener(v -> cortarLista());
+        btnCompartir.setOnClickListener(v -> compartirLista());
+        btnBorrar.setOnClickListener(v -> mostrarDialogoBorrar());
         btnActualizar.setOnClickListener(v -> mostrarDialogoRangoFechas());
 
         editText.addTextChangedListener(new TextWatcher() {
@@ -141,6 +150,72 @@ public class ListaCompraFragment extends Fragment {
         alert.show();
     }
 
+    private void copiarLista() {
+        String texto = editText.getText().toString().trim();
+        if (texto.isEmpty()) {
+            UtilsSrv.notificacion(requireContext(), getString(R.string.lista_compra_vacia), Toast.LENGTH_SHORT).show();
+            return;
+        }
+        UtilsSrv.copiarAlPortapapeles(requireContext(), getString(R.string.lista_compra), texto);
+        UtilsSrv.notificacion(requireContext(), getString(R.string.lista_compra_copiada), Toast.LENGTH_SHORT).show();
+    }
+
+    private void cortarLista() {
+        String texto = editText.getText().toString().trim();
+        if (texto.isEmpty()) {
+            UtilsSrv.notificacion(requireContext(), getString(R.string.lista_compra_vacia), Toast.LENGTH_SHORT).show();
+            return;
+        }
+        UtilsSrv.copiarAlPortapapeles(requireContext(), getString(R.string.lista_compra), texto);
+        editText.setText("");
+        guardarTexto("");
+        UtilsSrv.notificacion(requireContext(), getString(R.string.lista_compra_cortada), Toast.LENGTH_SHORT).show();
+    }
+
+    private void compartirLista() {
+        String texto = editText.getText().toString().trim();
+        if (texto.isEmpty()) {
+            UtilsSrv.notificacion(requireContext(), getString(R.string.lista_compra_vacia), Toast.LENGTH_SHORT).show();
+            return;
+        }
+        android.content.Intent sendIntent = new android.content.Intent();
+        sendIntent.setAction(android.content.Intent.ACTION_SEND);
+        sendIntent.putExtra(android.content.Intent.EXTRA_TEXT, texto);
+        sendIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, getString(R.string.lista_compra));
+        sendIntent.setType("text/plain");
+
+        android.content.Intent shareIntent = android.content.Intent.createChooser(sendIntent, getString(R.string.compartir_lista_compra));
+        startActivity(shareIntent);
+    }
+
+    private void mostrarDialogoBorrar() {
+        String texto = editText.getText().toString().trim();
+        if (texto.isEmpty()) {
+            UtilsSrv.notificacion(requireContext(), getString(R.string.lista_compra_vacia), Toast.LENGTH_SHORT).show();
+            return;
+        }
+        AlertDialog alert = new AlertDialog.Builder(requireContext(), R.style.CustomAlertDialog)
+                .setTitle(getString(R.string.confirmacion))
+                .setMessage(getString(R.string.confirmar_borrar_lista_compra))
+                .setPositiveButton(getString(R.string.si), (dialog, which) -> {
+                    editText.setText("");
+                    guardarTexto("");
+                    UtilsSrv.notificacion(requireContext(), getString(R.string.lista_compra), Toast.LENGTH_SHORT).show();
+                })
+                .setNegativeButton(getString(R.string.cancelar), null)
+                .create();
+
+        alert.setOnShowListener(dialogInterface -> {
+            Button positiveButton = alert.getButton(AlertDialog.BUTTON_POSITIVE);
+            Button negativeButton = alert.getButton(AlertDialog.BUTTON_NEGATIVE);
+            if (isAdded()) {
+                positiveButton.setTextColor(ContextCompat.getColor(requireContext(), R.color.colorPrimary));
+                negativeButton.setTextColor(ContextCompat.getColor(requireContext(), R.color.colorPrimary));
+            }
+        });
+        alert.show();
+    }
+
     private void generarListaCompra(java.time.LocalDate startDate, java.time.LocalDate endDate) {
         handler.removeCallbacksAndMessages(null);
 
@@ -152,8 +227,9 @@ public class ListaCompraFragment extends Fragment {
                 handler.post(() -> {
                     if (!isAdded()) return;
 
-                    String textoActual = editText.getText().toString();
-                    String nuevoTexto = textoActual + "\n" + listaCompra;
+                    String textoActual = editText.getText().toString().trim();
+                    String listaGenerada = listaCompra != null ? listaCompra.trim() : "";
+                    String nuevoTexto = textoActual.isEmpty() ? listaGenerada : textoActual + "\n" + listaGenerada;
                     editText.setText(nuevoTexto);
                     guardarTexto(nuevoTexto);
 
