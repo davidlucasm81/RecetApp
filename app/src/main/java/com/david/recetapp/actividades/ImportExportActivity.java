@@ -141,7 +141,7 @@ public class ImportExportActivity extends AppCompatActivity {
     }
 
     private String convertirListaAJson(List<Receta> listaRecetas) {
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
         return gson.toJson(listaRecetas);
     }
 

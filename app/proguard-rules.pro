@@ -2,11 +2,14 @@
 # Reglas para Firestore
 # =============================================
 
-# Mantener todas las clases de beans (modelos) y sus campos
+# Mantener todas las clases de beans (modelos) y TODOS sus campos y métodos (evita ofuscación de campos privados para Gson/Firestore)
 -keep class com.david.recetapp.negocio.beans.** {
-    public <fields>;
-    public <methods>;
-    public <init>();
+    *;
+}
+
+# Mantener nombres de campos anotados con SerializedName de Gson
+-keepclassmembers class * {
+    @com.google.gson.annotations.SerializedName <fields>;
 }
 
 # Mantener enums y sus métodos para Firestore

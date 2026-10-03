@@ -17,6 +17,7 @@ import com.david.recetapp.negocio.beans.TipoIngrediente;
 import org.xmlpull.v1.XmlPullParser;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -891,7 +892,7 @@ public class RecetasSrv {
     }
 
     public static String recetaToJson(Receta receta) {
-        return new Gson().toJson(receta);
+        return new GsonBuilder().setPrettyPrinting().create().toJson(receta);
     }
 
 }

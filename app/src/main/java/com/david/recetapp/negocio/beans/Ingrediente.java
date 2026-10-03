@@ -17,7 +17,7 @@ public class Ingrediente implements Parcelable, Serializable {
     private String esSustitutoDe;
     private TipoIngrediente tipo;
     private String recetaId;
-    private Receta recetaReferenciada;
+    private transient Receta recetaReferenciada;
 
     public Ingrediente(String nombre, String cantidad, String tipoCantidad, double puntuacion) {
         this(nombre, cantidad, tipoCantidad, puntuacion, false, null);
