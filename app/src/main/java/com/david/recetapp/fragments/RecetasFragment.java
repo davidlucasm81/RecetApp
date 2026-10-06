@@ -29,6 +29,8 @@ import com.david.recetapp.R;
 import com.david.recetapp.actividades.recetas.AddRecetaActivity;
 import com.david.recetapp.actividades.ImportExportActivity;
 import com.david.recetapp.adaptadores.RecetaExpandableListAdapter;
+import com.david.recetapp.negocio.beans.FiltroRecetas;
+import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.david.recetapp.negocio.beans.Receta;
 import com.david.recetapp.negocio.beans.TipoReceta;
@@ -39,7 +41,6 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -55,6 +56,7 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
     private ExpandableListView expandableListView;
     private AutoCompleteTextView autoCompleteTextViewRecetas;
     private ChipGroup chipGroupTipoReceta;
+    private Chip chipFiltrosAvanzados;
     private Handler mainHandler;
     private Handler debounceHandler;
     private Runnable debounceRunnable;
@@ -63,6 +65,8 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
     private FloatingActionButton fabIA;
     private ProgressBar progressBar;
     private ActivityResultLauncher<Intent> importLauncher;
+
+    private FiltroRecetas filtroRecetas = new FiltroRecetas();
 
     // Executor para tareas del fragment
     private ExecutorService fragmentExecutor;
@@ -107,6 +111,7 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
         textViewEmpty = rootView.findViewById(R.id.textViewEmpty);
         autoCompleteTextViewRecetas = rootView.findViewById(R.id.autoCompleteTextViewRecetas);
         chipGroupTipoReceta = rootView.findViewById(R.id.chipGroupTipoReceta);
+        chipFiltrosAvanzados = rootView.findViewById(R.id.chipFiltrosAvanzados);
         contadorTextView = rootView.findViewById(R.id.textViewContadorRecetas);
         progressBar = rootView.findViewById(R.id.progressBar);
 
@@ -114,6 +119,8 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
         autoCompleteAdapter = new ArrayAdapter<>(requireContext(),
                 android.R.layout.simple_dropdown_item_1line, new ArrayList<>());
         autoCompleteTextViewRecetas.setAdapter(autoCompleteAdapter);
+
+        actualizarBotonFiltrosUI();
     }
 
     private void setupHandlers() {
@@ -134,7 +141,6 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
                         }
                         if (textViewEmpty != null) textViewEmpty.setVisibility(View.GONE);
 
-                        // usar wrapper seguro
                         safeCargarListaRecetas(true, new RecetasSrv.RecetasCallback() {
                             @Override
                             public void onSuccess(List<Receta> recetas) {
@@ -161,8 +167,34 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
     }
 
     private void setupListeners() {
-        chipGroupTipoReceta.setOnCheckedStateChangeListener((group, checkedIds) ->
-                filtrarYActualizarLista(autoCompleteTextViewRecetas.getText().toString()));
+        if (chipFiltrosAvanzados != null) {
+            chipFiltrosAvanzados.setOnClickListener(v -> abrirDialogoFiltros());
+        }
+
+        chipGroupTipoReceta.setOnCheckedStateChangeListener((group, checkedIds) -> {
+            int checkedId = group.getCheckedChipId();
+            if (checkedId == R.id.chipPrincipales) {
+                filtroRecetas.setTipoReceta(TipoReceta.PRINCIPAL);
+                filtroRecetas.setSoloIngredientesSinPuntuar(false);
+            } else if (checkedId == R.id.chipPostres) {
+                filtroRecetas.setTipoReceta(TipoReceta.POSTRE);
+                filtroRecetas.setSoloIngredientesSinPuntuar(false);
+            } else if (checkedId == R.id.chipCocteles) {
+                filtroRecetas.setTipoReceta(TipoReceta.COCTEL);
+                filtroRecetas.setSoloIngredientesSinPuntuar(false);
+            } else if (checkedId == R.id.chipSides) {
+                filtroRecetas.setTipoReceta(TipoReceta.SIDE);
+                filtroRecetas.setSoloIngredientesSinPuntuar(false);
+            } else if (checkedId == R.id.chipUnknownScores) {
+                filtroRecetas.setTipoReceta(null);
+                filtroRecetas.setSoloIngredientesSinPuntuar(true);
+            } else {
+                filtroRecetas.setTipoReceta(null);
+                filtroRecetas.setSoloIngredientesSinPuntuar(false);
+            }
+            actualizarBotonFiltrosUI();
+            filtrarYActualizarLista(autoCompleteTextViewRecetas.getText().toString());
+        });
 
         autoCompleteTextViewRecetas.addTextChangedListener(new TextWatcher() {
             @Override
@@ -212,12 +244,50 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
         });
     }
 
+    private void abrirDialogoFiltros() {
+        FiltrosRecetaBottomSheetDialog dialog = FiltrosRecetaBottomSheetDialog.newInstance(filtroRecetas);
+        dialog.setOnFiltrosAplicadosListener(filtroActualizado -> {
+            this.filtroRecetas = filtroActualizado;
+            sincronizarChipsRapidosConFiltro();
+            actualizarBotonFiltrosUI();
+            filtrarYActualizarLista(autoCompleteTextViewRecetas.getText().toString());
+        });
+        dialog.show(getChildFragmentManager(), "FiltrosRecetaBottomSheetDialog");
+    }
+
+    private void sincronizarChipsRapidosConFiltro() {
+        if (chipGroupTipoReceta == null) return;
+        if (filtroRecetas.isSoloIngredientesSinPuntuar()) {
+            chipGroupTipoReceta.check(R.id.chipUnknownScores);
+        } else {
+            TipoReceta tr = filtroRecetas.getTipoReceta();
+            if (tr == TipoReceta.PRINCIPAL) chipGroupTipoReceta.check(R.id.chipPrincipales);
+            else if (tr == TipoReceta.POSTRE) chipGroupTipoReceta.check(R.id.chipPostres);
+            else if (tr == TipoReceta.COCTEL) chipGroupTipoReceta.check(R.id.chipCocteles);
+            else if (tr == TipoReceta.SIDE) chipGroupTipoReceta.check(R.id.chipSides);
+            else chipGroupTipoReceta.check(R.id.chipTodos);
+        }
+    }
+
+    private void actualizarBotonFiltrosUI() {
+        if (chipFiltrosAvanzados == null || !isAdded()) return;
+        int activeCount = filtroRecetas.getActiveFilterCount();
+        if (activeCount > 0) {
+            chipFiltrosAvanzados.setText(String.format(Locale.getDefault(), "%s (%d)", getString(R.string.filtros), activeCount));
+            chipFiltrosAvanzados.setChipBackgroundColorResource(R.color.colorPrimary);
+            chipFiltrosAvanzados.setTextColor(requireContext().getColor(android.R.color.white));
+        } else {
+            chipFiltrosAvanzados.setText(getString(R.string.filtros));
+            chipFiltrosAvanzados.setChipBackgroundColor(null);
+            chipFiltrosAvanzados.setTextColor(requireContext().getColor(android.R.color.black));
+        }
+    }
+
     private void loadRecetas() {
         if (progressBar != null) {
             progressBar.setVisibility(View.VISIBLE);
         }
 
-        // wrapper seguro que maneja SecurityException y problemas con Play Services
         safeCargarListaRecetas(false, new RecetasSrv.RecetasCallback() {
             @Override
             public void onSuccess(List<Receta> recetas) {
@@ -248,13 +318,9 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
     private void actualizarUIConRecetas(List<Receta> recetas) {
         if (!isAdded()) return;
 
-        // Ordenar por nombre (sin modificar la original)
-        recetas.sort((r1, r2) -> String.CASE_INSENSITIVE_ORDER.compare(r1.getNombre(), r2.getNombre()));
-
         mainHandler.post(() -> {
             if (!isAdded()) return;
 
-            // Rellenar AutoComplete reutilizando adapter
             Set<String> nombres = recetas.stream()
                     .map(Receta::getNombre)
                     .collect(Collectors.toSet());
@@ -266,18 +332,17 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
             autoCompleteAdapter.addAll(nombresList);
             autoCompleteAdapter.notifyDataSetChanged();
 
-            // Actualizar o crear el expandableListAdapter
             if (expandableListAdapter == null) {
                 ViewGroup anchor = rootView.findViewById(R.id.youtube_anchor_container);
                 expandableListAdapter = new RecetaExpandableListAdapter(requireContext(), recetas, expandableListView, anchor, this);
                 expandableListAdapter.setOnNavigateToRecipeListener(recetaId -> {
                     // Limpiar filtros
                     autoCompleteTextViewRecetas.setText("");
-                    chipGroupTipoReceta.check(R.id.chipTodos);
-                    // Forzar recarga de lista completa
+                    filtroRecetas.reset();
+                    sincronizarChipsRapidosConFiltro();
+                    actualizarBotonFiltrosUI();
                     filtrarYActualizarLista("");
                     
-                    // Esperar a que se actualice la UI y navegar
                     mainHandler.postDelayed(() -> {
                         if (expandableListAdapter != null) {
                             for (int i = 0; i < expandableListAdapter.getGroupCount(); i++) {
@@ -290,14 +355,14 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
                                 }
                             }
                         }
-                    }, 600); // 600 ms para dar tiempo a filtrarYActualizarLista
+                    }, 600);
                 });
                 expandableListView.setAdapter(expandableListAdapter);
             } else {
                 expandableListAdapter.updateData(recetas);
             }
 
-            filtrarYActualizarLista("");
+            filtrarYActualizarLista(autoCompleteTextViewRecetas.getText().toString());
         });
     }
 
@@ -307,42 +372,16 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
         }
         if (expandableListView != null) expandableListView.setVisibility(View.GONE);
 
-        final int checkedChipId = (chipGroupTipoReceta != null) ? chipGroupTipoReceta.getCheckedChipId() : -1;
-        final String query = (consulta == null) ? "" : consulta.trim().toLowerCase(Locale.ROOT);
+        filtroRecetas.setQuery(consulta);
 
-        // Ejecutar en executor (reutilizable)
         fragmentExecutor.execute(() -> {
             List<Receta> copyList = RecetasSrv.getRecetas();
 
-            if (!query.isEmpty()) {
-                copyList.removeIf(r -> {
-                    boolean nameMatch = r.getNombre() != null &&
-                            r.getNombre().toLowerCase(Locale.ROOT).contains(query);
-                    boolean ingrMatch = r.getIngredientes() != null &&
-                            r.getIngredientes().stream()
-                                    .anyMatch(i -> i.getNombre() != null &&
-                                            i.getNombre().toLowerCase(Locale.ROOT).contains(query));
-                    return !(nameMatch || ingrMatch);
-                });
-            }
+            // Filtrar usando el modelo FiltroRecetas
+            copyList.removeIf(r -> !filtroRecetas.test(r));
 
-            if (checkedChipId != -1 && checkedChipId != R.id.chipTodos) {
-                copyList.removeIf(r -> {
-                    if (checkedChipId == R.id.chipPrincipales) return r.getTipoReceta() != TipoReceta.PRINCIPAL;
-                    if (checkedChipId == R.id.chipPostres) return r.getTipoReceta() != TipoReceta.POSTRE;
-                    if (checkedChipId == R.id.chipCocteles) return r.getTipoReceta() != TipoReceta.COCTEL;
-                    if (checkedChipId == R.id.chipSides) return r.getTipoReceta() != TipoReceta.SIDE;
-                    if (checkedChipId == R.id.chipUnknownScores) {
-                        return r.getIngredientes() == null ||
-                                r.getIngredientes().stream().noneMatch(i -> i.getPuntuacion() == -2);
-                    }
-                    return false;
-                });
-            }
-
-            copyList.sort(Comparator.comparing(
-                    r -> r.getNombre() != null ? r.getNombre().toLowerCase(Locale.ROOT) : "",
-                    String.CASE_INSENSITIVE_ORDER));
+            // Ordenar usando el comparador del modelo FiltroRecetas
+            copyList.sort(filtroRecetas.getComparator());
 
             if (!isAdded()) return;
 
@@ -360,6 +399,7 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
                 actualizarVisibilidadListaRecetas(copyList);
                 actualizarContador(copyList);
                 actualizarFabSegunScroll();
+                actualizarBotonFiltrosUI();
 
                 if (progressBar != null) {
                     progressBar.setVisibility(View.GONE);
@@ -460,6 +500,7 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
         expandableListView = null;
         autoCompleteTextViewRecetas = null;
         chipGroupTipoReceta = null;
+        chipFiltrosAvanzados = null;
         contadorTextView = null;
         fab = null;
         fabIA = null;
@@ -470,24 +511,17 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
 
     // ------------------ HELPERS SEGUROS PARA GOOGLE PLAY SERVICES ------------------
 
-    /**
-     * Llama a RecetasSrv.cargarListaRecetas de forma segura.
-     * Si Play Services no está disponible o lanza SecurityException, intenta fallback a caché local.
-     */
     private void safeCargarListaRecetas(boolean forceServer, RecetasSrv.RecetasCallback callback) {
         try {
             int status = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(requireContext());
             if (status != ConnectionResult.SUCCESS) {
                 Log.w(TAG, "Google Play Services no disponible (status=" + status + ") - usando caché si es posible");
-                // intentamos cargar sin forzar servidor
                 RecetasSrv.cargarListaRecetas(requireContext(), false, callback);
                 return;
             }
 
-            // todo bien: invocar normalmente
             RecetasSrv.cargarListaRecetas(requireContext(), forceServer, callback);
         } catch (SecurityException se) {
-            // Capturamos SecurityException que provenga de Play Services binder
             Log.e(TAG, "SecurityException al acceder a Google Play Services", se);
             mainHandler.post(() -> {
                 if (!isAdded()) return;
@@ -495,7 +529,6 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
             });
 
             try {
-                // fallback: cargar desde caché/local sin forzar servidor
                 RecetasSrv.cargarListaRecetas(requireContext(), false, callback);
             } catch (Exception ex) {
                 Log.e(TAG, "Error fallback al cargar recetas tras SecurityException", ex);
@@ -506,7 +539,4 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
             if (callback != null) callback.onFailure(e);
         }
     }
-
-    // Helper overload intentionally removed because the two-argument version is used throughout the class.
-    // If needed in the future, reintroduce this convenience method.
 }

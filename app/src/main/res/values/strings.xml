@@ -194,4 +194,30 @@ Solo JSON:
     <string name="lista_compra_cortada">Lista de la compra cortada al portapapeles</string>
     <string name="lista_compra_vacia">La lista de la compra está vacía</string>
     <string name="confirmar_borrar_lista_compra">¿Está seguro de que desea borrar la lista de la compra?</string>
+
+    <!-- Filtros y Ordenación -->
+    <string name="filtros_y_ordenacion">Filtros y ordenación</string>
+    <string name="filtros">Filtros</string>
+    <string name="ordenar_por">Ordenar por</string>
+    <string name="orden_nombre_asc">Nombre (A-Z)</string>
+    <string name="orden_nombre_desc">Nombre (Z-A)</string>
+    <string name="orden_estrellas_desc">Estrellas (Mayor a menor)</string>
+    <string name="orden_estrellas_asc">Estrellas (Menor a mayor)</string>
+    <string name="orden_salud_desc">Salubridad (Mayor a menor)</string>
+    <string name="orden_salud_asc">Salubridad (Menor a mayor)</string>
+    <string name="orden_tiempo_asc">Tiempo (Más rápidas)</string>
+    <string name="orden_fecha_desc">Fecha cocinado (Más recientes)</string>
+    <string name="estrellas_minimas">Estrellas mínimas</string>
+    <string name="salubridad_minima">Salubridad mínima</string>
+    <string name="excluir_alergenos">Excluir alérgenos</string>
+    <string name="filtros_especiales">Filtros especiales</string>
+    <string name="solo_sin_puntuar">Ingredientes sin puntuar</string>
+    <string name="tiempo_maximo_prep">Tiempo máximo de preparación</string>
+    <string name="limpiar_filtros">Restablecer</string>
+    <string name="aplicar_filtros">Aplicar filtros</string>
+    <string name="minutos_formato">%d min</string>
+    <string name="cualquiera">Cualquiera</string>
+    <string name="todas_temporadas">Todas</string>
+    <string name="todos_momentos">Todos</string>
+    <string name="todos_tipos">Todos</string>
 </resources>
