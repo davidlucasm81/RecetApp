@@ -182,8 +182,16 @@ public class MainActivity extends AppCompatActivity {
         android.widget.RatingBar ratingBar = new android.widget.RatingBar(this);
         ratingBar.setNumStars(5);
         ratingBar.setStepSize(0.5f);
+        ratingBar.setIsIndicator(false);
         int pad = (int) (16 * getResources().getDisplayMetrics().density);
         ratingBar.setPadding(pad, pad, pad, pad);
+
+        android.widget.LinearLayout.LayoutParams ratingParams = new android.widget.LinearLayout.LayoutParams(
+                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
+                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        ratingParams.gravity = android.view.Gravity.CENTER_HORIZONTAL;
+        ratingBar.setLayoutParams(ratingParams);
         
         android.widget.LinearLayout container = new android.widget.LinearLayout(this);
         container.setOrientation(android.widget.LinearLayout.VERTICAL);
