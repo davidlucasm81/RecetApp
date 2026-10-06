@@ -31,9 +31,7 @@ import com.david.recetapp.actividades.ImportExportActivity;
 import com.david.recetapp.adaptadores.RecetaExpandableListAdapter;
 import com.david.recetapp.negocio.beans.FiltroRecetas;
 import com.google.android.material.chip.Chip;
-import com.google.android.material.chip.ChipGroup;
 import com.david.recetapp.negocio.beans.Receta;
-import com.david.recetapp.negocio.beans.TipoReceta;
 import com.david.recetapp.negocio.servicios.RecetasSrv;
 import com.david.recetapp.negocio.servicios.UtilsSrv;
 import com.google.android.gms.common.ConnectionResult;
@@ -55,8 +53,8 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
     private TextView contadorTextView;
     private ExpandableListView expandableListView;
     private AutoCompleteTextView autoCompleteTextViewRecetas;
-    private ChipGroup chipGroupTipoReceta;
-    private Chip chipFiltrosAvanzados;
+    private Chip chipBotonOrdenar;
+    private Chip chipBotonFiltrar;
     private Handler mainHandler;
     private Handler debounceHandler;
     private Runnable debounceRunnable;
@@ -110,8 +108,8 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
         expandableListView = rootView.findViewById(R.id.expandableListView);
         textViewEmpty = rootView.findViewById(R.id.textViewEmpty);
         autoCompleteTextViewRecetas = rootView.findViewById(R.id.autoCompleteTextViewRecetas);
-        chipGroupTipoReceta = rootView.findViewById(R.id.chipGroupTipoReceta);
-        chipFiltrosAvanzados = rootView.findViewById(R.id.chipFiltrosAvanzados);
+        chipBotonOrdenar = rootView.findViewById(R.id.chipBotonOrdenar);
+        chipBotonFiltrar = rootView.findViewById(R.id.chipBotonFiltrar);
         contadorTextView = rootView.findViewById(R.id.textViewContadorRecetas);
         progressBar = rootView.findViewById(R.id.progressBar);
 
@@ -120,7 +118,7 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
                 android.R.layout.simple_dropdown_item_1line, new ArrayList<>());
         autoCompleteTextViewRecetas.setAdapter(autoCompleteAdapter);
 
-        actualizarBotonFiltrosUI();
+        actualizarBotonesAccionUI();
     }
 
     private void setupHandlers() {
@@ -167,34 +165,12 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
     }
 
     private void setupListeners() {
-        if (chipFiltrosAvanzados != null) {
-            chipFiltrosAvanzados.setOnClickListener(v -> abrirDialogoFiltros());
+        if (chipBotonOrdenar != null) {
+            chipBotonOrdenar.setOnClickListener(v -> abrirDialogoOrden());
         }
-
-        chipGroupTipoReceta.setOnCheckedStateChangeListener((group, checkedIds) -> {
-            int checkedId = group.getCheckedChipId();
-            if (checkedId == R.id.chipPrincipales) {
-                filtroRecetas.setTipoReceta(TipoReceta.PRINCIPAL);
-                filtroRecetas.setSoloIngredientesSinPuntuar(false);
-            } else if (checkedId == R.id.chipPostres) {
-                filtroRecetas.setTipoReceta(TipoReceta.POSTRE);
-                filtroRecetas.setSoloIngredientesSinPuntuar(false);
-            } else if (checkedId == R.id.chipCocteles) {
-                filtroRecetas.setTipoReceta(TipoReceta.COCTEL);
-                filtroRecetas.setSoloIngredientesSinPuntuar(false);
-            } else if (checkedId == R.id.chipSides) {
-                filtroRecetas.setTipoReceta(TipoReceta.SIDE);
-                filtroRecetas.setSoloIngredientesSinPuntuar(false);
-            } else if (checkedId == R.id.chipUnknownScores) {
-                filtroRecetas.setTipoReceta(null);
-                filtroRecetas.setSoloIngredientesSinPuntuar(true);
-            } else {
-                filtroRecetas.setTipoReceta(null);
-                filtroRecetas.setSoloIngredientesSinPuntuar(false);
-            }
-            actualizarBotonFiltrosUI();
-            filtrarYActualizarLista(autoCompleteTextViewRecetas.getText().toString());
-        });
+        if (chipBotonFiltrar != null) {
+            chipBotonFiltrar.setOnClickListener(v -> abrirDialogoFiltros());
+        }
 
         autoCompleteTextViewRecetas.addTextChangedListener(new TextWatcher() {
             @Override
@@ -244,42 +220,71 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
         });
     }
 
+    private void abrirDialogoOrden() {
+        OrdenRecetaBottomSheetDialog dialog = OrdenRecetaBottomSheetDialog.newInstance(filtroRecetas.getCriterioOrden());
+        dialog.setOnOrdenSeleccionadoListener(nuevoCriterio -> {
+            filtroRecetas.setCriterioOrden(nuevoCriterio);
+            actualizarBotonesAccionUI();
+            filtrarYActualizarLista(autoCompleteTextViewRecetas.getText().toString());
+        });
+        dialog.show(getChildFragmentManager(), "OrdenRecetaBottomSheetDialog");
+    }
+
     private void abrirDialogoFiltros() {
         FiltrosRecetaBottomSheetDialog dialog = FiltrosRecetaBottomSheetDialog.newInstance(filtroRecetas);
         dialog.setOnFiltrosAplicadosListener(filtroActualizado -> {
             this.filtroRecetas = filtroActualizado;
-            sincronizarChipsRapidosConFiltro();
-            actualizarBotonFiltrosUI();
+            actualizarBotonesAccionUI();
             filtrarYActualizarLista(autoCompleteTextViewRecetas.getText().toString());
         });
         dialog.show(getChildFragmentManager(), "FiltrosRecetaBottomSheetDialog");
     }
 
-    private void sincronizarChipsRapidosConFiltro() {
-        if (chipGroupTipoReceta == null) return;
-        if (filtroRecetas.isSoloIngredientesSinPuntuar()) {
-            chipGroupTipoReceta.check(R.id.chipUnknownScores);
-        } else {
-            TipoReceta tr = filtroRecetas.getTipoReceta();
-            if (tr == TipoReceta.PRINCIPAL) chipGroupTipoReceta.check(R.id.chipPrincipales);
-            else if (tr == TipoReceta.POSTRE) chipGroupTipoReceta.check(R.id.chipPostres);
-            else if (tr == TipoReceta.COCTEL) chipGroupTipoReceta.check(R.id.chipCocteles);
-            else if (tr == TipoReceta.SIDE) chipGroupTipoReceta.check(R.id.chipSides);
-            else chipGroupTipoReceta.check(R.id.chipTodos);
-        }
-    }
+    private void actualizarBotonesAccionUI() {
+        if (!isAdded()) return;
 
-    private void actualizarBotonFiltrosUI() {
-        if (chipFiltrosAvanzados == null || !isAdded()) return;
-        int activeCount = filtroRecetas.getActiveFilterCount();
-        if (activeCount > 0) {
-            chipFiltrosAvanzados.setText(String.format(Locale.getDefault(), "%s (%d)", getString(R.string.filtros), activeCount));
-            chipFiltrosAvanzados.setChipBackgroundColorResource(R.color.colorPrimary);
-            chipFiltrosAvanzados.setTextColor(requireContext().getColor(android.R.color.white));
-        } else {
-            chipFiltrosAvanzados.setText(getString(R.string.filtros));
-            chipFiltrosAvanzados.setChipBackgroundColor(null);
-            chipFiltrosAvanzados.setTextColor(requireContext().getColor(android.R.color.black));
+        // 1. Botón Ordenar
+        if (chipBotonOrdenar != null) {
+            FiltroRecetas.CriterioOrden co = filtroRecetas.getCriterioOrden();
+            String ordenLabel = getString(R.string.ordenar);
+            if (co != null) {
+                ordenLabel = switch (co) {
+                    case NOMBRE_DESC -> getString(R.string.orden_nombre_desc);
+                    case ESTRELLAS_DESC -> getString(R.string.orden_estrellas_desc);
+                    case ESTRELLAS_ASC -> getString(R.string.orden_estrellas_asc);
+                    case SALUD_DESC -> getString(R.string.orden_salud_desc);
+                    case SALUD_ASC -> getString(R.string.orden_salud_asc);
+                    case TIEMPO_ASC -> getString(R.string.orden_tiempo_asc);
+                    case FECHA_DESC -> getString(R.string.orden_fecha_desc);
+                    default -> getString(R.string.orden_nombre_asc);
+                };
+            }
+            chipBotonOrdenar.setText(ordenLabel);
+            if (co != null && co != FiltroRecetas.CriterioOrden.NOMBRE_ASC) {
+                chipBotonOrdenar.setChipBackgroundColorResource(R.color.colorPrimary);
+                chipBotonOrdenar.setTextColor(requireContext().getColor(android.R.color.white));
+                chipBotonOrdenar.setChipIconTintResource(android.R.color.white);
+            } else {
+                chipBotonOrdenar.setChipBackgroundColorResource(R.color.colorBackground);
+                chipBotonOrdenar.setTextColor(requireContext().getColor(R.color.colorIcono));
+                chipBotonOrdenar.setChipIconTintResource(R.color.colorIcono);
+            }
+        }
+
+        // 2. Botón Filtrar
+        if (chipBotonFiltrar != null) {
+            int activeCount = filtroRecetas.getActiveFilterCountWithoutOrder();
+            if (activeCount > 0) {
+                chipBotonFiltrar.setText(String.format(Locale.getDefault(), "%s (%d)", getString(R.string.filtros), activeCount));
+                chipBotonFiltrar.setChipBackgroundColorResource(R.color.colorPrimary);
+                chipBotonFiltrar.setTextColor(requireContext().getColor(android.R.color.white));
+                chipBotonFiltrar.setChipIconTintResource(android.R.color.white);
+            } else {
+                chipBotonFiltrar.setText(getString(R.string.filtros));
+                chipBotonFiltrar.setChipBackgroundColorResource(R.color.colorBackground);
+                chipBotonFiltrar.setTextColor(requireContext().getColor(R.color.colorIcono));
+                chipBotonFiltrar.setChipIconTintResource(R.color.colorIcono);
+            }
         }
     }
 
@@ -336,11 +341,10 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
                 ViewGroup anchor = rootView.findViewById(R.id.youtube_anchor_container);
                 expandableListAdapter = new RecetaExpandableListAdapter(requireContext(), recetas, expandableListView, anchor, this);
                 expandableListAdapter.setOnNavigateToRecipeListener(recetaId -> {
-                    // Limpiar filtros
+                    // Limpiar filtros y orden
                     autoCompleteTextViewRecetas.setText("");
                     filtroRecetas.reset();
-                    sincronizarChipsRapidosConFiltro();
-                    actualizarBotonFiltrosUI();
+                    actualizarBotonesAccionUI();
                     filtrarYActualizarLista("");
                     
                     mainHandler.postDelayed(() -> {
@@ -399,7 +403,7 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
                 actualizarVisibilidadListaRecetas(copyList);
                 actualizarContador(copyList);
                 actualizarFabSegunScroll();
-                actualizarBotonFiltrosUI();
+                actualizarBotonesAccionUI();
 
                 if (progressBar != null) {
                     progressBar.setVisibility(View.GONE);
@@ -489,18 +493,16 @@ public class RecetasFragment extends Fragment implements RecetaExpandableListAda
             mainHandler.removeCallbacksAndMessages(null);
         }
 
-        // shutdown del executor del fragment para evitar fugas
         if (fragmentExecutor != null && !fragmentExecutor.isShutdown()) {
             fragmentExecutor.shutdownNow();
             fragmentExecutor = null;
         }
 
-        // limpiar referencias a vistas para evitar memory leaks
         rootView = null;
         expandableListView = null;
         autoCompleteTextViewRecetas = null;
-        chipGroupTipoReceta = null;
-        chipFiltrosAvanzados = null;
+        chipBotonOrdenar = null;
+        chipBotonFiltrar = null;
         contadorTextView = null;
         fab = null;
         fabIA = null;

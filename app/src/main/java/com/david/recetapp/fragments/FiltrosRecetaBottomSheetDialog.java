@@ -36,15 +36,16 @@ public class FiltrosRecetaBottomSheetDialog extends BottomSheetDialogFragment {
     private FiltroRecetas filtroWork;
 
     // UI elements
-    private ChipGroup chipGroupOrden;
     private ChipGroup chipGroupTipo;
     private ChipGroup chipGroupMomento;
     private ChipGroup chipGroupTemporadas;
-    private ChipGroup chipGroupEstrellas;
+    private Slider sliderEstrellas;
+    private TextView txtValEstrellas;
     private Slider sliderSalud;
     private TextView txtValSalud;
     private ChipGroup chipGroupAlergenos;
-    private ChipGroup chipGroupTiempoMax;
+    private Slider sliderTiempoMax;
+    private TextView txtValTiempo;
     private CheckBox cbSoloSinPuntuar;
 
     public static FiltrosRecetaBottomSheetDialog newInstance(FiltroRecetas filtroActual) {
@@ -83,33 +84,21 @@ public class FiltrosRecetaBottomSheetDialog extends BottomSheetDialogFragment {
     }
 
     private void initializeViews(View view) {
-        chipGroupOrden = view.findViewById(R.id.chipGroupOrden);
         chipGroupTipo = view.findViewById(R.id.chipGroupTipo);
         chipGroupMomento = view.findViewById(R.id.chipGroupMomento);
         chipGroupTemporadas = view.findViewById(R.id.chipGroupTemporadas);
-        chipGroupEstrellas = view.findViewById(R.id.chipGroupEstrellas);
+        sliderEstrellas = view.findViewById(R.id.sliderEstrellas);
+        txtValEstrellas = view.findViewById(R.id.txtValEstrellas);
         sliderSalud = view.findViewById(R.id.sliderSalud);
         txtValSalud = view.findViewById(R.id.txtValSalud);
         chipGroupAlergenos = view.findViewById(R.id.chipGroupAlergenos);
-        chipGroupTiempoMax = view.findViewById(R.id.chipGroupTiempoMax);
+        sliderTiempoMax = view.findViewById(R.id.sliderTiempoMax);
+        txtValTiempo = view.findViewById(R.id.txtValTiempo);
         cbSoloSinPuntuar = view.findViewById(R.id.cbSoloSinPuntuar);
     }
 
     private void populateViewsFromFilter() {
-        // 1. Orden
-        FiltroRecetas.CriterioOrden co = filtroWork.getCriterioOrden();
-        if (co == null) co = FiltroRecetas.CriterioOrden.NOMBRE_ASC;
-        int checkOrdenId = switch (co) {
-            case NOMBRE_DESC -> R.id.chipOrdenNombreDesc;
-            case ESTRELLAS_DESC -> R.id.chipOrdenEstrellasDesc;
-            case SALUD_DESC -> R.id.chipOrdenSaludDesc;
-            case TIEMPO_ASC -> R.id.chipOrdenTiempoAsc;
-            case FECHA_DESC -> R.id.chipOrdenFechaDesc;
-            default -> R.id.chipOrdenNombreAsc;
-        };
-        chipGroupOrden.check(checkOrdenId);
-
-        // 2. Tipo
+        // 1. Tipo
         TipoReceta tr = filtroWork.getTipoReceta();
         int checkTipoId = R.id.chipTipoTodos;
         if (tr == TipoReceta.PRINCIPAL) checkTipoId = R.id.chipTipoPrincipal;
@@ -118,14 +107,14 @@ public class FiltrosRecetaBottomSheetDialog extends BottomSheetDialogFragment {
         else if (tr == TipoReceta.SIDE) checkTipoId = R.id.chipTipoSide;
         chipGroupTipo.check(checkTipoId);
 
-        // 3. Momento
+        // 2. Momento
         MomentoReceta mr = filtroWork.getMomentoReceta();
         int checkMomentoId = R.id.chipMomentoTodos;
         if (mr == MomentoReceta.COMIDA) checkMomentoId = R.id.chipMomentoComida;
         else if (mr == MomentoReceta.CENA) checkMomentoId = R.id.chipMomentoCena;
         chipGroupMomento.check(checkMomentoId);
 
-        // 4. Temporadas
+        // 3. Temporadas
         Set<Temporada> temps = filtroWork.getTemporadas();
         chipGroupTemporadas.clearCheck();
         if (temps != null) {
@@ -135,22 +124,17 @@ public class FiltrosRecetaBottomSheetDialog extends BottomSheetDialogFragment {
             if (temps.contains(Temporada.INVIERNO)) checkChip(chipGroupTemporadas, R.id.chipTempInvierno);
         }
 
-        // 5. Estrellas
+        // 4. Estrellas (Slider)
         float minEst = filtroWork.getMinEstrellas();
-        int checkEstId = R.id.chipEstrellas0;
-        if (minEst >= 5.0f) checkEstId = R.id.chipEstrellas5;
-        else if (minEst >= 4.0f) checkEstId = R.id.chipEstrellas4;
-        else if (minEst >= 3.0f) checkEstId = R.id.chipEstrellas3;
-        else if (minEst >= 2.0f) checkEstId = R.id.chipEstrellas2;
-        else if (minEst >= 1.0f) checkEstId = R.id.chipEstrellas1;
-        chipGroupEstrellas.check(checkEstId);
+        sliderEstrellas.setValue(Math.min(Math.max(minEst, 0.0f), 5.0f));
+        actualizarTextoEstrellas(minEst);
 
-        // 6. Salubridad
+        // 5. Salubridad (Slider)
         float minSalud = (float) filtroWork.getMinPuntuacionSalud();
         sliderSalud.setValue(Math.min(Math.max(minSalud, 0.0f), 10.0f));
         actualizarTextoSalud(minSalud);
 
-        // 7. Alérgenos
+        // 6. Alérgenos
         Set<Integer> algs = filtroWork.getAlergenosExcluidos();
         chipGroupAlergenos.clearCheck();
         if (algs != null) {
@@ -163,21 +147,19 @@ public class FiltrosRecetaBottomSheetDialog extends BottomSheetDialogFragment {
             if (algs.contains(6)) checkChip(chipGroupAlergenos, R.id.chipAlergenoHuevos);
         }
 
-        // 8. Tiempo Max
+        // 7. Tiempo Max (Slider)
         int maxT = filtroWork.getMaxTiempoMinutos();
-        int checkTiempoId = R.id.chipTiempo0;
-        if (maxT == 15) checkTiempoId = R.id.chipTiempo15;
-        else if (maxT == 30) checkTiempoId = R.id.chipTiempo30;
-        else if (maxT == 45) checkTiempoId = R.id.chipTiempo45;
-        else if (maxT >= 60) checkTiempoId = R.id.chipTiempo60;
-        chipGroupTiempoMax.check(checkTiempoId);
+        sliderTiempoMax.setValue(Math.min(Math.max((float) maxT, 0.0f), 120.0f));
+        actualizarTextoTiempo(maxT);
 
-        // 9. Solo sin puntuar
+        // 8. Solo sin puntuar
         cbSoloSinPuntuar.setChecked(filtroWork.isSoloIngredientesSinPuntuar());
     }
 
     private void setupListeners(View view) {
+        sliderEstrellas.addOnChangeListener((slider, value, fromUser) -> actualizarTextoEstrellas(value));
         sliderSalud.addOnChangeListener((slider, value, fromUser) -> actualizarTextoSalud(value));
+        sliderTiempoMax.addOnChangeListener((slider, value, fromUser) -> actualizarTextoTiempo(value));
 
         view.findViewById(R.id.btnRestablecer).setOnClickListener(v -> {
             filtroWork.reset();
@@ -194,16 +176,7 @@ public class FiltrosRecetaBottomSheetDialog extends BottomSheetDialogFragment {
     }
 
     private void recogerValoresUI() {
-        // 1. Orden
-        int ordenId = chipGroupOrden.getCheckedChipId();
-        if (ordenId == R.id.chipOrdenNombreDesc) filtroWork.setCriterioOrden(FiltroRecetas.CriterioOrden.NOMBRE_DESC);
-        else if (ordenId == R.id.chipOrdenEstrellasDesc) filtroWork.setCriterioOrden(FiltroRecetas.CriterioOrden.ESTRELLAS_DESC);
-        else if (ordenId == R.id.chipOrdenSaludDesc) filtroWork.setCriterioOrden(FiltroRecetas.CriterioOrden.SALUD_DESC);
-        else if (ordenId == R.id.chipOrdenTiempoAsc) filtroWork.setCriterioOrden(FiltroRecetas.CriterioOrden.TIEMPO_ASC);
-        else if (ordenId == R.id.chipOrdenFechaDesc) filtroWork.setCriterioOrden(FiltroRecetas.CriterioOrden.FECHA_DESC);
-        else filtroWork.setCriterioOrden(FiltroRecetas.CriterioOrden.NOMBRE_ASC);
-
-        // 2. Tipo
+        // 1. Tipo
         int tipoId = chipGroupTipo.getCheckedChipId();
         if (tipoId == R.id.chipTipoPrincipal) filtroWork.setTipoReceta(TipoReceta.PRINCIPAL);
         else if (tipoId == R.id.chipTipoPostre) filtroWork.setTipoReceta(TipoReceta.POSTRE);
@@ -211,13 +184,13 @@ public class FiltrosRecetaBottomSheetDialog extends BottomSheetDialogFragment {
         else if (tipoId == R.id.chipTipoSide) filtroWork.setTipoReceta(TipoReceta.SIDE);
         else filtroWork.setTipoReceta(null);
 
-        // 3. Momento
+        // 2. Momento
         int momentoId = chipGroupMomento.getCheckedChipId();
         if (momentoId == R.id.chipMomentoComida) filtroWork.setMomentoReceta(MomentoReceta.COMIDA);
         else if (momentoId == R.id.chipMomentoCena) filtroWork.setMomentoReceta(MomentoReceta.CENA);
         else filtroWork.setMomentoReceta(null);
 
-        // 4. Temporadas
+        // 3. Temporadas
         Set<Temporada> temps = new HashSet<>();
         if (isChipChecked(chipGroupTemporadas, R.id.chipTempPrimavera)) temps.add(Temporada.PRIMAVERA);
         if (isChipChecked(chipGroupTemporadas, R.id.chipTempVerano)) temps.add(Temporada.VERANO);
@@ -225,19 +198,13 @@ public class FiltrosRecetaBottomSheetDialog extends BottomSheetDialogFragment {
         if (isChipChecked(chipGroupTemporadas, R.id.chipTempInvierno)) temps.add(Temporada.INVIERNO);
         filtroWork.setTemporadas(temps);
 
-        // 5. Estrellas
-        int estId = chipGroupEstrellas.getCheckedChipId();
-        if (estId == R.id.chipEstrellas1) filtroWork.setMinEstrellas(1.0f);
-        else if (estId == R.id.chipEstrellas2) filtroWork.setMinEstrellas(2.0f);
-        else if (estId == R.id.chipEstrellas3) filtroWork.setMinEstrellas(3.0f);
-        else if (estId == R.id.chipEstrellas4) filtroWork.setMinEstrellas(4.0f);
-        else if (estId == R.id.chipEstrellas5) filtroWork.setMinEstrellas(5.0f);
-        else filtroWork.setMinEstrellas(0.0f);
+        // 4. Estrellas (Slider)
+        filtroWork.setMinEstrellas(sliderEstrellas.getValue());
 
-        // 6. Salubridad
+        // 5. Salubridad (Slider)
         filtroWork.setMinPuntuacionSalud(sliderSalud.getValue());
 
-        // 7. Alérgenos
+        // 6. Alérgenos
         Set<Integer> algs = new HashSet<>();
         if (isChipChecked(chipGroupAlergenos, R.id.chipAlergenoGluten)) algs.add(0);
         if (isChipChecked(chipGroupAlergenos, R.id.chipAlergenoLacteos)) algs.add(1);
@@ -248,16 +215,19 @@ public class FiltrosRecetaBottomSheetDialog extends BottomSheetDialogFragment {
         if (isChipChecked(chipGroupAlergenos, R.id.chipAlergenoHuevos)) algs.add(6);
         filtroWork.setAlergenosExcluidos(algs);
 
-        // 8. Tiempo
-        int tiempoId = chipGroupTiempoMax.getCheckedChipId();
-        if (tiempoId == R.id.chipTiempo15) filtroWork.setMaxTiempoMinutos(15);
-        else if (tiempoId == R.id.chipTiempo30) filtroWork.setMaxTiempoMinutos(30);
-        else if (tiempoId == R.id.chipTiempo45) filtroWork.setMaxTiempoMinutos(45);
-        else if (tiempoId == R.id.chipTiempo60) filtroWork.setMaxTiempoMinutos(60);
-        else filtroWork.setMaxTiempoMinutos(0);
+        // 7. Tiempo Max (Slider)
+        filtroWork.setMaxTiempoMinutos((int) sliderTiempoMax.getValue());
 
-        // 9. Solo sin puntuar
+        // 8. Solo sin puntuar
         filtroWork.setSoloIngredientesSinPuntuar(cbSoloSinPuntuar.isChecked());
+    }
+
+    private void actualizarTextoEstrellas(float value) {
+        if (value <= 0.0f) {
+            txtValEstrellas.setText(R.string.cualquiera);
+        } else {
+            txtValEstrellas.setText(String.format(Locale.getDefault(), "≥ %.0f★", value));
+        }
     }
 
     private void actualizarTextoSalud(float value) {
@@ -265,6 +235,14 @@ public class FiltrosRecetaBottomSheetDialog extends BottomSheetDialogFragment {
             txtValSalud.setText(R.string.cualquiera);
         } else {
             txtValSalud.setText(String.format(Locale.getDefault(), "≥ %.1f", value));
+        }
+    }
+
+    private void actualizarTextoTiempo(float value) {
+        if (value <= 0.0f) {
+            txtValTiempo.setText(R.string.cualquiera);
+        } else {
+            txtValTiempo.setText(String.format(Locale.getDefault(), "≤ %.0f min", value));
         }
     }
 

@@ -17,7 +17,9 @@ public class FiltroRecetas implements Serializable {
         SALUD_DESC,
         SALUD_ASC,
         TIEMPO_ASC,
-        FECHA_DESC
+        TIEMPO_DESC,
+        FECHA_DESC,
+        FECHA_ASC
     }
 
     private String query;
@@ -157,8 +159,12 @@ public class FiltroRecetas implements Serializable {
                     .thenComparing(nombreComp);
             case TIEMPO_ASC -> Comparator.comparingInt(Receta::getTiempoTotalMinutos)
                     .thenComparing(nombreComp);
+            case TIEMPO_DESC -> Comparator.comparingInt(Receta::getTiempoTotalMinutos).reversed()
+                    .thenComparing(nombreComp);
             case FECHA_DESC -> Comparator.comparing((Receta r) -> r.getFechaCalendario() != null ? r.getFechaCalendario().getTime() : 0L)
                     .reversed().thenComparing(nombreComp);
+            case FECHA_ASC -> Comparator.comparing((Receta r) -> r.getFechaCalendario() != null ? r.getFechaCalendario().getTime() : Long.MAX_VALUE)
+                    .thenComparing(nombreComp);
             default -> nombreComp;
         };
     }
@@ -174,6 +180,19 @@ public class FiltroRecetas implements Serializable {
         if (maxTiempoMinutos > 0) count++;
         if (soloIngredientesSinPuntuar) count++;
         if (criterioOrden != CriterioOrden.NOMBRE_ASC) count++;
+        return count;
+    }
+
+    public int getActiveFilterCountWithoutOrder() {
+        int count = 0;
+        if (tipoReceta != null) count++;
+        if (momentoReceta != null) count++;
+        if (temporadas != null && !temporadas.isEmpty()) count++;
+        if (minEstrellas > 0.0f) count++;
+        if (minPuntuacionSalud > 0.0) count++;
+        if (alergenosExcluidos != null && !alergenosExcluidos.isEmpty()) count++;
+        if (maxTiempoMinutos > 0) count++;
+        if (soloIngredientesSinPuntuar) count++;
         return count;
     }
 

@@ -197,7 +197,9 @@ Solo JSON:
 
     <!-- Filtros y Ordenación -->
     <string name="filtros_y_ordenacion">Filtros y ordenación</string>
-    <string name="filtros">Filtros</string>
+    <string name="filtrar_recetas">Filtrar recetas</string>
+    <string name="filtros">Filtrar</string>
+    <string name="ordenar">Ordenar</string>
     <string name="ordenar_por">Ordenar por</string>
     <string name="orden_nombre_asc">Nombre (A-Z)</string>
     <string name="orden_nombre_desc">Nombre (Z-A)</string>
