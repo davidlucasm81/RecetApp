@@ -370,8 +370,11 @@ public class RecetasSrv {
                 Ingrediente mejor = ing;
                 if (sustitutos != null && !sustitutos.isEmpty()) {
                     for (Ingrediente sust : sustitutos) {
-                        if (sust.getPuntuacion() > mejor.getPuntuacion()) {
-                            mejor = sust;
+                        // Un sustituto opcional no debe reemplazar a un ingrediente principal no opcional
+                        if (!sust.isOpcional() || ing.isOpcional()) {
+                            if (sust.getPuntuacion() > mejor.getPuntuacion()) {
+                                mejor = sust;
+                            }
                         }
                     }
                 }

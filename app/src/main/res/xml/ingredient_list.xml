@@ -1650,19 +1650,19 @@
   </item>
 
   <!-- Fats and Oils -->
-  <item puntuacion="7" gramos="1000" tipo="ACEITE">
+  <item puntuacion="7" gramos="30" tipo="ACEITE">
     <nombre lang="es">Aceite de Oliva Virgen Extra</nombre>
     <nombre lang="en">Extra Virgin Olive Oil</nombre>
   </item>
-  <item puntuacion="6" gramos="1000" tipo="ACEITE">
+  <item puntuacion="6" gramos="30" tipo="ACEITE">
     <nombre lang="es">Aceite de Oliva</nombre>
     <nombre lang="en">Olive Oil</nombre>
   </item>
-  <item puntuacion="-1" gramos="1000" tipo="ACEITE">
+  <item puntuacion="-1" gramos="30" tipo="ACEITE">
     <nombre lang="es">Aceite de sésamo</nombre>
     <nombre lang="en">Sesame oil</nombre>
   </item>
-  <item puntuacion="-1" gramos="1000" tipo="ACEITE">
+  <item puntuacion="-1" gramos="30" tipo="ACEITE">
     <nombre lang="es">Aceite de Girasol</nombre>
     <nombre lang="en">Sunflower Oil</nombre>
   </item>
@@ -2138,11 +2138,11 @@
     <nombre lang="es">Tomate frito</nombre>
     <nombre lang="en">Fried tomato sauce</nombre>
   </item>
-  <item puntuacion="5" gramos="1000" tipo="BEBIDA">
+  <item puntuacion="5" gramos="40" tipo="BEBIDA">
     <nombre lang="es">Zumo de limón</nombre>
     <nombre lang="en">Lemon juice</nombre>
   </item>
-  <item puntuacion="5" gramos="1000" tipo="BEBIDA">
+  <item puntuacion="5" gramos="40" tipo="BEBIDA">
     <nombre lang="es">Zumo de naranja</nombre>
     <nombre lang="en">Orange juice</nombre>
   </item>

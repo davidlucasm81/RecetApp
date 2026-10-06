@@ -420,7 +420,7 @@ La aplicación espera un objeto JSON con la siguiente estructura y tipos de dato
         - Unidades estándar: `g`, `ml` (1); `kg`, `l` (1000).
         - Unidades de volumen: `taza` (240), `vaso` (250), `cucharada` (10), `cucharadita` (5).
         - Unidades especiales: `lata` (400), `loncha` (30), `diente` (5).
-        - Si la unidad es `unidad`, se usa el valor `gramos` definido para ese ingrediente en `ingredient_list.xml` (ej: un huevo = 60g). Si no está definido, se usa un valor por defecto (150).
+        - Si la unidad es `unidad`, se usa el valor `gramos` definido para ese ingrediente en `ingredient_list.xml` (ej: un huevo = 55g). Si no está definido, se usa un valor por defecto (150).
         > [!IMPORTANT]
         > Si se modifican estos valores, debe asegurarse la consistencia con la **Lógica de Consolidación** de la lista de la compra (Sección 6).
 
