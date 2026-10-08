@@ -34,6 +34,7 @@ import com.david.recetapp.R;
 import com.david.recetapp.actividades.recetas.EditarRecetaActivity;
 import com.david.recetapp.negocio.beans.Alergeno;
 import com.david.recetapp.negocio.beans.Ingrediente;
+import com.david.recetapp.negocio.beans.Paso;
 import com.david.recetapp.negocio.beans.Receta;
 import com.david.recetapp.negocio.beans.Temporada;
 import com.david.recetapp.negocio.beans.TipoReceta;
@@ -348,13 +349,13 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
             case 3:
                 txtInformacion.setVisibility(View.VISIBLE);
                 txtTitulo.setText(R.string.pasos);
-                List<com.david.recetapp.negocio.beans.Paso> pasos = receta.getPasos();
+                List<Paso> pasos = receta.getPasos();
                 if (pasos == null || pasos.isEmpty()) {
                     txtInformacion.setText(R.string.sin_pasos);
                 } else {
                     SpannableStringBuilder sbPasos = new SpannableStringBuilder();
                     int minutosTotales = 0;
-                    for (com.david.recetapp.negocio.beans.Paso p : pasos) {
+                    for (Paso p : pasos) {
                         try {
                             String[] tiempos = p.getTiempo().split(":");
                             minutosTotales += Integer.parseInt(tiempos[1]) + 60 * Integer.parseInt(tiempos[0]);
@@ -367,14 +368,37 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
                     sbPasos.append(sbResaltado).append("\n\n");
 
                     for (int i = 0; i < pasos.size(); i++) {
-                        String passoStr = "[" + (pasos.get(i).getTiempo() != null ? pasos.get(i).getTiempo() : "00:00") + "] " + (i + 1) + ") " + (pasos.get(i).getPaso() != null ? pasos.get(i).getPaso() : "");
-                        SpannableString sp = new SpannableString(passoStr);
-                        int startPos = passoStr.indexOf("[");
-                        int endPos = passoStr.indexOf("]") + 1;
-                        if (startPos >= 0 && endPos > startPos) sp.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), startPos, endPos, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        Paso paso = pasos.get(i);
+                        String tiempoPaso = (paso.getTiempo() != null && !paso.getTiempo().trim().isEmpty()) ? paso.getTiempo() : "00:00";
+                        String tagTiempo = "[⏱️ " + tiempoPaso + "]";
+                        String s = tagTiempo + " " + (i + 1) + ") " + (paso.getPaso() != null ? paso.getPaso() : "");
+                        SpannableString sp = new SpannableString(s);
+
+                        int st = 0;
+                        int en = tagTiempo.length();
+
+                        final int pasoNum = i + 1;
+                        final Paso currentPaso = paso;
+                        final String nombreReceta = receta.getNombre();
+
+                        sp.setSpan(new ClickableSpan() {
+                            @Override
+                            public void onClick(@NonNull View widget) {
+                                UtilsSrv.mostrarDialogoTemporizadorPaso(context, nombreReceta, pasoNum, currentPaso);
+                            }
+                            @Override
+                            public void updateDrawState(@NonNull TextPaint ds) {
+                                super.updateDrawState(ds);
+                                ds.setUnderlineText(true);
+                                ds.setColor(context.getResources().getColor(R.color.colorPrimary, context.getTheme()));
+                            }
+                        }, st, en, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        sp.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), st, en, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
+
                         sbPasos.append(sp);
                         if (i < pasos.size() - 1) sbPasos.append("\n\n");
                     }
+                    txtInformacion.setMovementMethod(LinkMovementMethod.getInstance());
                     txtInformacion.setText(sbPasos);
                 }
                 break;

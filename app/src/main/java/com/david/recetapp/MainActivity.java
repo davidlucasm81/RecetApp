@@ -137,10 +137,10 @@ public class MainActivity extends AppCompatActivity {
         new Thread(() -> {
             try {
                 java.util.List<com.david.recetapp.negocio.beans.Day> diasPasados = CalendarioSrv.getDiasEnRangoSync(hace30Dias, hoy.minusDays(1));
-                if (diasPasados == null || diasPasados.isEmpty()) return;
+                if (diasPasados.isEmpty()) return;
 
                 java.util.List<com.david.recetapp.negocio.beans.Receta> todasRecetas = RecetasSrv.getRecetas();
-                if (todasRecetas == null || todasRecetas.isEmpty()) return;
+                if (todasRecetas.isEmpty()) return;
 
                 java.util.Map<String, com.david.recetapp.negocio.beans.Receta> recetaMap = new java.util.HashMap<>();
                 for (com.david.recetapp.negocio.beans.Receta r : todasRecetas) {
@@ -179,38 +179,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void mostrarDialogoValoracionPendiente(com.david.recetapp.negocio.beans.Receta receta, java.time.LocalDate fecha) {
-        android.widget.RatingBar ratingBar = new android.widget.RatingBar(this);
-        ratingBar.setNumStars(5);
-        ratingBar.setStepSize(0.5f);
-        ratingBar.setIsIndicator(false);
-        int pad = (int) (16 * getResources().getDisplayMetrics().density);
-        ratingBar.setPadding(pad, pad, pad, pad);
+        android.view.View dialogView = android.view.LayoutInflater.from(this).inflate(R.layout.dialog_valorar_receta, null);
+        android.widget.TextView tv = dialogView.findViewById(R.id.txtMensajeValoracion);
+        android.widget.RatingBar ratingBar = dialogView.findViewById(R.id.ratingBarValoracion);
 
-        android.widget.LinearLayout.LayoutParams ratingParams = new android.widget.LinearLayout.LayoutParams(
-                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT,
-                android.widget.LinearLayout.LayoutParams.WRAP_CONTENT
-        );
-        ratingParams.gravity = android.view.Gravity.CENTER_HORIZONTAL;
-        ratingBar.setLayoutParams(ratingParams);
-        
-        android.widget.LinearLayout container = new android.widget.LinearLayout(this);
-        container.setOrientation(android.widget.LinearLayout.VERTICAL);
-        container.setGravity(android.view.Gravity.CENTER_HORIZONTAL);
-        
-        android.widget.TextView tv = new android.widget.TextView(this);
         tv.setText(getString(R.string.valorar_receta_mensaje, receta.getNombre(), fecha.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"))));
-        tv.setPadding(pad, pad, pad, pad);
-        tv.setTextSize(16f);
-        
-        container.addView(tv);
-        container.addView(ratingBar);
 
         String dateStr = fecha.getYear() + "_" + (fecha.getMonthValue() - 1) + "_" + fecha.getDayOfMonth();
         android.content.SharedPreferences prefs = getSharedPreferences("RecetappPrefs", MODE_PRIVATE);
 
         new AlertDialog.Builder(this)
                 .setTitle(R.string.valorar_receta_titulo)
-                .setView(container)
+                .setView(dialogView)
                 .setPositiveButton(R.string.aceptar, (dialog, which) -> {
                     float rating = ratingBar.getRating();
                     if (rating > 0f) {
@@ -229,9 +209,9 @@ public class MainActivity extends AppCompatActivity {
                     long tomorrow = System.currentTimeMillis() + (24L * 60 * 60 * 1000);
                     prefs.edit().putLong("postponed_" + receta.getId() + "_" + dateStr, tomorrow).apply();
                 })
-                .setNegativeButton(R.string.no_poner_puntuacion, (dialog, which) -> {
-                    prefs.edit().putBoolean("dismissed_" + receta.getId() + "_" + dateStr, true).apply();
-                })
+                .setNegativeButton(R.string.no_poner_puntuacion, (dialog, which) ->
+                    prefs.edit().putBoolean("dismissed_" + receta.getId() + "_" + dateStr, true).apply()
+                )
                 .show();
     }
 }

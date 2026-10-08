@@ -222,4 +222,10 @@ Solo JSON:
     <string name="todas_temporadas">Todas</string>
     <string name="todos_momentos">Todos</string>
     <string name="todos_tipos">Todos</string>
+    <string name="iniciar_temporizador">Iniciar temporizador</string>
+    <string name="mensaje_temporizador_confirmacion">¿Quieres iniciar un temporizador del sistema de %1$s para el Paso %2$d de \"%3$s\"?</string>
+    <string name="iniciar">Iniciar</string>
+    <string name="personalizar">Personalizar</string>
+    <string name="tiempo_invalido_temporizador">El tiempo del paso debe ser mayor que 0</string>
+    <string name="error_sin_app_reloj">No se encontró una aplicación de reloj compatible para iniciar el temporizador</string>
 </resources>

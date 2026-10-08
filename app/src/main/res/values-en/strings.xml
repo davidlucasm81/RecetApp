@@ -213,4 +213,10 @@ Only JSON:
     <string name="todas_temporadas">All</string>
     <string name="todos_momentos">All</string>
     <string name="todos_tipos">All</string>
+    <string name="iniciar_temporizador">Start timer</string>
+    <string name="mensaje_temporizador_confirmacion">Do you want to start a %1$s system timer for Step %2$d of \"%3$s\"?</string>
+    <string name="iniciar">Start</string>
+    <string name="personalizar">Customize</string>
+    <string name="tiempo_invalido_temporizador">Step duration must be greater than 0</string>
+    <string name="error_sin_app_reloj">No compatible clock app found to set the timer</string>
 </resources>

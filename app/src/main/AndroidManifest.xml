@@ -3,6 +3,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+    <uses-permission android:name="com.android.alarm.permission.SET_ALARM" />
 
     <uses-feature android:name="android.hardware.camera" android:required="false" />
     <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
@@ -18,6 +19,9 @@
         </intent>
         <intent>
             <action android:name="com.google.android.gms.auth.api.signin.SERVICE" />
+        </intent>
+        <intent>
+            <action android:name="android.provider.AlarmClock.ACTION_SET_TIMER" />
         </intent>
     </queries>
 

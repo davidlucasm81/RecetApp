@@ -2,11 +2,14 @@ package com.david.recetapp.negocio.servicios;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.TimePickerDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
+import android.provider.AlarmClock;
 import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -15,8 +18,12 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AlertDialog;
 
 import com.david.recetapp.R;
+import com.david.recetapp.negocio.beans.Paso;
 import com.david.recetapp.negocio.beans.Temporada;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -196,6 +203,88 @@ public class UtilsSrv {
         if (clipboard != null) {
             clipboard.setPrimaryClip(clip);
         }
+    }
+
+    public static int convertirTiempoASegundos(String tiempo) {
+        if (tiempo == null || !tiempo.matches("^\\d{2}:\\d{2}$")) {
+            return 0;
+        }
+        try {
+            String[] partes = tiempo.split(":");
+            int horas = Integer.parseInt(partes[0]);
+            int minutos = Integer.parseInt(partes[1]);
+            return (horas * 3600) + (minutos * 60);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
+
+    public static void lanzarTemporizadorSistema(Context context, String mensaje, int segundos) {
+        if (segundos <= 0) {
+            notificacion(context, context.getString(R.string.tiempo_invalido_temporizador), Toast.LENGTH_SHORT).show();
+            return;
+        }
+        Intent intent = new Intent(AlarmClock.ACTION_SET_TIMER);
+        intent.putExtra(AlarmClock.EXTRA_LENGTH, segundos);
+        intent.putExtra(AlarmClock.EXTRA_MESSAGE, mensaje);
+        intent.putExtra(AlarmClock.EXTRA_SKIP_UI, false);
+
+        if (intent.resolveActivity(context.getPackageManager()) != null) {
+            context.startActivity(intent);
+        } else {
+            try {
+                context.startActivity(intent);
+            } catch (Exception e) {
+                notificacion(context, context.getString(R.string.error_sin_app_reloj), Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    public static void mostrarDialogoTemporizadorPaso(Context context, String nombreReceta, int numeroPaso, Paso paso) {
+        if (context == null || paso == null) return;
+
+        String tiempoStr = paso.getTiempo();
+        int totalSegundos = convertirTiempoASegundos(tiempoStr);
+        String labelMensaje = ((nombreReceta != null && !nombreReceta.trim().isEmpty()) ? nombreReceta : context.getString(R.string.receta_singular))
+                + " - Paso " + numeroPaso;
+
+        if (totalSegundos > 0) {
+            String tiempoFormateado = (tiempoStr != null) ? tiempoStr : "00:00";
+            String mensajeDialogo = context.getString(R.string.mensaje_temporizador_confirmacion, tiempoFormateado, numeroPaso, (nombreReceta != null ? nombreReceta : ""));
+
+            new AlertDialog.Builder(context)
+                    .setTitle(R.string.iniciar_temporizador)
+                    .setMessage(mensajeDialogo)
+                    .setPositiveButton(R.string.iniciar, (dialog, which) ->
+                            lanzarTemporizadorSistema(context, labelMensaje, totalSegundos)
+                    )
+                    .setNeutralButton(R.string.personalizar, (dialog, which) ->
+                            mostrarTimePickerYIniciar(context, labelMensaje, totalSegundos / 3600, (totalSegundos % 3600) / 60)
+                    )
+                    .setNegativeButton(R.string.cancelar, null)
+                    .show();
+        } else {
+            mostrarTimePickerYIniciar(context, labelMensaje, 0, 5);
+        }
+    }
+
+    private static void mostrarTimePickerYIniciar(Context context, String labelMensaje, int initialHours, int initialMinutes) {
+        TimePickerDialog timePickerDialog = new TimePickerDialog(
+                context,
+                (view, hourOfDay, minute) -> {
+                    int segundosTotales = (hourOfDay * 3600) + (minute * 60);
+                    if (segundosTotales > 0) {
+                        lanzarTemporizadorSistema(context, labelMensaje, segundosTotales);
+                    } else {
+                        notificacion(context, context.getString(R.string.tiempo_invalido_temporizador), Toast.LENGTH_SHORT).show();
+                    }
+                },
+                initialHours,
+                initialMinutes,
+                true
+        );
+        timePickerDialog.setTitle(context.getString(R.string.iniciar_temporizador));
+        timePickerDialog.show();
     }
 
 }
