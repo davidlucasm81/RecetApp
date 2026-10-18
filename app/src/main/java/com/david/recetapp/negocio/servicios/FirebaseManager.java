@@ -819,7 +819,6 @@ public class FirebaseManager {
         return db.collection(COLLECTION_RECETAS)
                 .document(recetaId)
                 .collection("comentarios")
-                .orderBy("fecha", Query.Direction.ASCENDING)
                 .addSnapshotListener((querySnapshot, e) -> {
                     if (e != null) {
                         Log.e(TAG, "Error escuchando comentarios de la receta " + recetaId, e);
@@ -834,6 +833,11 @@ public class FirebaseManager {
                             comentarios.add(c);
                         }
                     }
+                    comentarios.sort((c1, c2) -> {
+                        Date d1 = c1.getFecha() != null ? c1.getFecha() : new Date(0);
+                        Date d2 = c2.getFecha() != null ? c2.getFecha() : new Date(0);
+                        return d1.compareTo(d2);
+                    });
                     if (callback != null) callback.onSuccess(comentarios);
                 });
     }
@@ -846,7 +850,6 @@ public class FirebaseManager {
         db.collection(COLLECTION_RECETAS)
                 .document(recetaId)
                 .collection("comentarios")
-                .orderBy("fecha", Query.Direction.ASCENDING)
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
                     List<Comentario> comentarios = new ArrayList<>();
@@ -855,6 +858,11 @@ public class FirebaseManager {
                         c.setId(doc.getId());
                         comentarios.add(c);
                     }
+                    comentarios.sort((c1, c2) -> {
+                        Date d1 = c1.getFecha() != null ? c1.getFecha() : new Date(0);
+                        Date d2 = c2.getFecha() != null ? c2.getFecha() : new Date(0);
+                        return d1.compareTo(d2);
+                    });
                     if (callback != null) callback.onSuccess(comentarios);
                 })
                 .addOnFailureListener(e -> {
