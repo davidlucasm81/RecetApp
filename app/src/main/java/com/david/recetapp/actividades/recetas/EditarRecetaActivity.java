@@ -133,6 +133,15 @@ public class EditarRecetaActivity extends RecetaBaseActivity {
                 }
             });
         }
+        android.widget.Button btnVerComentarios = findViewById(R.id.btnVerComentariosReceta);
+        if (btnVerComentarios != null) {
+            btnVerComentarios.setOnClickListener(v -> {
+                if (recetaActual != null) {
+                    com.david.recetapp.fragments.ComentariosBottomSheetDialog.newInstance(recetaActual)
+                            .show(getSupportFragmentManager(), "ComentariosDialog");
+                }
+            });
+        }
         btnGuardar = findViewById(R.id.btnCrear);
         progressBar = findViewById(R.id.progressBar);
 

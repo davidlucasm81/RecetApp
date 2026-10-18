@@ -98,7 +98,7 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
         if (groupPosition < 0 || groupPosition >= listaRecetas.size()) return 0;
         Receta receta = listaRecetas.get(groupPosition);
         boolean hasYoutube = receta.getYoutubeUrl() != null && !receta.getYoutubeUrl().trim().isEmpty();
-        return hasYoutube ? 10 : 9;
+        return hasYoutube ? 11 : 10;
     }
 
     @Override
@@ -111,6 +111,7 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
     public Object getChild(int groupPosition, int childPosition) {
         if (groupPosition < 0 || groupPosition >= listaRecetas.size()) return null;
         Receta receta = listaRecetas.get(groupPosition);
+        boolean hasYoutube = receta.getYoutubeUrl() != null && !receta.getYoutubeUrl().trim().isEmpty();
         return switch (childPosition) {
             case 0 -> receta.getTemporadas();
             case 1 -> receta.getNumPersonas();
@@ -121,7 +122,8 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
             case 6 -> receta.getFechaCalendario();
             case 7 -> receta.getPuntuacionDada();
             case 8 -> receta.getMomentoReceta();
-            case 9 -> receta.getYoutubeUrl();
+            case 9 -> hasYoutube ? receta.getYoutubeUrl() : "comentarios";
+            case 10 -> "comentarios";
             default -> null;
         };
     }
@@ -143,7 +145,10 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
 
     @Override
     public int getChildType(int groupPosition, int childPosition) {
-        return (childPosition == 9) ? 1 : 0;
+        if (groupPosition < 0 || groupPosition >= listaRecetas.size()) return 0;
+        Receta receta = listaRecetas.get(groupPosition);
+        boolean hasYoutube = receta.getYoutubeUrl() != null && !receta.getYoutubeUrl().trim().isEmpty();
+        return (hasYoutube && childPosition == 9) ? 1 : 0;
     }
 
     @Override
@@ -162,10 +167,20 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
         if (groupPosition < 0 || groupPosition >= listaRecetas.size()) return groupView;
 
         TextView txtTituloReceta = groupView.findViewById(R.id.txtNombreReceta);
+        ImageButton btnComentarios = groupView.findViewById(R.id.btnComentarios);
         ImageButton btnEliminar = groupView.findViewById(R.id.btnEliminar);
         ImageButton btnEditar = groupView.findViewById(R.id.btnEditar);
 
         Receta receta = listaRecetas.get(groupPosition);
+
+        if (btnComentarios != null) {
+            btnComentarios.setOnClickListener(v -> {
+                if (context instanceof androidx.fragment.app.FragmentActivity activity) {
+                    com.david.recetapp.fragments.ComentariosBottomSheetDialog.newInstance(receta)
+                            .show(activity.getSupportFragmentManager(), "ComentariosDialog");
+                }
+            });
+        }
         txtTituloReceta.setText(receta.getNombre() != null ? receta.getNombre() : context.getString(R.string.sin_nombre));
 
         ImageView warning = groupView.findViewById(R.id.warning);
@@ -448,6 +463,21 @@ public class RecetaExpandableListAdapter extends BaseExpandableListAdapter {
                 } else {
                     txtInformacion.setVisibility(View.GONE);
                     txtTitulo.setText("");
+                }
+                break;
+            default:
+                boolean hasYoutube = receta.getYoutubeUrl() != null && !receta.getYoutubeUrl().trim().isEmpty();
+                boolean isCommentsChild = (hasYoutube && childPosition == 10) || (!hasYoutube && childPosition == 9);
+                if (isCommentsChild) {
+                    txtTitulo.setText(R.string.comentarios);
+                    txtInformacion.setVisibility(View.VISIBLE);
+                    txtInformacion.setText(R.string.ver_comentarios);
+                    childView.setOnClickListener(v -> {
+                        if (context instanceof androidx.fragment.app.FragmentActivity activity) {
+                            com.david.recetapp.fragments.ComentariosBottomSheetDialog.newInstance(receta)
+                                    .show(activity.getSupportFragmentManager(), "ComentariosDialog");
+                        }
+                    });
                 }
                 break;
         }

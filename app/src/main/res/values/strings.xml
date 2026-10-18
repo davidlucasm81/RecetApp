@@ -228,4 +228,21 @@ Solo JSON:
     <string name="personalizar">Personalizar</string>
     <string name="tiempo_invalido_temporizador">El tiempo del paso debe ser mayor que 0</string>
     <string name="error_sin_app_reloj">No se encontró una aplicación de reloj compatible para iniciar el temporizador</string>
+
+    <!-- Comentarios -->
+    <string name="comentarios">Comentarios</string>
+    <string name="sin_comentarios">Aún no hay comentarios. ¡Escribe el primero!</string>
+    <string name="hint_escribe_comentario">Escribe un comentario...</string>
+    <string name="enviar_comentario">Enviar comentario</string>
+    <string name="editar_comentario">Editar comentario</string>
+    <string name="eliminar_comentario">Eliminar comentario</string>
+    <string name="confirmar_eliminar_comentario">¿Deseas eliminar este comentario?</string>
+    <string name="comentario_editado_tag">(editado)</string>
+    <string name="guardar">Guardar</string>
+    <string name="error_comentario_vacio">El comentario no puede estar vacío</string>
+    <string name="comentario_anadido">Comentario añadido</string>
+    <string name="comentario_actualizado">Comentario actualizado</string>
+    <string name="comentario_eliminado">Comentario eliminado</string>
+    <string name="ver_comentarios">Ver / añadir comentarios</string>
+    <string name="ver_comentarios_count">Comentarios (%d)</string>
 </resources>

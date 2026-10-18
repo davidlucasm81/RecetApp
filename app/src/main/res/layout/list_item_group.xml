@@ -57,6 +57,17 @@
             tools:ignore="RtlSymmetry" />
 
         <ImageButton
+            android:id="@+id/btnComentarios"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="15dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/comentarios"
+            android:src="@drawable/ic_baseline_comment_24"
+            android:focusable="false"
+            tools:ignore="ImageContrastCheck,RtlSymmetry,TextContrastCheck,TouchTargetSizeCheck" />
+
+        <ImageButton
             android:id="@+id/btnEditar"
             android:layout_width="24dp"
             android:layout_height="24dp"

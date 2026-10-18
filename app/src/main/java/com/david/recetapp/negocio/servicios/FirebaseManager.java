@@ -6,6 +6,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.david.recetapp.negocio.beans.Comentario;
 import com.david.recetapp.negocio.beans.Day;
 import com.david.recetapp.negocio.beans.Receta;
 import com.david.recetapp.negocio.beans.TipoReceta;
@@ -144,6 +145,11 @@ public class FirebaseManager {
 
     public interface CustomIngredientsCallback {
         void onSuccess(List<IngredienteUsuario> ingredients);
+        void onFailure(Exception e);
+    }
+
+    public interface ComentariosCallback {
+        void onSuccess(List<Comentario> comentarios);
         void onFailure(Exception e);
     }
 
@@ -798,6 +804,126 @@ public class FirebaseManager {
 
     private String getCalendarioId(int mes, int anio) {
         return getEffectiveUserId() + "_" + anio + "_" + mes;
+    }
+
+    // ==================== OPERACIONES DE COMENTARIOS ====================
+
+    public ListenerRegistration escucharComentarios(String recetaId, ComentariosCallback callback) {
+        if (recetaId == null || recetaId.isEmpty()) {
+            if (callback != null) callback.onSuccess(new ArrayList<>());
+            return null;
+        }
+        return db.collection(COLLECTION_RECETAS)
+                .document(recetaId)
+                .collection("comentarios")
+                .orderBy("fecha", Query.Direction.ASCENDING)
+                .addSnapshotListener((querySnapshot, e) -> {
+                    if (e != null) {
+                        Log.e(TAG, "Error escuchando comentarios de la receta " + recetaId, e);
+                        if (callback != null) callback.onFailure(e);
+                        return;
+                    }
+                    List<Comentario> comentarios = new ArrayList<>();
+                    if (querySnapshot != null) {
+                        for (QueryDocumentSnapshot doc : querySnapshot) {
+                            Comentario c = doc.toObject(Comentario.class);
+                            c.setId(doc.getId());
+                            comentarios.add(c);
+                        }
+                    }
+                    if (callback != null) callback.onSuccess(comentarios);
+                });
+    }
+
+    public void obtenerComentarios(String recetaId, ComentariosCallback callback) {
+        if (recetaId == null || recetaId.isEmpty()) {
+            if (callback != null) callback.onSuccess(new ArrayList<>());
+            return;
+        }
+        db.collection(COLLECTION_RECETAS)
+                .document(recetaId)
+                .collection("comentarios")
+                .orderBy("fecha", Query.Direction.ASCENDING)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    List<Comentario> comentarios = new ArrayList<>();
+                    for (QueryDocumentSnapshot doc : querySnapshot) {
+                        Comentario c = doc.toObject(Comentario.class);
+                        c.setId(doc.getId());
+                        comentarios.add(c);
+                    }
+                    if (callback != null) callback.onSuccess(comentarios);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error obteniendo comentarios para receta: " + recetaId, e);
+                    if (callback != null) callback.onFailure(e);
+                });
+    }
+
+    public void agregarComentario(String recetaId, Comentario comentario, SimpleCallback callback) {
+        if (recetaId == null || recetaId.isEmpty() || comentario == null) {
+            if (callback != null) callback.onFailure(new IllegalArgumentException("Receta o comentario no válidos"));
+            return;
+        }
+        DocumentReference ref = db.collection(COLLECTION_RECETAS)
+                .document(recetaId)
+                .collection("comentarios")
+                .document();
+        comentario.setId(ref.getId());
+        comentario.setRecetaId(recetaId);
+        if (comentario.getUserId() == null || comentario.getUserId().isEmpty()) {
+            comentario.setUserId(getEffectiveUserId());
+        }
+        ref.set(comentario)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "✅ Comentario añadido a la receta: " + recetaId);
+                    if (callback != null) callback.onSuccess();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error añadiendo comentario", e);
+                    if (callback != null) callback.onFailure(e);
+                });
+    }
+
+    public void actualizarComentario(String recetaId, Comentario comentario, SimpleCallback callback) {
+        if (recetaId == null || recetaId.isEmpty() || comentario == null || comentario.getId() == null || comentario.getId().isEmpty()) {
+            if (callback != null) callback.onFailure(new IllegalArgumentException("Comentario no válido"));
+            return;
+        }
+        comentario.setFechaEdicion(new Date());
+        db.collection(COLLECTION_RECETAS)
+                .document(recetaId)
+                .collection("comentarios")
+                .document(comentario.getId())
+                .set(comentario, SetOptions.merge())
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "✅ Comentario actualizado: " + comentario.getId());
+                    if (callback != null) callback.onSuccess();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error actualizando comentario", e);
+                    if (callback != null) callback.onFailure(e);
+                });
+    }
+
+    public void eliminarComentario(String recetaId, String comentarioId, SimpleCallback callback) {
+        if (recetaId == null || recetaId.isEmpty() || comentarioId == null || comentarioId.isEmpty()) {
+            if (callback != null) callback.onFailure(new IllegalArgumentException("ID no válido"));
+            return;
+        }
+        db.collection(COLLECTION_RECETAS)
+                .document(recetaId)
+                .collection("comentarios")
+                .document(comentarioId)
+                .delete()
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "✅ Comentario eliminado: " + comentarioId);
+                    if (callback != null) callback.onSuccess();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error eliminando comentario", e);
+                    if (callback != null) callback.onFailure(e);
+                });
     }
 
     // ==================== LIMPIEZA ====================

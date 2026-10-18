@@ -127,7 +127,7 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
         if (groupPosition < 0 || groupPosition >= listaRecetas.size()) return 0;
         Receta receta = listaRecetas.get(groupPosition);
         boolean hasYoutube = receta.getYoutubeUrl() != null && !receta.getYoutubeUrl().trim().isEmpty();
-        return hasYoutube ? 10 : 9;
+        return hasYoutube ? 11 : 10;
     }
 
     @Override
@@ -140,6 +140,7 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
     public Object getChild(int groupPosition, int childPosition) {
         if (groupPosition < 0 || groupPosition >= listaRecetas.size()) return null;
         Receta receta = listaRecetas.get(groupPosition);
+        boolean hasYoutube = receta.getYoutubeUrl() != null && !receta.getYoutubeUrl().trim().isEmpty();
         return switch (childPosition) {
             case 0 -> receta.getTemporadas();
             case 1 -> receta.getNumPersonas();
@@ -150,7 +151,8 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
             case 6 -> receta.getFechaCalendario();
             case 7 -> receta.getPuntuacionDada();
             case 8 -> receta.getMomentoReceta();
-            case 9 -> receta.getYoutubeUrl();
+            case 9 -> hasYoutube ? receta.getYoutubeUrl() : "comentarios";
+            case 10 -> "comentarios";
             default -> null;
         };
     }
@@ -172,7 +174,10 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
 
     @Override
     public int getChildType(int groupPosition, int childPosition) {
-        return (childPosition == 9) ? 1 : 0;
+        if (groupPosition < 0 || groupPosition >= listaRecetas.size()) return 0;
+        Receta receta = listaRecetas.get(groupPosition);
+        boolean hasYoutube = receta.getYoutubeUrl() != null && !receta.getYoutubeUrl().trim().isEmpty();
+        return (hasYoutube && childPosition == 9) ? 1 : 0;
     }
 
     @Override
@@ -211,9 +216,20 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
         ImageView warning = groupView.findViewById(R.id.warning);
         ImageView iconoTipo = groupView.findViewById(R.id.imageViewTipoIcono);
         TextView txtMomento = groupView.findViewById(R.id.txtMomento);
+        ImageButton btnComentarios = groupView.findViewById(R.id.btnComentarios);
         ImageButton btnEliminar = groupView.findViewById(R.id.btnEliminar);
 
         Receta receta = listaRecetas.get(groupPosition);
+
+        if (btnComentarios != null) {
+            btnComentarios.setOnClickListener(v -> {
+                if (activity instanceof androidx.fragment.app.FragmentActivity fragmentActivity) {
+                    com.david.recetapp.fragments.ComentariosBottomSheetDialog.newInstance(receta)
+                            .show(fragmentActivity.getSupportFragmentManager(), "ComentariosDialog");
+                }
+            });
+        }
+
         txtTituloReceta.setText(receta.getNombre());
         txtMomento.setText(getMomentoText(receta));
 
@@ -501,6 +517,21 @@ public class RecetaExpandableListCalendarAdapter extends BaseExpandableListAdapt
                 txtTitulo.setText(R.string.momento_receta);
                 txtInformacion.setVisibility(View.VISIBLE);
                 txtInformacion.setText(getMomentoText(receta));
+                break;
+            default:
+                boolean hasYoutube = receta.getYoutubeUrl() != null && !receta.getYoutubeUrl().trim().isEmpty();
+                boolean isCommentsChild = (hasYoutube && childPosition == 10) || (!hasYoutube && childPosition == 9);
+                if (isCommentsChild) {
+                    txtTitulo.setText(R.string.comentarios);
+                    txtInformacion.setVisibility(View.VISIBLE);
+                    txtInformacion.setText(R.string.ver_comentarios);
+                    view.setOnClickListener(v -> {
+                        if (activity instanceof androidx.fragment.app.FragmentActivity fragmentActivity) {
+                            com.david.recetapp.fragments.ComentariosBottomSheetDialog.newInstance(receta)
+                                    .show(fragmentActivity.getSupportFragmentManager(), "ComentariosDialog");
+                        }
+                    });
+                }
                 break;
         }
 

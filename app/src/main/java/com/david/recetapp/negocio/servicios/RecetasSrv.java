@@ -7,6 +7,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.david.recetapp.R;
+import com.david.recetapp.negocio.beans.Comentario;
 import com.david.recetapp.negocio.beans.Day;
 import com.david.recetapp.negocio.beans.Ingrediente;
 import com.david.recetapp.negocio.beans.Receta;
@@ -16,6 +17,7 @@ import com.david.recetapp.negocio.beans.TipoIngrediente;
 
 import org.xmlpull.v1.XmlPullParser;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -898,4 +900,80 @@ public class RecetasSrv {
         return new GsonBuilder().setPrettyPrinting().create().toJson(receta);
     }
 
+    // ==================== GESTIÓN DE COMENTARIOS ====================
+
+    public interface ComentariosCallback {
+        void onSuccess(List<Comentario> comentarios);
+        void onFailure(Exception e);
+    }
+
+    public static ListenerRegistration escucharComentarios(String recetaId, ComentariosCallback callback) {
+        return firebaseManager.escucharComentarios(recetaId, new FirebaseManager.ComentariosCallback() {
+            @Override
+            public void onSuccess(List<Comentario> comentarios) {
+                if (callback != null) callback.onSuccess(comentarios);
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                if (callback != null) callback.onFailure(e);
+            }
+        });
+    }
+
+    public static void obtenerComentarios(String recetaId, ComentariosCallback callback) {
+        firebaseManager.obtenerComentarios(recetaId, new FirebaseManager.ComentariosCallback() {
+            @Override
+            public void onSuccess(List<Comentario> comentarios) {
+                if (callback != null) callback.onSuccess(comentarios);
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                if (callback != null) callback.onFailure(e);
+            }
+        });
+    }
+
+    public static void agregarComentario(String recetaId, Comentario comentario, SimpleCallback callback) {
+        firebaseManager.agregarComentario(recetaId, comentario, new FirebaseManager.SimpleCallback() {
+            @Override
+            public void onSuccess() {
+                if (callback != null) callback.onSuccess();
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                if (callback != null) callback.onFailure(e);
+            }
+        });
+    }
+
+    public static void actualizarComentario(String recetaId, Comentario comentario, SimpleCallback callback) {
+        firebaseManager.actualizarComentario(recetaId, comentario, new FirebaseManager.SimpleCallback() {
+            @Override
+            public void onSuccess() {
+                if (callback != null) callback.onSuccess();
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                if (callback != null) callback.onFailure(e);
+            }
+        });
+    }
+
+    public static void eliminarComentario(String recetaId, String comentarioId, SimpleCallback callback) {
+        firebaseManager.eliminarComentario(recetaId, comentarioId, new FirebaseManager.SimpleCallback() {
+            @Override
+            public void onSuccess() {
+                if (callback != null) callback.onSuccess();
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                if (callback != null) callback.onFailure(e);
+            }
+        });
+    }
 }

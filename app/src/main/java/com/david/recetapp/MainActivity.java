@@ -197,10 +197,14 @@ public class MainActivity extends AppCompatActivity {
                         receta.setEstrellas(rating);
                         RecetasSrv.editarReceta(receta, new RecetasSrv.SimpleCallback() {
                             @Override public void onSuccess() {
-                                com.david.recetapp.negocio.servicios.UtilsSrv.notificacion(MainActivity.this, getString(R.string.receta_editada), android.widget.Toast.LENGTH_SHORT);
+                                runOnUiThread(() -> {
+                                    com.david.recetapp.negocio.servicios.UtilsSrv.notificacion(MainActivity.this, getString(R.string.receta_editada), android.widget.Toast.LENGTH_SHORT);
+                                    com.david.recetapp.fragments.ComentariosBottomSheetDialog.newInstance(receta)
+                                            .show(getSupportFragmentManager(), "ComentariosDialog");
+                                });
                             }
                             @Override public void onFailure(Exception e) {
-                                com.david.recetapp.negocio.servicios.UtilsSrv.notificacion(MainActivity.this, getString(R.string.error_editar_receta), android.widget.Toast.LENGTH_SHORT);
+                                runOnUiThread(() -> com.david.recetapp.negocio.servicios.UtilsSrv.notificacion(MainActivity.this, getString(R.string.error_editar_receta), android.widget.Toast.LENGTH_SHORT));
                             }
                         });
                     }
