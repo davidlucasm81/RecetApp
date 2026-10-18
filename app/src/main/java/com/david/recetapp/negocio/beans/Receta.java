@@ -3,7 +3,6 @@ package com.david.recetapp.negocio.beans;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.google.firebase.firestore.DocumentId;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 
 import java.io.Serializable;
@@ -16,7 +15,6 @@ import java.util.Objects;
 @IgnoreExtraProperties
 public class Receta implements Parcelable, Serializable {
 
-    @DocumentId
     private String id;
     private String nombre;
     private List<Temporada> temporadas;
