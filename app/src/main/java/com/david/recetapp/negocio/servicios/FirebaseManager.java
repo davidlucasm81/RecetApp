@@ -273,6 +273,9 @@ public class FirebaseManager {
         for (QueryDocumentSnapshot document : snapshots) {
             try {
                 Receta receta = document.toObject(Receta.class);
+                if (receta.getId() == null || receta.getId().isEmpty()) {
+                    receta.setId(document.getId());
+                }
                 receta.setPuntuacionDada(0); // ← fuerza recálculo siempre
                 recetas.add(receta);
             } catch (Exception e) {
