@@ -35,7 +35,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/comentarios"
-                android:textAppearance="?attr/textAppearanceTitleMedium"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="18sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -44,8 +45,8 @@
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:textAppearance="?attr/textAppearanceBodySmall"
-                android:textColor="?attr/colorOnSurfaceVariant"
+                android:textColor="@color/colorGrisTextoFondo"
+                android:textSize="14sp"
                 tools:text="Paella Valenciana" />
 
         </LinearLayout>
@@ -64,7 +65,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="?attr/colorOutlineVariant" />
+        android:background="@color/dividerColor" />
 
     <!-- List area -->
     <FrameLayout
@@ -89,8 +90,8 @@
             android:gravity="center"
             android:padding="24dp"
             android:text="@string/sin_comentarios"
-            android:textAppearance="?attr/textAppearanceBodyMedium"
-            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textColor="@color/colorGrisTextoFondo"
+            android:textSize="14sp"
             android:visibility="gone" />
 
         <ProgressBar
@@ -105,7 +106,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="?attr/colorOutlineVariant" />
+        android:background="@color/dividerColor" />
 
     <!-- Input bar at bottom -->
     <LinearLayout

@@ -31,7 +31,6 @@
                 android:id="@+id/txtTextoComentario"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textAppearance="?attr/textAppearanceBodyMedium"
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="15sp"
                 tools:text="Este es un comentario de prueba sobre la receta." />
@@ -42,8 +41,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
                 android:layout_marginTop="4dp"
-                android:textAppearance="?attr/textAppearanceLabelSmall"
-                android:textColor="?attr/colorOnSurfaceVariant"
+                android:textColor="@color/colorGrisTextoFondo"
                 android:textSize="11sp"
                 tools:text="18/10/2026 14:30" />
 
