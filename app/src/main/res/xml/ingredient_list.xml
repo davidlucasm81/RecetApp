@@ -1533,6 +1533,10 @@
     <nombre lang="en">Noodles (fideos)</nombre>
   </item>
   <item puntuacion="5" gramos="500" tipo="PASTA">
+    <nombre lang="es">Fideos de arroz</nombre>
+    <nombre lang="en">Rice noodles</nombre>
+  </item>
+  <item puntuacion="5" gramos="500" tipo="PASTA">
     <nombre lang="es">Fideos finos</nombre>
     <nombre lang="en">Thin noodles</nombre>
   </item>
@@ -2117,6 +2121,10 @@
   <item puntuacion="3" gramos="200" tipo="SALSA">
     <nombre lang="es">Salsa Pesto</nombre>
     <nombre lang="en">Pesto sauce</nombre>
+  </item>
+  <item puntuacion="3" gramos="300" tipo="SALSA">
+    <nombre lang="es">Salsa sriracha</nombre>
+    <nombre lang="en">Sriracha sauce</nombre>
   </item>
   <item puntuacion="3" gramos="300" tipo="SALSA">
     <nombre lang="es">Salsa teriyaki</nombre>

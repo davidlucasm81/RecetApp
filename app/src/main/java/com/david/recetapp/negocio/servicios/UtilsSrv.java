@@ -60,12 +60,26 @@ public class UtilsSrv {
             snackbarDuration = duracion;
         }
 
-        // Crear un Snackbar con el mensaje
+        // Crear un Snackbar con mensaje vacío para evitar duplicar contenido con SnackbarContentLayout
         View view = ((Activity) context).findViewById(android.R.id.content); // Vista raíz de la actividad
-        Snackbar snackbar = Snackbar.make(view, mensaje, snackbarDuration); // Usar mensaje real para respetar duración
+        Snackbar snackbar = Snackbar.make(view, "", snackbarDuration);
 
         // Obtener la vista del Snackbar
         View snackbarView = snackbar.getView();
+
+        // Configurar los layout params del contenedor SnackbarLayout para centrarlo correctamente y evitar el alineamiento por defecto a la izquierda
+        if (snackbarView.getLayoutParams() instanceof FrameLayout.LayoutParams) {
+            FrameLayout.LayoutParams parentParams = (FrameLayout.LayoutParams) snackbarView.getLayoutParams();
+            parentParams.gravity = Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM;
+            parentParams.width = FrameLayout.LayoutParams.WRAP_CONTENT;
+            parentParams.setMargins(dpToPx(context, 16), 0, dpToPx(context, 16), dpToPx(context, 80));
+            snackbarView.setLayoutParams(parentParams);
+        }
+
+        Snackbar.SnackbarLayout snackbarLayout = (Snackbar.SnackbarLayout) snackbarView;
+        snackbarLayout.setBackgroundColor(Color.TRANSPARENT); // Hacer el fondo del Snackbar transparente
+        snackbarLayout.setPadding(0, 0, 0, 0); // Eliminar el padding predeterminado
+        snackbarLayout.removeAllViews(); // Eliminar vistas por defecto (SnackbarContentLayout)
 
         // Crear un LinearLayout para personalizar el diseño
         LinearLayout layout = new LinearLayout(context);
@@ -88,7 +102,7 @@ public class UtilsSrv {
         tv_toast.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16); // Tamaño del texto en sp
         tv_toast.setGravity(Gravity.CENTER_VERTICAL);
         tv_toast.setPadding(dpToPx(context, 8), 0, 0, 0); // Padding entre icono y texto
-        tv_toast.setMaxLines(2); // Limitar el texto a dos líneas
+        tv_toast.setMaxLines(2); // Limitar el texto a deux líneas
         tv_toast.setEllipsize(TextUtils.TruncateAt.END); // Truncar el texto si es largo
         layout.addView(tv_toast);
 
@@ -99,17 +113,12 @@ public class UtilsSrv {
         gd.setStroke(0, Color.TRANSPARENT); // Sin borde
         layout.setBackground(gd);
 
-        // Configurar el diseño personalizado en el Snackbar
-        snackbarView.setBackgroundColor(Color.TRANSPARENT); // Hacer el fondo del Snackbar transparente
-        snackbarView.setPadding(0, 0, 0, 0); // Eliminar el padding predeterminado
-
         // Añadir el diseño personalizado
         FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT);
         params.gravity = Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM; // Centrar horizontalmente, posición inferior
-        params.setMargins(0, 0, 0, dpToPx(context, 80)); // Margen inferior para evitar superposición con el menú de Android
         layout.setLayoutParams(params);
 
-        ((Snackbar.SnackbarLayout) snackbarView).addView(layout);
+        snackbarLayout.addView(layout);
 
         // Retornar el Snackbar para que lo puedas mostrar
         return snackbar;
